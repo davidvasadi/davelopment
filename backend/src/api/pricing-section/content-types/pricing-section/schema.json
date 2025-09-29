@@ -1,0 +1,35 @@
+{
+  "kind": "collectionType",
+  "collectionName": "pricing_sections",
+  "info": {
+    "singularName": "pricing-section",
+    "pluralName": "pricing-sections",
+    "displayName": "pricing-section"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "badge": {
+      "type": "json",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "title": {
+      "type": "json",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}
