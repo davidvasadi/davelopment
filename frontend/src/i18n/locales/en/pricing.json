@@ -1,0 +1,61 @@
+{
+  "badge": "Egyszerű árképzés",
+  "title": "Árazás.",
+  "packages": [
+    {
+      "id": "basic",
+      "name": "Alap csomag",
+      "type": "Projektre szabva",
+      "price": 2490,
+      "durationLabel": "Átadási idő",
+      "duration": "3-4 hét",
+      "features": [
+        "Főoldal + legfeljebb 4 belső oldal",
+        "Design és fejlesztés",
+        "Mobilbarát megjelenés"
+      ]
+    },
+    {
+      "id": "standard",
+      "name": "Standard csomag",
+      "type": "Projektre szabva",
+      "price": 3990,
+      "durationLabel": "Átadási idő",
+      "duration": "4-6 hét",
+      "features": [
+        "Főoldal + legfeljebb 8 belső oldal",
+        "Design és fejlesztés",
+        "Mobilbarát megjelenés",
+        "Alap SEO optimalizálás",
+        "Sebesség optimalizálás"
+      ]
+    },
+    {
+      "id": "premium",
+      "name": "Prémium csomag",
+      "type": "Havi díj",
+      "price": 990,
+      "durationLabel": "Havi szolgáltatás",
+      "duration": "Folyamatos",
+      "features": [
+        "Folyamatos támogatás és fejlesztés",
+        "Korlátlan tartalomfrissítés",
+        "Marketing és SEO stratégia",
+        "Teljesítményelemzés havi jelentéssel"
+      ]
+    }
+  ],
+  "addon": {
+    "title": "Több látogatót és ügyfelet szeretnél?",
+    "description": "Marketing és SEO, ami a céljaiddal kezdődik.",
+    "price": 1490
+  },
+  "cta": "Vedd fel velünk a kapcsolatot",
+  "footer": {
+    "title": "Többre van szükséged?",
+    "strong": "Adj hozzá marketinget, SEO-t vagy tartalomkészítést",
+    "text": " — rugalmas eszközök a projekted megerősítéséhez. Mi a te vállalkozásodra szabjuk a megoldást, nem a sajátunkra.",
+    "name": "Vasadi Dávid",
+    "role": "Ügyfélkapcsolati vezető"
+  }
+}

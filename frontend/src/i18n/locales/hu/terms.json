@@ -1,0 +1,22 @@
+{
+  "terms": {
+    "title": "Általános Szerződési Feltételek",
+    "intro": "Kérjük, figyelmesen olvasd el az alábbi feltételeket, mielőtt használod a weboldalunkat. Az oldal használatával elfogadod ezeket a feltételeket.",
+    "section1": {
+      "title": "1. Szolgáltatásaink leírása",
+      "content": "Cégünk professzionális webfejlesztési, design és digitális marketing szolgáltatásokat nyújt ügyfelei számára. A szolgáltatások pontos részleteit mindig egyedi szerződés tartalmazza."
+    },
+    "section2": {
+      "title": "2. Felhasználási feltételek",
+      "content": "A weboldalon található minden tartalom a mi szellemi tulajdonunk, tilos az engedély nélküli másolás vagy felhasználás. A szolgáltatásaink megrendelésével elfogadod az adatkezelési szabályainkat is."
+    },
+    "section3": {
+      "title": "3. Felelősségkorlátozás",
+      "content": "Nem vállalunk felelősséget a szolgáltatásaink használatából eredő közvetett vagy következményi károkért. Mindent megteszünk a minőségi szolgáltatásért, de a használat saját felelősségre történik."
+    },
+    "contact": {
+      "title": "Kapcsolat",
+      "content": "Ha bármilyen kérdésed van jelen Általános Szerződési Feltételeinkkel kapcsolatban, kérjük, lépj kapcsolatba velünk a hello@davelopment.hu címen."
+    }
+  }
+}

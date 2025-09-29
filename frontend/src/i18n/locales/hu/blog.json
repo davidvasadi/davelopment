@@ -1,0 +1,754 @@
+{
+    "hogyan-alakithatja-at-a-vallalkozasodat-egy-jol-megtervezett-weboldal": {
+        "date": "2025. február 2.",
+        "title": "Hogyan alakíthatja át vállalkozásodat egy jól megtervezett weboldal",
+        "description": "Fedezd fel a legújabb digitális dizájntrendeket és azok üzleti hatásait.",
+        "author": {
+            "name": "Vasadi Dávid",
+            "role": "Ügyfélkapcsolati menedzser",
+            "image": "https://framerusercontent.com/images/mWk6ZFyBFVki4w459VUf1MNuqtg.jpg"
+        },
+        "image": "https://framerusercontent.com/images/stTKqZkueiEGiXkUexOWo9RjNnY.jpg",
+        "slug": "hogyan-alakithatja-at-a-vallalkozasodat-egy-jol-megtervezett-weboldal",
+        "enSlug": "how-a-well-designed-website-can-transform-your-business",
+        "url": "/blog/hogyan-alakithatja-at-a-vallalkozasodat-egy-jol-megtervezett-weboldal",
+        "content": [
+            {
+                "type": "paragraph",
+                "text": "A [davelopment]® Studiónál nagy teljesítményű weboldalakat készítünk, amelyek nemcsak jól néznek ki, hanem mérhető eredményeket is hoznak."
+            },
+            {
+                "type": "paragraph",
+                "text": "Egy lassú weboldal frusztráló. A felhasználók azonnali betöltődést várnak el, és már egyetlen másodperces késés is látogatóvesztést okozhat. Tanulmányok szerint egy másodperc késés akár 7%-kal is csökkentheti az átváltási arányt."
+            },
+            {
+                "type": "paragraph",
+                "text": "A webes forgalom több mint 50%-a mobil eszközökről érkezik. Ha weboldalad nincs optimalizálva mobilos sebességre, a potenciális közönséged felét elveszítheted."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Hogyan befolyásolja a sebesség az SEO-t?"
+            },
+            {
+                "type": "paragraph",
+                "text": "A Google előnyben részesíti a gyorsan betöltődő weboldalakat a keresési rangsorban. Ha weboldalad lassú, lehet, hogy nem kerül be az első találatok közé. A gyors weboldalak javítják a felhasználói élményt, csökkentik a visszafordulási arányt, és hosszabb ideig tartják ott a látogatókat."
+            },
+            {
+                "type": "paragraph",
+                "text": "A mobilforgalom fontossága miatt a Google Core Web Vitals mutatói is nagy hangsúlyt fektetnek a mobilos teljesítményre – a sebesség tehát kulcsfontosságú rangsorolási tényező."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Mi lassíthatja a weboldalad?"
+            },
+            {
+                "type": "paragraph",
+                "text": "Több tényező is felelős lehet a lassú betöltődésért:"
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Túl nagy képek tömörítés nélkül",
+                    "Nem optimalizált kód (felesleges JavaScript, CSS és HTML)",
+                    "Túl sok HTTP-kérés külső scriptektől",
+                    "Lassú tárhely korlátozott sávszélességgel",
+                    "Nincs cache-elési stratégia"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Hogyan javítható a weboldal sebessége?"
+            },
+            {
+                "type": "paragraph",
+                "text": "Használj modern képformátumokat, mint a WebP a PNG vagy JPEG helyett. Tömörítsd a képeket minőségromlás nélkül."
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "text": "Kódminimalizálás"
+            },
+            {
+                "type": "paragraph",
+                "text": "Távolítsd el a nem használt JavaScript és CSS kódokat. Minifikáld a fájlokat a gyorsabb betöltés érdekében."
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "text": "Használj CDN-t (Tartalomelosztó hálózatot)"
+            },
+            {
+                "type": "paragraph",
+                "text": "A CDN több szerveren tárolja weboldalad másolatait világszerte, így a felhasználók a hozzájuk legközelebbi szerverről töltik be az oldaladat."
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "text": "Kapcsold be a cache-elést"
+            },
+            {
+                "type": "paragraph",
+                "text": "A cache-elés lehetővé teszi, hogy a látogatók böngészője eltárolja az ismétlődő elemeket, így a visszatérő látogatóknak gyorsabban töltődik be az oldal."
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "text": "Válassz gyors tárhelyszolgáltatót"
+            },
+            {
+                "type": "paragraph",
+                "text": "A tárhely szolgáltatód nagy hatással van az oldal sebességére. Érdemes menedzselt vagy felhő alapú tárhelyre váltani."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Az üzleti hatása egy gyors weboldalnak"
+            },
+            {
+                "type": "paragraph",
+                "text": "A gyors weboldalak előnyei:"
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Magasabb konverziós arány",
+                    "Jobb keresőoptimalizálás (SEO)",
+                    "Jobb felhasználói elégedettség",
+                    "Alacsonyabb visszafordulási arány"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Záró gondolatok"
+            },
+            {
+                "type": "paragraph",
+                "text": "A sebesség nem csupán technikai mérőszám – közvetlenül befolyásolja az üzleti eredményeket. A webes teljesítménybe történő befektetés elégedettebb felhasználókat, jobb helyezést és magasabb bevételt eredményez. Ha weboldalad lassú, itt az idő, hogy javíts rajta."
+            }
+        ],
+        "nextPost": {
+            "label": "Következő",
+            "title": "A színek pszichológiája a márkaépítésben",
+            "slug": "a-szinek-pszichologiaja-a-markaepitesben",
+            "image": "https://framerusercontent.com/images/3Rw5vNnsCjiRaizUQ1G8JkxJxo.jpg"
+        },
+           "prevPost": {
+            "label": "Előző",
+            "title": "Hogyan alakíthatja át vállalkozásodat egy jól megtervezett weboldal",
+            "slug": "hogyan-alakithatja-at-a-vallalkozasodat-egy-jol-megtervezett-weboldal",
+            "image": "https://framerusercontent.com/images/stTKqZkueiEGiXkUexOWo9RjNnY.jpg"
+        }
+    },
+    "a-szin-pszichologiaja-a-brandingben-hogyan-alakitja-a-felfogasunkat-es-a-viselkedesunket": {
+        "date": "2025. január 26.",
+        "title": "A színek pszichológiája a márkaépítésben",
+        "description": "A színek befolyásolják az érzelmeket és a döntéseket. Így használhatod őket tudatosan a márkád építésében.",
+        "author": {
+            "name": "Vasadi Dávid",
+            "role": "Ügyfélkapcsolati menedzser",
+            "image": "https://framerusercontent.com/images/mWk6ZFyBFVki4w459VUf1MNuqtg.jpg"
+        },
+        "image": "https://framerusercontent.com/images/3Rw5vNnsCjiRaizUQ1G8JkxJxo.jpg",
+        "slug": "a-szin-pszichologiaja-a-brandingben-hogyan-alakitja-a-felfogasunkat-es-a-viselkedesunket",
+        "enSlug": "the-psychology-of-color-in-branding-how-it-shapes-perception-and-behavior",
+        "url": "/blog/a-szin-pszichologiaja-a-brandingben-hogyan-alakitja-a-felfogasunkat-es-a-viselkedesunket",
+        "content": [
+            {
+                "type": "paragraph",
+                "text": "A színek többek, mint puszta vizuális elemek — erőteljes pszichológiai hatással bírnak, amelyek befolyásolják, hogyan érzékelik és hogyan lépnek kapcsolatba a vásárlók a márkáddal."
+            },
+            {
+                "type": "paragraph",
+                "text": "A márkaarculat tervezésekor a színválasztás nem alapulhat kizárólag személyes preferenciákon. Minden színnek megvannak a pszichológiai társításai, amelyek vagy megerősítik, vagy éppen gyengítik a márkaüzenetedet."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "A színek érzelmi hatása"
+            },
+            {
+                "type": "paragraph",
+                "text": "A különböző színek különböző érzelmi reakciókat váltanak ki. Ezeknek az asszociációknak az ismerete segíthet olyan színek kiválasztásában, amelyek összhangban vannak a márkád értékeivel, és megszólítják a célközönségedet."
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "text": "Piros: Energia és sürgősség"
+            },
+            {
+                "type": "paragraph",
+                "text": "A piros izgatottságot és szenvedélyt vált ki. Megemelheti a pulzusszámot, és sürgősséget közvetíthet — ezért gyakori választás akcióknál vagy CTA (call-to-action) gomboknál. A Coca-Cola például a piros színt használja, hogy felpezsdítse közönségét és fokozza az étvágyat."
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "text": "Kék: Bizalom és megbízhatóság"
+            },
+            {
+                "type": "paragraph",
+                "text": "A kék a megbízhatóságot, profizmust és nyugalmat sugallja. Széles körben elfogadott minden demográfiai csoportban, így népszerű választás pénzügyi intézményeknél, egészségügyben és technológiai cégeknél, mint például a Facebook, a PayPal vagy az IBM."
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "text": "Zöld: Növekedés és egészség"
+            },
+            {
+                "type": "paragraph",
+                "text": "A zöld a fejlődést, egészséget és környezettudatosságot szimbolizálja. Gyakran használják olyan márkák, amelyek a jólétet, fenntarthatóságot vagy pénzügyi gyarapodást képviselik, például a Whole Foods, az Animal Planet vagy a Land Rover."
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "text": "Sárga: Optimizmus és tisztaság"
+            },
+            {
+                "type": "paragraph",
+                "text": "A sárga az optimizmust, tisztaságot és melegséget sugározza. Gyorsan megragadja a figyelmet (ezért használják például figyelmeztető táblákon), és serkentheti a szellemi aktivitást. A McDonald's, a National Geographic és az IKEA is használja, hogy pozitív és elérhető márkaként jelenjen meg."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "A színpszichológia működés közben"
+            },
+            {
+                "type": "paragraph",
+                "text": "Kutatások szerint a vásárlói döntések akár 90%-a is szín alapján születik meg első pillantásra. A megfelelő szín akár 80%-kal is növelheti a márka felismerhetőségét, közvetlen hatással a vásárlói döntésekre."
+            },
+            {
+                "type": "paragraph",
+                "text": "Amikor a Spotify a jellegzetes zöldjét választotta, nemcsak a kiemelkedésre törekedett – azt akarta sugallni, hogy friss, innovatív, és különbözik a zene-streaming piac többi szereplőjétől."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Kulturális szempontok"
+            },
+            {
+                "type": "paragraph",
+                "text": "A színek jelentése kultúránként eltérő lehet. Míg a fehér a nyugati kultúrákban a tisztaságot és tisztaságot jelképezi, sok keleti kultúrában a gyász színe. Ugyanígy a piros Kínában a szerencsét, míg a nyugati világban a veszélyt vagy figyelmeztetést jelenti."
+            },
+            {
+                "type": "paragraph",
+                "text": "A globálisan működő márkák számára elengedhetetlen, hogy figyelembe vegyék ezeket a kulturális különbségeket, amikor színstratégiát dolgoznak ki különböző piacokra."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Gyakorlati tippek a színpszichológia használatához"
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Határozd meg a márkád személyiségét és értékeit, mielőtt színeket választasz",
+                    "Vedd figyelembe a célközönséged preferenciáit és kulturális hátterét",
+                    "Használj színkontrasztot a fontos információk és CTA elemek kiemelésére",
+                    "Tartsd meg a színkonzisztenciát minden márkaérintkezési ponton",
+                    "Tesztelj különböző színkombinációkat, és kérj visszajelzést"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Záró gondolatok"
+            },
+            {
+                "type": "paragraph",
+                "text": "A szín egy erőteljes eszköz a márkaépítés során. Ha tudatosan használod, kommunikálhatja a márkád személyiségét, megkülönböztethet a versenytársaktól, és érzelmi kapcsolatot teremthet a közönségeddel."
+            },
+            {
+                "type": "paragraph",
+                "text": "A [davelopment]® Stúdiónál segítünk olyan színstratégiát kialakítani, amely összhangban van az üzleti céljaiddal, és rezonál a célközönségeddel. Mert a márkaépítésben a megfelelő színek nemcsak jól mutatnak — keményen dolgoznak a sikeredért."
+            }
+        ],
+        "nextPost": {
+            "title": "A színek pszichológiája a márkaépítésben",
+            "slug": "a-szinek-pszichologiaja-a-markaepitesben",
+            "image": "https://framerusercontent.com/images/3Rw5vNnsCjiRaizUQ1G8JkxJxo.jpg"
+        }
+    },
+    "miert-eletbevago-a-weboldalad-sebessege": {
+        "date": "2025. január 20.",
+        "title": "Miért életbevágó a weboldalad sebessége?",
+        "author": {
+            "name": "Vasadi Dávid",
+            "role": "Ügyfélkapcsolati menedzser",
+            "image": "https://framerusercontent.com/images/mWk6ZFyBFVki4w459VUf1MNuqtg.jpg"
+        },
+        "description": "Egyetlen másodperc késlekedés is konverziókba kerülhet. Nézzük meg, hogyan optimalizálhatod a sebességet a jobb eredményekért.",
+        "image": "https://framerusercontent.com/images/vmcdMwgqjvoZKggw0Ae7pHjQPJA.jpg",
+        "slug": "miert-eletbevago-a-weboldalad-sebessege",
+        "enSlug":"speed-matters-why-website-performance-can-make-or-break-your-business",
+        "url": "/blog/miert-eletbevago-a-weboldalad-sebessege",
+        "content": [
+            {
+                "type": "paragraph",
+                "text": "A mai, digitálisan vezérelt világban a felhasználók azonnali betöltődést várnak el a weboldalaktól. Egyetlen másodperc késés az oldal betöltésében a különbséget jelentheti egy új ügyfél és egy elveszett lehetőség között."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Miért számít a sebesség?"
+            },
+            {
+                "type": "paragraph",
+                "text": "A kutatások azt mutatják, hogy a gyorsabb weboldalak jobb elköteleződést, nagyobb megtartást és több konverziót eredményeznek. A felhasználók türelmetlenek a lassan betöltődő oldalakkal szemben, és a keresőmotorok – például a Google – is figyelembe veszik a sebességet a rangsorolásnál."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "1 másodperc késés a betöltésben 7%-kal csökkenti a konverziókat",
+                    "A felhasználók 40%-a elhagyja az oldalt, ha az több mint 3 másodpercig tölt",
+                    "A Google a weboldal sebességét rangsorolási tényezőként használja"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Gyakori teljesítményproblémák"
+            },
+            {
+                "type": "paragraph",
+                "text": "Számos technikai és dizájnhoz kapcsolódó tényező lassíthatja a weboldalt. Ezek azonosítása és javítása kulcsfontosságú a felhasználók megtartásához."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Nagy méretű, tömörítetlen képek",
+                    "Nem optimalizált JavaScript és CSS fájlok",
+                    "Hiányzó gyorsítótárazási stratégia",
+                    "Nem megfelelő tárhelyszolgáltatás",
+                    "Túl sok külső szkript"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Stratégiák a weboldal gyorsításához"
+            },
+            {
+                "type": "paragraph",
+                "text": "A sebességoptimalizálás nem csak a backend feladata — érinti a dizájnt, a tartalomstratégiát és az infrastruktúrát is. Így teheted villámgyorssá az oldalad:"
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Tömörítsd és optimalizáld az összes képet",
+                    "Használj 'lazy loading'-ot a képernyőn kívüli elemekhez",
+                    "Minimalizáld a HTML-, CSS- és JavaScript-fájlokat",
+                    "Alkalmazz böngésző- és szerveroldali gyorsítótárazást",
+                    "Használj globális tartalomszolgáltató hálózatot (CDN)"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Gyors weboldal = üzleti előny"
+            },
+            {
+                "type": "paragraph",
+                "text": "A weboldal teljesítménye közvetlen hatással van az üzleti sikerre. A gyorsabb oldal több érdeklődőt hozhat, növelheti az eladásokat és erősíti a felhasználói bizalmat."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Nagyobb elköteleződés és több idő a weboldalon",
+                    "Jobb SEO-helyezések és könnyebb megtalálhatóság",
+                    "Alacsonyabb visszafordulási arány és hűségesebb látogatók",
+                    "Jobb mobilos felhasználói élmény"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Záró gondolatok"
+            },
+            {
+                "type": "paragraph",
+                "text": "A sebesség nem luxus — alapvető elvárás. A weboldal teljesítményébe való befektetés megtérül: elégedettebb felhasználók, jobb keresőoptimalizálás és nagyobb bevétel lesz az eredmény. Ne hagyd, hogy egy lassú oldal visszatartsa a vállalkozásodat."
+            }
+        ]
+    },
+    "sotet-mod-trend-vagy-webdesign-alapkovetelmeny": {
+        "date": "2024. december 29.",
+        "title": "Sötét mód: Múló trend vagy webdesign-alapkövetelmény?",
+        "author": {
+            "name": "Vasadi Dávid",
+            "role": "Ügyfélkapcsolati menedzser",
+            "image": "https://framerusercontent.com/images/mWk6ZFyBFVki4w459VUf1MNuqtg.jpg"
+        },
+        "description": "Egyre több márka alkalmazza a sötét módot – de valóban javítja a felhasználói élményt?",
+        "image": "https://framerusercontent.com/images/tTcBAhEcVDFzVviJh4P7jeEhKts.jpeg",
+        "slug": "sotet-mod-trend-vagy-webdesign-alapkovetelmeny",
+        "enSlug":"dark-mode-a-trend-or-a-web-design-essential",
+        "url": "/blog/sotet-mod-trend-vagy-webdesign-alapkovetelmeny",
+        "content": [
+            {
+                "type": "paragraph",
+                "text": "A sötét mód egykor rétegigény volt, mára viszont elterjedt funkcióvá vált operációs rendszereken, alkalmazásokban és weboldalakon egyaránt. De vajon csak egy múló divat, vagy ténylegesen forradalmasítja a felhasználói élményt?"
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "A sötét mód vonzereje"
+            },
+            {
+                "type": "paragraph",
+                "text": "Sokan kedvelik a sötét módot elegáns megjelenése és a csökkentett szemterhelés miatt, különösen gyenge fényviszonyok mellett. Emellett OLED képernyőkön energiatakarékos, ami fontos előny lehet a mobilhasználók számára."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Csökkenti a szemfáradtságot sötét környezetben",
+                    "Akkumulátort takarít meg OLED és AMOLED kijelzőkön",
+                    "Modern, letisztult esztétikát nyújt",
+                    "Csökkenti a vizuális zajt, így jobban fókuszálható a tartalom"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Akadálymentességi és olvashatósági kihívások"
+            },
+            {
+                "type": "paragraph",
+                "text": "Előnyei ellenére a sötét mód olvashatósági problémákat okozhat bizonyos látássérült vagy diszlexiás felhasználók számára. A gyenge kontrasztarányok vagy túl élénk színek ronthatják a felhasználói élményt."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Gyenge kontraszt a szöveg és a háttér között",
+                    "Nehezebb hosszabb világos szövegeket olvasni",
+                    "Fokozott kognitív terhelés veszélye",
+                    "Nem mindenki kedveli – egyesek kifejezetten elutasítják"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Hogyan tervezzünk jó sötét módot?"
+            },
+            {
+                "type": "paragraph",
+                "text": "A sötét mód nem csupán színek megfordítását jelenti. Tudatos tervezést igényel a térközök, kontrasztok és tónusok szintjén, hogy megőrizze a használhatóságot és a vizuális hierarchiát."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Kerüld a tiszta fehér szöveget fekete háttéren – használj lágyabb árnyalatokat",
+                    "Őrizd meg a márkaarculatot testreszabott színpalettával",
+                    "Teszteld az összes UI elem olvashatóságát sötét módban",
+                    "Engedd, hogy a felhasználó válthasson világos és sötét mód között"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Új alapértelmezett lett a sötét mód?"
+            },
+            {
+                "type": "paragraph",
+                "text": "Mivel az Android, iOS, Windows és macOS rendszerek is beépített támogatást nyújtanak hozzá, a sötét mód ma már inkább elvárás, mint extra funkció. A tervezőknek és fejlesztőknek alapvető UI/UX szempontként kell kezelniük."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Záró gondolatok"
+            },
+            {
+                "type": "paragraph",
+                "text": "A sötét mód nem tűnik el. Bár nem minden felhasználónak és helyzetben ideális, tudatos megvalósítással valódi előnyöket kínál. Gondoskodj róla, hogy a márkád éjjel-nappal jól mutasson."
+            }
+        ]
+    },
+    "a-tipografia-jovoje-trendek-amelyek-meghatarozzak-a-webet": {
+        "date": "2025. január 10.",
+        "title": "A tipográfia jövője: trendek, amelyek meghatározzák a webet",
+        "author": {
+            "name": "Vasadi Dávid",
+            "role": "Ügyfélkapcsolati menedzser",
+            "image": "https://framerusercontent.com/images/mWk6ZFyBFVki4w459VUf1MNuqtg.jpg"
+        },
+        "description": "A tipográfia nem csupán betűtípusokról szól – meghatározza, hogyan lép kapcsolatba a felhasználó a márkáddal.",
+        "image": "https://framerusercontent.com/images/QNxivwK8pOSs5O4S6vAtjD5sVE.jpg",
+        "slug": "a-tipografia-jovoje-trendek-amelyek-meghatarozzak-a-webet",
+        "enSlug":"the-future-of-typography-trends-that-will-define-the-web",
+        "url": "/blog/a-tipografia-jovoje-trendek-amelyek-meghatarozzak-a-webet",
+        "content": [
+            {
+                "type": "paragraph",
+                "text": "A tipográfia mindig is a vizuális kommunikáció központi eleme volt, de a digitális korban a márkaarculatot, a felhasználói viselkedést és a felhasználói élményt minden eddiginél jobban befolyásolja."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Miért fontos a tipográfia?"
+            },
+            {
+                "type": "paragraph",
+                "text": "A jó tipográfia ritmust, hierarchiát és érzelmeket közvetít. Az olvashatóságtól az esztétikáig a betűtípus-választás hatással van arra, hogyan kapcsolódnak a felhasználók a tartalmadhoz és hogyan emlékeznek a márkádra."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Megalapozza a márka hangnemét és stílusát",
+                    "Javítja az olvashatóságot és a megértést",
+                    "Vizuális hierarchiát hoz létre és irányítja a figyelmet",
+                    "Befolyásolja az akadálymentességet különböző eszközökön és célcsoportoknál"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Feltörekvő tipográfiai trendek"
+            },
+            {
+                "type": "paragraph",
+                "text": "A technológia fejlődésével a tipográfiai trendek is alakulnak. A tervezők új eszközökkel, változtatható betűtípusokkal és dinamikus elrendezésekkel kísérleteznek, amelyek kitágítják a vizuális kifejezés és a funkcionalitás határait."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Változtatható betűtípusok, amelyek súlya és szélessége rugalmasan változik",
+                    "Merész, kifejező címsorok minimalista törzsszöveggel kombinálva",
+                    "Túlméretezett tipográfia vizuális elemként",
+                    "A serif betűtípusok visszatérése az elegancia és bizalom jegyében",
+                    "Szövegeffektek, például rétegzés, kontúr és elmosás"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Reszponzív tipográfia működés közben"
+            },
+            {
+                "type": "paragraph",
+                "text": "A tipográfiának alkalmazkodnia kell a képernyőméretekhez, felbontásokhoz és felhasználói környezetekhez. A folyékony skálázás, viewport-alapú egységek és a CSS clamp() kulcsfontosságú eszközök a reszponzív tervezéshez."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Használj relatív egységeket (em, rem, vw) a rugalmas skálázáshoz",
+                    "Korlátozd a sorhosszúságot 60–75 karakterre az olvashatóság érdekében",
+                    "Állítsd be a sormagasságot és térközöket a betűméret alapján",
+                    "Használj alternatív betűtípusokat egyéni webfontokhoz"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Akadálymentesség a tipográfián keresztül"
+            },
+            {
+                "type": "paragraph",
+                "text": "A befogadó tipográfia biztosítja, hogy minden felhasználó – bármilyen képességgel rendelkezzen is – hozzáférjen és megérthesse a tartalmat. Ez magában foglalja a betűk olvashatóságát, a kontrasztot és a térközöket."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Biztosíts megfelelő színkontrasztot (WCAG-kompatibilis módon)",
+                    "Kerüld az erősen díszített vagy túl keskeny betűtípusokat a törzsszövegnél",
+                    "Használj kényelmes sormagasságot és térközöket",
+                    "Engedd a felhasználóknak a nagyítást anélkül, hogy a layout szétesne"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Záró gondolatok"
+            },
+            {
+                "type": "paragraph",
+                "text": "A tipográfia ma már nem csak betűválasztásról szól – érzelmileg ható, jól olvasható és befogadható digitális élmények létrehozását jelenti. Ahogy a webdesign fejlődik, úgy változnak a tipográfiai szabályok is. Maradj kíváncsi, maradj rugalmas."
+            }
+        ]
+    },
+    "brutalizmus-a-webdesignban-meresz-vagy-egyszeruen-rossz": {
+        "date": "2024. december 29.",
+        "title": "Brutalizmus a webdesignban: merész esztétika vagy egyszerűen rossz UX?",
+        "author": {
+            "name": "Vasadi Dávid",
+            "role": "Ügyfélkapcsolati menedzser",
+            "image": "https://framerusercontent.com/images/mWk6ZFyBFVki4w459VUf1MNuqtg.jpg"
+        },
+        "description": "A [davelopment]® Studio megvizsgálja a brutalista webdesign térnyerését, és azt, hogy működhet-e modern vállalkozások számára.",
+        "image": "https://framerusercontent.com/images/Woedy2sfTEolD0Mu9VGkl9YwOw.jpg",
+        "slug": "brutalizmus-a-webdesignban-meresz-vagy-egyszeruen-rossz",
+        "enSlug":"brutalism-in-web-design-bold-aesthetic-or-just-bad-ux",
+        "url": "/blog/brutalizmus-a-webdesignban-meresz-vagy-egyszeruen-rossz",
+        "content": [
+            {
+                "type": "paragraph",
+                "text": "A brutalizmus a webdesignban nyers, szándékos és provokatívan kifinomítatlan. Szembemegy a hagyományos UX-elvárásokkal, inkább az őszinteséget és a funkcionalitást helyezi előtérbe a szépség helyett."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Mi az a webes brutalizmus?"
+            },
+            {
+                "type": "paragraph",
+                "text": "Az építészeti brutalizmus ihlette stílust merev rácsszerkezetek, szabadon hagyott struktúrák, alapértelmezett rendszerbetűk és a vizuális finomság hiánya jellemzi. Fellázad a letisztult minimalizmus és a fényes felületek ellen."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Monospace vagy alapértelmezett rendszerbetűtípusok használata",
+                    "Vizuális hierarchia vagy stílusbeli finomítás hiánya",
+                    "Aszimmetrikus elrendezések erős kontraszttal",
+                    "Nyers HTML elemek és egyszerű linkek túlzott használata"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Kik használják a brutalizmust – és miért?"
+            },
+            {
+                "type": "paragraph",
+                "text": "Kreatív ügynökségek, művészek és független fejlesztők alkalmazzák a brutalizmust, hogy kitűnjenek. Az őszinteséget, antikorporatív hozzáállást és a designnormáktól való eltérést szimbolizálja."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Tervezők, akik ki akarnak tűnni az egységes trendek közül",
+                    "Alacsony költségvetésű, de karakteres projektek",
+                    "Weboldalak, amelyek művészi vagy underground közönséget céloznak"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "A UX kompromisszumai"
+            },
+            {
+                "type": "paragraph",
+                "text": "Bár a brutalizmus figyelemfelkeltő, gyakran a használhatóság rovására megy. A stílus lehet zavaró, hozzáférhetetlen vagy nehezen navigálható – inkább elriasztja a látogatót, mintsem bevonja."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Gyenge olvashatóság alacsony kontraszt miatt",
+                    "Hiányzó vizuális irány vagy CTA elemek",
+                    "Hozzáférhetőségi szabványok figyelmen kívül hagyása",
+                    "Nehezen értelmezhető interakciók"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Modern értelmezések: neobrutalizmus"
+            },
+            {
+                "type": "paragraph",
+                "text": "A neobrutalizmus a klasszikus brutalizmus durva éleit finomítja. Megőrzi a merész szerkezetet, de jobb használhatóságot, hozzáférhetőséget és vizuális tisztaságot kínál – így alkalmasabb üzleti célokra."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Záró gondolatok"
+            },
+            {
+                "type": "paragraph",
+                "text": "A brutalizmus nem való mindenkinek – de megfelelő kezekben egyedi márkaélményt nyújthat. Ha ezt az utat választod, tedd tudatosan, és győződj meg róla, hogy illeszkedik a közönséged elvárásaihoz."
+            }
+        ]
+    },
+    "miert-teszik-emlekezetessebbbe-a-markakat-az-egyedi-illusztraciok": {
+        "date": "2024. december 29.",
+        "title": "Miért teszik emlékezetesebbé a márkákat az egyedi illusztrációk?",
+        "author": {
+            "name": "Vasadi Dávid",
+            "role": "Ügyfélkapcsolati menedzser",
+            "image": "https://framerusercontent.com/images/mWk6ZFyBFVki4w459VUf1MNuqtg.jpg"
+        },
+        "description": "A stock fotók mindenhol ott vannak. A [davelopment]® Stúdiónál segítünk, hogy egyedi, kézzel készített vizuálokkal emelkedj ki a tömegből.",
+        "image": "https://framerusercontent.com/images/hjlWmfH9xXTc8yO8XduknLhpQ.jpg",
+        "slug": "miert-teszik-emlekezetessebbbe-a-markakat-az-egyedi-illusztraciok",
+        "enSlug":"why-custom-illustrations-make-brands-more-memorable",
+        "url": "/blog/miert-teszik-emlekezetessebbbe-a-markakat-az-egyedi-illusztraciok",
+        "content": [
+            {
+                "type": "paragraph",
+                "text": "Egy olyan világban, ahol stock képek és sablonos vizuálok árasztanak el mindent, az egyedi illusztrációk különleges előnyt biztosítanak a márkáknak. Személyiséget visznek a megjelenésbe, növelik a felismerhetőséget, és saját történetet mesélnek el."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Miért fontos az eredetiség?"
+            },
+            {
+                "type": "paragraph",
+                "text": "A stock képek kényelmesek, de nem teremtenek érzelmi kapcsolatot. A felhasználók már rengetegszer látták őket, így nehéz kiemelkedni vagy hitelességet közvetíteni általuk."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "A stock képek gyakran személytelenek vagy beállítottak",
+                    "Az egyedi illusztrációk illeszkednek a hangvételhez és az üzenethez",
+                    "Az egyedi vizuálok növelik a márka emlékezetességét",
+                    "A következetes illusztrációs stílus erősíti az arculatot"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Az illusztrációk érzelmi ereje"
+            },
+            {
+                "type": "paragraph",
+                "text": "Az illusztrációk képesek humort, empátiát vagy játékosságot közvetíteni – olyan érzelmeket, amelyeket a fotók vagy ikonok gyakran nem tudnak. Tudatos tervezéssel közvetlenül szólhatnak a közönség érzéseihez és képzeletéhez."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Hol használjunk egyedi illusztrációkat?"
+            },
+            {
+                "type": "paragraph",
+                "text": "Az illusztrációk nem csupán a kezdőszakaszok (hero section) díszei. Segítenek történetet mesélni, leegyszerűsítik a bonyolult témákat, és vizuálisan izgalmasabbá teszik a szövegközpontú oldalakat."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Landing oldalak és termékbemutatók",
+                    "Blogfejlécek és infografikák",
+                    "Magyarázó animációk",
+                    "Onboarding folyamatok és üres állapotok"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Tippek egyedi grafikák alkalmazásához"
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Határozd meg a márka vizuális hangvételét a megrendelés előtt",
+                    "Olyan illusztrátorral dolgozz, aki érti az UX/UI elveket",
+                    "Tarts következetes színpalettát és vonalstílust",
+                    "Használj SVG-t a méretezhetőség és teljesítmény érdekében"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Záró gondolatok"
+            },
+            {
+                "type": "paragraph",
+                "text": "Az igazán jó márkák emlékezetesek. Az egyedi illusztrációk segítenek maradandó nyomot hagyni – különleges, felismerhető és a saját hangodon szól. Fektess olyan vizuálokba, amelyek tényleg a márkádat képviselik."
+            }
+        ],
+        "previousPost": {
+            "title": "Brutalizmus a webdesignban: merész esztétika vagy egyszerűen rossz UX?",
+            "slug": "brutalizmus-a-webdesignban-meresz-vagy-egyszeruen-rossz",
+            "image": "https://framerusercontent.com/images/Woedy2sfTEolD0Mu9VGkl9YwOw.jpg"
+        }
+    }
+}

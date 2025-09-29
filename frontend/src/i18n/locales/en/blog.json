@@ -1,0 +1,754 @@
+{  
+    "how-a-well-designed-website-can-transform-your-business": {
+        "date": "February 2, 2025",
+        "title": "How a well-designed website can transform your business",
+        "description": "Discover the latest design trends shaping the digital world and how they impact business.",
+        "author": {
+            "name": "David Vasadi",
+            "role": "Client Success Manager",
+            "image": "https://framerusercontent.com/images/mWk6ZFyBFVki4w459VUf1MNuqtg.jpg"
+        },
+        "image": "https://framerusercontent.com/images/stTKqZkueiEGiXkUexOWo9RjNnY.jpg",
+        "slug": "how-a-well-designed-website-can-transform-your-business",
+        "huSlug":"hogyan-alakithatja-at-a-vallalkozasodat-egy-jol-megtervezett-weboldal",
+        "url": "/blog/how-a-well-designed-website-can-transform-your-business",
+        "content": [
+            {
+                "type": "paragraph",
+                "text": "At [davelopment]\u00ae Studio, we specialize in crafting high-performance websites that not only look great but also deliver measurable results."
+            },
+            {
+                "type": "paragraph",
+                "text": "A slow website is frustrating. Users expect pages to load instantly, and even a small delay can lead to lost visitors. Studies show that a 1-second delay in loading time can reduce conversions by 7%."
+            },
+            {
+                "type": "paragraph",
+                "text": "More than 50% of web traffic comes from mobile devices. If your site isn't optimized for speed on mobile, you risk losing half of your potential audience."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "How Speed Affects SEO"
+            },
+            {
+                "type": "paragraph",
+                "text": "Google prioritizes fast-loading websites in search rankings. If your site is slow, it might not appear on the first page of search results. Fast websites improve user experience (UX), reduce bounce rates, and keep visitors engaged longer."
+            },
+            {
+                "type": "paragraph",
+                "text": "More than 50% of web traffic comes from mobile devices. If your site isn't optimized for speed on mobile, you risk losing half of your potential audience. Google's Core Web Vitals measure mobile performance, making speed a critical ranking factor."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "What Slows Down a Website?"
+            },
+            {
+                "type": "paragraph",
+                "text": "Several factors can make your site sluggish:"
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Large images without compression",
+                    "Unoptimized code (excessive JavaScript, CSS, and HTML)",
+                    "Too many HTTP requests from third-party scripts",
+                    "Slow hosting with limited bandwidth",
+                    "No caching strategies"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "How to Improve Website Speed"
+            },
+            {
+                "type": "paragraph",
+                "text": "Use modern formats like WebP instead of PNG or JPEG. Compress images without losing quality."
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "text": "Minimize Code"
+            },
+            {
+                "type": "paragraph",
+                "text": "Reduce unused JavaScript and CSS. Minify files to decrease load time."
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "text": "Use a Content Delivery Network (CDN)"
+            },
+            {
+                "type": "paragraph",
+                "text": "A CDN stores copies of your site on multiple servers worldwide, delivering faster access to users based on their location."
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "text": "Enable Caching"
+            },
+            {
+                "type": "paragraph",
+                "text": "Caching stores frequently used data, reducing the need for repeated downloads. This significantly improves loading times for returning visitors."
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "text": "Choose a Fast Hosting Provider"
+            },
+            {
+                "type": "paragraph",
+                "text": "Your hosting provider plays a major role in site speed. Consider upgrading to managed hosting or cloud hosting for better performance."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "The Business Impact of a Fast Website"
+            },
+            {
+                "type": "paragraph",
+                "text": "Faster websites lead to:"
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Higher conversion rates",
+                    "Better SEO rankings",
+                    "Improved user satisfaction",
+                    "Lower bounce rates"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Final Thoughts"
+            },
+            {
+                "type": "paragraph",
+                "text": "Speed isn't just a technical metric\u2014it directly impacts business success. Investing in website performance means happier users, better rankings, and increased revenue. If your site is slow, now is the time to fix it."
+            }
+        ],
+        "nextPost": {
+            "label": "Next Post",
+            "title": "The Psychology of Color in Branding",
+            "slug": "the-psychology-of-color-in-branding-how-it-shapes-perception-and-behavior",
+            "image": "https://framerusercontent.com/images/3Rw5vNnsCjiRaizUQ1G8JkxJxo.jpg"
+        },
+        "prevPost": {
+            "label": "Previous Post",
+            "title": "The Psychology of Color in Branding",
+            "slug": "the-psychology-of-color-in-branding-how-it-shapes-perception-and-behavior",
+            "image": "https://framerusercontent.com/images/3Rw5vNnsCjiRaizUQ1G8JkxJxo.jpg"
+        }
+    },
+    "the-psychology-of-color-in-branding-how-it-shapes-perception-and-behavior": {
+        "date": "January 26, 2025",
+        "title": "The Psychology of Color in Branding",
+        "description": "Colors influence emotions and decisions. Here's how to use them strategically in branding.",
+        "author": {
+            "name": "David Vasadi",
+            "role": "Client Success Manager",
+            "image": "https://framerusercontent.com/images/mWk6ZFyBFVki4w459VUf1MNuqtg.jpg"
+        },
+        "image": "https://framerusercontent.com/images/3Rw5vNnsCjiRaizUQ1G8JkxJxo.jpg",
+        "slug": "the-psychology-of-color-in-branding-how-it-shapes-perception-and-behavior",
+        "huSlug": "a-szin-pszichologiaja-a-brandingben-hogyan-alakitja-a-felfogasunkat-es-a-viselkedesunket",
+        "url": "/blog/the-psychology-of-color-in-branding-how-it-shapes-perception-and-behavior",
+        "content": [
+            {
+                "type": "paragraph",
+                "text": "Colors are more than just visual elements\u2014they're powerful psychological triggers that influence how customers perceive and interact with your brand."
+            },
+            {
+                "type": "paragraph",
+                "text": "When designing your brand identity, color choices shouldn't be based solely on personal preference. Each color carries psychological associations that can either strengthen or undermine your brand message."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "The Emotional Impact of Colors"
+            },
+            {
+                "type": "paragraph",
+                "text": "Different colors evoke different emotional responses. Understanding these associations can help you select colors that align with your brand values and appeal to your target audience."
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "text": "Red: Energy and Urgency"
+            },
+            {
+                "type": "paragraph",
+                "text": "Red stimulates excitement and passion. It can increase heart rate and create a sense of urgency, which is why it's often used for clearance sales or call-to-action buttons. Brands like Coca-Cola use red to energize their audience and stimulate appetite."
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "text": "Blue: Trust and Reliability"
+            },
+            {
+                "type": "paragraph",
+                "text": "Blue conveys trustworthiness, reliability, and professionalism. It's calming and widely accepted across demographics, making it a popular choice for financial institutions, healthcare providers, and tech companies like Facebook, PayPal, and IBM."
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "text": "Green: Growth and Health"
+            },
+            {
+                "type": "paragraph",
+                "text": "Green represents growth, health, and environmental consciousness. It's often used by brands promoting wellness, sustainability, or financial prosperity, such as Whole Foods, Animal Planet, and Land Rover."
+            },
+            {
+                "type": "heading",
+                "level": 3,
+                "text": "Yellow: Optimism and Clarity"
+            },
+            {
+                "type": "paragraph",
+                "text": "Yellow radiates optimism, clarity, and warmth. It captures attention quickly (which is why it's used for warning signs) and can stimulate mental activity. Brands like McDonald's, National Geographic, and IKEA use yellow to appear accessible and positive."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Color Psychology in Action"
+            },
+            {
+                "type": "paragraph",
+                "text": "Research shows that up to 90% of snap judgments about products are based on color alone. The right color can increase brand recognition by up to 80%, directly influencing purchasing decisions."
+            },
+            {
+                "type": "paragraph",
+                "text": "When Spotify chose its distinctive green, it wasn't just about standing out\u2014it was about positioning the brand as fresh, innovative, and different from competitors in the music streaming space."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Cultural Considerations"
+            },
+            {
+                "type": "paragraph",
+                "text": "Color meanings vary across cultures. While white represents purity and cleanliness in Western cultures, it's associated with mourning in many Eastern cultures. Similarly, red signifies good luck in China but can represent danger or warning in Western contexts."
+            },
+            {
+                "type": "paragraph",
+                "text": "For global brands, understanding these cultural differences is essential when developing color strategies for different markets."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Practical Tips for Using Color Psychology"
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Define your brand personality and values before selecting colors",
+                    "Consider your target audience's preferences and cultural background",
+                    "Use color contrast to highlight important information and call-to-action elements",
+                    "Maintain consistency across all brand touchpoints",
+                    "Test different color combinations and gather feedback"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Final Thoughts"
+            },
+            {
+                "type": "paragraph",
+                "text": "Color is a powerful tool in your branding arsenal. When used strategically, it can communicate your brand's personality, differentiate you from competitors, and create emotional connections with your audience."
+            },
+            {
+                "type": "paragraph",
+                "text": "At [davelopment]\u00ae Studio, we help brands develop color strategies that align with their business goals and resonate with their target audiences. Because when it comes to branding, the right colors don't just look good\u2014they work hard for your business."
+            }
+        ],
+        "nextPost": {
+            "title": "The Psychology of Color in Branding",
+            "slug": "the-psychology-of-color-in-branding-how-it-shapes-perception-and-behavior",
+            "image": "https://framerusercontent.com/images/3Rw5vNnsCjiRaizUQ1G8JkxJxo.jpg"
+        }
+    },
+    "speed-matters-why-website-performance-can-make-or-break-your-business": {
+        "date": "January 20, 2025",
+        "title": "Why Website Performance Can Make or Break Your Business",
+        "author": {
+            "name": "David Vasadi",
+            "role": "Client Success Manager",
+            "image": "https://framerusercontent.com/images/mWk6ZFyBFVki4w459VUf1MNuqtg.jpg"
+        },
+        "description": "A one-second delay can cost conversions. Let's talk about optimizing speed for better results.",
+        "slug": "speed-matters-why-website-performance-can-make-or-break-your-business",
+        "huSlug":"miert-eletbevago-a-weboldalad-sebessege",
+        "image": "https://framerusercontent.com/images/vmcdMwgqjvoZKggw0Ae7pHjQPJA.jpg",
+        "url": "/blog/speed-matters-why-website-performance-can-make-or-break-your-business",
+        "content": [
+            {
+                "type": "paragraph",
+                "text": "In today's digital-first world, users expect websites to load instantly. A one-second delay in page load time can mean the difference between a new customer and a lost opportunity."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Why Speed Matters"
+            },
+            {
+                "type": "paragraph",
+                "text": "Research shows that faster websites lead to better engagement, higher retention, and increased conversions. Users have little patience for slow-loading sites, and search engines like Google take speed into account when ranking pages."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "A 1-second delay in load time reduces conversions by 7%",
+                    "40% of users abandon a website that takes more than 3 seconds to load",
+                    "Google considers site speed a ranking factor in its algorithm"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Common Speed Bottlenecks"
+            },
+            {
+                "type": "paragraph",
+                "text": "Several technical and design-related issues can slow down a website\u2019s performance. Identifying and resolving them is crucial to keeping users engaged."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Large, uncompressed images",
+                    "Poorly optimized JavaScript and CSS",
+                    "No caching strategy",
+                    "Inadequate hosting infrastructure",
+                    "Too many third-party scripts"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Strategies to Boost Website Speed"
+            },
+            {
+                "type": "paragraph",
+                "text": "Speed optimization isn\u2019t just a backend task\u2014it involves design decisions, content strategy, and infrastructure. Here\u2019s how to ensure your site loads at lightning speed:"
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Compress and optimize all images",
+                    "Use lazy loading for off-screen assets",
+                    "Minify HTML, CSS, and JavaScript",
+                    "Implement browser and server-side caching",
+                    "Utilize a global Content Delivery Network (CDN)"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Business Benefits of a Fast Website"
+            },
+            {
+                "type": "paragraph",
+                "text": "Website performance is directly tied to business success. A faster site can increase lead generation, boost sales, and enhance user trust."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Higher engagement and time spent on site",
+                    "Better SEO rankings and discoverability",
+                    "Lower bounce rates and increased loyalty",
+                    "Improved mobile performance"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Final Thoughts"
+            },
+            {
+                "type": "paragraph",
+                "text": "Speed is not a luxury\u2014it\u2019s a necessity. Investing in website performance pays dividends in user satisfaction, search visibility, and revenue. Don\u2019t let a slow site hold your business back."
+            }
+        ]
+    },
+    "dark-mode-a-trend-or-a-web-design-essential": {
+        "date": "December 29, 2024",
+        "title": "Dark Mode: A Trend or a Web Design Essential?",
+        "author": {
+            "name": "David Vasadi",
+            "role": "Client Success Manager",
+            "image": "https://framerusercontent.com/images/mWk6ZFyBFVki4w459VUf1MNuqtg.jpg"
+        },
+        "description": "More brands are embracing dark mode, but does it really improve user experience?",
+        "image": "https://framerusercontent.com/images/tTcBAhEcVDFzVviJh4P7jeEhKts.jpeg",
+        "slug": "dark-mode-a-trend-or-a-web-design-essential",
+        "huSlug":"sotet-mod-trend-vagy-webdesign-alapkovetelmeny",
+        "url": "/blog/dark-mode-a-trend-or-a-web-design-essential",
+        "content": [
+            {
+                "type": "paragraph",
+                "text": "Dark mode has evolved from a niche preference into a mainstream feature across operating systems, apps, and websites. But is it just a passing trend, or a UX game-changer?"
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "The Appeal of Dark Mode"
+            },
+            {
+                "type": "paragraph",
+                "text": "Many users prefer dark mode for its sleek look and reduced eye strain, especially in low-light environments. It also conserves battery life on OLED screens, which can be a big win for mobile users."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Reduces eye fatigue in dim settings",
+                    "Saves battery on OLED and AMOLED displays",
+                    "Provides a stylish, modern aesthetic",
+                    "Improves content focus by minimizing visual noise"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Accessibility and Readability Concerns"
+            },
+            {
+                "type": "paragraph",
+                "text": "Despite its advantages, dark mode can cause readability issues for users with certain visual impairments or dyslexia. Poor contrast ratios or overuse of vibrant colors can lead to poor UX."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Low contrast between text and background",
+                    "Harder to read long passages of light text",
+                    "Potential increase in cognitive load",
+                    "Not universally preferred\u2014some users dislike it"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Designing a Good Dark Mode Experience"
+            },
+            {
+                "type": "paragraph",
+                "text": "Implementing dark mode isn't just about inverting colors. It requires thoughtful adjustments to spacing, contrast, and tone to preserve usability and visual hierarchy."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Use softer whites, not pure white on black",
+                    "Maintain brand identity with adapted color palettes",
+                    "Test legibility of every UI element in dark mode",
+                    "Allow users to toggle between light and dark themes"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Is Dark Mode a New Standard?"
+            },
+            {
+                "type": "paragraph",
+                "text": "With support built into Android, iOS, Windows, and macOS, dark mode has become an expectation rather than a luxury. Designers and developers must now treat it as a core part of UI/UX."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Final Thoughts"
+            },
+            {
+                "type": "paragraph",
+                "text": "Dark mode isn't going away. While not perfect for every context or user, it offers meaningful benefits when implemented thoughtfully. Make sure your brand looks great\u2014day or night."
+            }
+        ]
+    },
+    "the-future-of-typography-trends-that-will-define-the-web": {
+        "date": "January 10, 2025",
+        "title": "The Future of Typography: Trends That Will Define the Web",
+        "author": {
+            "name": "David Vasadi",
+            "role": "Client Success Manager",
+            "image": "https://framerusercontent.com/images/mWk6ZFyBFVki4w459VUf1MNuqtg.jpg"
+        },
+        "description": "Typography isn't just about fonts\u2014it shapes how users interact with your brand.",
+        "image": "https://framerusercontent.com/images/QNxivwK8pOSs5O4S6vAtjD5sVE.jpg",
+        "slug": "the-future-of-typography-trends-that-will-define-the-web",
+        "huSlug":"a-tipografia-jovoje-trendek-amelyek-meghatarozzak-a-webet",
+        "url": "/blog/the-future-of-typography-trends-that-will-define-the-web",
+        "content": [
+            {
+                "type": "paragraph",
+                "text": "Typography has always been central to communication design, but in the digital age, it defines brand personality, influences behavior, and guides user experience like never before."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Why Typography Matters"
+            },
+            {
+                "type": "paragraph",
+                "text": "Good typography creates rhythm, hierarchy, and emotion. From readability to aesthetics, font choices impact how users engage with your content and remember your brand."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Establishes brand tone and voice",
+                    "Improves readability and comprehension",
+                    "Creates visual hierarchy and guides attention",
+                    "Affects accessibility across devices and audiences"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Emerging Trends in Web Typography"
+            },
+            {
+                "type": "paragraph",
+                "text": "As technology evolves, so do type trends. Designers are experimenting with new tools, variable fonts, and dynamic layouts that push the limits of expression and functionality."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Variable fonts that adapt weight and width fluidly",
+                    "Bold, expressive headlines paired with minimalist body text",
+                    "Oversized typography as visual elements",
+                    "Serifs making a comeback for elegance and trust",
+                    "Text effects like layering, outlines, and blur"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Responsive Typography in Action"
+            },
+            {
+                "type": "paragraph",
+                "text": "Typography must adapt to screen sizes, resolutions, and user contexts. Fluid scaling, viewport-based units, and CSS clamp() are key tools for responsive design."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Use relative units (em, rem, vw) for fluid scaling",
+                    "Limit line length to 60\u201375 characters for readability",
+                    "Adjust line height and spacing based on font size",
+                    "Employ fallbacks for custom web fonts"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Accessibility Through Typography"
+            },
+            {
+                "type": "paragraph",
+                "text": "Inclusive typography ensures that all users\u2014regardless of ability\u2014can access and understand your content. This includes font legibility, contrast, and spacing."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Ensure sufficient color contrast (WCAG compliant)",
+                    "Avoid overly decorative or narrow typefaces for body text",
+                    "Maintain generous line height and spacing",
+                    "Allow users to zoom without layout breaking"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Final Thoughts"
+            },
+            {
+                "type": "paragraph",
+                "text": "Typography is no longer just about picking fonts\u2014it\u2019s about creating emotional, legible, and inclusive digital experiences. As web design evolves, so will the rules of type. Stay curious, stay adaptable."
+            }
+        ]
+    },
+    "brutalism-in-web-design-bold-aesthetic-or-just-bad-ux": {
+        "date": "December 29, 2024",
+        "title": "Brutalism in Web Design: Bold Aesthetic or Just Bad UX?",
+        "author": {
+            "name": "David Vasadi",
+            "role": "Client Success Manager",
+            "image": "https://framerusercontent.com/images/mWk6ZFyBFVki4w459VUf1MNuqtg.jpg"
+        },
+        "description": "[davelopment]\u00ae Studio explores the rise of brutalist web design and whether it works for modern businesses.",
+        "slug": "brutalism-in-web-design-bold-aesthetic-or-just-bad-ux",
+        "huSlug":"brutalizmus-a-webdesignban-meresz-vagy-egyszeruen-rossz",
+        "image": "https://framerusercontent.com/images/Woedy2sfTEolD0Mu9VGkl9YwOw.jpg",
+        "url": "/blog/brutalism-in-web-design-bold-aesthetic-or-just-bad-ux",
+        "content": [
+            {
+                "type": "paragraph",
+                "text": "Brutalism in web design is raw, intentional, and provocatively unpolished. It defies traditional UX standards, opting instead for authenticity and function over beauty."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "What Is Web Brutalism?"
+            },
+            {
+                "type": "paragraph",
+                "text": "Inspired by architectural brutalism, this design style is characterized by rigid grids, exposed structures, default system fonts, and a lack of visual polish. It rebels against sleek minimalism and glossy interfaces."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Use of monospaced or default system fonts",
+                    "No visual hierarchy or styling polish",
+                    "Asymmetric layouts with harsh contrast",
+                    "Heavy use of raw HTML elements and plain links"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Who Uses Brutalism\u2014and Why?"
+            },
+            {
+                "type": "paragraph",
+                "text": "Creative agencies, artists, and independent developers adopt brutalism to stand out. It signals authenticity, anti-corporate ideals, and a refusal to conform to design norms."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Designers wanting to stand out in a sea of sameness",
+                    "Projects with low budgets and high personality",
+                    "Websites targeting artistic or underground communities"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "The UX Trade-Offs"
+            },
+            {
+                "type": "paragraph",
+                "text": "While brutalism grabs attention, it often challenges usability. The style can be disorienting, inaccessible, or difficult to navigate\u2014turning visitors away rather than drawing them in."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Poor readability due to low contrast",
+                    "No clear call-to-actions or visual flow",
+                    "Incompatibility with accessibility standards",
+                    "Unintuitive interactions"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Modern Interpretations: Neobrutalism"
+            },
+            {
+                "type": "paragraph",
+                "text": "Neobrutalism softens the rough edges of classic brutalism. It retains the bold structure but incorporates better usability, accessibility, and visual clarity\u2014making it more practical for business use."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Final Thoughts"
+            },
+            {
+                "type": "paragraph",
+                "text": "Brutalism is not for everyone\u2014but in the right hands, it can deliver a unique brand experience. If you choose this path, do so intentionally, and make sure it aligns with your audience\u2019s expectations."
+            }
+        ]
+    },
+    "why-custom-illustrations-make-brands-more-memorable": {
+        "date": "December 29, 2024",
+        "title": "Why Custom Illustrations Make Brands More Memorable",
+        "author": {
+            "name": "David Vasadi",
+            "role": "Client Success Manager",
+            "image": "https://framerusercontent.com/images/mWk6ZFyBFVki4w459VUf1MNuqtg.jpg"
+        },
+        "description": "Stock photos are everywhere. At [davelopment]\u00ae Studio, we help brands stand out with unique, handcrafted visuals.",
+        "image": "https://framerusercontent.com/images/hjlWmfH9xXTc8yO8XduknLhpQ.jpg",
+        "slug": "why-custom-illustrations-make-brands-more-memorable",
+        "huSlug":"miert-teszik-emlekezetessebbbe-a-markakat-az-egyedi-illusztraciok",
+        "url": "/blog/why-custom-illustrations-make-brands-more-memorable",
+        "content": [
+            {
+                "type": "paragraph",
+                "text": "In a world flooded with stock images and generic visuals, custom illustrations give brands a distinctive edge. They inject personality, build recognition, and tell a story that's truly your own."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Why Originality Matters"
+            },
+            {
+                "type": "paragraph",
+                "text": "Stock visuals are convenient, but they lack emotional connection. Users have seen them over and over, making it hard to stand out or convey authenticity."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Stock images often feel impersonal or staged",
+                    "Custom illustrations match your tone and message",
+                    "Unique visuals increase brand memorability",
+                    "Consistency in illustration style strengthens identity"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "The Emotional Power of Illustrations"
+            },
+            {
+                "type": "paragraph",
+                "text": "Illustrations can evoke humor, empathy, or playfulness\u2014emotions that photos and icons often fail to capture. When crafted intentionally, they speak directly to your audience\u2019s feelings and imagination."
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Where to Use Custom Illustrations"
+            },
+            {
+                "type": "paragraph",
+                "text": "Illustrations aren\u2019t just for hero sections. They enhance storytelling, simplify complex topics, and break up text-heavy pages in a memorable way."
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Landing pages and product introductions",
+                    "Blog headers and infographics",
+                    "Explainer animations",
+                    "Onboarding flows and empty states"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Tips for Implementing Custom Artwork"
+            },
+            {
+                "type": "list",
+                "items": [
+                    "Define your brand\u2019s visual tone before commissioning",
+                    "Work with illustrators who understand UX/UI principles",
+                    "Keep a consistent color palette and stroke style",
+                    "Use SVGs for scalability and performance"
+                ]
+            },
+            {
+                "type": "heading",
+                "level": 2,
+                "text": "Final Thoughts"
+            },
+            {
+                "type": "paragraph",
+                "text": "Great branding is memorable. Custom illustrations help you leave a mark\u2014unique, recognizable, and tailored to your voice. Invest in visuals that speak your brand\u2019s language."
+            }
+        ],
+        "prevPost": {
+            "title": "Why Brutalism in Web Design Is More Than Just Bad UX",
+            "slug": "why-brutalism-in-web-design-is-more-than-just-bad-ux",
+            "image": "https://framerusercontent.com/images/Woedy2sfTEolD0Mu9VGkl9YwOw.jpg"
+        }
+    }
+}

@@ -1,0 +1,132 @@
+
+{
+  "lazars": {
+    "slug": "lazars",
+    "title": "LAZAR'S.",
+    "year": "2025",
+    "industry": "Hair & Beauty",
+    "scope": [
+      "Web design",
+      "Branding",
+      "On-Page SEO",
+      "Full Stack"
+    ],
+    "timeline": "4 weeks",
+    "logo": "/src/assets/logos/lazars_logo.png",
+    "image": "/src/assets/backgrounds/lazars_background.png",
+    "images": [
+      "https://framerusercontent.com/images/nnapMArhovi01CFbKX3w0SbZ8O0.jpg",
+      "https://framerusercontent.com/images/ZXUFZ9SANI4ARn3nZvdz1oORo.jpg",
+      "https://framerusercontent.com/images/jwgZ0iYFeHDiPRdgYaTVUvLvbmU.jpg"
+    ],
+    "description": "In 2024, AeroLogix, a leading logistics and supply chain management company, approached Boltshift to redesign their outdated website...",
+    "challenges": "AeroLogix's previous website was slow, difficult to navigate...",
+    "solution": "Development was centered around speed and scalability...",
+    "finalThoughts": "The new AeroLogix website is now a key part of their business growth...",
+    "categories": [
+      "Branding",
+      "Web design"
+    ],
+    "nextProjects": [
+      {
+        "name": "Ephemeral.",
+        "slug": "ephemeral",
+        "image": "https://framerusercontent.com/images/r3DvXiPExOamPrqqTNfWM1K9o4.jpg",
+        "logo": "https://framerusercontent.com/images/PyQzA1IF3BF1gkVO1xuZHClY0c.svg",
+        "year": "2025"
+      },
+      {
+        "name": "Powersurge.",
+        "slug": "powersurge",
+        "image": "https://framerusercontent.com/images/UPqJOHQLdYtNuK2jee5437Lno.jpg",
+        "logo": "https://framerusercontent.com/images/j2k0BUaOnC0jNyx5dP4hieQnFL4.svg",
+        "year": "2024"
+      }
+    ]
+  },
+    "portfolio": {
+    "slug": "davelopment",
+    "title": "porfolio.",
+    "year": "2025",
+    "industry": "Technology & AI",
+    "scope": [
+      "Web design",
+      "Development"
+    ],
+    "timeline": "16 weeks",
+    "logo": "https://framerusercontent.com/images/PyQzA1IF3BF1gkVO1xuZHClY0c.svg",
+    "image": "/src/assets/backgrounds/davelopment_background.png",
+    "images": [
+      "https://framerusercontent.com/images/r3DvXiPExOamPrqqTNfWM1K9o4.jpg",
+      "https://framerusercontent.com/images/jwgZ0iYFeHDiPRdgYaTVUvLvbmU.jpg",
+      "https://framerusercontent.com/images/nnapMArhovi01CFbKX3w0SbZ8O0.jpg"
+    ],
+    "description": "Ephemeral, an emerging AI technology company...",
+    "challenges": "The main challenge was creating a UI for technical and non-technical users...",
+    "solution": "We developed a clean, minimalist design...",
+    "finalThoughts": "The new Ephemeral website has significantly improved engagement...",
+    "categories": [
+      "Web design",
+      "Development"
+    ],
+    "nextProjects": [
+      {
+        "name": "Powersurge.",
+        "slug": "powersurge",
+        "image": "https://framerusercontent.com/images/UPqJOHQLdYtNuK2jee5437Lno.jpg",
+        "logo": "https://framerusercontent.com/images/j2k0BUaOnC0jNyx5dP4hieQnFL4.svg",
+        "year": "2024"
+      },
+      {
+        "name": "Mastermail.",
+        "slug": "mastermail",
+        "image": "https://framerusercontent.com/images/HlvuJF9yIQ3Q8fP86EjFIq5ExE.jpg",
+        "logo": "https://framerusercontent.com/images/kH7hh1Be4txgKwuTgZl3jpdZp8.svg",
+        "year": "2024"
+      }
+    ]
+  },
+    "csontkovacsbence": {
+    "slug": "csontkovacsbence",
+    "title": "Csontkovacs Bence",
+    "year": "2025",
+    "industry": " ",
+    "scope": [ ],
+    "timeline": "",
+    "logo": "https://framerusercontent.com/images/uesNBJIRG5fZ2tDJzkhxXbuauQw.svg",
+    "image": "/src/assets/backgrounds/csontkovacs_background.png",
+    "images": [],
+    "description": "",
+    "challenges": "",
+    "solution": "",
+    "finalThoughts": "",
+    "categories": [
+      "Branding",
+      "Web design"
+    ],
+    "nextProjects": []
+  },
+
+
+  "mindful": {
+    "slug": "mindful",
+    "title": "Mindful.",
+    "year": "2024",
+    "industry": "",
+    "scope": [],
+    "timeline": "",
+    "logo": "https://kokaizoltan.hu/wp-content/uploads/2024/04/logo_basic.svg",
+    "image": "/src/assets/backgrounds/kokai_background.png",
+    "images": [],
+    "description": "",
+    "challenges": "",
+    "solution": "",
+    "finalThoughts": "",
+    "categories": [
+      "Branding",
+      "UI/UX"
+    ],
+    "nextProjects": []
+  }
+
+}
