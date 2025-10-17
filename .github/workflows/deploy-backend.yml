@@ -1,0 +1,62 @@
+name: Deploy Backend (monorepo)
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "backend/**"
+      - ".github/workflows/deploy-backend.yml"
+  workflow_dispatch:
+
+env:
+  VPS_HOST: ${{ secrets.VPS_HOST }}
+  VPS_PORT: ${{ secrets.VPS_PORT }}
+  VPS_USER: ${{ secrets.VPS_USER }}
+  REMOTE_PATH: /var/www/davelopment/backend
+  PM2_NAME: backend
+  NODE_VERSION: "20"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      - name: Prepare SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_KEY }}" > ~/.ssh/id_ci
+          chmod 600 ~/.ssh/id_ci
+          ssh-keyscan -p "${VPS_PORT}" -H "${VPS_HOST}" >> ~/.ssh/known_hosts
+
+      - name: Ensure remote dir
+        run: ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes ${VPS_USER}@${VPS_HOST} "mkdir -p ${REMOTE_PATH}/public/uploads"
+
+      - name: Upload (rsync)
+        run: |
+          rsync -avz --delete \
+            --exclude "node_modules" --exclude ".tmp" --exclude "build" --exclude ".env*" \
+            -e "ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes" \
+            backend/ ${VPS_USER}@${VPS_HOST}:${REMOTE_PATH}/
+
+      - name: Install, build, start (PM2)
+        run: |
+          ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes ${VPS_USER}@${VPS_HOST} <<'EOF'
+          set -e
+          cd ${REMOTE_PATH}
+          corepack enable || true
+          corepack prepare pnpm@latest --activate || true
+          pnpm install --frozen-lockfile=false
+          pnpm build
+          pm2 describe ${PM2_NAME} >/dev/null 2>&1 && \
+            pm2 restart ${PM2_NAME} --update-env || \
+            pm2 start "pnpm start" --name ${PM2_NAME} --cwd ${REMOTE_PATH}
+          pm2 save
+          EOF
