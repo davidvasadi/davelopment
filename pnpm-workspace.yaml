@@ -1,6 +1,16 @@
 packages:
-  - 'frontend'
-  - 'backend'
+  - frontend
+  - backend
+
+allowedBuilds: '@swc/core esbuild better-sqlite3'
+
+ignoredBuiltDependencies:
+  - core-js-pure
+  - unrs-resolver
+
 onlyBuiltDependencies:
-  - 'sharp'
+  - '@swc/core'
   - '@tailwindcss/oxide'
+  - better-sqlite3
+  - esbuild
+  - sharp

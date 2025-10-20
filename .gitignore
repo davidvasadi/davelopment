@@ -1,0 +1,19 @@
+node_modules
+
+# Általános
+.DS_Store
+
+# Frontend
+frontend/node_modules
+frontend/.next
+frontend/.env*
+frontend/.turbo
+
+# Backend (Strapi)
+backend/node_modules
+backend/.tmp
+backend/build
+backend/.cache
+backend/public/uploads
+backend/.env*
+IGN

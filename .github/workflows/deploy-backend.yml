@@ -8,6 +8,14 @@ on:
       - ".github/workflows/deploy-backend.yml"
   workflow_dispatch:
 
+# Ne fusson párhuzamosan
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 env:
   VPS_HOST: ${{ secrets.VPS_HOST }}
   VPS_PORT: ${{ secrets.VPS_PORT }}
@@ -19,13 +27,18 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - run: |
+
+      - name: Enable pnpm on runner
+        run: |
           corepack enable
           corepack prepare pnpm@latest --activate
 
@@ -36,27 +49,53 @@ jobs:
           chmod 600 ~/.ssh/id_ci
           ssh-keyscan -p "${VPS_PORT}" -H "${VPS_HOST}" >> ~/.ssh/known_hosts
 
-      - name: Ensure remote dir
-        run: ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes ${VPS_USER}@${VPS_HOST} "mkdir -p ${REMOTE_PATH}/public/uploads"
+      - name: Ensure remote dir (and keep uploads)
+        run: |
+          ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes ${VPS_USER}@${VPS_HOST} \
+            "mkdir -p ${REMOTE_PATH}/public/uploads"
 
-      - name: Upload (rsync)
+      - name: Upload backend via rsync (DON'T delete uploads)
         run: |
           rsync -avz --delete \
-            --exclude "node_modules" --exclude ".tmp" --exclude "build" --exclude ".env*" \
+            --exclude "node_modules" \
+            --exclude ".tmp" \
+            --exclude "build" \
+            --exclude ".env*" \
+            --exclude "public/uploads" \
             -e "ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes" \
             backend/ ${VPS_USER}@${VPS_HOST}:${REMOTE_PATH}/
 
-      - name: Install, build, start (PM2)
+      - name: Install, build, (re)start Strapi with PM2
         run: |
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes ${VPS_USER}@${VPS_HOST} <<'EOF'
           set -e
-          cd ${REMOTE_PATH}
+
+          # GitHub env -> távoli változók
+          REMOTE_PATH="${{ env.REMOTE_PATH }}"
+          PM2_NAME="${{ env.PM2_NAME }}"
+
+          # pnpm PATH (nem login shell)
+          export PNPM_HOME="$HOME/.local/share/pnpm"
+          export PATH="$PNPM_HOME:$PATH"
+
           corepack enable || true
           corepack prepare pnpm@latest --activate || true
+
+          echo "REMOTE_PATH=$REMOTE_PATH"
+          cd "$REMOTE_PATH"
+          ls -la
+
           pnpm install --frozen-lockfile=false
           pnpm build
-          pm2 describe ${PM2_NAME} >/dev/null 2>&1 && \
-            pm2 restart ${PM2_NAME} --update-env || \
-            pm2 start "pnpm start" --name ${PM2_NAME} --cwd ${REMOTE_PATH}
+
+          pm2 describe "$PM2_NAME" >/dev/null 2>&1 && \
+            pm2 restart "$PM2_NAME" --update-env || \
+            pm2 start "pnpm start" --name "$PM2_NAME" --cwd "$REMOTE_PATH"
+
           pm2 save
           EOF
+
+      - name: Health check (proxy on /api)
+        run: |
+          # 200/301/404 is ok – a lényeg, hogy NINCS 502
+          curl -I -H "Host: davelopment.hu" http://$VPS_HOST/api/ || true
