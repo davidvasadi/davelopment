@@ -8,6 +8,14 @@ on:
       - ".github/workflows/deploy-frontend.yml"
   workflow_dispatch:
 
+# Ha több push érkezik, az előzőt megszakítjuk, ne fusson párhuzamosan
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 env:
   VPS_HOST: ${{ secrets.VPS_HOST }}
   VPS_PORT: ${{ secrets.VPS_PORT }}
@@ -25,7 +33,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - run: |
+
+      - name: Enable pnpm on runner (csak rsync-hez nem kell, de nem árt)
+        run: |
           corepack enable
           corepack prepare pnpm@latest --activate
 
@@ -50,13 +60,35 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes ${VPS_USER}@${VPS_HOST} <<'EOF'
           set -e
-          cd ${REMOTE_PATH}
+
+          # A GitHub env értékeket itt hozzuk létre TÁVOLI változóként:
+          REMOTE_PATH="${{ env.REMOTE_PATH }}"
+          PM2_NAME="${{ env.PM2_NAME }}"
+
+          # pnpm PATH beállítás (nem login shellből fut)
+          export PNPM_HOME="$HOME/.local/share/pnpm"
+          export PATH="$PNPM_HOME:$PATH"
+
+          # corepack/pnpm biztosítás
           corepack enable || true
           corepack prepare pnpm@latest --activate || true
+
+          cd "$REMOTE_PATH"
+
+          # prod build
           pnpm install --frozen-lockfile=false
           pnpm build
-          pm2 describe ${PM2_NAME} >/dev/null 2>&1 && \
-            pm2 restart ${PM2_NAME} --update-env || \
-            pm2 start "pnpm start" --name ${PM2_NAME} --cwd ${REMOTE_PATH}
+
+          # PM2 (újraindít vagy indít)
+          pm2 describe "$PM2_NAME" >/dev/null 2>&1 && \
+            pm2 restart "$PM2_NAME" --update-env || \
+            pm2 start "pnpm start" --name "$PM2_NAME" --cwd "$REMOTE_PATH"
+
           pm2 save
           EOF
+
+      # Opcionális egészség-ellenőrzés: kéri a site-ot a VPS-ről
+      - name: Health check over HTTP(S)
+        run: |
+          curl -I -H "Host: davelopment.hu" http://$VPS_HOST/ || true
+          curl -I https://davelopment.hu/ || true
