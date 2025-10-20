@@ -8,7 +8,7 @@ on:
       - ".github/workflows/deploy-frontend.yml"
   workflow_dispatch:
 
-# Ha több push érkezik, az előzőt megszakítjuk, ne fusson párhuzamosan
+# Ne fusson több deploy egyszerre
 concurrency:
   group: deploy-frontend
   cancel-in-progress: true
@@ -27,14 +27,17 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Enable pnpm on runner (csak rsync-hez nem kell, de nem árt)
+      - name: Enable pnpm on runner
         run: |
           corepack enable
           corepack prepare pnpm@latest --activate
@@ -46,26 +49,28 @@ jobs:
           chmod 600 ~/.ssh/id_ci
           ssh-keyscan -p "${VPS_PORT}" -H "${VPS_HOST}" >> ~/.ssh/known_hosts
 
-      - name: Ensure remote dir
-        run: ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes ${VPS_USER}@${VPS_HOST} "mkdir -p ${REMOTE_PATH}"
+      - name: Ensure remote dir exists
+        run: |
+          ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes ${VPS_USER}@${VPS_HOST} \
+            "mkdir -p ${REMOTE_PATH}"
 
-      - name: Upload (rsync)
+      - name: Upload frontend via rsync
         run: |
           rsync -avz --delete \
             --exclude "node_modules" --exclude ".next" --exclude ".env*" \
             -e "ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes" \
             frontend/ ${VPS_USER}@${VPS_HOST}:${REMOTE_PATH}/
 
-      - name: Install, build, start (PM2)
+      - name: Install, build, (re)start with PM2 on VPS
         run: |
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes ${VPS_USER}@${VPS_HOST} <<'EOF'
           set -e
 
-          # A GitHub env értékeket itt hozzuk létre TÁVOLI változóként:
+          # GitHub env -> távoli változók
           REMOTE_PATH="${{ env.REMOTE_PATH }}"
           PM2_NAME="${{ env.PM2_NAME }}"
 
-          # pnpm PATH beállítás (nem login shellből fut)
+          # pnpm elérhetővé tétele (nem login shell)
           export PNPM_HOME="$HOME/.local/share/pnpm"
           export PATH="$PNPM_HOME:$PATH"
 
@@ -73,13 +78,15 @@ jobs:
           corepack enable || true
           corepack prepare pnpm@latest --activate || true
 
+          echo "REMOTE_PATH=$REMOTE_PATH"
           cd "$REMOTE_PATH"
+          ls -la
 
-          # prod build
+          # build
           pnpm install --frozen-lockfile=false
           pnpm build
 
-          # PM2 (újraindít vagy indít)
+          # PM2: restart vagy start
           pm2 describe "$PM2_NAME" >/dev/null 2>&1 && \
             pm2 restart "$PM2_NAME" --update-env || \
             pm2 start "pnpm start" --name "$PM2_NAME" --cwd "$REMOTE_PATH"
@@ -87,8 +94,7 @@ jobs:
           pm2 save
           EOF
 
-      # Opcionális egészség-ellenőrzés: kéri a site-ot a VPS-ről
-      - name: Health check over HTTP(S)
+      - name: Health check (HTTP/HTTPS)
         run: |
           curl -I -H "Host: davelopment.hu" http://$VPS_HOST/ || true
           curl -I https://davelopment.hu/ || true
