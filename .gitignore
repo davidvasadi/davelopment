@@ -17,3 +17,5 @@ backend/.cache
 backend/public/uploads
 backend/.env*
 IGN
+
+trash/
