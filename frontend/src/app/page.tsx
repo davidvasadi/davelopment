@@ -12,7 +12,9 @@ export default function Home() {
               'var(--font-geist, var(--font-inter), Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial)',
           }}
         >
-          <span className="inline-block text-[clamp(56px,8vw,96px)] leading-none font-semibold tracking-[-0.065em]">
+          <span className="inline-block leading-none font-semibold tracking-[-0.065em]
+            text-[clamp(44px,7vw,72px)] sm:text-[clamp(56px,8vw,96px)]"
+>
             [davelopment]    
             <span className="pointer-events-none absolute top-0 right-0 translate-x-[110%] -translate-y-[0%] text-[0.62em] leading-none font-semibold">
               ®
