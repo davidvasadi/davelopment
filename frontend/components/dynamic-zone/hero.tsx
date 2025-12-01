@@ -22,7 +22,7 @@ type Media = { url?: string } | string | null;
 export type HeroProps = {
   heading: string;
   sub_heading: string;
-  CTAs: CTA[];
+  CTAs?: CTA[] | null; // lehet null/undefined is, safeCTAs kezeli
   locale: string;
   video?: Media;
   video_poster?: Media;
@@ -33,18 +33,24 @@ export type HeroProps = {
   description_lead?: string | null;
   description_body?: string | null;
 
-  /** RÉGI — fallback */
+  /** RÉGI — fallback egy mezőre */
   description_text?: string | null;
 
   copyright?: string | null;
   contact_anchor_id?: string | null; // most már nem használjuk
 };
 
-// ---- Scroll dinamika
-function useSlowScroll(ref: React.RefObject<HTMLElement>) {
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
-  const y = useTransform(scrollYProgress, [0, 1], [1, 1], { clamp: true });
+// ---- Scroll dinamika (TShiba fix: engedjük a null-t, és általános HTMLElementet várunk)
+function useSlowScroll(ref: React.RefObject<HTMLElement | null>) {
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  });
+
+  // itt most nem mozgatjuk a sectiont, csak egy finom scale-t használunk
+  const y = useTransform(scrollYProgress, [0, 1], [0, 0], { clamp: true });
   const scale = useTransform(scrollYProgress, [0, 1], [1.05, 0.9]);
+
   return { y, scale };
 }
 
@@ -53,6 +59,7 @@ const wheelVariants: Variants = {
   rest: { y: '-50%' },
   hover: { y: '0%', transition: { duration: 0.3, ease: 'easeInOut' } },
 };
+
 const dotVariants: Variants = {
   rest: { scale: 1 },
   hover: { scale: 1.4, transition: { duration: 0.3, ease: 'easeInOut' } },
@@ -92,31 +99,45 @@ export const Hero = ({
   description_text, // fallback
   copyright,
 }: HeroProps) => {
-  const heroRef = useRef<HTMLDivElement>(null);
+  // TShiba fix: általános HTMLElement + null
+  const heroRef = useRef<HTMLElement | null>(null);
   const { y, scale } = useSlowScroll(heroRef);
 
   const videoUrl = toAbs(video);
   const posterUrl = toAbs(video_poster);
   const personImgUrl = toAbs(person?.image || null);
 
-  const safeCTAs = CTAs ?? [];
+  // safeCTAs külön useMemo, hogy ne szóljon a react-hooks rule
+  const safeCTAs = useMemo(() => CTAs ?? [], [CTAs]);
 
-  // --- melyik CTA menjen a kártyára (egyszerű, jól érthető logika)
-  const talkIndex = useMemo(() => {
-    if (safeCTAs.length >= 2) return 1; // a 2. CTA lesz a kártyán
-    if (safeCTAs.length === 1) return 0; // ha csak egy van, az megy oda
-    return -1;
+  // --- beszélgetős CTA kiválasztása + felső CTA-k
+  const { talkCTA, topCTAs } = useMemo(() => {
+    if (!safeCTAs || safeCTAs.length === 0) {
+      return { talkCTA: undefined as CTA | undefined, topCTAs: [] as CTA[] };
+    }
+
+    let talkIndex = -1;
+
+    if (safeCTAs.length >= 2) {
+      // ha minimum 2 van, a 2. megy a kártyára
+      talkIndex = 1;
+    } else if (safeCTAs.length === 1) {
+      // ha csak 1 CTA van, azt tesszük a kártyára
+      talkIndex = 0;
+    }
+
+    const talkCTA = talkIndex >= 0 ? safeCTAs[talkIndex] : undefined;
+    const topCTAs = talkIndex >= 0 ? safeCTAs.filter((_, i) => i !== talkIndex) : safeCTAs;
+
+    return { talkCTA, topCTAs };
   }, [safeCTAs]);
-
-  const talkCTA = talkIndex >= 0 ? safeCTAs[talkIndex] : undefined;
-  const topCTAs = talkIndex >= 0 ? safeCTAs.filter((_, i) => i !== talkIndex) : safeCTAs;
 
   const serviceLabels = (services || [])
     .map((s: any) => (typeof s === 'string' ? s : s?.label))
     .filter(Boolean) as string[];
 
   // — leírás két mezővel vagy fallback bontással
-  const computedDescription = (() => {
+  const computedDescription = useMemo(() => {
     if (description_lead || description_body) {
       return { lead: description_lead || '', rest: description_body || '' };
     }
@@ -125,11 +146,11 @@ export const Hero = ({
       return { lead, rest };
     }
     return { lead: '', rest: '' };
-  })();
+  }, [description_lead, description_body, description_text]);
 
   return (
     <motion.section
-      ref={heroRef}
+      ref={heroRef as React.RefObject<HTMLElement>}
       style={{ y, scale }}
       className="relative rounded-2xl overflow-hidden bg-black text-white"
       aria-label="Hero"
@@ -231,8 +252,8 @@ export const Hero = ({
         <div className="mt-10 grid grid-cols-12 gap-6 items-end">
           {/* kártya */}
           {person && (
-            <div className="col-span-12 md:col-span-6 lg:col-span-3  md:justify-self-end order-1 lg:order-3">
-              <div className="bg-white/95 backdrop-blur rounded-2xl p-2 md:p-3 max-w-[22rem]  w-full mx-auto flex items-center gap-4 md:gap-6 shadow-2xl border border-white/30 text-gray-900">
+            <div className="col-span-12 md:col-span-6 lg:col-span-3 md:justify-self-end order-1 lg:order-3">
+              <div className="bg-white/95 backdrop-blur rounded-2xl p-2 md:p-3 max-w-[22rem] w-full mx-auto flex items-center gap-4 md:gap-6 shadow-2xl border border-white/30 text-gray-900">
                 <div className="w-20 bg-gray-200 rounded-lg overflow-hidden">
                   {personImgUrl ? (
                     <Image
@@ -300,7 +321,7 @@ export const Hero = ({
           {/* leírás */}
           <div className="col-span-12 md:col-span-6 lg:col-span-5 lg:col-start-1 order-2 lg:order-1">
             {(computedDescription.lead || computedDescription.rest) && (
-              <p className="leading-snug text-base md:text-xl indent-12  xl:indent-20 text-white/90">
+              <p className="leading-snug text-base md:text-xl indent-12 xl:indent-20 text-white/90">
                 {computedDescription.lead && (
                   <span className="font-semibold">
                     {computedDescription.lead}
