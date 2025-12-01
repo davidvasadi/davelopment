@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_shared_chips",
+  "info": {
+    "displayName": "Chip"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

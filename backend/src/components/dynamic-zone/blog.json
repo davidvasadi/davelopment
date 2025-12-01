@@ -1,0 +1,48 @@
+{
+  "collectionName": "components_dynamic_zone_blogs",
+  "info": {
+    "displayName": "Blog"
+  },
+  "options": {},
+  "attributes": {
+    "badge_label": {
+      "type": "string"
+    },
+    "heading_left": {
+      "type": "string"
+    },
+    "heading_right": {
+      "type": "string"
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "button": {
+      "type": "component",
+      "component": "shared.button",
+      "repeatable": false
+    },
+    "highlight_heading": {
+      "type": "string"
+    },
+    "highlight_subheading": {
+      "type": "string"
+    },
+    "highlight_image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "articles": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::article.article"
+    }
+  },
+  "config": {}
+}

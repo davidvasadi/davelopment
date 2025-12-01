@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_dynamic_zone_products",
+  "info": {
+    "displayName": "Projects"
+  },
+  "options": {},
+  "attributes": {
+    "badge_label": {
+      "type": "string"
+    },
+    "heading": {
+      "type": "string"
+    },
+    "sub_heading": {
+      "type": "string"
+    },
+    "projects": {
+      "type": "component",
+      "component": "cards.project-card",
+      "repeatable": true
+    }
+  },
+  "config": {}
+}

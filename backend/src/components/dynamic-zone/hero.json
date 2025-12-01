@@ -1,0 +1,68 @@
+{
+  "collectionName": "components_dynamic_zone_heroes",
+  "info": {
+    "displayName": "Hero",
+    "icon": "layout",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "sub_heading": {
+      "type": "string"
+    },
+    "CTAs": {
+      "type": "component",
+      "component": "shared.button",
+      "repeatable": true
+    },
+    "video": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "video_poster": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "services": {
+      "type": "component",
+      "component": "hero.hero-service-item",
+      "repeatable": true
+    },
+    "person": {
+      "type": "component",
+      "component": "hero.hero-person-card",
+      "repeatable": false
+    },
+    "description_text": {
+      "type": "text"
+    },
+    "copyright": {
+      "type": "string"
+    },
+    "contact_anchor_id": {
+      "type": "string",
+      "default": "kapcsolat"
+    },
+    "description_lead": {
+      "type": "string"
+    },
+    "description_body": {
+      "type": "string"
+    }
+  }
+}

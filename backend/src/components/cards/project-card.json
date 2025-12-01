@@ -1,0 +1,29 @@
+{
+  "collectionName": "components_cards_project_cards",
+  "info": {
+    "displayName": "Project_Card"
+  },
+  "options": {},
+  "attributes": {
+    "product": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::product.product"
+    },
+    "badge_label": {
+      "type": "string"
+    },
+    "result_line": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "component",
+      "component": "shared.chip",
+      "repeatable": true
+    },
+    "is_featured": {
+      "type": "boolean"
+    }
+  },
+  "config": {}
+}

@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_shared_benefits",
+  "info": {
+    "displayName": "Benefit"
+  },
+  "options": {},
+  "attributes": {
+    "icon": {
+      "type": "enumeration",
+      "enum": [
+        "rotate",
+        "step",
+        "check",
+        "clock"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

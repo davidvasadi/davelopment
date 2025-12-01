@@ -1,0 +1,40 @@
+{
+  "collectionName": "components_cards_elements_service_items",
+  "info": {
+    "displayName": "Elements_Service_Item"
+  },
+  "options": {},
+  "attributes": {
+    "categories_title": {
+      "type": "string"
+    },
+    "number": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "image": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "categories": {
+      "type": "component",
+      "component": "shared.chip",
+      "repeatable": true
+    },
+    "category_count": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

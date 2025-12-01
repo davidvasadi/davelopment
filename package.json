@@ -1,0 +1,17 @@
+{
+  "name": "workspace",
+  "private": true,
+  "packageManager": "pnpm@10.18.3",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r --parallel build"
+  },
+"pnpm": {
+    "overrides": {
+      "@types/react": "19.1.10",
+      "@types/react-dom": "19.1.5",
+      "react": "19.1.1",
+      "react-dom": "19.1.1"
+    }
+  }
+}

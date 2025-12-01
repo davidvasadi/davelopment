@@ -1,0 +1,40 @@
+{
+  "collectionName": "components_dynamic_zone_services",
+  "info": {
+    "displayName": "Services"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "sub_heading": {
+      "type": "string"
+    },
+    "badge_label": {
+      "type": "string"
+    },
+    "cta_title": {
+      "type": "string"
+    },
+    "cta_anchor": {
+      "type": "string"
+    },
+    "elements_service_item": {
+      "type": "component",
+      "component": "cards.elements-service-item",
+      "repeatable": true
+    },
+    "background": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  },
+  "config": {}
+}

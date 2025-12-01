@@ -1,0 +1,64 @@
+{
+  "collectionName": "components_global_footers",
+  "info": {
+    "displayName": "Footer",
+    "icon": "apps",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "logo": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::logo.logo"
+    },
+    "description": {
+      "type": "string"
+    },
+    "copyright": {
+      "type": "string"
+    },
+    "designed_developed_by": {
+      "type": "string"
+    },
+    "built_with": {
+      "type": "string"
+    },
+    "internal_links": {
+      "type": "component",
+      "component": "shared.link",
+      "repeatable": true
+    },
+    "policy_links": {
+      "type": "component",
+      "component": "shared.link",
+      "repeatable": true
+    },
+    "social_media_links": {
+      "type": "component",
+      "component": "shared.link",
+      "repeatable": true
+    },
+    "navigation_title": {
+      "type": "string"
+    },
+    "social_title": {
+      "type": "string"
+    },
+    "form": {
+      "type": "component",
+      "component": "shared.form",
+      "repeatable": false
+    },
+    "profile": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  }
+}

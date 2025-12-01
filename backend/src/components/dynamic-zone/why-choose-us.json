@@ -1,0 +1,29 @@
+{
+  "collectionName": "components_dynamic_zone_why_choose_uses",
+  "info": {
+    "displayName": "Why_Choose_Us"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "sub_heading": {
+      "type": "string"
+    },
+    "badge_label": {
+      "type": "string"
+    },
+    "why_choose_us": {
+      "type": "component",
+      "component": "cards.why-choose-us-card",
+      "repeatable": false
+    },
+    "why_choose_us_item": {
+      "type": "component",
+      "component": "items.why-choose-us-item",
+      "repeatable": true
+    }
+  },
+  "config": {}
+}

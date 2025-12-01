@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_items_why_choose_us_items",
+  "info": {
+    "displayName": "Why_Choose_Us_item"
+  },
+  "options": {},
+  "attributes": {
+    "number": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "social_media_links": {
+      "type": "component",
+      "component": "shared.social-media-icon-links",
+      "repeatable": true
+    }
+  },
+  "config": {}
+}

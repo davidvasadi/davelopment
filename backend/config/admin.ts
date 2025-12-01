@@ -1,65 +1,71 @@
-// export default ({ env }) => ({
-//   auth: {
-//     secret: env('ADMIN_JWT_SECRET'),
-//   },
-//   apiToken: {
-//     salt: env('API_TOKEN_SALT'),
-//   },
-//   transfer: {
-//     token: {
-//       salt: env('TRANSFER_TOKEN_SALT'),
-//     },
-//   },
-//   secrets: {
-//     encryptionKey: env('ENCRYPTION_KEY'),
-//   },
-//   flags: {
-//     nps: env.bool('FLAG_NPS', true),
-//     promoteEE: env.bool('FLAG_PROMOTE_EE', true),
-//   },
-// });
+const getPreviewPathname = (uid, { locale, document }): string | null => {
+  const { slug } = document;
 
+  switch (uid) {
+    case 'api::page.page': {
+      if (slug === 'homepage') {
+        return '/';
+      }
+      return `/${slug}`;
+    }
+    case 'api::product.product':
+      return `/products/${slug}`;
+    case 'api::product-page.product-page':
+      return '/products';
+    case 'api::article.article':
+      return `/blog/${slug}`;
+    case 'api::blog-page.blog-page':
+      return '/blog';
+    default:
+      return null;
+  }
+};
 
-// config/admin.ts
-export default ({ env }) => ({
-  // Az admin nyilvános útvonala Nginx mögött
-  url: '/admin',
-  serveAdminPanel: env.bool('SERVE_ADMIN', true),
+export default ({ env }) => {
+  const clientUrl = env('CLIENT_URL');
+  const previewSecret = env('PREVIEW_SECRET');
 
-  // Strapi AI UI kapcsoló (UI megjelenik; a tényleges funkciók Strapi csomagtól függenek)
-  ai: {
-    enabled: env.bool('ADMIN_AI_ENABLED', true),
-  },
-
-  // Admin auth + cookie beállítások
-  auth: {
-    secret: env('ADMIN_JWT_SECRET'),
-    // (opcionális) session policy – maradhat az alapértelmezett is
-    sessions: {
-      accessTokenLifespan: 1800,        // 30 perc
-      maxRefreshTokenLifespan: 2592000, // 30 nap
-      idleRefreshTokenLifespan: 604800, // 7 nap
-      maxSessionLifespan: 604800,       // 7 nap
-      idleSessionLifespan: 3600,        // 1 óra
+  return {
+    auth: {
+      secret: env('ADMIN_JWT_SECRET'),
     },
-    cookie: {
-      // domain: env('ADMIN_COOKIE_DOMAIN', 'davelopment.hu'), // csak ha szükséges
-      path: '/admin',
-      sameSite: 'lax',
-      // secure: true  // PROD-ban úgyis secure lesz, ha a Strapi "https"-nek látja (proxy+X-Forwarded-Proto)
+    apiToken: {
+      salt: env('API_TOKEN_SALT'),
     },
-  },
+    transfer: {
+      token: {
+        salt: env('TRANSFER_TOKEN_SALT'),
+      },
+    },
+    flags: {
+      nps: env.bool('FLAG_NPS', true),
+      promoteEE: env.bool('FLAG_PROMOTE_EE', true),
+    },
+    preview: {
+      enabled: true,
+      config: {
+        allowedOrigins: [clientUrl],
+        async handler(uid, { documentId, locale, status }) {
+          const document = await strapi
+            .documents(uid)
+            .findOne({ documentId, locale, status });
+          const pathname = getPreviewPathname(uid, { locale, document });
 
-  // Tokenek / titkok – ezek NÁLAD már megvannak az .env-ben
-  apiToken: {
-    salt: env('API_TOKEN_SALT'),
-  },
-  transfer: {
-    token: { salt: env('TRANSFER_TOKEN_SALT') },
-  },
-  secrets: {
-    encryptionKey: env('ENCRYPTION_KEY'),
-  },
+          // Disable preview if the pathname is not found
+          if (!pathname) {
+            return null;
+          }
 
-  // Ne tegyél ide host/port-ot – az a config/server.ts-ben van helyesen beállítva!
-});
+          // Use Next.js draft mode
+          const urlSearchParams = new URLSearchParams({
+            url: `/${locale ?? 'en'}${pathname}`,
+            secret: previewSecret,
+            status,
+          });
+
+          return `${clientUrl}/api/preview?${urlSearchParams}`;
+        },
+      },
+    },
+  };
+};

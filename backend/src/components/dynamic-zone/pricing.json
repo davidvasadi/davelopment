@@ -1,0 +1,81 @@
+{
+  "collectionName": "components_dynamic_zone_pricings",
+  "info": {
+    "displayName": "Pricing",
+    "icon": "shoppingCart",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "sub_heading": {
+      "type": "string"
+    },
+    "plans": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::plan.plan"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "project_label": {
+      "type": "string"
+    },
+    "monthly_label": {
+      "type": "string"
+    },
+    "addon_title": {
+      "type": "string"
+    },
+    "addon_description": {
+      "type": "text"
+    },
+    "addon_price": {
+      "type": "decimal"
+    },
+    "time_label": {
+      "type": "string"
+    },
+    "time_value": {
+      "type": "string"
+    },
+    "background": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "badge_label": {
+      "type": "string"
+    },
+    "question": {
+      "type": "string"
+    },
+    "profile_image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "profile_label": {
+      "type": "string"
+    },
+    "profile_description": {
+      "type": "string"
+    },
+    "profile_job": {
+      "type": "string"
+    }
+  }
+}

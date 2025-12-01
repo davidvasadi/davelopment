@@ -1,4 +1,4 @@
-name: Deploy Frontend (monorepo)
+name: Deploy Frontend
 
 on:
   push:

@@ -1,0 +1,47 @@
+{
+  "kind": "collectionType",
+  "collectionName": "newsletters",
+  "info": {
+    "singularName": "newsletter",
+    "pluralName": "newsletters",
+    "displayName": "Newsletter"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "email",
+      "required": true
+    },
+    "language": {
+      "type": "enumeration",
+      "enum": [
+        "hu",
+        "en"
+      ]
+    },
+    "source": {
+      "type": "string"
+    },
+    "gdpr_accepted": {
+      "type": "boolean",
+      "default": true
+    },
+    "unsubscribed": {
+      "type": "boolean",
+      "default": false
+    },
+    "confirmed": {
+      "type": "boolean",
+      "default": false
+    },
+    "subscribed_at": {
+      "type": "datetime"
+    }
+  }
+}

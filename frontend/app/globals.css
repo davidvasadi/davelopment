@@ -1,0 +1,41 @@
+/* Prism.js stílus a kódrészletek (syntax highlighting) megjelenítéséhez */
+@import './prism.css';
+
+/* Tailwind „rétegek” bekapcsolása:
+   - base: CSS resetek + alap elemek
+   - components: komponens-szintű osztályok
+   - utilities: segédosztályok (pl. p-4, bg-…)
+   A sorrend számít, így írja felül helyesen egymást. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Globális CSS-változó a szöveg színéhez RGB formátumban.
+   Ezt a body alul felhasználja (rgb(var(--foreground-rgb))) */
+:root {
+  --foreground-rgb: 245, 245, 245; /* alapértelmezett (világos mód) szövegszín: fehér */
+}
+
+/* Rendszer szintű sötét mód esetén futó szabályok.
+   Itt jelenleg UGYANAZ az érték, mint fent, tehát nem változtat semmin,
+   de ide tehetnél eltérő értéket, ha dark módban mást akarsz. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 245, 245, 245; /* pl. állíthatnád 17, 24, 39-re sötét szürkéhez */
+  }
+}
+
+/* A teljes oldal (body) szövegszíne a fenti változóból.
+   FIGYELEM: ez NEM háttérszín, csak a szöveg színe. */
+body {
+  color: rgb(var(--foreground-rgb));
+}
+
+/* Egyedi Tailwind utility osztályok rétege.
+   Itt egy .text-balance util készül, ami a hosszú sorokat „kiegyensúlyozza”
+   (különösen címeknél szebb sortöréseket ad). */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance; /* modern böngészőkben támogatott tipográfiai finomítás */
+  }
+}

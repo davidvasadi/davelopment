@@ -1,0 +1,41 @@
+{
+  "collectionName": "components_global_navbars",
+  "info": {
+    "displayName": "Navbar",
+    "icon": "bold"
+  },
+  "options": {},
+  "attributes": {
+    "logo": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::logo.logo"
+    },
+    "left_navbar_items": {
+      "type": "component",
+      "component": "shared.link",
+      "repeatable": true
+    },
+    "right_navbar_items": {
+      "type": "component",
+      "component": "shared.link",
+      "repeatable": true
+    },
+    "policy": {
+      "type": "component",
+      "component": "shared.link",
+      "repeatable": true
+    },
+    "Form": {
+      "type": "component",
+      "component": "shared.form",
+      "repeatable": true
+    },
+    "copyright": {
+      "type": "string"
+    },
+    "copyright_enabled": {
+      "type": "boolean"
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "collectionName": "components_dynamic_zone_newsletters",
+  "info": {
+    "displayName": "Newsletter"
+  },
+  "options": {},
+  "attributes": {
+    "heading_left": {
+      "type": "string"
+    },
+    "heading_right": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "profile_name": {
+      "type": "string"
+    },
+    "profile_role": {
+      "type": "string"
+    },
+    "profile_image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "source": {
+      "type": "string"
+    },
+    "form": {
+      "type": "component",
+      "component": "shared.form",
+      "repeatable": false
+    },
+    "title": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

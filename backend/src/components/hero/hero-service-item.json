@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_hero_hero_service_items",
+  "info": {
+    "displayName": "hero.service_item"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}
