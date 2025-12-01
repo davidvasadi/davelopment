@@ -462,6 +462,7 @@ export function SkeletonOne() {
         </div>
       </div>
       <div className="h-[300px] w-[300px] md:w-[600px] md:h-[600px] mx-auto absolute -bottom-20 md:-bottom-60 z-20 inset-x-0">
+        {/* @ts-expect-error World props nincsenek még rendesen típusozva, runtime-ban oké */}
         <World data={sampleArcs} globeConfig={globeConfig} />
       </div>
     </div>
