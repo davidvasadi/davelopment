@@ -36,6 +36,18 @@ export const SingleProduct = ({
   product: Product;
   locale: string;
 }) => {
+  // extra Strapi mezők, amiket a Product típus még nem ismer
+  const {
+    badge_label_center,
+    heading_center,
+    description_center,
+    button_center,
+    badge_label_bottom,
+    heading_bottom,
+    description_bottom,
+    button_bottom,
+  } = product as any;
+
   // --- 0. KÉPGYŰJTÉS: az első kép NE kerüljön erre az oldalra ---
   const galleryImages = product.images?.slice(1) ?? [];
 
@@ -219,21 +231,21 @@ export const SingleProduct = ({
               <span>
                 <PlusIcon className="inline-block w-5 h-5 mr-1 bg-black text-white rounded-full p-1 " />
               </span>
-              {product.badge_label_center}
+              {badge_label_center}
             </div>
           </div>
           <div>
             <div className="text-3xl font-medium text-black">
-              {product.heading_center}
+              {heading_center}
             </div>
             <p className="font-regular text-black max-w-lg text-lg mt-10">
-              {product.description_center}
+              {description_center}
             </p>
             <motion.div
               {...fadeUp(0.08, 20)}
               className="inline-block mt-10"
             >
-              <Button className="py-2">{product.button_center}</Button>
+              <Button className="py-2">{button_center}</Button>
             </motion.div>
           </div>
         </motion.div>
@@ -314,15 +326,15 @@ export const SingleProduct = ({
                 <span>
                   <PlusIcon className="inline-block w-5 h-5 mr-1 bg-black text-white rounded-full p-1 " />
                 </span>
-                {product.badge_label_bottom}
+                {badge_label_bottom}
               </div>
             </div>
             <div>
               <div className="text-3xl font-medium text-black">
-                {product.heading_bottom}
+                {heading_bottom}
               </div>
               <p className="font-regular text-black max-w-lg text-lg mt-10">
-                {product.description_bottom}
+                {description_bottom}
               </p>
             </div>
           </motion.div>
@@ -331,7 +343,7 @@ export const SingleProduct = ({
 
       {/* bottom CTA gomb */}
       <motion.div className="mt-12 inline-block" {...fadeUp(0.05, 30)}>
-        <Button className="py-2">{product.button_bottom}</Button>
+        <Button className="py-2">{button_bottom}</Button>
       </motion.div>
     </div>
   );
