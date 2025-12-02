@@ -1,7 +1,11 @@
+// lib/strapi/fetchContentType.ts
 import { draftMode } from 'next/headers';
 import qs from 'qs';
 
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:1337').replace(/\/+$/, '');
+const API_BASE = (process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337').replace(
+  /\/+$/,
+  ''
+);
 
 type AnyRecord = Record<string, any>;
 
@@ -90,8 +94,8 @@ export default async function fetchContentType(
     cache: 'no-store',
     headers: {
       'Content-Type': 'application/json',
-      ...(process.env.NEXT_PUBLIC_STRAPI_TOKEN
-        ? { Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_TOKEN}` }
+      ...(process.env.STRAPI_API_TOKEN
+        ? { Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}` }
         : {}),
       // maradhat, ha használod Strapi Clouddal
       'strapi-encode-source-maps': isDraftMode ? 'true' : 'false',
