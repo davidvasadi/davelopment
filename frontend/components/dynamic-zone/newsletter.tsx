@@ -228,7 +228,7 @@ const res = await fetch(`${API_URL}/api/newsletters`, {
 
               <motion.button
                 type="submit"
-                className="mt-6 bg-black text-white px-4 py-1 rounded-full inline-flex items-center space-x-2 overflow-hidden"
+                className="mt-6 bg-black text-white font-semibold px-4 py-1 rounded-full inline-flex items-center space-x-2 overflow-hidden"
                 initial="rest"
                 whileHover="hover"
                 animate="rest"

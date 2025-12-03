@@ -290,8 +290,9 @@ export const Hero = ({
                       aria-label={talkCTA.text || 'Let’s talk'}
                     >
                       {/* belső animáció, a Button saját class-e marad */}
-                      <div className="flex items-center gap-3">
-                        <div className="overflow-hidden h-5 md:h-5">
+                       <div className="overflow-hidden h-3 flex items-center leading-none">
+
+                        <div className="overflow-hidden text-sm h-5 md:h-5">
                           <motion.div
                             className="flex flex-col"
                             variants={wheelVariants}

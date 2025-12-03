@@ -113,7 +113,7 @@ export const Button: React.FC<ButtonProps> = ({
   href,
   target,
   onClick,
-  emailFallback = 'hello@davelopment.com',
+  emailFallback = 'hello@davelopment.hu',
   ...rest
 }) => {
   // --- 1) Strapi config kigyűjtése children-ből ---
@@ -212,7 +212,7 @@ export const Button: React.FC<ButtonProps> = ({
       <MotionElement
         className={cn(
           baseClass,
-          'rounded-full bg-black text-white px-3 py-2 gap-4 text-xs font-semibold',
+          'rounded-full bg-black text-white px-3 py-2 gap-4 text-md font-semibold',
           className,
         )}
         initial="rest"

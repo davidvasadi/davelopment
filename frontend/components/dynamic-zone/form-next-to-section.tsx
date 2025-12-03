@@ -272,7 +272,7 @@ export function FormNextToSection({
         ? rawEmail
         : `mailto:${rawEmail}`;
     }
-    return 'mailto:hello@davelopment.com';
+    return 'mailto:hello@davelopment.hu';
   })();
 
   const buttonTarget =
