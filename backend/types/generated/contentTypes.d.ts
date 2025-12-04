@@ -861,32 +861,112 @@ export interface ApiPlanPlan extends Struct.CollectionTypeSchema {
   options: {
     draftAndPublish: true;
   };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
   attributes: {
-    additional_perks: Schema.Attribute.Component<'shared.perks', true>;
-    addon_description: Schema.Attribute.Text;
-    addon_price: Schema.Attribute.Decimal;
-    addon_title: Schema.Attribute.String;
+    additional_perks: Schema.Attribute.Component<'shared.perks', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    addon_description: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    addon_price: Schema.Attribute.Decimal &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    addon_title: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    CTA: Schema.Attribute.Component<'shared.button', false>;
-    currency: Schema.Attribute.String;
-    currency_project_label: Schema.Attribute.String;
-    featured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'api::plan.plan'> &
-      Schema.Attribute.Private;
-    name: Schema.Attribute.String;
-    perks: Schema.Attribute.Component<'shared.perks', true>;
+    CTA: Schema.Attribute.Component<'shared.button', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    currency: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    currency_project_label: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    featured: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<false>;
+    locale: Schema.Attribute.String;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::plan.plan'>;
+    name: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    perks: Schema.Attribute.Component<'shared.perks', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
     plan_type: Schema.Attribute.Enumeration<
       ['project', 'monthly', 'enterprise']
-    >;
-    price: Schema.Attribute.Integer;
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    price: Schema.Attribute.Integer &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
     product: Schema.Attribute.Relation<'manyToOne', 'api::product.product'>;
     publishedAt: Schema.Attribute.DateTime;
-    sub_text: Schema.Attribute.String;
-    time_label: Schema.Attribute.String;
-    time_value: Schema.Attribute.String;
+    sub_text: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    time_label: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    time_value: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

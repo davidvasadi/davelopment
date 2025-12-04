@@ -10,33 +10,72 @@
   "options": {
     "draftAndPublish": true
   },
-  "pluginOptions": {},
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
   "attributes": {
     "name": {
-      "type": "string"
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "price": {
-      "type": "integer"
+      "type": "integer",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "sub_text": {
-      "type": "string"
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "featured": {
       "type": "boolean",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "default": false
     },
     "CTA": {
       "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "component": "shared.button",
       "repeatable": false
     },
     "perks": {
       "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "component": "shared.perks",
       "repeatable": true
     },
     "additional_perks": {
       "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "component": "shared.perks",
       "repeatable": true
     },
@@ -48,6 +87,11 @@
     },
     "plan_type": {
       "type": "enumeration",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "enum": [
         "project",
         "monthly",
@@ -55,25 +99,60 @@
       ]
     },
     "currency": {
-      "type": "string"
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "currency_project_label": {
-      "type": "string"
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "time_label": {
-      "type": "string"
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "time_value": {
-      "type": "string"
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "addon_title": {
-      "type": "string"
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "addon_description": {
-      "type": "text"
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "addon_price": {
-      "type": "decimal"
+      "type": "decimal",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   }
 }
