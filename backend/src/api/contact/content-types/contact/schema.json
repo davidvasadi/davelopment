@@ -1,0 +1,39 @@
+{
+  "kind": "collectionType",
+  "collectionName": "contacts",
+  "info": {
+    "singularName": "contact",
+    "pluralName": "contacts",
+    "displayName": "Contact"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "email"
+    },
+    "message": {
+      "type": "text"
+    },
+    "page": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string"
+    },
+    "state": {
+      "type": "enumeration",
+      "default": "new,",
+      "enum": [
+        "new,",
+        "in_progress,",
+        "done"
+      ]
+    }
+  }
+}

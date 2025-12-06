@@ -76,6 +76,7 @@ type FormNextToSectionProps = {
   policy_and_word?: string | null;
 };
 
+// STRAPI BASE (mint a newsletternél is)
 const STRAPI_BASE_URL =
   process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
 
@@ -128,6 +129,8 @@ export function FormNextToSection({
         messageRequired: 'Az üzenet megadása kötelező.',
         submitFailed: 'Beküldés sikertelen. Próbáld újra.',
         networkError: 'Hálózati hiba. Próbáld újra.',
+        sending: 'Küldés folyamatban...',
+        success: 'Köszönöm! Hamarosan jelentkezem.',
       }
     : {
         nameRequired: 'Your name is required.',
@@ -136,6 +139,8 @@ export function FormNextToSection({
         messageRequired: 'Message is required.',
         submitFailed: 'Submission failed. Please try again.',
         networkError: 'Network error. Please try again.',
+        sending: 'Sending...',
+        success: 'Thank you! I will get back to you soon.',
       };
 
   // --- 1. lokális form state ---
@@ -196,7 +201,7 @@ export function FormNextToSection({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // --- 5. Submit handler -> Strapi contact-sections ---
+  // --- 5. Submit handler -> KÖZVETLEN Strapi Contact ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
@@ -207,17 +212,31 @@ export function FormNextToSection({
     setShowAlert(true);
 
     try {
-      const res = await fetch(`${STRAPI_BASE_URL}/api/contact-sections`, {
+      const res = await fetch(`${STRAPI_BASE_URL}/api/contacts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: formData }),
+        body: JSON.stringify({
+          data: {
+            name: formData.name,
+            email: formData.email,
+            message: formData.message,
+            page: pathname || '/',
+            language: lang,
+            // state-et nem muszáj küldeni, lifecycle beállítja new-ra
+          },
+        }),
       });
 
       if (!res.ok) {
         let errorBody: any = null;
         try {
-          errorBody = await res.json();
-          console.error('Beküldési hiba:', errorBody);
+          const contentType = res.headers.get('content-type') || '';
+          if (contentType.includes('application/json')) {
+            errorBody = await res.json();
+          } else {
+            errorBody = await res.text();
+          }
+          console.error('Beküldési hiba (Strapi):', errorBody);
         } catch {
           // ignore
         }
@@ -228,7 +247,7 @@ export function FormNextToSection({
       setSubmitSuccess(true);
       setFormData({ name: '', email: '', message: '' });
     } catch (err) {
-      console.error('Beküldési hiba:', err);
+      console.error('Beküldési hiba (hálózat):', err);
       setSubmitError(messages.networkError);
     } finally {
       setIsSubmitting(false);
@@ -236,7 +255,7 @@ export function FormNextToSection({
   };
 
   // --- 6. Animációs variánsok ---
-  const wheelVariants : Variants = {
+  const wheelVariants: Variants = {
     rest: { y: '-50%' },
     hover: {
       y: '0%',
@@ -244,7 +263,7 @@ export function FormNextToSection({
     },
   };
 
-  const dotVariants : Variants = {
+  const dotVariants: Variants = {
     rest: { scale: 1 },
     hover: {
       scale: 1.1,
@@ -301,7 +320,7 @@ export function FormNextToSection({
 
   const hasBenefits = !!benefits && benefits.length > 0;
 
-  const policyLinks: PolicyLink[] = (policy_links ?? []).filter(
+  const filteredPolicyLinks: PolicyLink[] = (policy_links ?? []).filter(
     (l): l is PolicyLink => !!l && !!l.text && !!l.URL,
   );
 
@@ -456,7 +475,7 @@ export function FormNextToSection({
                     >
                       {isSubmitting ? (
                         <span className="animate-pulse">
-                          Küldés folyamatban...
+                          {messages.sending}
                         </span>
                       ) : (
                         <motion.div className="overflow-hidden h-6">
@@ -513,9 +532,8 @@ export function FormNextToSection({
                             <XCircleIcon className="w-5 h-5" />
                           )}
                           <span>
-                            {isSubmitting && 'Küldés folyamatban...'}
-                            {submitSuccess &&
-                              'Köszönöm! Hamarosan jelentkezem.'}
+                            {isSubmitting && messages.sending}
+                            {submitSuccess && messages.success}
                             {submitError && submitError}
                           </span>
                         </div>
@@ -523,17 +541,17 @@ export function FormNextToSection({
                     )}
 
                     {/* Jogi szöveg – dinamikus policy_links Strapi-ból */}
-                    {policyLinks.length > 0 ? (
+                    {filteredPolicyLinks.length > 0 ? (
                       <p className="text-xs text-black/60 text-left">
                         {policy_prefix}{' '}
-                        {policyLinks.map((link, index) => {
+                        {filteredPolicyLinks.map((link, index) => {
                           const isLast =
-                            index === policyLinks.length - 1;
+                            index === filteredPolicyLinks.length - 1;
                           const isSecondLast =
-                            index === policyLinks.length - 2;
+                            index === filteredPolicyLinks.length - 2;
 
                           const separator =
-                            policyLinks.length === 1
+                            filteredPolicyLinks.length === 1
                               ? ''
                               : isLast
                               ? ''
@@ -727,7 +745,6 @@ export function FormNextToSection({
                             className="w-2 h-2 ml-6 bg-white rounded-full"
                             variants={dotVariants}
                           />
-
                         </motion.a>
                       </div>
                     </div>
