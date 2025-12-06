@@ -85,7 +85,8 @@ jobs:
           cd "$REMOTE_PATH"
           ls -la
 
-          pnpm install --frozen-lockfile=false
+          # FONTOS: NINCS postinstall, NINCS updateUuid, NINCS script futtatás
+          pnpm install --frozen-lockfile=false --ignore-scripts
           pnpm build
 
           pm2 describe "$PM2_NAME" >/dev/null 2>&1 && \
