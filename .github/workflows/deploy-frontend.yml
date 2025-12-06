@@ -29,30 +29,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Kód lehúzása
+      # 1) Repo
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2) Node + pnpm
+      # 2) Node (cache nélkül, mert pnpm-et corepack-kel kapcsoljuk be)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "pnpm"
 
-      - name: Enable pnpm
+      # 3) pnpm bekapcsolás + build A RUNNEREN
+      - name: Enable pnpm & build (on runner)
+        working-directory: frontend
         run: |
           corepack enable
           corepack prepare pnpm@latest --activate
-
-      # 3) Telepítés + build A RUNNEREN (nem a VPS-en)
-      - name: Install & build (on runner)
-        working-directory: frontend
-        run: |
           pnpm install
           pnpm build
 
-      # 4) SSH kulcsok
+      # 4) SSH kulcs
       - name: Prepare SSH
         run: |
           mkdir -p ~/.ssh
@@ -60,13 +56,13 @@ jobs:
           chmod 600 ~/.ssh/id_ci
           ssh-keyscan -p "${VPS_PORT}" -H "${VPS_HOST}" >> ~/.ssh/known_hosts
 
-      # 5) Remote könyvtár
+      # 5) Remote dir
       - name: Ensure remote dir exists
         run: |
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes ${VPS_USER}@${VPS_HOST} \
             "mkdir -p ${REMOTE_PATH}"
 
-      # 6) Build feltolása a VPS-re
+      # 6) Csak a build + szükséges file-ok rsync VPS-re
       - name: Upload build to VPS
         run: |
           rsync -avz --delete \
@@ -86,7 +82,7 @@ jobs:
           REMOTE_PATH="${{ env.REMOTE_PATH }}"
           PM2_NAME="${{ env.PM2_NAME }}"
 
-          # pnpm elérhető
+          # pnpm elérhetővé tétele
           export PNPM_HOME="$HOME/.local/share/pnpm"
           export PATH="$PNPM_HOME:$PATH"
           corepack enable || true
@@ -95,10 +91,9 @@ jobs:
           cd "$REMOTE_PATH"
           ls -la
 
-          # csak runtime deps (nincs build itt!)
+          # csak runtime dep-ek, build már kész
           pnpm install --prod --frozen-lockfile=false
 
-          # PM2 restart / start
           pm2 describe "$PM2_NAME" >/dev/null 2>&1 && \
             pm2 restart "$PM2_NAME" --update-env || \
             pm2 start "pnpm start" --name "$PM2_NAME" --cwd "$REMOTE_PATH"
