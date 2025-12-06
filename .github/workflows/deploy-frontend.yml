@@ -2,13 +2,12 @@ name: Deploy Frontend
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - "frontend/**"
       - ".github/workflows/deploy-frontend.yml"
   workflow_dispatch:
 
-# Ne fusson több deploy egyszerre
 concurrency:
   group: deploy-frontend
   cancel-in-progress: true
@@ -37,13 +36,13 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Enable pnpm on runner
+      - name: Enable pnpm
         run: |
           corepack enable
           corepack prepare pnpm@latest --activate
 
-      # Itt fut a Next build a GitHub runneren, NEM a VPS-en
-      - name: Install & build frontend on runner (Next.js)
+      # --- BUILD A GITHUB RUNNEREN ---
+      - name: Install & build frontend (CI)
         working-directory: frontend
         env:
           NODE_ENV: production
@@ -63,40 +62,34 @@ jobs:
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes ${VPS_USER}@${VPS_HOST} \
             "mkdir -p ${REMOTE_PATH}"
 
-      # .next MÁR NINCS kizárva → a kész build is felmegy
-      - name: Upload frontend via rsync (include built .next)
+      # --- FELTÖLTJÜK A KÉSZ BUILD-ET ---
+      - name: Upload build to VPS
         run: |
           rsync -avz --delete \
-            --exclude "node_modules" \
             --exclude ".env*" \
             -e "ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes" \
-            frontend/ ${VPS_USER}@${VPS_HOST}:${REMOTE_PATH}/
+            frontend/.next frontend/public \
+            frontend/package.json frontend/pnpm-lock.yaml \
+            frontend/next.config.* frontend/tsconfig.json \
+            ${VPS_USER}@${VPS_HOST}:${REMOTE_PATH}/
 
-      - name: Install deps (NO build) & (re)start with PM2 on VPS
+      # --- SZERVEREN CSAK PROD DEPENDENCY + PM2 ---
+      - name: Install prod deps + restart PM2
         run: |
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes ${VPS_USER}@${VPS_HOST} <<'EOF'
           set -e
 
-          # GitHub env -> távoli változók
           REMOTE_PATH="${{ env.REMOTE_PATH }}"
           PM2_NAME="${{ env.PM2_NAME }}"
 
-          # pnpm elérhetővé tétele (nem login shell)
           export PNPM_HOME="$HOME/.local/share/pnpm"
           export PATH="$PNPM_HOME:$PATH"
-
-          # corepack/pnpm biztosítás
           corepack enable || true
           corepack prepare pnpm@latest --activate || true
 
-          echo "REMOTE_PATH=$REMOTE_PATH"
           cd "$REMOTE_PATH"
-          ls -la
+          pnpm install --prod --frozen-lockfile=false
 
-          # CSAK install, NINCS pnpm build itt → nem fog kifutni memóriából
-          pnpm install --frozen-lockfile=false --ignore-scripts
-
-          # PM2: restart vagy start
           pm2 describe "$PM2_NAME" >/dev/null 2>&1 && \
             pm2 restart "$PM2_NAME" --update-env || \
             pm2 start "pnpm start" --name "$PM2_NAME" --cwd "$REMOTE_PATH"
