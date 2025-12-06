@@ -8,7 +8,7 @@ on:
       - ".github/workflows/deploy-frontend.yml"
   workflow_dispatch:
 
-# Ne fusson több deploy egyszerre
+# ne fusson párhuzamosan
 concurrency:
   group: deploy-frontend
   cancel-in-progress: true
@@ -29,26 +29,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Repo
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2) Node (cache nélkül, mert pnpm-et corepack-kel kapcsoljuk be)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      # 3) pnpm bekapcsolás + build A RUNNEREN
-      - name: Enable pnpm & build (on runner)
-        working-directory: frontend
+      - name: Enable pnpm (corepack)
         run: |
           corepack enable
           corepack prepare pnpm@latest --activate
-          pnpm install
-          pnpm build
+          pnpm --version
 
-      # 4) SSH kulcs
+      # Itt történik a build A GITHUB RUNNEREN, nem a VPS-en
+      - name: Install & build frontend on runner
+        working-directory: frontend
+        run: |
+          pnpm install --frozen-lockfile=false
+          NODE_ENV=production pnpm build
+
       - name: Prepare SSH
         run: |
           mkdir -p ~/.ssh
@@ -56,25 +57,22 @@ jobs:
           chmod 600 ~/.ssh/id_ci
           ssh-keyscan -p "${VPS_PORT}" -H "${VPS_HOST}" >> ~/.ssh/known_hosts
 
-      # 5) Remote dir
       - name: Ensure remote dir exists
         run: |
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes ${VPS_USER}@${VPS_HOST} \
             "mkdir -p ${REMOTE_PATH}"
 
-      # 6) Csak a build + szükséges file-ok rsync VPS-re
-      - name: Upload build to VPS
+      # Feltoljuk a teljes frontend mappát .next-tel együtt
+      - name: Upload frontend (with .next) via rsync
         run: |
           rsync -avz --delete \
+            --exclude "node_modules" \
             --exclude ".env*" \
             -e "ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes" \
-            frontend/.next frontend/public \
-            frontend/package.json \
-            frontend/next.config.* frontend/tsconfig.json \
-            ${VPS_USER}@${VPS_HOST}:${REMOTE_PATH}/
+            frontend/ ${VPS_USER}@${VPS_HOST}:${REMOTE_PATH}/
 
-      # 7) Prod deps + PM2 restart a VPS-en
-      - name: Install deps & (re)start with PM2 on VPS
+      # VPS-en NINCS build, csak install + PM2 restart
+      - name: Install deps & restart frontend on VPS
         run: |
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes ${VPS_USER}@${VPS_HOST} <<'EOF'
           set -e
@@ -89,11 +87,11 @@ jobs:
           corepack prepare pnpm@latest --activate || true
 
           cd "$REMOTE_PATH"
-          ls -la
 
-          # csak runtime dep-ek, build már kész
-          pnpm install --prod --frozen-lockfile=false
+          # csak install, BUILD NINCS
+          pnpm install --frozen-lockfile=false
 
+          # PM2: ha létezik → restart, különben start
           pm2 describe "$PM2_NAME" >/dev/null 2>&1 && \
             pm2 restart "$PM2_NAME" --update-env || \
             pm2 start "pnpm start" --name "$PM2_NAME" --cwd "$REMOTE_PATH"
@@ -101,7 +99,6 @@ jobs:
           pm2 save
           EOF
 
-      # 8) Health check
       - name: Health check (HTTP/HTTPS)
         run: |
           curl -I -H "Host: davelopment.hu" http://$VPS_HOST/ || true
