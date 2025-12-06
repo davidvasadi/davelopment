@@ -8,7 +8,6 @@ on:
       - ".github/workflows/deploy-backend.yml"
   workflow_dispatch:
 
-# Ne fusson párhuzamosan
 concurrency:
   group: deploy-backend
   cancel-in-progress: true
@@ -42,6 +41,15 @@ jobs:
           corepack enable
           corepack prepare pnpm@latest --activate
 
+      # ⬇️ ITT fut le a Strapi build a GitHub runneren, NEM a VPS-en
+      - name: Install & build backend on runner (Strapi)
+        working-directory: backend
+        env:
+          NODE_ENV: production
+        run: |
+          pnpm install --frozen-lockfile=false
+          pnpm build
+
       - name: Prepare SSH
         run: |
           mkdir -p ~/.ssh
@@ -54,27 +62,25 @@ jobs:
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes ${VPS_USER}@${VPS_HOST} \
             "mkdir -p ${REMOTE_PATH}/public/uploads"
 
+      # ⬇️ FIGYELEM: már NEM zárjuk ki a build mappát!
       - name: Upload backend via rsync (DON'T delete uploads)
         run: |
           rsync -avz --delete \
             --exclude "node_modules" \
             --exclude ".tmp" \
-            --exclude "build" \
             --exclude ".env*" \
             --exclude "public/uploads" \
             -e "ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes" \
             backend/ ${VPS_USER}@${VPS_HOST}:${REMOTE_PATH}/
 
-      - name: Install, build, (re)start Strapi with PM2
+      - name: Install deps (NO build) & (re)start Strapi with PM2
         run: |
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes ${VPS_USER}@${VPS_HOST} <<'EOF'
           set -e
 
-          # GitHub env -> távoli változók
           REMOTE_PATH="${{ env.REMOTE_PATH }}"
           PM2_NAME="${{ env.PM2_NAME }}"
 
-          # pnpm PATH (nem login shell)
           export PNPM_HOME="$HOME/.local/share/pnpm"
           export PATH="$PNPM_HOME:$PATH"
 
@@ -85,9 +91,8 @@ jobs:
           cd "$REMOTE_PATH"
           ls -la
 
-          # FONTOS: NINCS postinstall, NINCS updateUuid, NINCS script futtatás
+          # ⬇️ CSAK install, NINCS pnpm build itt!
           pnpm install --frozen-lockfile=false --ignore-scripts
-          pnpm build
 
           pm2 describe "$PM2_NAME" >/dev/null 2>&1 && \
             pm2 restart "$PM2_NAME" --update-env || \
@@ -98,5 +103,4 @@ jobs:
 
       - name: Health check (proxy on /api)
         run: |
-          # 200/301/404 is ok – a lényeg, hogy NINCS 502
           curl -I -H "Host: davelopment.hu" http://$VPS_HOST/api/ || true
