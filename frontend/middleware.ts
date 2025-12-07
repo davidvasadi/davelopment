@@ -4,6 +4,9 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { i18n } from '@/i18n.config';
 
+// PUBLIC FILE REGEX (pl. .js, .css, .png, .jpg, .svg, .woff2, stb.)
+const PUBLIC_FILE = /\.(.*)$/;
+
 function getLocale(request: NextRequest): string {
   const headers = Object.fromEntries(request.headers);
   const accept = headers['accept-language'] ?? '';
@@ -22,7 +25,7 @@ function getLocale(request: NextRequest): string {
   }
 
   try {
-    // @ts-ignore i18n.locales readonly – csak olvassuk
+    // @ts-ignore
     return matchLocale(languages, i18n.locales, i18n.defaultLocale);
   } catch {
     return i18n.defaultLocale;
@@ -32,22 +35,37 @@ function getLocale(request: NextRequest): string {
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // Ha már lokálos, ne irányítsunk át
-  const pathnameIsMissingLocale = i18n.locales.every(
-    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
+  // --------- 💥 FIX 1: statikus, belső, public fájlok átengedése ---------
+  if (
+    pathname.startsWith('/_next') ||       // Next.js static / image / chunks / RSC / stb.
+    pathname.startsWith('/api') ||         // API
+    PUBLIC_FILE.test(pathname) ||          // .js .css .png stb.
+    pathname === '/favicon.ico' ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml' ||
+    pathname === '/manifest.webmanifest'
+  ) {
+    return NextResponse.next();
+  }
+
+  // --------- FIX 2: ha már van locale, ne irányítsuk át újra ---------
+  const isAlreadyLocalized = i18n.locales.some(
+    (locale) =>
+      pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
   );
 
-  if (pathnameIsMissingLocale) {
-    const locale = getLocale(request);
-    return NextResponse.redirect(
-      new URL(`/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}`, request.url)
-    );
+  if (isAlreadyLocalized) {
+    return NextResponse.next();
   }
+
+  // --------- FIX 3: hiányzó locale → default locale prepend ---------
+  const locale = getLocale(request);
+  const url = request.nextUrl.clone();
+  url.pathname = `/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}`;
+  return NextResponse.redirect(url);
 }
 
-// Hagyjuk békén a statikus és SEO útvonalakat
+// --------- FIX 4: matcher → csak "valódi oldalakra" fusson ---------
 export const config = {
-  matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.webmanifest|opengraph-image|twitter-image|icon|apple-icon).*)',
-  ],
+  matcher: ['/((?!_next/|api/|.*\\..*).*)'],
 };
