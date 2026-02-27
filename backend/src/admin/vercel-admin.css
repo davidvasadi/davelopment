@@ -1,0 +1,493 @@
+/* ./src/admin/vercel-admin.css
+   Vercel-style Strapi admin skin — v3
+   Kritikus fix: badge selector most csak a STATUS oszlopot célozza,
+   nem az összes td elemet.
+*/
+
+/* ══════════════════════════════════════════════════════════════
+   0) DESIGN TOKENS
+══════════════════════════════════════════════════════════════ */
+:root {
+  --r:    12px;
+  --ease: cubic-bezier(.2,.8,.2,1);
+  --t:    150ms;
+  --ring: rgba(79,227,194,.35);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   1) THEME TOKENS
+══════════════════════════════════════════════════════════════ */
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg:         #fafafa;
+  --card:       #ffffff;
+  --field:      #ffffff;
+  --sep:        #f0f0f0;
+  --border:     rgba(0,0,0,.14);
+  --text:       rgba(10,10,10,.92);
+  --muted:      rgba(10,10,10,.74);
+  --faint:      rgba(10,10,10,.56);
+  --hover:      rgba(0,0,0,.035);
+  --hover2:     rgba(0,0,0,.055);
+  --primary-bg: #0a0a0a;
+  --primary-fg: #ffffff;
+  --icon:       rgba(10,10,10,.92);
+  --icon-muted: rgba(10,10,10,.78);
+  --shadow:     0 10px 28px rgba(0,0,0,.06);
+  --accent:     rgba(0,0,0,.18);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:         #0a0a0a;
+  --card:       #1f1f1f;
+  --field:      #141414;
+  --sep:        rgba(255,255,255,.13);
+  --border:     rgba(255,255,255,.17);
+  --text:       rgba(255,255,255,.92);
+  --muted:      rgba(255,255,255,.78);
+  --faint:      rgba(255,255,255,.58);
+  --hover:      rgba(255,255,255,.06);
+  --hover2:     rgba(255,255,255,.085);
+  --primary-bg: #ffffff;
+  --primary-fg: #0a0a0a;
+  --icon:       rgba(255,255,255,.92);
+  --icon-muted: rgba(255,255,255,.80);
+  --shadow:     0 0 0 1px rgba(255,255,255,.06), 0 1px 3px rgba(0,0,0,.5);
+  --accent:     rgba(255,255,255,.18);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   2) STRAPI DS TOKEN OVERRIDE (#4945FF kék → neutrál)
+══════════════════════════════════════════════════════════════ */
+html[data-theme] {
+  --strapi-primary-0:   var(--bg);
+  --strapi-primary-100: var(--sep);
+  --strapi-primary-200: var(--sep);
+  --strapi-primary-300: var(--border);
+  --strapi-primary-400: var(--border);
+  --strapi-primary-500: var(--accent);
+  --strapi-primary-600: var(--accent);
+  --strapi-primary-700: var(--accent);
+  --primary0:   var(--bg);
+  --primary50:  var(--sep);
+  --primary100: var(--sep);
+  --primary200: var(--sep);
+  --primary300: var(--border);
+  --primary400: var(--border);
+  --primary500: var(--accent);
+  --primary600: var(--accent);
+  --primary700: var(--accent);
+  --brand-primary:     var(--accent);
+  --brand-primary-500: var(--accent);
+  --brand-primary-600: var(--accent);
+  --strapi-focus:      var(--ring);
+  --strapi-focus-ring: var(--ring);
+  accent-color: var(--accent);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   3) INLINE STYLE KILLER (Emotion injektált #4945FF)
+══════════════════════════════════════════════════════════════ */
+html[data-theme="dark"] [style*="border-color: rgb(73, 69, 255)"],
+html[data-theme="dark"] [style*="border-color:#4945FF"],
+html[data-theme="dark"] [style*="border-color: #4945FF"],
+html[data-theme="dark"] [style*="border-color:#4945ff"],
+html[data-theme="dark"] [style*="border-color: #4945ff"] {
+  border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] [style*="color: rgb(73, 69, 255)"],
+html[data-theme="dark"] [style*="color:#4945FF"],
+html[data-theme="dark"] [style*="color: #4945FF"] {
+  color: var(--text) !important;
+}
+
+html[data-theme="dark"] [style*="background-color: rgb(73, 69, 255)"],
+html[data-theme="dark"] [style*="background-color:#4945FF"],
+html[data-theme="dark"] [style*="background-color: #4945FF"],
+html[data-theme="dark"] [style*="background: rgb(73, 69, 255)"],
+html[data-theme="dark"] [style*="background:#4945FF"],
+html[data-theme="dark"] [style*="background: #4945FF"] {
+  background-color: var(--primary-bg) !important;
+  color: var(--primary-fg) !important;
+}
+
+html[data-theme="dark"] [style*="box-shadow"][style*="73, 69, 255"] {
+  box-shadow: 0 0 0 3px var(--ring) !important;
+}
+
+svg [fill="#4945FF"], svg [fill="#4945ff"] { fill: currentColor !important; }
+svg [stroke="#4945FF"], svg [stroke="#4945ff"] { stroke: currentColor !important; }
+
+/* ══════════════════════════════════════════════════════════════
+   4) PRIMARY BUTTON (dark módban fehér, nem lila)
+══════════════════════════════════════════════════════════════ */
+html[data-theme="dark"] [class*="Button"][class*="primary"],
+html[data-theme="dark"] [class*="button"][class*="primary"],
+html[data-theme="dark"] a[class*="Button"]:not([class*="ghost"]):not([class*="tertiary"]),
+html[data-theme="dark"] button[class*="primary"]:not([class*="ghost"]):not([class*="danger"]) {
+  background: var(--primary-bg) !important;
+  color: var(--primary-fg) !important;
+  border-color: rgba(255,255,255,.15) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   5) SELECTED / ACTIVE STATES
+══════════════════════════════════════════════════════════════ */
+[role="tablist"] [role="tab"][aria-selected="true"] {
+  border-bottom-color: var(--accent) !important;
+  box-shadow: inset 0 -2px 0 0 var(--accent) !important;
+}
+
+[role="tablist"] [role="tab"][aria-selected="true"]::after,
+[role="tablist"] [role="tab"][aria-selected="true"]::before {
+  background: var(--accent) !important;
+}
+
+html[data-theme="dark"] [aria-current="true"],
+html[data-theme="dark"] [aria-selected="true"],
+html[data-theme="dark"] [data-active="true"],
+html[data-theme="dark"] [data-state="active"],
+html[data-theme="dark"] [data-state="selected"] {
+  outline-color: var(--accent) !important;
+  border-color:  var(--accent) !important;
+}
+
+/* Sidebar aktív left indicator */
+[data-strapi-navigation] li::before,
+[data-strapi-navigation] li::after,
+[data-strapi-navigation] [aria-current="page"]::before,
+[data-strapi-navigation] [aria-current="page"]::after {
+  background: var(--text) !important;
+  background-color: var(--text) !important;
+  border-color: var(--text) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   6) BASE CANVAS
+══════════════════════════════════════════════════════════════ */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body, #strapi, [data-strapi-root] {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+}
+
+:is(
+  [data-strapi-root], [data-strapi-main],
+  main, [role="main"],
+  [class*="Layout"], [class*="ContentLayout"],
+  [class*="Page"], [class*="Wrapper"]
+) {
+  background: var(--bg) !important;
+}
+
+:is(header, [data-strapi-header]) {
+  background: var(--bg) !important;
+  border-bottom: 1px solid var(--sep) !important;
+}
+
+:is(a, button, [role="button"], input, textarea, select):focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px var(--ring) !important;
+}
+
+:is(a, button, input, textarea, select, [role="button"]):focus {
+  outline: none !important;
+}
+
+:is(button, a, input, textarea, select, [role="button"]) {
+  transition:
+    background var(--t) var(--ease),
+    border-color var(--t) var(--ease),
+    color var(--t) var(--ease),
+    box-shadow var(--t) var(--ease),
+    opacity var(--t) var(--ease),
+    transform var(--t) var(--ease);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   7) SIDEBAR
+══════════════════════════════════════════════════════════════ */
+[data-strapi-navigation] {
+  background: var(--bg) !important;
+  border-right: 1px solid var(--sep) !important;
+}
+
+[data-strapi-navigation] :is(a, button, [role="link"]) {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin: 2px 6px !important;
+  padding: 8px 10px !important;
+  border-radius: var(--r) !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--muted) !important;
+  min-height: 36px !important;
+  font-size: 13px !important;
+}
+
+[data-strapi-navigation] :is(a:hover, button:hover, [role="link"]:hover) {
+  color: var(--text) !important;
+  background: var(--hover) !important;
+  border-color: var(--sep) !important;
+}
+
+[data-strapi-navigation] [aria-current="page"] {
+  color: var(--text) !important;
+  background: var(--hover2) !important;
+  border-color: var(--border) !important;
+}
+
+[data-strapi-navigation] svg                       { color: var(--icon-muted) !important; }
+[data-strapi-navigation] [aria-current="page"] svg { color: var(--icon) !important; }
+
+/* ══════════════════════════════════════════════════════════════
+   8) TIPOGRÁFIA
+══════════════════════════════════════════════════════════════ */
+h1, [class*="PageTitle"] {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  letter-spacing: -.4px !important;
+  line-height: 1.2 !important;
+}
+
+h1 + p, h1 + span, [class*="Subtitle"] {
+  font-size: 13px !important;
+  color: var(--muted) !important;
+  margin-top: 5px !important;
+  font-weight: 400 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   9) INPUTS + BUTTONS
+══════════════════════════════════════════════════════════════ */
+:is(input, textarea, select) {
+  background: var(--field) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--sep) !important;
+  border-radius: var(--r) !important;
+  padding: 8px 10px !important;
+}
+
+html[data-theme="dark"] :is(input, textarea, select) {
+  border-color: rgba(255,255,255,.15) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.3) !important;
+}
+
+:is(input:hover, textarea:hover, select:hover) {
+  border-color: var(--border) !important;
+}
+
+:is(input::placeholder, textarea::placeholder) {
+  color: var(--faint) !important;
+}
+
+:is(button[type="submit"], button[data-variant="primary"], button[class*="Primary"]) {
+  background: var(--primary-bg) !important;
+  color: var(--primary-fg) !important;
+  border: 1px solid rgba(127,127,127,.22) !important;
+  border-radius: var(--r) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   10) CARDS
+══════════════════════════════════════════════════════════════ */
+:is([data-strapi-main], main, [role="main"]) :is(
+  [class*="Layout"], [class*="ContentLayout"]
+) {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+:is([data-strapi-main], main, [role="main"]) :is(
+  [data-testid*="widget"], [data-testid*="Widget"],
+  [data-testid*="dashboard"], [data-testid*="Dashboard"],
+  [role="region"],
+  section[aria-labelledby],
+  section[aria-label]
+) {
+  background: var(--card) !important;
+  border: 1px solid var(--sep) !important;
+  border-radius: 14px !important;
+  box-shadow: var(--shadow) !important;
+  overflow: hidden !important;
+}
+
+:is([data-strapi-main], main, [role="main"]) :is(
+  [data-testid*="widget"], [data-testid*="Widget"],
+  [role="region"],
+  section[aria-labelledby]
+) :is(div, section, article, header, footer, aside):not(input):not(textarea):not(select):not(button):not(svg) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   11) TABLES
+══════════════════════════════════════════════════════════════ */
+th {
+  color: var(--muted) !important;
+  border-bottom: 1px solid var(--sep) !important;
+  background: transparent !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.5px !important;
+}
+
+td {
+  border-bottom: 1px solid var(--sep) !important;
+}
+
+html[data-theme="dark"] tr:hover,
+html[data-theme="dark"] tr:hover td {
+  background: rgba(255,255,255,.09) !important;
+}
+
+html[data-theme="light"] tr:hover,
+html[data-theme="light"] tr:hover td {
+  background: rgba(0,0,0,.035) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   12) STATUS BADGE-EK
+   FONTOS: csak a STATUS oszlopban lévő badge-et célozzuk!
+   A Strapi a STATUS cellába egy span-t tesz ami a státuszt
+   tartalmazza — ezt az [aria-colindex] vagy az utolsó td
+   alapján lehet célozni. Legbiztonságosabb: csak azokat a
+   span-okat célozzuk amiknek van border-radius vagy
+   background inline style-juk (Emotion badge pattern).
+══════════════════════════════════════════════════════════════ */
+
+/* Csak azok a span-ok amiknek Emotion adott background-ot
+   (ez a badge pattern Strapiban — nem érinti az egyszerű szöveg span-okat) */
+html[data-theme="dark"] td span[style*="background"],
+html[data-theme="dark"] td div[style*="background"],
+html[data-theme="dark"] [role="gridcell"] span[style*="background"] {
+  background: rgba(79,227,194,.09) !important;
+  color: #7EEEDD !important;
+  border-color: rgba(79,227,194,.20) !important;
+}
+
+/* Class-alapú badge targeting — csak Badge/Tag/Status nevű komponensek */
+html[data-theme="dark"] [class*="Badge"],
+html[data-theme="dark"] [class*="StatusBadge"],
+html[data-theme="dark"] [class*="StatusTag"] {
+  background: rgba(79,227,194,.09) !important;
+  color: #7EEEDD !important;
+  border: 1px solid rgba(79,227,194,.20) !important;
+}
+
+/* Draft állapot */
+html[data-theme="dark"] [class*="Badge"][data-status="draft"],
+html[data-theme="dark"] [class*="Tag"][data-status="draft"],
+html[data-theme="dark"] td span[data-status="draft"] {
+  background: rgba(255,255,255,.06) !important;
+  color: rgba(255,255,255,.55) !important;
+  border-color: rgba(255,255,255,.12) !important;
+}
+
+/* Modified állapot */
+html[data-theme="dark"] [class*="Badge"][data-status="modified"],
+html[data-theme="dark"] [class*="Tag"][data-status="modified"],
+html[data-theme="dark"] td span[data-status="modified"] {
+  background: rgba(245,166,35,.09) !important;
+  color: #f5a623 !important;
+  border-color: rgba(245,166,35,.22) !important;
+}
+
+/* Archived állapot */
+html[data-theme="dark"] [class*="Badge"][data-status="archived"],
+html[data-theme="dark"] [class*="Tag"][data-status="archived"],
+html[data-theme="dark"] td span[data-status="archived"] {
+  background: rgba(255,255,255,.03) !important;
+  color: rgba(255,255,255,.3) !important;
+  border-color: rgba(255,255,255,.07) !important;
+}
+
+/* Lila inline bg közvetlen eltávolítása (csak ha badge méretű elem) */
+html[data-theme="dark"] [style*="background-color: rgb(73, 69, 255)"],
+html[data-theme="dark"] [style*="background-color: rgba(73, 69, 255"],
+html[data-theme="dark"] [style*="background: rgb(73, 69, 255)"] {
+  background-color: rgba(79,227,194,.09) !important;
+  color: #7EEEDD !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   13) PROGRESS BAR
+══════════════════════════════════════════════════════════════ */
+html[data-theme="dark"] [role="progressbar"],
+html[data-theme="dark"] progress,
+html[data-theme="dark"] [class*="Progress"] {
+  background: rgba(255,255,255,.08) !important;
+}
+
+html[data-theme="dark"] [role="progressbar"] > *,
+html[data-theme="dark"] [class*="Progress"] > *,
+html[data-theme="dark"] [class*="ProgressBar"] {
+  background: var(--accent) !important;
+}
+
+html[data-theme="dark"] [style*="width"][class*="Progress"],
+html[data-theme="dark"] [style*="width"][class*="Bar"] {
+  background: var(--accent) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   14) VERCEL PRELOADER
+══════════════════════════════════════════════════════════════ */
+[data-vercel-preloader] {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: grid;
+  place-items: center;
+  background: var(--bg, #0a0a0a);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+[data-vercel-preloader].is-hide {
+  opacity: 0;
+  transform: scale(.995);
+  pointer-events: none;
+}
+
+.vercel-loader {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.vercel-loader span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text, rgba(255,255,255,.9));
+  opacity: .3;
+  animation: vercelDot 900ms cubic-bezier(.2,.8,.2,1) infinite;
+}
+
+.vercel-loader span:nth-child(2) { animation-delay: 120ms; }
+.vercel-loader span:nth-child(3) { animation-delay: 240ms; }
+
+@keyframes vercelDot {
+  0%, 80%, 100% { transform: translateY(0);    opacity: .28; }
+  40%            { transform: translateY(-6px); opacity: .92; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   15) LOGO
+══════════════════════════════════════════════════════════════ */
+:is([data-strapi-navigation] img, header img, img[alt*="logo" i], img[src*="logo" i]) {
+  animation: none !important;
+  transform: none !important;
+  transition: none !important;
+  filter: none !important;
+}

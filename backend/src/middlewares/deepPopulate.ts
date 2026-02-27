@@ -1,3 +1,4 @@
+//backend/src/middlewares/deepPopulate.ts
 /**
  * `deepPopulate` middleware
  */
@@ -7,9 +8,6 @@ import { contentTypes } from '@strapi/utils';
 import pluralize from 'pluralize';
 
 interface Options {
-  /**
-   * Fields to select when populating relations
-   */
   relationalFields?: string[];
 }
 
@@ -23,23 +21,19 @@ const getDeepPopulate = (uid: UID.Schema, opts: Options = {}) => {
   const attributes = Object.entries(model.attributes);
 
   return attributes.reduce((acc: any, [attributeName, attribute]) => {
-    switch (attribute.type) {
+    switch ((attribute as any).type) {
       case 'relation': {
-        const isMorphRelation = attribute.relation
-          .toLowerCase()
-          .startsWith('morph');
-        if (isMorphRelation) {
-          break;
-        }
+        const rel = (attribute as any).relation;
+        const isMorphRelation =
+          typeof rel === 'string' && rel.toLowerCase().startsWith('morph');
+        if (isMorphRelation) break;
 
-        // Ignore not visible fields other than createdBy and updatedBy
         const isVisible = contentTypes.isVisibleAttribute(model, attributeName);
-        const isCreatorField = [
-          CREATED_BY_ATTRIBUTE,
-          UPDATED_BY_ATTRIBUTE,
-        ].includes(attributeName);
+        const isCreatorField = [CREATED_BY_ATTRIBUTE, UPDATED_BY_ATTRIBUTE].includes(
+          attributeName
+        );
 
-        if (isVisible) {
+        if (isVisible || isCreatorField) {
           if (attributeName === 'testimonials') {
             acc[attributeName] = { populate: 'user.image' };
           } else {
@@ -56,20 +50,16 @@ const getDeepPopulate = (uid: UID.Schema, opts: Options = {}) => {
       }
 
       case 'component': {
-        const populate = getDeepPopulate(attribute.component, opts);
+        const populate = getDeepPopulate((attribute as any).component, opts);
         acc[attributeName] = { populate };
         break;
       }
 
       case 'dynamiczone': {
-        // Use fragments to populate the dynamic zone components
-        const populatedComponents = (attribute.components || []).reduce(
-          (acc: any, componentUID: UID.Component) => {
-            acc[componentUID] = {
-              populate: getDeepPopulate(componentUID, opts),
-            };
-
-            return acc;
+        const populatedComponents = (((attribute as any).components || []) as UID.Component[]).reduce(
+          (dzAcc: any, componentUID: UID.Component) => {
+            dzAcc[componentUID] = { populate: getDeepPopulate(componentUID, opts) };
+            return dzAcc;
           },
           {}
         );
@@ -77,6 +67,7 @@ const getDeepPopulate = (uid: UID.Schema, opts: Options = {}) => {
         acc[attributeName] = { on: populatedComponents };
         break;
       }
+
       default:
         break;
     }
@@ -85,29 +76,42 @@ const getDeepPopulate = (uid: UID.Schema, opts: Options = {}) => {
   }, {});
 };
 
-export default (config, { strapi }: { strapi: Core.Strapi }) => {
-  return async (ctx, next) => {
+export default (config: any, { strapi }: { strapi: Core.Strapi }) => {
+  return async (ctx: any, next: any) => {
+    const url: string = ctx.request.url || '';
+
+    // ✅ BYPASS: marketing-metrics API (külön kért korlát)
+    if (url.startsWith('/api/marketing-metrics/')) {
+      return next();
+    }
+
     if (
-      ctx.request.url.startsWith('/api/') &&
+      url.startsWith('/api/') &&
       ctx.request.method === 'GET' &&
       !ctx.query.populate &&
-      !ctx.request.url.includes('/api/users') &&
-      !ctx.request.url.includes('/api/seo')
+      !url.includes('/api/users') &&
+      !url.includes('/api/seo')
     ) {
-      strapi.log.info('Using custom Dynamic-Zone population Middleware...');
-
-      const contentType = extractPathSegment(ctx.request.url);
+      const contentType = extractPathSegment(url);
       const singular = pluralize.singular(contentType);
-      const uid = `api::${singular}.${singular}`;
+      const uid = `api::${singular}.${singular}` as UID.Schema;
 
-      ctx.query.populate = {
-        // @ts-ignores
-        ...getDeepPopulate(uid),
-        ...(!ctx.request.url.includes('products') && {
-          localizations: { populate: {} },
-        }),
-      };
+      // ✅ ha nincs ilyen content-type, ne haljon meg a request
+      if (!(strapi as any).contentTypes?.[uid]) {
+        return next();
+      }
+
+      try {
+        ctx.query.populate = {
+          // @ts-ignore
+          ...getDeepPopulate(uid),
+          ...(!url.includes('products') && { localizations: { populate: {} } }),
+        };
+      } catch {
+        return next();
+      }
     }
+
     await next();
   };
 };
