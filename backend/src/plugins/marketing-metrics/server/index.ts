@@ -1,1 +1,1 @@
-export default { register() {}, bootstrap() {} };
+export default { register() {}, bootstrap() {} }

@@ -28,12 +28,13 @@ const getDeepPopulate = (uid: UID.Schema, opts: Options = {}) => {
           typeof rel === 'string' && rel.toLowerCase().startsWith('morph');
         if (isMorphRelation) break;
 
-        const isVisible = contentTypes.isVisibleAttribute(model, attributeName);
-        const isCreatorField = [CREATED_BY_ATTRIBUTE, UPDATED_BY_ATTRIBUTE].includes(
-          attributeName
-        );
+        // Strapi v5: createdBy és updatedBy nem populate-elhető → kihagyjuk
+        const isCreatorField = [CREATED_BY_ATTRIBUTE, UPDATED_BY_ATTRIBUTE].includes(attributeName);
+        if (isCreatorField) break;
 
-        if (isVisible || isCreatorField) {
+        const isVisible = contentTypes.isVisibleAttribute(model, attributeName);
+
+        if (isVisible) {
           if (attributeName === 'testimonials') {
             acc[attributeName] = { populate: 'user.image' };
           } else {
@@ -80,7 +81,7 @@ export default (config: any, { strapi }: { strapi: Core.Strapi }) => {
   return async (ctx: any, next: any) => {
     const url: string = ctx.request.url || '';
 
-    // ✅ BYPASS: marketing-metrics API (külön kért korlát)
+    // BYPASS: marketing-metrics API
     if (url.startsWith('/api/marketing-metrics/')) {
       return next();
     }
@@ -96,7 +97,6 @@ export default (config: any, { strapi }: { strapi: Core.Strapi }) => {
       const singular = pluralize.singular(contentType);
       const uid = `api::${singular}.${singular}` as UID.Schema;
 
-      // ✅ ha nincs ilyen content-type, ne haljon meg a request
       if (!(strapi as any).contentTypes?.[uid]) {
         return next();
       }
