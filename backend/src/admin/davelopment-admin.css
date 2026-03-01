@@ -1,406 +1,179 @@
 /* ./src/admin/davelopment-admin.css
-   Davelopment Admin — Seamless Vercel-style, 2026
+   SZABÁLY: csak data-strapi-* és data-theme selectorok.
+   Soha nem: input, button, table, td, th, select stb. globálisan.
+   A Strapi Emotion CSS-e kezeli a komponenseket — mi csak a keretet és
+   a tokeneket adjuk meg.
 */
 
-/* ══════════════════════════════════════════════════════════════
-   0) TOKENS
-══════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   CSS TOKENS — ezeket olvassa a marketing-metrics plugin is
+══════════════════════════════════════════════════════════ */
 :root {
-  --r:     8px;
-  --r-lg:  12px;
-  --ease:  cubic-bezier(.25,.46,.45,.94);
-  --t:     120ms;
+  --ease: cubic-bezier(.25,.46,.45,.94);
+  --t: 150ms;
 }
 
 html[data-theme="dark"] {
-  color-scheme: dark;
-  --bg:        #0a0a0a;
-  --surface:   #111111;
-  --surface2:  #1a1a1a;
-  --surface3:  #222222;
-  --border:    rgba(255,255,255,0.07);
-  --border-h:  rgba(255,255,255,0.13);
-  --text:      #ededed;
-  --text-sec:  #b0b0b0;
-  --muted:     #777777;
-  --faint:     #444444;
-  --hover:     rgba(255,255,255,0.04);
-  --hover2:    rgba(255,255,255,0.07);
-  --accent:    #ffffff;
-  --accent-bg: rgba(255,255,255,0.07);
-  --accent-bd: rgba(255,255,255,0.15);
-  --ring:      rgba(255,255,255,0.2);
-  --shadow:    0 0 0 1px rgba(255,255,255,0.06), 0 4px 20px rgba(0,0,0,0.5);
-  --shadow-sm: 0 0 0 1px rgba(255,255,255,0.06);
+  --bg:         #0a0a0a;
+  --surface:    #111111;
+  --surface2:   #171717;
+  --surface3:   #222222;
+  --border:     rgba(255,255,255,0.06);
+  --border-h:   rgba(255,255,255,0.11);
+  --text:       #ededed;
+  --text-sec:   #999999;
+  --muted:      #666666;
+  --faint:      #333333;
+  --hover:      rgba(255,255,255,0.03);
+  --hover2:     rgba(255,255,255,0.055);
+  --ring:       rgba(255,255,255,0.14);
+  --shadow:     0 0 0 1px rgba(255,255,255,0.05), 0 8px 32px rgba(0,0,0,0.55);
 
-  --success:    #50c878;
-  --success-bg: rgba(80,200,120,0.08);
-  --success-bd: rgba(80,200,120,0.16);
-  --warning:    #f5a623;
-  --warning-bg: rgba(245,166,35,0.08);
-  --warning-bd: rgba(245,166,35,0.16);
-  --danger:     #ff5050;
-  --danger-bg:  rgba(255,80,80,0.08);
-  --danger-bd:  rgba(255,80,80,0.16);
+  --success:    #4ade80;
+  --success-bg: rgba(74,222,128,0.07);
+  --success-bd: rgba(74,222,128,0.14);
+  --warning:    #fb923c;
+  --warning-bg: rgba(251,146,60,0.07);
+  --warning-bd: rgba(251,146,60,0.14);
+  --danger:     #f87171;
+  --danger-bg:  rgba(248,113,113,0.07);
+  --danger-bd:  rgba(248,113,113,0.14);
+  --info:       #60a5fa;
+  --info-bg:    rgba(96,165,250,0.07);
+  --info-bd:    rgba(96,165,250,0.14);
+
+  --accent:     #22d3a5;
+  --accent-bg:  rgba(34,211,165,0.07);
+  --accent-bd:  rgba(34,211,165,0.14);
 }
 
 html[data-theme="light"] {
-  color-scheme: light;
-  --bg:        #f5f5f5;
-  --surface:   #ffffff;
-  --surface2:  #f5f5f5;
-  --surface3:  #ebebeb;
-  --border:    rgba(0,0,0,0.07);
-  --border-h:  rgba(0,0,0,0.14);
-  --text:      #111111;
-  --text-sec:  #444444;
-  --muted:     #777777;
-  --faint:     #aaaaaa;
-  --hover:     rgba(0,0,0,0.03);
-  --hover2:    rgba(0,0,0,0.06);
-  --accent:    #000000;
-  --accent-bg: rgba(0,0,0,0.06);
-  --accent-bd: rgba(0,0,0,0.14);
-  --ring:      rgba(0,0,0,0.15);
-  --shadow:    0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-sm: 0 0 0 1px rgba(0,0,0,0.06);
+  --bg:         #f5f5f5;
+  --surface:    #ffffff;
+  --surface2:   #f0f0f0;
+  --surface3:   #e8e8e8;
+  --border:     rgba(0,0,0,0.07);
+  --border-h:   rgba(0,0,0,0.13);
+  --text:       #111111;
+  --text-sec:   #444444;
+  --muted:      #777777;
+  --faint:      #bbbbbb;
+  --hover:      rgba(0,0,0,0.025);
+  --hover2:     rgba(0,0,0,0.05);
+  --ring:       rgba(0,0,0,0.12);
+  --shadow:     0 1px 2px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
 
   --success:    #16a34a;
   --success-bg: rgba(22,163,74,0.07);
-  --success-bd: rgba(22,163,74,0.15);
-  --warning:    #d97706;
-  --warning-bg: rgba(217,119,6,0.07);
-  --warning-bd: rgba(217,119,6,0.15);
+  --success-bd: rgba(22,163,74,0.13);
+  --warning:    #ea580c;
+  --warning-bg: rgba(234,88,12,0.07);
+  --warning-bd: rgba(234,88,12,0.13);
   --danger:     #dc2626;
   --danger-bg:  rgba(220,38,38,0.07);
-  --danger-bd:  rgba(220,38,38,0.15);
+  --danger-bd:  rgba(220,38,38,0.13);
+  --info:       #2563eb;
+  --info-bg:    rgba(37,99,235,0.07);
+  --info-bd:    rgba(37,99,235,0.14);
+
+  --accent:     #059669;
+  --accent-bg:  rgba(5,150,105,0.07);
+  --accent-bd:  rgba(5,150,105,0.14);
 }
 
-/* ══════════════════════════════════════════════════════════════
-   1) INLINE #4945FF KILLER
-══════════════════════════════════════════════════════════════ */
-[style*="border-color: rgb(73, 69, 255)"],
-[style*="border-color:#4945FF"],
-[style*="border-color: #4945FF"],
-[style*="border-color:#4945ff"],
-[style*="border-color: #4945ff"] { border-color: var(--border-h) !important; }
-
-[style*="color: rgb(73, 69, 255)"],
-[style*="color:#4945FF"],
-[style*="color: #4945FF"] { color: var(--text) !important; }
-
-[style*="background-color: rgb(73, 69, 255)"],
-[style*="background: rgb(73, 69, 255)"],
-[style*="background-color:#4945FF"],
-[style*="background: #4945FF"] {
-  background-color: var(--accent) !important;
-  color: var(--bg) !important;
+/* ══════════════════════════════════════════════════════════
+   FONT SMOOTHING — biztonságos, nem tör el semmit
+══════════════════════════════════════════════════════════ */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-[style*="box-shadow"][style*="73, 69, 255"] { box-shadow: 0 0 0 3px var(--ring) !important; }
-svg [fill="#4945FF"], svg [fill="#4945ff"] { fill: currentColor !important; }
-svg [stroke="#4945FF"], svg [stroke="#4945ff"] { stroke: currentColor !important; }
+/* ══════════════════════════════════════════════════════════
+   SCROLLBAR — csak vizuális, nem funkcionális
+══════════════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
-/* ══════════════════════════════════════════════════════════════
-   2) BASE — minden ugyanolyan háttér, nincs elválasztó
-══════════════════════════════════════════════════════════════ */
-* { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; box-sizing: border-box; }
-
-html, body, #strapi, [data-strapi-root],
-[data-strapi-main], main, [role="main"],
-[class*="Layout"], [class*="ContentLayout"],
-[class*="Page"], [class*="Wrapper"],
-[class*="AppLayout"], [class*="AdminLayout"] {
-  background: var(--bg) !important;
-  color: var(--text) !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif !important;
-}
-
-/* Header — seamless, nincs border */
-header, [data-strapi-header], [class*="TopNav"], [class*="Header"] {
-  background: var(--bg) !important;
-  border-bottom: none !important;
-  box-shadow: none !important;
-}
-
-/* Focus ring */
-:is(a, button, [role="button"], input, textarea, select):focus-visible {
-  outline: none !important;
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring) !important;
-}
-:is(a, button, input, textarea, select, [role="button"]):focus { outline: none !important; }
-
-:is(button, a, input, textarea, select, [role="button"]) {
-  transition: background var(--t) var(--ease), border-color var(--t) var(--ease), color var(--t) var(--ease), box-shadow var(--t) var(--ease), opacity var(--t) var(--ease) !important;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   3) SIDEBAR — seamless, nincs border, nincs külön bg
-══════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   STRAPI NAVIGATION SIDEBAR
+   Csak a [data-strapi-navigation] scopeon belül
+══════════════════════════════════════════════════════════ */
 [data-strapi-navigation] {
   background: var(--bg) !important;
   border-right: none !important;
   box-shadow: none !important;
 }
 
-/* Vékony elválasztó vonal — csak jobb szélen, nagyon halkan */
+/* Finom elválasztó vonal */
 [data-strapi-navigation]::after {
   content: '';
   position: absolute;
-  right: 0; top: 16px; bottom: 16px;
+  right: 0;
+  top: 20px;
+  bottom: 20px;
   width: 1px;
   background: var(--border);
   pointer-events: none;
 }
 
-[data-strapi-navigation] :is(a, button, [role="link"]) {
-  display: flex !important;
-  align-items: center !important;
-  gap: 9px !important;
-  margin: 1px 6px !important;
-  padding: 6px 10px !important;
-  border-radius: var(--r) !important;
-  border: 1px solid transparent !important;
-  background: transparent !important;
-  color: var(--muted) !important;
-  font-size: 13px !important;
-  font-weight: 400 !important;
-  letter-spacing: -0.1px !important;
+/* Nav linkek — csak a navigáción belül */
+[data-strapi-navigation] a,
+[data-strapi-navigation] button {
+  transition: background var(--t) var(--ease), color var(--t) var(--ease) !important;
 }
 
-[data-strapi-navigation] :is(a:hover, button:hover) {
-  color: var(--text) !important;
-  background: var(--hover2) !important;
-  border-color: transparent !important;
+/* ══════════════════════════════════════════════════════════
+   STRAPI HEADER
+══════════════════════════════════════════════════════════ */
+[data-strapi-header] {
+  background: var(--bg) !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
 }
 
-[data-strapi-navigation] [aria-current="page"] {
-  color: var(--text) !important;
-  background: var(--hover2) !important;
-  border-color: var(--border) !important;
-  font-weight: 500 !important;
-}
-
-[data-strapi-navigation] svg { color: var(--faint) !important; transition: color var(--t) var(--ease) !important; }
-[data-strapi-navigation] :is(a:hover svg, [aria-current="page"] svg) { color: var(--muted) !important; }
-
-/* ══════════════════════════════════════════════════════════════
-   4) CARDS — ezek kapnak surface hátteret és border-t
-══════════════════════════════════════════════════════════════ */
-:is(
-  [data-testid*="widget"], [data-testid*="Widget"],
-  [data-testid*="dashboard"], [data-testid*="Dashboard"],
-  [role="region"],
-  section[aria-labelledby],
-  section[aria-label]
-) {
-  background: var(--surface) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: var(--r-lg) !important;
-  box-shadow: var(--shadow-sm) !important;
-  overflow: hidden !important;
-  transition: border-color var(--t) var(--ease), box-shadow var(--t) var(--ease) !important;
-}
-
-:is([data-testid*="widget"]:hover, [role="region"]:hover) {
+/* ══════════════════════════════════════════════════════════
+   #4945FF KILLER — inline purple color override
+   Ezek specifikus inline style-ok, nem törnek el semmit
+══════════════════════════════════════════════════════════ */
+[style*="border-color: rgb(73, 69, 255)"],
+[style*="border-color:#4945FF"],
+[style*="border-color: #4945FF"] {
   border-color: var(--border-h) !important;
-  box-shadow: var(--shadow) !important;
 }
 
-/* ══════════════════════════════════════════════════════════════
-   5) TYPOGRAPHY
-══════════════════════════════════════════════════════════════ */
-h1, [class*="PageTitle"] {
-  font-size: 16px !important;
-  font-weight: 600 !important;
-  letter-spacing: -.3px !important;
+[style*="color: rgb(73, 69, 255)"],
+[style*="color:#4945FF"],
+[style*="color: #4945FF"] {
   color: var(--text) !important;
 }
 
-h1 + p, [class*="Subtitle"] {
-  font-size: 12px !important;
-  color: var(--muted) !important;
-  font-weight: 400 !important;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   6) INPUTS
-══════════════════════════════════════════════════════════════ */
-:is(input, textarea, select) {
-  background: var(--surface2) !important;
-  color: var(--text) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: var(--r) !important;
-  padding: 7px 11px !important;
-  font-size: 13px !important;
-}
-
-:is(input:hover, textarea:hover) { border-color: var(--border-h) !important; }
-:is(input:focus, textarea:focus) {
-  border-color: var(--border-h) !important;
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring) !important;
-}
-:is(input::placeholder, textarea::placeholder) { color: var(--faint) !important; }
-
-/* ══════════════════════════════════════════════════════════════
-   7) BUTTONS
-══════════════════════════════════════════════════════════════ */
-:is(
-  button[type="submit"],
-  button[data-variant="primary"],
-  [class*="Button"][class*="primary"],
-  button[class*="primary"]:not([class*="ghost"]):not([class*="danger"])
-) {
-  background: var(--accent) !important;
-  color: var(--bg) !important;
-  border: 1px solid transparent !important;
-  border-radius: var(--r) !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-  letter-spacing: -.1px !important;
-  box-shadow: var(--shadow-sm) !important;
-}
-
-:is(button[type="submit"]:hover, button[data-variant="primary"]:hover, [class*="Button"][class*="primary"]:hover) {
-  opacity: 0.85 !important;
-}
-
-:is(
-  button[data-variant="secondary"],
-  button[data-variant="tertiary"],
-  [class*="Button"][class*="secondary"],
-  [class*="Button"][class*="ghost"]
-) {
-  background: transparent !important;
-  color: var(--text-sec) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: var(--r) !important;
-  font-size: 13px !important;
-  font-weight: 400 !important;
-}
-
-:is(button[data-variant="secondary"]:hover, [class*="Button"][class*="ghost"]:hover) {
-  border-color: var(--border-h) !important;
-  background: var(--hover2) !important;
-  color: var(--text) !important;
-}
-
-:is(button[data-variant="danger"], [class*="Button"][class*="danger"]) {
-  background: var(--danger-bg) !important;
-  color: var(--danger) !important;
-  border: 1px solid var(--danger-bd) !important;
-  border-radius: var(--r) !important;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   8) TABLES
-══════════════════════════════════════════════════════════════ */
-table {
-  background: var(--surface) !important;
-  border-radius: var(--r-lg) !important;
-  overflow: hidden !important;
-  border: 1px solid var(--border) !important;
-  border-collapse: separate !important;
-  border-spacing: 0 !important;
-}
-
-thead { background: var(--surface2) !important; }
-
-th {
-  color: var(--faint) !important;
-  border-bottom: 1px solid var(--border) !important;
-  font-size: 10px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.05em !important;
-  text-transform: uppercase !important;
-  padding: 9px 14px !important;
-}
-
-td {
-  border-bottom: 1px solid var(--border) !important;
-  color: var(--text-sec) !important;
-  font-size: 13px !important;
-  padding: 10px 14px !important;
-}
-
-tr:last-child td { border-bottom: none !important; }
-tr:hover td { background: var(--hover) !important; }
-
-/* ══════════════════════════════════════════════════════════════
-   9) STATUS BADGES
-══════════════════════════════════════════════════════════════ */
-[class*="Badge"], [class*="StatusBadge"], [class*="StatusTag"],
-td span[style*="background"],
-[role="gridcell"] span[style*="background"] {
-  border-radius: 20px !important;
-  font-size: 10px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.03em !important;
-  padding: 2px 8px !important;
-  background: var(--success-bg) !important;
-  color: var(--success) !important;
-  border: 1px solid var(--success-bd) !important;
-}
-
-[class*="Badge"][data-status="draft"], td span[data-status="draft"] {
-  background: var(--hover2) !important;
-  color: var(--muted) !important;
-  border-color: var(--border) !important;
-}
-
-[class*="Badge"][data-status="modified"], td span[data-status="modified"] {
-  background: var(--warning-bg) !important;
-  color: var(--warning) !important;
-  border-color: var(--warning-bd) !important;
-}
-
-[class*="Badge"][data-status="archived"], td span[data-status="archived"] {
-  background: var(--hover) !important;
-  color: var(--faint) !important;
-  border-color: var(--border) !important;
-}
-
-/* Lila Emotion badge override */
 [style*="background-color: rgb(73, 69, 255)"],
 [style*="background: rgb(73, 69, 255)"] {
-  background-color: var(--success-bg) !important;
-  color: var(--success) !important;
-  border-color: var(--success-bd) !important;
+  background-color: var(--text) !important;
+  color: var(--bg) !important;
 }
 
-/* ══════════════════════════════════════════════════════════════
-   10) TABS
-══════════════════════════════════════════════════════════════ */
-[role="tablist"] [role="tab"] {
-  color: var(--muted) !important;
-  font-size: 13px !important;
-  font-weight: 400 !important;
+[style*="box-shadow"][style*="73, 69, 255"] {
+  box-shadow: 0 0 0 3px var(--ring) !important;
 }
 
-[role="tablist"] [role="tab"][aria-selected="true"] {
-  color: var(--text) !important;
-  font-weight: 500 !important;
-  border-bottom-color: var(--text) !important;
-  box-shadow: inset 0 -2px 0 0 var(--text) !important;
+svg [fill="#4945FF"], svg [fill="#4945ff"] { fill: currentColor !important; }
+svg [stroke="#4945FF"], svg [stroke="#4945ff"] { stroke: currentColor !important; }
+
+/* ══════════════════════════════════════════════════════════
+   LOGO — csak navigációban, nem globálisan
+══════════════════════════════════════════════════════════ */
+[data-strapi-navigation] img {
+  animation: none !important;
+  filter: none !important;
 }
 
-/* ══════════════════════════════════════════════════════════════
-   11) PROGRESS BAR
-══════════════════════════════════════════════════════════════ */
-[role="progressbar"], progress, [class*="Progress"] {
-  background: var(--surface3) !important;
-  border-radius: 4px !important;
-  overflow: hidden !important;
-}
-
-[role="progressbar"] > *, [class*="ProgressBar"], [class*="Progress"] > * {
-  background: var(--accent) !important;
-  border-radius: 4px !important;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   12) CUSTOM PRELOADER
-══════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   CUSTOM PRELOADER
+══════════════════════════════════════════════════════════ */
 [data-dave-preloader] {
   position: fixed;
   inset: 0;
@@ -422,13 +195,12 @@ td span[style*="background"],
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 32px;
+  gap: 28px;
 }
 
-/* Logo */
 .dave-pre-logo {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 28px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 26px;
   font-weight: 700;
   letter-spacing: -1px;
   color: #ededed;
@@ -437,18 +209,17 @@ td span[style*="background"],
 }
 
 .dave-pre-logo span {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 400;
   vertical-align: super;
-  opacity: 0.5;
+  opacity: 0.4;
   letter-spacing: 0;
 }
 
-/* Progress bar */
 .dave-pre-bar {
-  width: 120px;
+  width: 100px;
   height: 1px;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.08);
   border-radius: 1px;
   overflow: hidden;
 }
@@ -456,29 +227,14 @@ td span[style*="background"],
 .dave-pre-fill {
   height: 100%;
   width: 0%;
-  background: rgba(255,255,255,0.7);
-  border-radius: 1px;
-  animation: davePreLoad 1.8s cubic-bezier(.25,.46,.45,.94) forwards;
+  background: rgba(255,255,255,0.6);
+  animation: daveLoad 1.8s cubic-bezier(.25,.46,.45,.94) forwards;
 }
 
-@keyframes davePreLoad {
-  0%   { width: 0%; }
+@keyframes daveLoad {
+  0%   { width: 0%;  }
   30%  { width: 45%; }
   60%  { width: 72%; }
   85%  { width: 88%; }
   100% { width: 96%; }
-}
-
-/* ══════════════════════════════════════════════════════════════
-   13) LOGO
-══════════════════════════════════════════════════════════════ */
-:is(
-  [data-strapi-navigation] img,
-  header img,
-  img[alt*="logo" i],
-  img[src*="logo" i]
-) {
-  animation: none !important;
-  filter: none !important;
-  transform: none !important;
 }
