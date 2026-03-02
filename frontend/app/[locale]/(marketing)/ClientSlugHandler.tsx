@@ -1,3 +1,4 @@
+//app/[locale]/(marketing)/ClientSlugHandler.tsx
 'use client';
 
 import { useRouter } from 'next/navigation';

@@ -66,11 +66,7 @@ export function spreadStrapiData(data: StrapiResponse): StrapiItem | null {
 }
 
 /**
- * Strapi fetch – objektumos populate támogatással, hibadobással, laposítással.
- *
- * @param contentType - API content type (pl. 'pages')
- * @param params - Strapi query params (filters, populate, fields, sort, stb.)
- * @param spreadData - ha true: EGY (laposított) rekordot ad vissza; ha false: nyers JSON
+ * Strapi v5 fetch – status, locale top-level, populate objektumként.
  */
 export default async function fetchContentType(
   contentType: string,
@@ -79,14 +75,27 @@ export default async function fetchContentType(
 ): Promise<any> {
   const { isEnabled: isDraftMode } = await draftMode();
 
-  // publicationState: preview (draft mód), live (alap)
+  // Strapi v5: publicationState helyett status; 'draft' | 'published'
+  const { filters, ...restParams } = params;
+
+  // Ha filters-ben volt locale, emeljük ki top-level-re (Strapi v5)
+  const localeFromFilters = filters?.locale;
+  const remainingFilters = filters
+    ? Object.fromEntries(Object.entries(filters).filter(([k]) => k !== 'locale'))
+    : undefined;
+
   const queryObj: AnyRecord = {
-    publicationState: isDraftMode ? 'preview' : 'live',
-    ...params,
+    status: isDraftMode ? 'draft' : 'published',
+    // locale top-level
+    ...(localeFromFilters ? { locale: localeFromFilters } : {}),
+    // maradék filters (locale nélkül)
+    ...(remainingFilters && Object.keys(remainingFilters).length > 0
+      ? { filters: remainingFilters }
+      : {}),
+    ...restParams,
   };
 
   const query = qs.stringify(queryObj, { encodeValuesOnly: true });
-
   const url = `${API_BASE}/api/${contentType}${query ? `?${query}` : ''}`;
 
   const res = await fetch(url, {
@@ -97,7 +106,6 @@ export default async function fetchContentType(
       ...(process.env.STRAPI_API_TOKEN
         ? { Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}` }
         : {}),
-      // maradhat, ha használod Strapi Clouddal
       'strapi-encode-source-maps': isDraftMode ? 'true' : 'false',
     },
   });
@@ -109,9 +117,8 @@ export default async function fetchContentType(
 
   const json: StrapiResponse = await res.json();
 
-  if (!spreadData) return json; // visszaadjuk a nyers Strapi formátumot
+  if (!spreadData) return json;
 
-  // Korábbi viselkedés: egy tétel (most laposítva)
   const item = spreadStrapiData(json);
   return flattenEntry(item);
 }
