@@ -146,9 +146,8 @@ jobs:
     needs: changes
     if: ${{ needs.changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
+    # ⚠️ NEM állítunk be globális working-directory-t,
+    #    mert a plugin build-nek a repo gyökeréből kell futnia!
     steps:
       - uses: actions/checkout@v4
 
@@ -161,20 +160,37 @@ jobs:
           corepack enable
           corepack prepare pnpm@latest --activate
 
-      # Workspace-szintű install (backend + plugin-ek egyszerre)
+      # Workspace-szintű install a repo gyökeréből
       - name: Install (workspace root)
         working-directory: .
         run: pnpm install --frozen-lockfile=false
 
-      # ⬇️ Plugin-ek build-je ELŐBB — pnpm filter a workspace-ből
+      # ⬇️ Plugin-ek build-je ELŐBB — repo gyökeréből, pnpm workspace filter
       - name: Build plugins
-        working-directory: backend
+        working-directory: .
         run: |
-            pnpm --filter marketing-metrics build
-            pnpm --filter structured-data-generator build
+          pnpm --filter marketing-metrics build
+          pnpm --filter structured-data-generator build
 
-      # ⬇️ Strapi admin build UTÁN
+      # Ellenőrzés — ha a dist hiányzik, korán bukjon érthetően
+      - name: Verify plugin dist files
+        working-directory: .
+        run: |
+          echo "Checking marketing-metrics dist..."
+          test -f backend/src/plugins/marketing-metrics/dist/admin/index.mjs || \
+            { echo "❌ marketing-metrics dist/admin/index.mjs hiányzik!"; exit 1; }
+          test -f backend/src/plugins/marketing-metrics/dist/server/index.js || \
+            { echo "❌ marketing-metrics dist/server/index.js hiányzik!"; exit 1; }
+
+          echo "Checking structured-data-generator dist..."
+          test -f backend/src/plugins/structured-data-generator/dist/server/index.js || \
+            { echo "❌ structured-data-generator dist/server/index.js hiányzik!"; exit 1; }
+
+          echo "✅ Minden plugin dist fájl megvan"
+
+      # ⬇️ Strapi admin build UTÁN, már a backend working-directory-ból
       - name: Build Strapi
+        working-directory: backend
         env:
           NODE_ENV: production
         run: pnpm build
@@ -182,7 +198,6 @@ jobs:
       - name: Bundle (no node_modules / uploads / env / tmp)
         shell: bash
         run: |
-          cd ..
           rm -rf backend/node_modules || true
           tar -czf backend_bundle.tgz \
             --exclude="backend/node_modules" \
