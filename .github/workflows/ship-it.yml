@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       frontend: ${{ steps.out.outputs.frontend }}
-      backend: ${{ steps.out.outputs.backend }}
+      backend:  ${{ steps.out.outputs.backend }}
     steps:
       - uses: actions/checkout@v4
 
@@ -141,9 +141,6 @@ jobs:
 
   # ─────────────────────────────────────────────────────────
   # JOB 4 — Backend build (plugin-ek + Strapi)
-  #   ✅ Runneren elkészítjük a PROD node_modules-t is
-  #   ✅ better-sqlite3 binding is runneren készül
-  #   ✅ Bundle tartalmazza a node_modules-t
   # ─────────────────────────────────────────────────────────
   backend-build:
     name: 🏗️ backend-build
@@ -162,7 +159,6 @@ jobs:
           corepack enable
           corepack prepare pnpm@latest --activate
 
-      # Workspace install a buildhez (plugin build + strapi build)
       - name: Install (workspace root)
         working-directory: .
         run: pnpm install --frozen-lockfile=false
@@ -196,24 +192,12 @@ jobs:
           NODE_ENV: production
         run: pnpm build
 
-      # ✅ Prod deps + native binding a runneren (VPS-en nem installálunk!)
-      - name: Prepare production node_modules (runner)
-        working-directory: backend
-        env:
-          NODE_ENV: production
-        run: |
-          # prod-only install in backend/
-          pnpm install --prod --frozen-lockfile=false
-          # ensure native binding exists for this Node on linux runner
-          pnpm rebuild better-sqlite3
-
-          test -f node_modules/.pnpm/better-sqlite3@*/node_modules/better-sqlite3/build/Release/better_sqlite3.node || \
-            { echo "❌ better_sqlite3.node hiányzik a runner build után!"; exit 1; }
-
-      - name: Bundle backend (KEEP node_modules; exclude uploads/env/tmp)
+      - name: Bundle (no node_modules / uploads / env / tmp)
         shell: bash
         run: |
+          rm -rf backend/node_modules || true
           tar -czf backend_bundle.tgz \
+            --exclude="backend/node_modules" \
             --exclude="backend/public/uploads" \
             --exclude="backend/.env" \
             --exclude="backend/.env.*" \
@@ -306,8 +290,6 @@ jobs:
 
   # ─────────────────────────────────────────────────────────
   # JOB 6 — Backend deploy → VPS (atomic + rollback)
-  #   ✅ NINCS pnpm install a VPS-en
-  #   ✅ NINCS pnpm rebuild a VPS-en
   # ─────────────────────────────────────────────────────────
   deploy-backend:
     name: 🚢 deploy-backend
@@ -371,24 +353,21 @@ jobs:
             }
             trap cleanup EXIT
 
-            # Unpack bundle
             rm -rf "$TMP_DIR" && mkdir -p "$TMP_DIR"
             tar -xzf /tmp/backend_bundle.tgz -C "$TMP_DIR"
             rm -f /tmp/backend_bundle.tgz
 
-            # New release dir
             rm -rf "$NEW_DIR" && mkdir -p "$NEW_DIR"
             rsync -a --delete \
               --exclude 'public/uploads/' \
               --exclude '.tmp/' \
               --exclude '.env' \
               --exclude '.env.*' \
+              --exclude 'node_modules' \
               "${TMP_DIR}/backend/" "${NEW_DIR}/"
 
-            # Copy .env from live if present
             [ -f "${LIVE_DIR}/.env" ] && cp -a "${LIVE_DIR}/.env" "${NEW_DIR}/.env"
 
-            # Persistent uploads + db symlink
             mkdir -p "${NEW_DIR}/public" "${NEW_DIR}/.tmp"
             ln -sfn "$STORAGE_UPLOADS" "${NEW_DIR}/public/uploads"
 
@@ -400,6 +379,16 @@ jobs:
             [ -f "${STORAGE_DB}/data.db" ] || touch "${STORAGE_DB}/data.db"
             ln -sfn "${STORAGE_DB}/data.db" "${NEW_DIR}/.tmp/data.db"
 
+            export PNPM_HOME="$HOME/.local/share/pnpm"
+            export PATH="$PNPM_HOME:$PATH"
+            corepack enable || true
+            corepack prepare pnpm@latest --activate || true
+
+            # ⬇️ LOW-MEM install: ignore scripts, then rebuild only the native module we need
+            cd "$NEW_DIR"
+            export NODE_OPTIONS="--max-old-space-size=768"
+            pnpm install --prod --frozen-lockfile=false --prefer-offline --network-concurrency 1 --ignore-scripts
+
             # Atomic swap
             log "Stopping strapi..."
             pm2 stop backend || true
@@ -407,13 +396,17 @@ jobs:
             [ -d "$LIVE_DIR" ] && mv "$LIVE_DIR" "$PREV_DIR"
             mv "$NEW_DIR" "$LIVE_DIR"
 
+            # ✅ Only rebuild the one native dependency (runs its build script explicitly)
+            cd "$LIVE_DIR"
+            pnpm rebuild better-sqlite3 --verbose
+
             log "Starting strapi..."
             pm2 describe backend >/dev/null 2>&1 && \
               pm2 restart backend --update-env || \
               pm2 start "pnpm start" --name backend --cwd "$LIVE_DIR"
             pm2 save
 
-            # Smoke test (cheap)
+            # Smoke test
             smoke_ok=0
             for i in $(seq 1 12); do
               code=$(curl -sS -o /dev/null -w "%{http_code}" -L \
@@ -432,7 +425,6 @@ jobs:
               exit 1
             fi
 
-            # Keep last 3 prev dirs
             ls -dt /var/www/davelopment/backend.prev_* 2>/dev/null \
               | tail -n +4 | xargs -r rm -rf || true
 
