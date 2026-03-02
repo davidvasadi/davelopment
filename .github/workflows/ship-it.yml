@@ -337,7 +337,7 @@ jobs:
             set -Eeuo pipefail
 
             LIVE_DIR="/var/www/davelopment/backend"
-            STORAGE_ROOT="/var/www/davelopment_storage"
+            STORAGE_ROOT="/var/www/davelopment/storage"
             STORAGE_UPLOADS="${STORAGE_ROOT}/uploads"
             STORAGE_DB="${STORAGE_ROOT}/db"
             RELEASES="${STORAGE_ROOT}/releases"
