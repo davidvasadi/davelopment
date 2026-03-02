@@ -1,3 +1,4 @@
+// frontend/app/[locale]/layout.tsx
 import type { Metadata } from 'next';
 import { ViewTransitions } from 'next-view-transitions';
 import { Inter } from 'next/font/google';
@@ -26,7 +27,7 @@ export async function generateMetadata(props: {
 
   const pageData = await fetchContentType(
     'global',
-    { filters: { locale: params.locale }, populate: 'seo.metaImage' },
+    { filters: { locale: params.locale }, populate: 'seo' },
     true
   );
 

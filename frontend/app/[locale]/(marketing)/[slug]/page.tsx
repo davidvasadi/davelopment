@@ -1,4 +1,4 @@
-//app/%5Blocale%5D/%28marketing%29/%5Bslug%5D/page.tsx
+//app/[locale]/(marketing)/[slug]/page.tsx
 import { Metadata } from 'next';
 
 import ClientSlugHandler from '../ClientSlugHandler';

@@ -5,19 +5,25 @@ import './davelopment-admin.css';
 import logoDark from './extensions/logo-dark.png';
 import logoLight from './extensions/logo-light.png';
 
+/* ══════════════════════════════════════════════════════════
+   THEME — monokróm, semmi szín
+   neutral0  = oldal háttér  (#0a0a0a dark / #fafafa light)
+   neutral150 = kártya szint (#111111 dark / #ffffff light)
+   primary500 = fehér/fekete — gombok, fókusz, aktív elemek
+══════════════════════════════════════════════════════════ */
 const THEME = {
   dark: {
     colors: {
       neutral0:    '#0a0a0a',
       neutral100:  '#0a0a0a',
-      neutral150:  '#141414',
-      neutral200:  '#1f1f1f',
-      neutral300:  '#2a2a2a',
-      neutral400:  '#3d3d3d',
-      neutral500:  '#5a5a5a',
-      neutral600:  '#888888',
-      neutral700:  '#b0b0b0',
-      neutral800:  '#d4d4d4',
+      neutral150:  '#111111',
+      neutral200:  '#171717',
+      neutral300:  '#222222',
+      neutral400:  '#333333',
+      neutral500:  '#4d4d4d',
+      neutral600:  '#666666',
+      neutral700:  '#999999',
+      neutral800:  '#c9c9c9',
       neutral900:  '#ededed',
       neutral1000: '#ffffff',
 
@@ -50,22 +56,23 @@ const THEME = {
       secondary100: 'rgba(255,255,255,0.06)',
       secondary200: 'rgba(255,255,255,0.10)',
       secondary500: '#ededed',
-      secondary600: '#d4d4d4',
-      secondary700: '#b0b0b0',
+      secondary600: '#c9c9c9',
+      secondary700: '#999999',
 
-      buttonNeutral0:   '#1a1a1a',
+      buttonNeutral0:   '#111111',
       buttonPrimary500: '#ffffff',
       buttonPrimary600: '#ededed',
     },
   },
+
   light: {
     colors: {
-      neutral0:    '#f5f5f5',
-      neutral100:  '#f5f5f5',
-      neutral150:  '#efefef',
-      neutral200:  '#e8e8e8',
-      neutral300:  '#d4d4d4',
-      neutral400:  '#b0b0b0',
+      neutral0:    '#fafafa',
+      neutral100:  '#fafafa',
+      neutral150:  '#f5f5f5',
+      neutral200:  '#efefef',
+      neutral300:  '#e0e0e0',
+      neutral400:  '#c0c0c0',
       neutral500:  '#888888',
       neutral600:  '#666666',
       neutral700:  '#444444',
@@ -81,22 +88,40 @@ const THEME = {
       primary600: '#111111',
       primary700: '#222222',
 
-      danger100: 'rgba(220,38,38,0.08)',
+      danger100: 'rgba(220,38,38,0.07)',
+      danger200: 'rgba(220,38,38,0.13)',
       danger500: '#dc2626',
       danger600: '#b91c1c',
+      danger700: '#991b1b',
 
-      warning100: 'rgba(217,119,6,0.08)',
-      warning500: '#d97706',
+      warning100: 'rgba(234,88,12,0.07)',
+      warning200: 'rgba(234,88,12,0.13)',
+      warning500: '#ea580c',
+      warning600: '#c2410c',
+      warning700: '#9a3412',
 
-      success100: 'rgba(22,163,74,0.08)',
+      success100: 'rgba(22,163,74,0.07)',
+      success200: 'rgba(22,163,74,0.13)',
       success500: '#16a34a',
+      success600: '#15803d',
+      success700: '#166534',
 
       secondary100: 'rgba(0,0,0,0.05)',
+      secondary200: 'rgba(0,0,0,0.09)',
       secondary500: '#444444',
+      secondary600: '#666666',
+      secondary700: '#888888',
+
+      buttonNeutral0:   '#ffffff',
+      buttonPrimary500: '#000000',
+      buttonPrimary600: '#111111',
     },
   },
 } as const;
 
+/* ══════════════════════════════════════════════════════════
+   THEME BRIDGE — érintetlen
+══════════════════════════════════════════════════════════ */
 const THEME_KEYS = ['STRAPI_THEME', 'strapi-theme', 'strapiTheme', 'theme', 'admin-theme'];
 
 function normalizeMode(v: string | null | undefined): 'light' | 'dark' | null {
@@ -158,19 +183,16 @@ function installThemeBridge() {
   else window.addEventListener('DOMContentLoaded', watchBody, { once: true });
 }
 
-// ── Custom Preloader ───────────────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════
+   PRELOADER — érintetlen
+══════════════════════════════════════════════════════════ */
 function installPreloader() {
   const ATTR = 'data-dave-preloader';
   if (document.querySelector(`[${ATTR}]`)) return;
 
-  const html = document.documentElement;
-  const t0   = Date.now();
-
-  // Overlay
+  const t0 = Date.now();
   const overlay = document.createElement('div');
   overlay.setAttribute(ATTR, '1');
-
-  // Logo szöveg — "d®" mint a davelopment brand
   overlay.innerHTML = `
     <div class="dave-pre-inner">
       <div class="dave-pre-logo">d<span>®</span></div>
@@ -178,7 +200,7 @@ function installPreloader() {
     </div>
   `;
 
-  const mount  = () => { if (!document.querySelector(`[${ATTR}]`)) document.body?.appendChild(overlay); };
+  const mount   = () => { if (!document.querySelector(`[${ATTR}]`)) document.body?.appendChild(overlay); };
   const unmount = () => {
     const wait = Math.max(0, 600 - (Date.now() - t0));
     setTimeout(() => {
@@ -205,7 +227,9 @@ function installPreloader() {
   setTimeout(() => { obs.disconnect(); unmount(); }, 6000);
 }
 
-// ── Logo swap ──────────────────────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════
+   AUTO LOGO SWAP — érintetlen
+══════════════════════════════════════════════════════════ */
 function installAutoLogoSwap(logos: { light: string; dark: string }) {
   const html = document.documentElement;
   const src  = () => html.getAttribute('data-theme') === 'light' ? logos.light : logos.dark;
@@ -233,6 +257,9 @@ function installAutoLogoSwap(logos: { light: string; dark: string }) {
   if (document.body) obs.observe(document.body, { childList: true, subtree: true });
 }
 
+/* ══════════════════════════════════════════════════════════
+   EXPORT
+══════════════════════════════════════════════════════════ */
 export default {
   config: {
     locales: ['hu', 'en'],
@@ -240,7 +267,7 @@ export default {
     tutorials: false,
     notifications: { releases: false },
     menu: { logo: logoLight },
-    auth: { logo: logoLight },
+    auth:  { logo: logoLight },
   },
   bootstrap(_app: StrapiApp) {
     installThemeBridge();

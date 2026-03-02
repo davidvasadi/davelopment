@@ -62,9 +62,12 @@ async function updateStructuredData(
     if (cmps.length === 0) return;
     const cmpIds = cmps.map((c: any) => c.cmp_id);
 
+    // Skip csak ha van valid JSON (nem null, nem üres string)
     const existing = await knex('components_shared_seos')
       .whereIn('id', cmpIds)
       .whereNotNull('structured_data')
+      .whereNot('structured_data', '')
+      .whereNot('structured_data', 'null')
       .count('id as cnt')
       .first();
 
