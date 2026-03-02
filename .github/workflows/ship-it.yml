@@ -1,0 +1,422 @@
+name: ship-it 🚀
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+      - '.github/workflows/ship-it.yml'
+  workflow_dispatch:
+    inputs:
+      deploy_frontend:
+        description: 'Deploy frontend to VPS (manual)'
+        type: boolean
+        required: false
+        default: false
+      deploy_backend:
+        description: 'Deploy backend to VPS (manual)'
+        type: boolean
+        required: false
+        default: false
+
+concurrency:
+  group: ship-it-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '20'
+  VPS_HOST: ${{ secrets.VPS_HOST }}
+  VPS_PORT: ${{ secrets.VPS_PORT }}
+  VPS_USER: ${{ secrets.VPS_USER }}
+
+# ─────────────────────────────────────────────────────────
+# JOB 1 — változás detektálás
+# ─────────────────────────────────────────────────────────
+jobs:
+  changes:
+    name: 🔍 changes
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.out.outputs.frontend }}
+      backend:  ${{ steps.out.outputs.backend }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+            backend:
+              - 'backend/**'
+
+      - name: Final flags (push + manual override)
+        id: out
+        shell: bash
+        run: |
+          fe="${{ steps.filter.outputs.frontend }}"
+          be="${{ steps.filter.outputs.backend }}"
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            [ "${{ github.event.inputs.deploy_frontend }}" = "true" ] && fe="true"
+            [ "${{ github.event.inputs.deploy_backend }}"  = "true" ] && be="true"
+          fi
+
+          echo "frontend=$fe" >> "$GITHUB_OUTPUT"
+          echo "backend=$be"  >> "$GITHUB_OUTPUT"
+          echo "frontend=$fe  backend=$be"
+
+# ─────────────────────────────────────────────────────────
+# JOB 2 — secrets ellenőrzés
+# ─────────────────────────────────────────────────────────
+  secrets-check:
+    name: 🔑 secrets-check
+    runs-on: ubuntu-latest
+    needs: changes
+    outputs:
+      ssh_ok: ${{ steps.out.outputs.ssh_ok }}
+    steps:
+      - id: out
+        shell: bash
+        run: |
+          ssh_ok=false
+          if [ -n "${{ secrets.VPS_HOST }}" ] && \
+             [ -n "${{ secrets.VPS_USER }}" ] && \
+             [ -n "${{ secrets.VPS_KEY }}"  ]; then
+            ssh_ok=true
+          fi
+          echo "ssh_ok=$ssh_ok" >> "$GITHUB_OUTPUT"
+          echo "ssh_ok=$ssh_ok"
+
+# ─────────────────────────────────────────────────────────
+# JOB 3 — Frontend build (Next.js)
+# ─────────────────────────────────────────────────────────
+  frontend-build:
+    name: 🏗️ frontend-build
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      - name: Install
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Build
+        run: pnpm build
+
+      - name: Bundle (.next + public, no node_modules)
+        shell: bash
+        run: |
+          cd ..
+          tar -czf frontend_bundle.tgz \
+            --exclude="frontend/node_modules" \
+            --exclude="frontend/.env*" \
+            frontend/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend_bundle
+          path: frontend_bundle.tgz
+          if-no-files-found: error
+          retention-days: 3
+
+# ─────────────────────────────────────────────────────────
+# JOB 4 — Backend build (plugin-ek + Strapi)
+# ─────────────────────────────────────────────────────────
+  backend-build:
+    name: 🏗️ backend-build
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Enable pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      # Workspace-szintű install (backend + plugin-ek egyszerre)
+      - name: Install (workspace root)
+        working-directory: .
+        run: pnpm install --frozen-lockfile=false
+
+      # ⬇️ Plugin-ek build-je ELŐBB — ez javítja az eredeti hibát
+      - name: Build plugin — marketing-metrics
+        working-directory: backend/src/plugins/marketing-metrics
+        run: pnpm build
+
+      - name: Build plugin — structured-data-generator
+        working-directory: backend/src/plugins/structured-data-generator
+        run: pnpm build
+
+      # ⬇️ Strapi admin build UTÁN
+      - name: Build Strapi
+        env:
+          NODE_ENV: production
+        run: pnpm build
+
+      - name: Bundle (no node_modules / uploads / env / tmp)
+        shell: bash
+        run: |
+          cd ..
+          rm -rf backend/node_modules || true
+          tar -czf backend_bundle.tgz \
+            --exclude="backend/node_modules" \
+            --exclude="backend/public/uploads" \
+            --exclude="backend/.env" \
+            --exclude="backend/.env.*" \
+            --exclude="backend/.tmp" \
+            backend/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backend_bundle
+          path: backend_bundle.tgz
+          if-no-files-found: error
+          retention-days: 3
+
+# ─────────────────────────────────────────────────────────
+# JOB 5 — Frontend deploy → VPS
+# ─────────────────────────────────────────────────────────
+  deploy-frontend:
+    name: 🚢 deploy-frontend
+    needs: [changes, frontend-build, secrets-check]
+    runs-on: ubuntu-latest
+    if: >-
+      needs.changes.outputs.frontend == 'true' &&
+      needs.frontend-build.result == 'success' &&
+      needs.secrets-check.outputs.ssh_ok == 'true'
+    env:
+      REMOTE_PATH: /var/www/davelopment/frontend
+      PM2_NAME: frontend
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend_bundle
+          path: .
+
+      - name: Prepare SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_KEY }}" > ~/.ssh/id_ci
+          chmod 600 ~/.ssh/id_ci
+          ssh-keyscan -p "${VPS_PORT}" -H "${VPS_HOST}" >> ~/.ssh/known_hosts
+
+      - name: Unpack bundle
+        run: tar -xzf frontend_bundle.tgz
+
+      - name: Ensure remote dir
+        run: |
+          ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes \
+            ${VPS_USER}@${VPS_HOST} "mkdir -p ${REMOTE_PATH}"
+
+      - name: Upload via rsync
+        run: |
+          rsync -avz --delete \
+            --exclude "node_modules" \
+            --exclude ".env*" \
+            -e "ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes" \
+            frontend/ ${VPS_USER}@${VPS_HOST}:${REMOTE_PATH}/
+
+      - name: Install deps & restart PM2
+        run: |
+          ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes \
+            ${VPS_USER}@${VPS_HOST} <<'EOF'
+          set -e
+          export PNPM_HOME="$HOME/.local/share/pnpm"
+          export PATH="$PNPM_HOME:$PATH"
+          corepack enable || true
+          corepack prepare pnpm@latest --activate || true
+
+          cd /var/www/davelopment/frontend
+          pnpm install --frozen-lockfile=false
+
+          pm2 describe frontend >/dev/null 2>&1 && \
+            pm2 restart frontend --update-env || \
+            pm2 start "pnpm start" --name frontend --cwd /var/www/davelopment/frontend
+
+          pm2 save
+          EOF
+
+      - name: Smoke test frontend
+        run: |
+          sleep 5
+          for i in 1 2 3 4 5; do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" -L \
+              --connect-timeout 5 --max-time 15 \
+              https://davelopment.hu/ || echo 000)
+            echo "try=$i code=$code"
+            [ "$code" -ge 200 ] && [ "$code" -lt 400 ] && exit 0
+            sleep 3
+          done
+          echo "❌ Frontend smoke failed"
+          exit 1
+
+# ─────────────────────────────────────────────────────────
+# JOB 6 — Backend deploy → VPS (atomic + rollback)
+# ─────────────────────────────────────────────────────────
+  deploy-backend:
+    name: 🚢 deploy-backend
+    needs: [changes, backend-build, secrets-check]
+    runs-on: ubuntu-latest
+    if: >-
+      needs.changes.outputs.backend == 'true' &&
+      needs.backend-build.result == 'success' &&
+      needs.secrets-check.outputs.ssh_ok == 'true'
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: backend_bundle
+          path: .
+
+      - name: Upload bundle to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          source: 'backend_bundle.tgz'
+          target: '/tmp'
+          overwrite: true
+
+      - name: Deploy on VPS (atomic + rollback)
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          envs: DEPLOY_SHA
+          script_stop: true
+          command_timeout: 30m
+          script: |
+            set -Eeuo pipefail
+
+            LIVE_DIR="/var/www/davelopment/backend"
+            STORAGE_ROOT="/var/www/davelopment_storage"
+            STORAGE_UPLOADS="${STORAGE_ROOT}/uploads"
+            STORAGE_DB="${STORAGE_ROOT}/db"
+            RELEASES="${STORAGE_ROOT}/releases"
+
+            TS="$(date +%F_%H%M%S)"
+            NEW_DIR="${LIVE_DIR}.new_${DEPLOY_SHA}"
+            PREV_DIR="${LIVE_DIR}.prev_${TS}"
+            TMP_DIR="/tmp/backend_deploy_${DEPLOY_SHA}"
+
+            log(){ printf '[%s] %s\n' "$(date -Is)" "$*"; }
+
+            mkdir -p "$RELEASES" "$STORAGE_UPLOADS" "$STORAGE_DB"
+            cp -a "/tmp/backend_bundle.tgz" "${RELEASES}/bundle_${DEPLOY_SHA}_${TS}.tgz" || true
+
+            # Cleanup trap
+            cleanup(){
+              rm -rf "$TMP_DIR" 2>/dev/null || true
+              [ -d "$NEW_DIR" ] && rm -rf "$NEW_DIR" 2>/dev/null || true
+            }
+            trap cleanup EXIT
+
+            # Unpack
+            rm -rf "$TMP_DIR" && mkdir -p "$TMP_DIR"
+            tar -xzf /tmp/backend_bundle.tgz -C "$TMP_DIR"
+            rm -f /tmp/backend_bundle.tgz
+
+            # Új release dir
+            rm -rf "$NEW_DIR" && mkdir -p "$NEW_DIR"
+            rsync -a --delete \
+              --exclude 'public/uploads/' \
+              --exclude '.tmp/' \
+              --exclude '.env' \
+              --exclude '.env.*' \
+              --exclude 'node_modules' \
+              "${TMP_DIR}/backend/" "${NEW_DIR}/"
+
+            # .env másolás az élő release-ből
+            [ -f "${LIVE_DIR}/.env" ] && cp -a "${LIVE_DIR}/.env" "${NEW_DIR}/.env"
+
+            # Persistent uploads + db symlink
+            mkdir -p "${NEW_DIR}/public" "${NEW_DIR}/.tmp"
+            ln -sfn "$STORAGE_UPLOADS" "${NEW_DIR}/public/uploads"
+
+            if [ -f "${LIVE_DIR}/.tmp/data.db" ] && \
+               [ ! -L "${LIVE_DIR}/.tmp/data.db" ] && \
+               [ ! -f "${STORAGE_DB}/data.db" ]; then
+              mv "${LIVE_DIR}/.tmp/data.db" "${STORAGE_DB}/data.db" || true
+            fi
+            [ -f "${STORAGE_DB}/data.db" ] || touch "${STORAGE_DB}/data.db"
+            ln -sfn "${STORAGE_DB}/data.db" "${NEW_DIR}/.tmp/data.db"
+
+            # Install (no build — már le van buildelve)
+            export PNPM_HOME="$HOME/.local/share/pnpm"
+            export PATH="$PNPM_HOME:$PATH"
+            corepack enable || true
+            corepack prepare pnpm@latest --activate || true
+
+            cd "$NEW_DIR"
+            pnpm install --frozen-lockfile=false --ignore-scripts
+
+            # Atomic swap
+            log "Stopping strapi..."
+            pm2 stop backend || true
+
+            [ -d "$LIVE_DIR" ] && mv "$LIVE_DIR" "$PREV_DIR"
+            mv "$NEW_DIR" "$LIVE_DIR"
+
+            log "Starting strapi..."
+            pm2 describe backend >/dev/null 2>&1 && \
+              pm2 restart backend --update-env || \
+              pm2 start "pnpm start" --name backend --cwd "$LIVE_DIR"
+            pm2 save
+
+            # Smoke test
+            smoke_ok=0
+            for i in $(seq 1 12); do
+              code=$(curl -sS -o /dev/null -w "%{http_code}" -L \
+                --connect-timeout 3 --max-time 10 \
+                "http://127.0.0.1:1337/_health" || echo 000)
+              log "smoke try=$i code=$code"
+              [ "$code" -ge 200 ] && [ "$code" -lt 400 ] && { smoke_ok=1; break; }
+              sleep 3
+            done
+
+            if [ "$smoke_ok" -ne 1 ]; then
+              log "❌ SMOKE FAIL → ROLLBACK"
+              pm2 stop backend || true
+              [ -d "$PREV_DIR" ] && rm -rf "$LIVE_DIR" && mv "$PREV_DIR" "$LIVE_DIR"
+              pm2 restart backend --update-env || true
+              exit 1
+            fi
+
+            # Régi release-ek takarítása (utolsó 5 marad)
+            ls -dt /var/www/davelopment/backend.prev_* 2>/dev/null \
+              | tail -n +4 | xargs -r rm -rf || true
+
+            log "✅ DEPLOY DONE"
