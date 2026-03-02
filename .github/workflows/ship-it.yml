@@ -167,12 +167,12 @@ jobs:
 
       # ⬇️ Plugin-ek build-je ELŐBB — repo gyökeréből, pnpm workspace filter
       - name: Build plugins
-            working-directory: .
-            run: |
-                echo "=== Workspace packages ==="
-                pnpm list -r --depth 0 | grep -E "marketing|structured" || echo "⚠️ Plugin NEM látszik a workspace-ben!"
-                pnpm --filter marketing-metrics build
-                pnpm --filter structured-data-generator build
+        working-directory: .
+        run: |
+          echo "=== Workspace packages ==="
+          pnpm list -r --depth 0 | grep -E "marketing|structured" || echo "⚠️ Plugin NEM látszik a workspace-ben!"
+          pnpm --filter marketing-metrics build
+          pnpm --filter structured-data-generator build
 
       # Ellenőrzés — ha a dist hiányzik, korán bukjon érthetően
       - name: Verify plugin dist files
