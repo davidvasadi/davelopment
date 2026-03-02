@@ -1,3 +1,4 @@
+# .github/workflows/ship-it.yml
 name: ship-it 🚀
 
 on:
@@ -33,16 +34,16 @@ env:
   VPS_PORT: ${{ secrets.VPS_PORT }}
   VPS_USER: ${{ secrets.VPS_USER }}
 
-# ─────────────────────────────────────────────────────────
-# JOB 1 — változás detektálás
-# ─────────────────────────────────────────────────────────
 jobs:
+  # ─────────────────────────────────────────────────────────
+  # JOB 1 — változás detektálás
+  # ─────────────────────────────────────────────────────────
   changes:
     name: 🔍 changes
     runs-on: ubuntu-latest
     outputs:
       frontend: ${{ steps.out.outputs.frontend }}
-      backend:  ${{ steps.out.outputs.backend }}
+      backend: ${{ steps.out.outputs.backend }}
     steps:
       - uses: actions/checkout@v4
 
@@ -71,9 +72,9 @@ jobs:
           echo "backend=$be"  >> "$GITHUB_OUTPUT"
           echo "frontend=$fe  backend=$be"
 
-# ─────────────────────────────────────────────────────────
-# JOB 2 — secrets ellenőrzés
-# ─────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────
+  # JOB 2 — secrets ellenőrzés
+  # ─────────────────────────────────────────────────────────
   secrets-check:
     name: 🔑 secrets-check
     runs-on: ubuntu-latest
@@ -93,9 +94,9 @@ jobs:
           echo "ssh_ok=$ssh_ok" >> "$GITHUB_OUTPUT"
           echo "ssh_ok=$ssh_ok"
 
-# ─────────────────────────────────────────────────────────
-# JOB 3 — Frontend build (Next.js)
-# ─────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────
+  # JOB 3 — Frontend build (Next.js)
+  # ─────────────────────────────────────────────────────────
   frontend-build:
     name: 🏗️ frontend-build
     needs: changes
@@ -138,16 +139,14 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
-# ─────────────────────────────────────────────────────────
-# JOB 4 — Backend build (plugin-ek + Strapi)
-# ─────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────
+  # JOB 4 — Backend build (plugin-ek + Strapi)
+  # ─────────────────────────────────────────────────────────
   backend-build:
     name: 🏗️ backend-build
     needs: changes
     if: ${{ needs.changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
-    # ⚠️ NEM állítunk be globális working-directory-t,
-    #    mert a plugin build-nek a repo gyökeréből kell futnia!
     steps:
       - uses: actions/checkout@v4
 
@@ -160,12 +159,10 @@ jobs:
           corepack enable
           corepack prepare pnpm@latest --activate
 
-      # Workspace-szintű install a repo gyökeréből
       - name: Install (workspace root)
         working-directory: .
         run: pnpm install --frozen-lockfile=false
 
-      # ⬇️ Plugin-ek build-je ELŐBB — repo gyökeréből, pnpm workspace filter
       - name: Build plugins
         working-directory: .
         run: |
@@ -174,7 +171,6 @@ jobs:
           pnpm --filter marketing-metrics build
           pnpm --filter structured-data-generator build
 
-      # Ellenőrzés — ha a dist hiányzik, korán bukjon érthetően
       - name: Verify plugin dist files
         working-directory: .
         run: |
@@ -190,7 +186,6 @@ jobs:
 
           echo "✅ Minden plugin dist fájl megvan"
 
-      # ⬇️ Strapi admin build UTÁN, már a backend working-directory-ból
       - name: Build Strapi
         working-directory: backend
         env:
@@ -216,9 +211,9 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
-# ─────────────────────────────────────────────────────────
-# JOB 5 — Frontend deploy → VPS
-# ─────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────
+  # JOB 5 — Frontend deploy → VPS
+  # ─────────────────────────────────────────────────────────
   deploy-frontend:
     name: 🚢 deploy-frontend
     needs: [changes, frontend-build, secrets-check]
@@ -293,9 +288,9 @@ jobs:
           echo "❌ Frontend smoke failed"
           exit 1
 
-# ─────────────────────────────────────────────────────────
-# JOB 6 — Backend deploy → VPS (atomic + rollback)
-# ─────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────
+  # JOB 6 — Backend deploy → VPS (atomic + rollback)
+  # ─────────────────────────────────────────────────────────
   deploy-backend:
     name: 🚢 deploy-backend
     needs: [changes, backend-build, secrets-check]
@@ -352,19 +347,16 @@ jobs:
             mkdir -p "$RELEASES" "$STORAGE_UPLOADS" "$STORAGE_DB"
             cp -a "/tmp/backend_bundle.tgz" "${RELEASES}/bundle_${DEPLOY_SHA}_${TS}.tgz" || true
 
-            # Cleanup trap
             cleanup(){
               rm -rf "$TMP_DIR" 2>/dev/null || true
               [ -d "$NEW_DIR" ] && rm -rf "$NEW_DIR" 2>/dev/null || true
             }
             trap cleanup EXIT
 
-            # Unpack
             rm -rf "$TMP_DIR" && mkdir -p "$TMP_DIR"
             tar -xzf /tmp/backend_bundle.tgz -C "$TMP_DIR"
             rm -f /tmp/backend_bundle.tgz
 
-            # Új release dir
             rm -rf "$NEW_DIR" && mkdir -p "$NEW_DIR"
             rsync -a --delete \
               --exclude 'public/uploads/' \
@@ -374,10 +366,8 @@ jobs:
               --exclude 'node_modules' \
               "${TMP_DIR}/backend/" "${NEW_DIR}/"
 
-            # .env másolás az élő release-ből
             [ -f "${LIVE_DIR}/.env" ] && cp -a "${LIVE_DIR}/.env" "${NEW_DIR}/.env"
 
-            # Persistent uploads + db symlink
             mkdir -p "${NEW_DIR}/public" "${NEW_DIR}/.tmp"
             ln -sfn "$STORAGE_UPLOADS" "${NEW_DIR}/public/uploads"
 
@@ -389,14 +379,14 @@ jobs:
             [ -f "${STORAGE_DB}/data.db" ] || touch "${STORAGE_DB}/data.db"
             ln -sfn "${STORAGE_DB}/data.db" "${NEW_DIR}/.tmp/data.db"
 
-            # Install (no build — már le van buildelve)
             export PNPM_HOME="$HOME/.local/share/pnpm"
             export PATH="$PNPM_HOME:$PATH"
             corepack enable || true
             corepack prepare pnpm@latest --activate || true
 
+            # Install deps in NEW_DIR (no build)
             cd "$NEW_DIR"
-            pnpm install --frozen-lockfile=false --ignore-scripts
+            pnpm install --frozen-lockfile=false --prod
 
             # Atomic swap
             log "Stopping strapi..."
@@ -405,18 +395,22 @@ jobs:
             [ -d "$LIVE_DIR" ] && mv "$LIVE_DIR" "$PREV_DIR"
             mv "$NEW_DIR" "$LIVE_DIR"
 
+            # ✅ rebuild native bindings in FINAL PATH (DO NOT IGNORE FAIL)
+            cd "$LIVE_DIR"
+            pnpm rebuild better-sqlite3
+
             log "Starting strapi..."
             pm2 describe backend >/dev/null 2>&1 && \
               pm2 restart backend --update-env || \
               pm2 start "pnpm start" --name backend --cwd "$LIVE_DIR"
             pm2 save
 
-            # Smoke test
+            # Smoke test (admin route is always there if Strapi is up)
             smoke_ok=0
             for i in $(seq 1 12); do
               code=$(curl -sS -o /dev/null -w "%{http_code}" -L \
                 --connect-timeout 3 --max-time 10 \
-                "http://127.0.0.1:1337/_health" || echo 000)
+                "http://127.0.0.1:1337/admin" || echo 000)
               log "smoke try=$i code=$code"
               [ "$code" -ge 200 ] && [ "$code" -lt 400 ] && { smoke_ok=1; break; }
               sleep 3
@@ -430,7 +424,6 @@ jobs:
               exit 1
             fi
 
-            # Régi release-ek takarítása (utolsó 5 marad)
             ls -dt /var/www/davelopment/backend.prev_* 2>/dev/null \
               | tail -n +4 | xargs -r rm -rf || true
 
