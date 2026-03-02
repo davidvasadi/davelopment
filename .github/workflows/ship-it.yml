@@ -166,14 +166,12 @@ jobs:
         working-directory: .
         run: pnpm install --frozen-lockfile=false
 
-      # ⬇️ Plugin-ek build-je ELŐBB — ez javítja az eredeti hibát
-      - name: Build plugin — marketing-metrics
-        working-directory: backend/src/plugins/marketing-metrics
-        run: pnpm build
-
-      - name: Build plugin — structured-data-generator
-        working-directory: backend/src/plugins/structured-data-generator
-        run: pnpm build
+      # ⬇️ Plugin-ek build-je ELŐBB — pnpm filter a workspace-ből
+      - name: Build plugins
+        working-directory: backend
+        run: |
+            pnpm --filter marketing-metrics build
+            pnpm --filter structured-data-generator build
 
       # ⬇️ Strapi admin build UTÁN
       - name: Build Strapi
