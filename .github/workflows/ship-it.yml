@@ -319,7 +319,6 @@ jobs:
           key: ${{ secrets.VPS_KEY }}
           port: ${{ secrets.VPS_PORT }}
           envs: DEPLOY_SHA
-          script_stop: true
           command_timeout: 30m
           script: |
             set -Eeuo pipefail
