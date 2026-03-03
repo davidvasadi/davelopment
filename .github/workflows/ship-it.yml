@@ -1,5 +1,4 @@
-# .github/workflows/ship-it.yml
-name: ship-it 🚀
+name: ship-it
 
 on:
   push:
@@ -35,11 +34,12 @@ env:
   VPS_USER: ${{ secrets.VPS_USER }}
 
 jobs:
-  # ─────────────────────────────────────────────────────────
-  # JOB 1 — változás detektálás
-  # ─────────────────────────────────────────────────────────
+
+  # ---------------------------------------------------------
+  # JOB 1 - change detection
+  # ---------------------------------------------------------
   changes:
-    name: 🔍 changes
+    name: changes
     runs-on: ubuntu-latest
     outputs:
       frontend: ${{ steps.out.outputs.frontend }}
@@ -72,11 +72,11 @@ jobs:
           echo "backend=$be"  >> "$GITHUB_OUTPUT"
           echo "frontend=$fe  backend=$be"
 
-  # ─────────────────────────────────────────────────────────
-  # JOB 2 — secrets ellenőrzés
-  # ─────────────────────────────────────────────────────────
+  # ---------------------------------------------------------
+  # JOB 2 - secrets check
+  # ---------------------------------------------------------
   secrets-check:
-    name: 🔑 secrets-check
+    name: secrets-check
     runs-on: ubuntu-latest
     needs: changes
     outputs:
@@ -94,11 +94,11 @@ jobs:
           echo "ssh_ok=$ssh_ok" >> "$GITHUB_OUTPUT"
           echo "ssh_ok=$ssh_ok"
 
-  # ─────────────────────────────────────────────────────────
-  # JOB 3 — Frontend build (Next.js)
-  # ─────────────────────────────────────────────────────────
+  # ---------------------------------------------------------
+  # JOB 3 - Frontend build
+  # ---------------------------------------------------------
   frontend-build:
-    name: 🏗️ frontend-build
+    name: frontend-build
     needs: changes
     if: ${{ needs.changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
@@ -139,11 +139,11 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
-  # ─────────────────────────────────────────────────────────
-  # JOB 4 — Backend build (plugin-ek + Strapi)
-  # ─────────────────────────────────────────────────────────
+  # ---------------------------------------------------------
+  # JOB 4 - Backend build
+  # ---------------------------------------------------------
   backend-build:
-    name: 🏗️ backend-build
+    name: backend-build
     needs: changes
     if: ${{ needs.changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
@@ -166,25 +166,19 @@ jobs:
       - name: Build plugins
         working-directory: .
         run: |
-          echo "=== Workspace packages ==="
-          pnpm list -r --depth 0 | grep -E "marketing|structured" || echo "⚠️ Plugin NEM látszik a workspace-ben!"
           pnpm --filter marketing-metrics build
           pnpm --filter structured-data-generator build
 
       - name: Verify plugin dist files
         working-directory: .
         run: |
-          echo "Checking marketing-metrics dist..."
           test -f backend/src/plugins/marketing-metrics/dist/admin/index.mjs || \
-            { echo "❌ marketing-metrics dist/admin/index.mjs hiányzik!"; exit 1; }
+            { echo "marketing-metrics dist/admin/index.mjs missing"; exit 1; }
           test -f backend/src/plugins/marketing-metrics/dist/server/index.js || \
-            { echo "❌ marketing-metrics dist/server/index.js hiányzik!"; exit 1; }
-
-          echo "Checking structured-data-generator dist..."
+            { echo "marketing-metrics dist/server/index.js missing"; exit 1; }
           test -f backend/src/plugins/structured-data-generator/dist/server/index.js || \
-            { echo "❌ structured-data-generator dist/server/index.js hiányzik!"; exit 1; }
-
-          echo "✅ Minden plugin dist fájl megvan"
+            { echo "structured-data-generator dist/server/index.js missing"; exit 1; }
+          echo "All plugin dist files OK"
 
       - name: Build Strapi
         working-directory: backend
@@ -211,11 +205,11 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
-  # ─────────────────────────────────────────────────────────
-  # JOB 5 — Frontend deploy → VPS
-  # ─────────────────────────────────────────────────────────
+  # ---------------------------------------------------------
+  # JOB 5 - Frontend deploy
+  # ---------------------------------------------------------
   deploy-frontend:
-    name: 🚢 deploy-frontend
+    name: deploy-frontend
     needs: [changes, frontend-build, secrets-check]
     runs-on: ubuntu-latest
     if: >-
@@ -224,7 +218,6 @@ jobs:
       needs.secrets-check.outputs.ssh_ok == 'true'
     env:
       REMOTE_PATH: /var/www/davelopment/frontend
-      PM2_NAME: frontend
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -254,7 +247,7 @@ jobs:
             -e "ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes" \
             frontend/ ${VPS_USER}@${VPS_HOST}:${REMOTE_PATH}/
 
-      - name: Install deps & restart PM2
+      - name: Install deps and restart PM2
         run: |
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes \
             ${VPS_USER}@${VPS_HOST} <<'EOF'
@@ -285,14 +278,14 @@ jobs:
             [ "$code" -ge 200 ] && [ "$code" -lt 400 ] && exit 0
             sleep 3
           done
-          echo "❌ Frontend smoke failed"
+          echo "Frontend smoke test failed"
           exit 1
 
-  # ─────────────────────────────────────────────────────────
-  # JOB 6 — Backend deploy → VPS (atomic + rollback)
-  # ─────────────────────────────────────────────────────────
+  # ---------------------------------------------------------
+  # JOB 6 - Backend deploy (atomic + rollback)
+  # ---------------------------------------------------------
   deploy-backend:
-    name: 🚢 deploy-backend
+    name: deploy-backend
     needs: [changes, backend-build, secrets-check]
     runs-on: ubuntu-latest
     if: >-
@@ -335,7 +328,6 @@ jobs:
             STORAGE_ROOT="/var/www/davelopment/storage"
             STORAGE_UPLOADS="${STORAGE_ROOT}/uploads"
             STORAGE_DB="${STORAGE_ROOT}/db"
-            RELEASES="${STORAGE_ROOT}/releases"
 
             TS="$(date +%F_%H%M%S)"
             NEW_DIR="${LIVE_DIR}.new_${DEPLOY_SHA}"
@@ -344,19 +336,14 @@ jobs:
 
             log(){ printf '[%s] %s\n' "$(date -Is)" "$*"; }
 
-            mkdir -p "$RELEASES" "$STORAGE_UPLOADS" "$STORAGE_DB"
-            cp -a "/tmp/backend_bundle.tgz" "${RELEASES}/bundle_${DEPLOY_SHA}_${TS}.tgz" || true
+            mkdir -p "$STORAGE_UPLOADS" "$STORAGE_DB"
 
-            cleanup(){
-              rm -rf "$TMP_DIR" 2>/dev/null || true
-              [ -d "$NEW_DIR" ] && rm -rf "$NEW_DIR" 2>/dev/null || true
-            }
-            trap cleanup EXIT
-
+            # Unpack to temp dir
             rm -rf "$TMP_DIR" && mkdir -p "$TMP_DIR"
             tar -xzf /tmp/backend_bundle.tgz -C "$TMP_DIR"
             rm -f /tmp/backend_bundle.tgz
 
+            # Prepare new release dir
             rm -rf "$NEW_DIR" && mkdir -p "$NEW_DIR"
             rsync -a --delete \
               --exclude 'public/uploads/' \
@@ -365,12 +352,16 @@ jobs:
               --exclude '.env.*' \
               --exclude 'node_modules' \
               "${TMP_DIR}/backend/" "${NEW_DIR}/"
+            rm -rf "$TMP_DIR"
 
+            # Copy .env from live
             [ -f "${LIVE_DIR}/.env" ] && cp -a "${LIVE_DIR}/.env" "${NEW_DIR}/.env"
 
+            # Symlink uploads
             mkdir -p "${NEW_DIR}/public" "${NEW_DIR}/.tmp"
             ln -sfn "$STORAGE_UPLOADS" "${NEW_DIR}/public/uploads"
 
+            # Migrate db if needed (first deploy)
             if [ -f "${LIVE_DIR}/.tmp/data.db" ] && \
                [ ! -L "${LIVE_DIR}/.tmp/data.db" ] && \
                [ ! -f "${STORAGE_DB}/data.db" ]; then
@@ -379,28 +370,37 @@ jobs:
             [ -f "${STORAGE_DB}/data.db" ] || touch "${STORAGE_DB}/data.db"
             ln -sfn "${STORAGE_DB}/data.db" "${NEW_DIR}/.tmp/data.db"
 
+            # Setup pnpm
             export PNPM_HOME="$HOME/.local/share/pnpm"
             export PATH="$PNPM_HOME:$PATH"
             corepack enable || true
             corepack prepare pnpm@latest --activate || true
 
-            # ⬇️ LOW-MEM install: ignore scripts, then rebuild only the native module we need
+            # Install deps + rebuild native module BEFORE stopping the service
+            log "Installing deps in new release..."
             cd "$NEW_DIR"
-            export NODE_OPTIONS="--max-old-space-size=768"
+            export NODE_OPTIONS="--max-old-space-size=1024"
             pnpm install --prod --frozen-lockfile=false --prefer-offline --network-concurrency 1 --ignore-scripts
 
-            # Atomic swap
-            log "Stopping strapi..."
+            log "Rebuilding better-sqlite3..."
+            pnpm rebuild better-sqlite3 --verbose
+
+            # Verify the binding exists before touching live
+            find "$NEW_DIR" -name "better_sqlite3.node" | grep -q . || {
+              log "better_sqlite3.node missing after rebuild - aborting"
+              rm -rf "$NEW_DIR"
+              exit 1
+            }
+            log "better_sqlite3.node OK"
+
+            # Atomic swap - service downtime is minimal from here
+            log "Stopping backend..."
             pm2 stop backend || true
 
             [ -d "$LIVE_DIR" ] && mv "$LIVE_DIR" "$PREV_DIR"
             mv "$NEW_DIR" "$LIVE_DIR"
 
-            # ✅ Only rebuild the one native dependency (runs its build script explicitly)
-            cd "$LIVE_DIR"
-            pnpm rebuild better-sqlite3 --verbose
-
-            log "Starting strapi..."
+            log "Starting backend..."
             pm2 describe backend >/dev/null 2>&1 && \
               pm2 restart backend --update-env || \
               pm2 start "pnpm start" --name backend --cwd "$LIVE_DIR"
@@ -414,18 +414,22 @@ jobs:
                 "http://127.0.0.1:1337/_health" || echo 000)
               log "smoke try=$i code=$code"
               [ "$code" -ge 200 ] && [ "$code" -lt 400 ] && { smoke_ok=1; break; }
-              sleep 3
+              sleep 5
             done
 
             if [ "$smoke_ok" -ne 1 ]; then
-              log "❌ SMOKE FAIL → ROLLBACK"
+              log "SMOKE FAILED - rolling back..."
               pm2 stop backend || true
-              [ -d "$PREV_DIR" ] && rm -rf "$LIVE_DIR" && mv "$PREV_DIR" "$LIVE_DIR"
+              rm -rf "$LIVE_DIR"
+              [ -d "$PREV_DIR" ] && mv "$PREV_DIR" "$LIVE_DIR"
               pm2 restart backend --update-env || true
+              pm2 save
+              log "Rollback done"
               exit 1
             fi
 
+            # Keep only last 2 prev releases, delete older ones
             ls -dt /var/www/davelopment/backend.prev_* 2>/dev/null \
-              | tail -n +4 | xargs -r rm -rf || true
+              | tail -n +3 | xargs -r rm -rf || true
 
-            log "✅ DEPLOY DONE"
+            log "DEPLOY DONE"
