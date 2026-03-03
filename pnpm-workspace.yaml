@@ -2,8 +2,6 @@ packages:
   - frontend
   - backend
   - backend/src/plugins/*
-  
-allowedBuilds: '@swc/core esbuild better-sqlite3'
 
 ignoredBuiltDependencies:
   - core-js-pure
