@@ -313,12 +313,21 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           DEPLOY_SHA: ${{ github.sha }}
+          STRAPI_APP_KEYS: ${{ secrets.STRAPI_APP_KEYS }}
+          STRAPI_API_TOKEN_SALT: ${{ secrets.STRAPI_API_TOKEN_SALT }}
+          STRAPI_ADMIN_JWT_SECRET: ${{ secrets.STRAPI_ADMIN_JWT_SECRET }}
+          STRAPI_TRANSFER_TOKEN_SALT: ${{ secrets.STRAPI_TRANSFER_TOKEN_SALT }}
+          STRAPI_ENCRYPTION_KEY: ${{ secrets.STRAPI_ENCRYPTION_KEY }}
+          STRAPI_JWT_SECRET: ${{ secrets.STRAPI_JWT_SECRET }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          STRAPI_ADMIN_PSI_API_KEY: ${{ secrets.STRAPI_ADMIN_PSI_API_KEY }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_KEY }}
           port: ${{ secrets.VPS_PORT }}
-          envs: DEPLOY_SHA
+          envs: DEPLOY_SHA,STRAPI_APP_KEYS,STRAPI_API_TOKEN_SALT,STRAPI_ADMIN_JWT_SECRET,STRAPI_TRANSFER_TOKEN_SALT,STRAPI_ENCRYPTION_KEY,STRAPI_JWT_SECRET,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,STRAPI_ADMIN_PSI_API_KEY
           command_timeout: 30m
           script: |
             set -Eeuo pipefail
@@ -353,8 +362,35 @@ jobs:
               "${TMP_DIR}/backend/" "${NEW_DIR}/"
             rm -rf "$TMP_DIR"
 
-            # Copy .env from live
-            [ -f "${LIVE_DIR}/.env" ] && cp -a "${LIVE_DIR}/.env" "${NEW_DIR}/.env"
+            # Generate .env from GitHub Secrets
+            log "Writing .env from secrets..."
+            cat > "${NEW_DIR}/.env" << ENV
+            # Server
+            HOST=0.0.0.0
+            PORT=1337
+            URL=https://davelopment.hu
+            PUBLIC_URL=https://davelopment.hu
+            STRAPI_ADMIN_BACKEND_URL=https://davelopment.hu
+            # Environment
+            NODE_ENV=production
+            # Secrets
+            APP_KEYS=${STRAPI_APP_KEYS}
+            API_TOKEN_SALT=${STRAPI_API_TOKEN_SALT}
+            ADMIN_JWT_SECRET=${STRAPI_ADMIN_JWT_SECRET}
+            TRANSFER_TOKEN_SALT=${STRAPI_TRANSFER_TOKEN_SALT}
+            ENCRYPTION_KEY=${STRAPI_ENCRYPTION_KEY}
+            JWT_SECRET=${STRAPI_JWT_SECRET}
+            # Database
+            DATABASE_CLIENT=sqlite
+            DATABASE_FILENAME=.tmp/data.db
+            DATABASE_SSL=false
+            # Google
+            GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+            GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+            # Google PageSpeed API
+            STRAPI_ADMIN_PSI_API_KEY=${STRAPI_ADMIN_PSI_API_KEY}
+            STRAPI_ADMIN_PSI_BASE_URL=https://davelopment.hu
+            ENV
 
             # Symlink uploads
             mkdir -p "${NEW_DIR}/public" "${NEW_DIR}/.tmp"
