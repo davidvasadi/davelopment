@@ -400,7 +400,8 @@ jobs:
               pm2 start "pnpm start" --name backend --cwd "$LIVE_DIR"
             pm2 save
 
-            # Smoke test - Strapi needs up to 100s to boot
+            # Smoke test - wait for Strapi to boot (takes ~90-120s)
+            sleep 30
             smoke_ok=0
             for i in $(seq 1 20); do
               code=$(curl -sS -o /dev/null -w "%{http_code}" -L \
