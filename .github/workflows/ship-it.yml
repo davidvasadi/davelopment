@@ -375,22 +375,21 @@ jobs:
             corepack enable || true
             corepack prepare pnpm@latest --activate || true
 
-            # Allow native build scripts (pnpm v10+ security requirement)
-            log "Configuring build script permissions..."
-            echo 'build-scripts-approved=true' >> "${NEW_DIR}/.npmrc"
-
-            # Install deps + rebuild native module BEFORE stopping the service
+            # Install deps BEFORE stopping the service
             log "Installing deps in new release..."
             cd "$NEW_DIR"
             export NODE_OPTIONS="--max-old-space-size=1024"
             pnpm install --prod --frozen-lockfile=false --prefer-offline --network-concurrency 1
 
-            log "Rebuilding better-sqlite3..."
-            pnpm rebuild better-sqlite3
+            # Build better-sqlite3 native addon directly (pnpm v10 blocks build scripts)
+            log "Building better-sqlite3 native addon..."
+            cd "$NEW_DIR/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3"
+            npm run install
+            cd "$NEW_DIR"
 
             log "Verifying better_sqlite3.node..."
             find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q . || \
-              { log "ERROR: better_sqlite3.node not found after rebuild!"; exit 1; }
+              { log "ERROR: better_sqlite3.node not found after build!"; exit 1; }
 
             log "better_sqlite3.node OK"
 
