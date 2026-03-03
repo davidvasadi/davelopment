@@ -379,12 +379,16 @@ jobs:
             log "Installing deps in new release..."
             cd "$NEW_DIR"
             export NODE_OPTIONS="--max-old-space-size=1024"
-            pnpm install --prod --frozen-lockfile=false --prefer-offline --network-concurrency 1 --ignore-scripts
+            pnpm install --prod --frozen-lockfile=false --prefer-offline --network-concurrency 1
 
             log "Rebuilding better-sqlite3..."
-            pnpm rebuild better-sqlite3 --verbose
+            pnpm rebuild better-sqlite3
 
-            log "better_sqlite3.node OK (rebuild exit 0)"
+            log "Verifying better_sqlite3.node..."
+            find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q . || \
+              { log "ERROR: better_sqlite3.node not found after rebuild!"; exit 1; }
+
+            log "better_sqlite3.node OK"
 
             # Atomic swap - service downtime is minimal from here
             log "Stopping backend..."
@@ -400,7 +404,7 @@ jobs:
               pm2 start "pnpm start" --name backend --cwd "$LIVE_DIR"
             pm2 save
 
-            # Smoke test - wait for Strapi to boot (takes ~90-120s)
+            # Smoke test
             sleep 30
             smoke_ok=0
             for i in $(seq 1 20); do
@@ -424,7 +428,7 @@ jobs:
               exit 1
             fi
 
-            # Keep only last 2 prev releases, delete older ones
+            # Keep only last 2 prev releases
             ls -dt /var/www/davelopment/backend.prev_* 2>/dev/null \
               | tail -n +3 | xargs -r rm -rf || true
 
