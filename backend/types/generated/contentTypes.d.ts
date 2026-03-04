@@ -659,8 +659,8 @@ export interface ApiContactContact extends Struct.CollectionTypeSchema {
     name: Schema.Attribute.String;
     page: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
-    state: Schema.Attribute.Enumeration<['new,', 'in_progress,', 'done']> &
-      Schema.Attribute.DefaultTo<'new,'>;
+    state: Schema.Attribute.Enumeration<['new', 'in_progress', 'done']> &
+      Schema.Attribute.DefaultTo<'new'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -793,7 +793,7 @@ export interface ApiNewsletterNewsletter extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

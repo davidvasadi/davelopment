@@ -28,10 +28,10 @@
     },
     "state": {
       "type": "enumeration",
-      "default": "new,",
+      "default": "new",
       "enum": [
-        "new,",
-        "in_progress,",
+        "new",
+        "in_progress",
         "done"
       ]
     }

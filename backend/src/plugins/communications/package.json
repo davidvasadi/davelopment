@@ -1,0 +1,42 @@
+{
+  "name": "communications",
+  "version": "0.0.1",
+  "private": true,
+  "type": "commonjs",
+  "exports": {
+    "./package.json": "./package.json",
+    "./strapi-admin": {
+      "source": "./admin/src/index.tsx",
+      "import": "./dist/admin/index.mjs",
+      "require": "./dist/admin/index.js",
+      "default": "./dist/admin/index.js"
+    },
+    "./strapi-server": {
+      "source": "./strapi-server.ts",
+      "import": "./dist/server/index.mjs",
+      "require": "./dist/server/index.js",
+      "default": "./dist/server/index.js"
+    }
+  },
+  "scripts": {
+    "build": "strapi-plugin build",
+    "watch": "strapi-plugin watch"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@strapi/sdk-plugin": "5.2.6",
+    "@strapi/strapi": "^5.0.6"
+  },
+  "strapi": {
+    "name": "communications",
+    "displayName": "Communications",
+    "description": "Leads, newsletter campaigns and email settings",
+    "kind": "plugin"
+  },
+  "dependencies": {
+    "framer-motion": "^12.34.5"
+  }
+}

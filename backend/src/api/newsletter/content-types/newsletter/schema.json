@@ -38,7 +38,7 @@
     },
     "confirmed": {
       "type": "boolean",
-      "default": false
+      "default": true
     },
     "subscribed_at": {
       "type": "datetime"

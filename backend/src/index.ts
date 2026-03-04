@@ -1,3 +1,4 @@
+//backend/src/index.ts
 // import type { Core } from '@strapi/strapi';
 
 export default {

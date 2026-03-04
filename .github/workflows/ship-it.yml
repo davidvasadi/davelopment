@@ -322,12 +322,14 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           STRAPI_ADMIN_PSI_API_KEY: ${{ secrets.STRAPI_ADMIN_PSI_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_KEY }}
           port: ${{ secrets.VPS_PORT }}
-          envs: DEPLOY_SHA,STRAPI_APP_KEYS,STRAPI_API_TOKEN_SALT,STRAPI_ADMIN_JWT_SECRET,STRAPI_TRANSFER_TOKEN_SALT,STRAPI_ENCRYPTION_KEY,STRAPI_JWT_SECRET,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,STRAPI_ADMIN_PSI_API_KEY
+          envs: DEPLOY_SHA,STRAPI_APP_KEYS,STRAPI_API_TOKEN_SALT,STRAPI_ADMIN_JWT_SECRET,STRAPI_TRANSFER_TOKEN_SALT,STRAPI_ENCRYPTION_KEY,STRAPI_JWT_SECRET,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,STRAPI_ADMIN_PSI_API_KEY,RESEND_API_KEY,NOTIFY_EMAIL
           command_timeout: 30m
           script: |
             set -Eeuo pipefail
@@ -346,12 +348,10 @@ jobs:
 
             mkdir -p "$STORAGE_UPLOADS" "$STORAGE_DB"
 
-            # Unpack to temp dir
             rm -rf "$TMP_DIR" && mkdir -p "$TMP_DIR"
             tar -xzf /tmp/backend_bundle.tgz -C "$TMP_DIR"
             rm -f /tmp/backend_bundle.tgz
 
-            # Prepare new release dir
             rm -rf "$NEW_DIR" && mkdir -p "$NEW_DIR"
             rsync -a --delete \
               --exclude 'public/uploads/' \
@@ -362,41 +362,36 @@ jobs:
               "${TMP_DIR}/backend/" "${NEW_DIR}/"
             rm -rf "$TMP_DIR"
 
-            # Generate .env from GitHub Secrets
             log "Writing .env from secrets..."
-            cat > "${NEW_DIR}/.env" << ENV
-            # Server
-            HOST=0.0.0.0
-            PORT=1337
-            URL=https://davelopment.hu
-            PUBLIC_URL=https://davelopment.hu
-            STRAPI_ADMIN_BACKEND_URL=https://davelopment.hu
-            # Environment
-            NODE_ENV=production
-            # Secrets
-            APP_KEYS=${STRAPI_APP_KEYS}
-            API_TOKEN_SALT=${STRAPI_API_TOKEN_SALT}
-            ADMIN_JWT_SECRET=${STRAPI_ADMIN_JWT_SECRET}
-            TRANSFER_TOKEN_SALT=${STRAPI_TRANSFER_TOKEN_SALT}
-            ENCRYPTION_KEY=${STRAPI_ENCRYPTION_KEY}
-            JWT_SECRET=${STRAPI_JWT_SECRET}
-            # Database
-            DATABASE_CLIENT=sqlite
-            DATABASE_FILENAME=.tmp/data.db
-            DATABASE_SSL=false
-            # Google
-            GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-            GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-            # Google PageSpeed API
-            STRAPI_ADMIN_PSI_API_KEY=${STRAPI_ADMIN_PSI_API_KEY}
-            STRAPI_ADMIN_PSI_BASE_URL=https://davelopment.hu
-            ENV
+            printf '%s\n' \
+              "HOST=0.0.0.0" \
+              "PORT=1337" \
+              "URL=https://davelopment.hu" \
+              "PUBLIC_URL=https://davelopment.hu" \
+              "STRAPI_ADMIN_BACKEND_URL=https://davelopment.hu" \
+              "FRONTEND_URL=https://davelopment.hu" \
+              "NODE_ENV=production" \
+              "APP_KEYS=${STRAPI_APP_KEYS}" \
+              "API_TOKEN_SALT=${STRAPI_API_TOKEN_SALT}" \
+              "ADMIN_JWT_SECRET=${STRAPI_ADMIN_JWT_SECRET}" \
+              "TRANSFER_TOKEN_SALT=${STRAPI_TRANSFER_TOKEN_SALT}" \
+              "ENCRYPTION_KEY=${STRAPI_ENCRYPTION_KEY}" \
+              "JWT_SECRET=${STRAPI_JWT_SECRET}" \
+              "DATABASE_CLIENT=sqlite" \
+              "DATABASE_FILENAME=.tmp/data.db" \
+              "DATABASE_SSL=false" \
+              "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}" \
+              "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}" \
+              "STRAPI_ADMIN_PSI_API_KEY=${STRAPI_ADMIN_PSI_API_KEY}" \
+              "STRAPI_ADMIN_PSI_BASE_URL=https://davelopment.hu" \
+              "RESEND_API_KEY=${RESEND_API_KEY}" \
+              "RESEND_FROM_EMAIL=hello@davelopment.hu" \
+              "NOTIFY_EMAIL=${NOTIFY_EMAIL}" \
+              > "${NEW_DIR}/.env"
 
-            # Symlink uploads
             mkdir -p "${NEW_DIR}/public" "${NEW_DIR}/.tmp"
             ln -sfn "$STORAGE_UPLOADS" "${NEW_DIR}/public/uploads"
 
-            # Migrate db if needed (first deploy)
             if [ -f "${LIVE_DIR}/.tmp/data.db" ] && \
                [ ! -L "${LIVE_DIR}/.tmp/data.db" ] && \
                [ ! -f "${STORAGE_DB}/data.db" ]; then
@@ -405,19 +400,16 @@ jobs:
             [ -f "${STORAGE_DB}/data.db" ] || touch "${STORAGE_DB}/data.db"
             ln -sfn "${STORAGE_DB}/data.db" "${NEW_DIR}/.tmp/data.db"
 
-            # Setup pnpm
             export PNPM_HOME="$HOME/.local/share/pnpm"
             export PATH="$PNPM_HOME:$PATH"
             corepack enable || true
             corepack prepare pnpm@latest --activate || true
 
-            # Install deps BEFORE stopping the service
             log "Installing deps in new release..."
             cd "$NEW_DIR"
             export NODE_OPTIONS="--max-old-space-size=1024"
             pnpm install --prod --frozen-lockfile=false --prefer-offline --network-concurrency 1
 
-            # Build better-sqlite3 native addon directly (pnpm v10 blocks build scripts)
             log "Building better-sqlite3 native addon..."
             cd "$NEW_DIR/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3"
             npm run install
@@ -426,10 +418,8 @@ jobs:
             log "Verifying better_sqlite3.node..."
             find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q . || \
               { log "ERROR: better_sqlite3.node not found after build!"; exit 1; }
-
             log "better_sqlite3.node OK"
 
-            # Atomic swap - service downtime is minimal from here
             log "Stopping backend..."
             cd ~
             pm2 stop backend || true
@@ -443,7 +433,6 @@ jobs:
               pm2 start "pnpm start" --name backend --cwd "$LIVE_DIR"
             pm2 save
 
-            # Smoke test
             sleep 30
             smoke_ok=0
             for i in $(seq 1 20); do
@@ -467,7 +456,6 @@ jobs:
               exit 1
             fi
 
-            # Keep only last 2 prev releases
             ls -dt /var/www/davelopment/backend.prev_* 2>/dev/null \
               | tail -n +3 | xargs -r rm -rf || true
 
