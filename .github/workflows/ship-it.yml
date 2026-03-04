@@ -168,6 +168,7 @@ jobs:
         run: |
           pnpm --filter marketing-metrics build
           pnpm --filter structured-data-generator build
+          pnpm --filter communications build
 
       - name: Verify plugin dist files
         working-directory: .
@@ -178,6 +179,10 @@ jobs:
             { echo "marketing-metrics dist/server/index.js missing"; exit 1; }
           test -f backend/src/plugins/structured-data-generator/dist/server/index.js || \
             { echo "structured-data-generator dist/server/index.js missing"; exit 1; }
+          test -f backend/src/plugins/communications/dist/admin/index.mjs || \
+            { echo "communications dist/admin/index.mjs missing"; exit 1; }
+          test -f backend/src/plugins/communications/dist/server/index.js || \
+            { echo "communications dist/server/index.js missing"; exit 1; }
           echo "All plugin dist files OK"
 
       - name: Build Strapi
