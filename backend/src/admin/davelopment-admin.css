@@ -245,6 +245,7 @@ svg [stroke="#4945FF"], svg [stroke="#4945ff"] { stroke: currentColor !important
   font-size: 13px;
   font-weight: 400;
   vertical-align: super;
+  color: #ededed;
   opacity: 0.4;
   letter-spacing: 0;
 }
@@ -270,4 +271,26 @@ svg [stroke="#4945FF"], svg [stroke="#4945ff"] { stroke: currentColor !important
   60%  { width: 72%; }
   85%  { width: 88%; }
   100% { width: 96%; }
+}
+/* ══════════════════════════════════════════════════════════
+   WIDGET HEIGHT FIX — másold a davelopment-admin.css VÉGÉRE
+   Strapi 5: widgetek <article> tagben renderelődnek,
+   a közvetlen div gyermek az ami max-height-el scrollozik.
+══════════════════════════════════════════════════════════ */
+/* ══ WIDGET SCROLL FIX — Radix UI + Strapi 5 main ══ */
+[data-radix-scroll-area-viewport] {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: unset !important;
+}
+
+[data-radix-scroll-area-viewport] > div {
+  height: auto !important;
+  min-height: unset !important;
+}
+
+section[aria-labelledby] main {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
 }

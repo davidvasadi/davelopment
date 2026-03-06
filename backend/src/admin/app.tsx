@@ -1,5 +1,5 @@
 // ./src/admin/app.tsx
-import type { StrapiApp } from '@strapi/strapi/admin';
+import React from 'react';
 import './davelopment-admin.css';
 
 import logoDark from './extensions/logo-dark.png';
@@ -7,9 +7,6 @@ import logoLight from './extensions/logo-light.png';
 
 /* ══════════════════════════════════════════════════════════
    THEME — monokróm, semmi szín
-   neutral0  = oldal háttér  (#0a0a0a dark / #fafafa light)
-   neutral150 = kártya szint (#111111 dark / #ffffff light)
-   primary500 = fehér/fekete — gombok, fókusz, aktív elemek
 ══════════════════════════════════════════════════════════ */
 const THEME = {
   dark: {
@@ -120,7 +117,7 @@ const THEME = {
 } as const;
 
 /* ══════════════════════════════════════════════════════════
-   THEME BRIDGE — érintetlen
+   THEME BRIDGE
 ══════════════════════════════════════════════════════════ */
 const THEME_KEYS = ['STRAPI_THEME', 'strapi-theme', 'strapiTheme', 'theme', 'admin-theme'];
 
@@ -184,7 +181,7 @@ function installThemeBridge() {
 }
 
 /* ══════════════════════════════════════════════════════════
-   PRELOADER — érintetlen
+   PRELOADER
 ══════════════════════════════════════════════════════════ */
 function installPreloader() {
   const ATTR = 'data-dave-preloader';
@@ -195,7 +192,7 @@ function installPreloader() {
   overlay.setAttribute(ATTR, '1');
   overlay.innerHTML = `
     <div class="dave-pre-inner">
-      <div class="dave-pre-logo">d<span>®</span></div>
+      <div class="dave-pre-logo">[davelopment]<span>®</span></div>
       <div class="dave-pre-bar"><div class="dave-pre-fill"></div></div>
     </div>
   `;
@@ -228,7 +225,7 @@ function installPreloader() {
 }
 
 /* ══════════════════════════════════════════════════════════
-   AUTO LOGO SWAP — érintetlen
+   AUTO LOGO SWAP
 ══════════════════════════════════════════════════════════ */
 function installAutoLogoSwap(logos: { light: string; dark: string }) {
   const html = document.documentElement;
@@ -258,6 +255,103 @@ function installAutoLogoSwap(logos: { light: string; dark: string }) {
 }
 
 /* ══════════════════════════════════════════════════════════
+   WIDGET HEIGHT FIX
+   A Strapi 5 styled-components generált class neveket használ,
+   ezért CSS szelektorok helyett JS-sel keressük meg a
+   widget scroll konténereket és inline style-al javítjuk.
+══════════════════════════════════════════════════════════ */
+function installWidgetHeightFix() {
+  // Megkeresi azokat az elemeket, amelyek:
+  // 1. Egy widget konténer gyermekei (class tartalmaz "widget" vagy "Widget")
+  // 2. Overflow: hidden/auto/scroll ÉS van max-height korlátozásuk
+  // Ezeken eltávolítja a magasság korlátot.
+  const fixEl = (el: HTMLElement) => {
+    el.style.setProperty('max-height', 'none', 'important');
+    el.style.setProperty('height', 'auto', 'important');
+    el.style.setProperty('overflow', 'visible', 'important');
+  };
+
+  const isWidgetContainer = (el: HTMLElement): boolean => {
+    // Végigmegy a szülőkön és keresi a widget wrappert
+    let node: HTMLElement | null = el;
+    for (let i = 0; i < 8; i++) {
+      if (!node) break;
+      const cls = node.className || '';
+      const tag = node.tagName;
+      if (
+        typeof cls === 'string' && (
+          cls.toLowerCase().includes('widget') ||
+          node.hasAttribute('data-widget-id') ||
+          node.hasAttribute('data-testid') && String(node.getAttribute('data-testid')).toLowerCase().includes('widget')
+        )
+      ) return true;
+      // Strapi 5: a főoldalon a widgetek egy grid layoutban vannak
+      // Ha article tagben vagyunk, valószínűleg widget
+      if (tag === 'ARTICLE') return true;
+      node = node.parentElement;
+    }
+    return false;
+  };
+
+  const scanAndFix = () => {
+    // Minden div-et megvizsgálunk az oldalon
+    document.querySelectorAll<HTMLElement>('div, section, article').forEach(el => {
+      // Ha inline style-ban van max-height vagy overflow korlátozás
+      const inlineMaxH = el.style.maxHeight;
+      const inlineOverflow = el.style.overflow || el.style.overflowY;
+
+      if (
+        (inlineMaxH && inlineMaxH !== 'none' && inlineMaxH !== '') ||
+        (inlineOverflow && (inlineOverflow === 'hidden' || inlineOverflow === 'auto' || inlineOverflow === 'scroll'))
+      ) {
+        if (isWidgetContainer(el)) {
+          fixEl(el);
+          return;
+        }
+      }
+
+      // Computed style alapján is ellenőrizzük
+      const computed = window.getComputedStyle(el);
+      const maxH = computed.maxHeight;
+      const overflow = computed.overflow;
+      const overflowY = computed.overflowY;
+
+      if (
+        maxH && maxH !== 'none' && maxH !== '' && parseInt(maxH) < 2000 &&
+        (overflow === 'hidden' || overflow === 'auto' || overflow === 'scroll' ||
+         overflowY === 'hidden' || overflowY === 'auto' || overflowY === 'scroll')
+      ) {
+        if (isWidgetContainer(el)) {
+          fixEl(el);
+        }
+      }
+    });
+  };
+
+  // Betöltés után 8 másodpercig 400ms-enként fut (Strapi lassan renderel)
+  const run = () => {
+    scanAndFix();
+    let count = 0;
+    const iv = setInterval(() => {
+      scanAndFix();
+      count++;
+      if (count >= 20) clearInterval(iv);
+    }, 400);
+  };
+
+  if (document.body) {
+    run();
+  } else {
+    window.addEventListener('DOMContentLoaded', run, { once: true });
+  }
+
+  // Route változásra is lefut (SPA navigáció)
+  window.addEventListener('popstate', () => setTimeout(scanAndFix, 300));
+  // Strapi saját router eseménye
+  window.addEventListener('strapi-theme-change', () => setTimeout(scanAndFix, 300));
+}
+
+/* ══════════════════════════════════════════════════════════
    EXPORT
 ══════════════════════════════════════════════════════════ */
 export default {
@@ -269,9 +363,57 @@ export default {
     menu: { logo: logoLight },
     auth:  { logo: logoLight },
   },
-  bootstrap(_app: StrapiApp) {
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  register(app: any) {
+
+    // ── Communications widget ──────────────────────────────────────────────
+    app.widgets.register({
+      icon: () => (
+        <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" strokeWidth={2}
+          strokeLinecap="round" strokeLinejoin="round">
+          <rect width="20" height="16" x="2" y="4" rx="2" />
+          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+        </svg>
+      ),
+      title: {
+        id: 'widget.communications.title',
+        defaultMessage: 'Communications',
+      },
+      component: async () => {
+        const { default: Comp } = await import('./widgets/communications');
+        return Comp;
+      },
+      id: 'communications-stats',
+    });
+
+    // ── Marketing widget ───────────────────────────────────────────────────
+    app.widgets.register({
+      icon: () => (
+        <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" strokeWidth={2}
+          strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+        </svg>
+      ),
+      title: {
+        id: 'widget.marketing.title',
+        defaultMessage: 'Marketing',
+      },
+      component: async () => {
+        const { default: Comp } = await import('./widgets/marketing');
+        return Comp;
+      },
+      id: 'marketing-stats',
+    });
+
+  },
+
+  bootstrap(_app: any) {
     installThemeBridge();
     installPreloader();
     installAutoLogoSwap({ light: logoLight, dark: logoDark });
+    installWidgetHeightFix();
   },
 };

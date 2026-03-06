@@ -41,6 +41,26 @@ export default {
       ctx.body = { ok: true, newLeads, totalLeads, activeSubs, totalSubs, newSubs, huSubs, enSubs, monthSent };
     });
 
+    // ─── Monthly stats (widget) ───────────────────────────────────────────────
+
+    router.get('/api/communications/monthly-stats', async (ctx: any) => {
+      const knex = (strapi.db as any).connection;
+      try {
+        const hasIsTest = await knex.schema.hasColumn('comm_campaigns_log', 'is_test');
+        let q = knex('comm_campaigns_log')
+          .select(knex.raw("strftime('%Y-%m', sent_at) as month"))
+          .sum('sent_count as sent')
+          .groupByRaw("strftime('%Y-%m', sent_at)")
+          .orderBy('month', 'asc')
+          .limit(6);
+        if (hasIsTest) q = q.where('is_test', false);
+        const rows = await q;
+        ctx.body = { data: rows.map((r: any) => ({ month: r.month, sent: Number(r.sent) || 0 })) };
+      } catch {
+        ctx.body = { data: [] };
+      }
+    });
+
     // ─── Leads (Contact) ──────────────────────────────────────────────────────
 
     router.get('/api/communications/leads', async (ctx: any) => {
