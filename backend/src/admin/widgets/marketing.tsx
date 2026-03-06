@@ -864,10 +864,10 @@ const MarketingWidget = () => {
         <motion.a href="/admin/plugins/marketing-metrics"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
           whileHover={{ x: 2 }}
-          style={{ fontSize: '10px', color: 'var(--text-muted)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '3px' }}
+          style={{ fontSize: '10px', color: 'var(--text-muted)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '3px',marginTop: '20px' }}
           onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = 'var(--text-primary)')}
           onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = 'var(--text-muted)')}>
-          Megnyitás a Marketing Metrics pluginban <ChevronRight />
+          Megnyitás<ChevronRight />
         </motion.a>
 
       </div>

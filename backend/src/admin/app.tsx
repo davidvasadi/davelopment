@@ -182,46 +182,139 @@ function installThemeBridge() {
 
 /* ══════════════════════════════════════════════════════════
    PRELOADER
+   Azonnal fut a modul betöltésekor (nem vár bootstrap-ra),
+   így a Strapi saját preloadere előtt jelenik meg.
 ══════════════════════════════════════════════════════════ */
 function installPreloader() {
+  if (typeof window === 'undefined') return;
+
   const ATTR = 'data-dave-preloader';
   if (document.querySelector(`[${ATTR}]`)) return;
 
   const t0 = Date.now();
+
+  // Strapi saját preloaderét azonnal elrejtjük
+  const killStrapiPreloader = () => {
+    document.querySelectorAll<HTMLElement>(
+      '[class*="LoadingIndicatorOverlay"], [class*="LoadingIndicator"]'
+    ).forEach(el => {
+      el.style.setProperty('display', 'none', 'important');
+      el.style.setProperty('opacity', '0', 'important');
+      el.style.setProperty('pointer-events', 'none', 'important');
+    });
+  };
+
   const overlay = document.createElement('div');
   overlay.setAttribute(ATTR, '1');
   overlay.innerHTML = `
-    <div class="dave-pre-inner">
-      <div class="dave-pre-logo">[davelopment]<span>®</span></div>
-      <div class="dave-pre-bar"><div class="dave-pre-fill"></div></div>
+    <div style="
+      display:flex; flex-direction:column; align-items:center; gap:28px;
+    ">
+      <div style="
+        font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+        font-size:26px; font-weight:700; letter-spacing:-1px;
+        color:#ededed; line-height:1; user-select:none;
+      ">[davelopment]<span style="
+        font-size:13px; font-weight:400; vertical-align:super;
+        color:#ededed; opacity:0.4; letter-spacing:0;
+      ">®</span></div>
+      <div style="
+        width:100px; height:1px; background:rgba(255,255,255,0.08);
+        border-radius:1px; overflow:hidden;
+      ">
+        <div data-dave-fill style="
+          height:100%; width:0%; background:rgba(255,255,255,0.6);
+        "></div>
+      </div>
     </div>
   `;
 
-  const mount   = () => { if (!document.querySelector(`[${ATTR}]`)) document.body?.appendChild(overlay); };
+  // Inline style — nem függ a CSS betöltésétől
+  overlay.style.cssText = `
+    position:fixed; inset:0; z-index:2147483647;
+    display:flex; align-items:center; justify-content:center;
+    background:#0a0a0a;
+    transition:opacity 250ms cubic-bezier(.25,.46,.45,.94),
+               transform 250ms cubic-bezier(.25,.46,.45,.94);
+  `;
+
+  // Progress bar animáció JS-sel (CSS keyframes nem biztos hogy betöltött)
+  const animateFill = () => {
+    const fill = overlay.querySelector<HTMLElement>('[data-dave-fill]');
+    if (!fill) return;
+    const steps = [
+      [0,    '0%'],
+      [300,  '45%'],
+      [600,  '72%'],
+      [1000, '88%'],
+      [1800, '96%'],
+    ] as [number, string][];
+    steps.forEach(([ms, w]) => {
+      setTimeout(() => { fill.style.width = w; fill.style.transition = `width ${ms === 0 ? 0 : 400}ms ease`; }, ms);
+    });
+  };
+
+  const mount = () => {
+    if (document.querySelector(`[${ATTR}]`)) return;
+    document.body.appendChild(overlay);
+    animateFill();
+    killStrapiPreloader();
+  };
+
   const unmount = () => {
-    const wait = Math.max(0, 600 - (Date.now() - t0));
+    const wait = Math.max(0, 700 - (Date.now() - t0));
     setTimeout(() => {
-      overlay.classList.add('dave-pre-hide');
+      overlay.style.opacity = '0';
+      overlay.style.transform = 'scale(1.01)';
+      overlay.style.pointerEvents = 'none';
       setTimeout(() => overlay.remove(), 300);
     }, wait);
   };
 
+  // Az app akkor ready, ha a Strapi navigáció megjelent
   const isReady = () =>
-    !!(document.querySelector('[data-strapi-root],[class*="AppLayout"],[class*="Layout"]')) &&
-    !!(document.querySelector('[role="main"],main,[class*="Content"]'));
+    !!(document.querySelector('[data-strapi-root]')) &&
+    !!(document.querySelector('[data-strapi-navigation]'));
 
-  if (document.body) mount();
-  else window.addEventListener('DOMContentLoaded', mount, { once: true });
+  // Mount amint van body
+  if (document.body) {
+    mount();
+  } else {
+    window.addEventListener('DOMContentLoaded', mount, { once: true });
+  }
 
-  const obs = new MutationObserver(() => { if (isReady()) { obs.disconnect(); requestAnimationFrame(unmount); } });
-  const start = () => {
+  // Strapi preloader folyamatos ölése amíg mi vagyunk bent
+  const strapiKillObs = new MutationObserver(killStrapiPreloader);
+  const startKillObs = () => {
     if (!document.body) return;
-    obs.observe(document.body, { childList: true, subtree: true });
-    if (isReady()) { obs.disconnect(); unmount(); }
+    strapiKillObs.observe(document.body, { childList: true, subtree: true });
+    killStrapiPreloader();
   };
-  if (document.body) start();
-  else window.addEventListener('DOMContentLoaded', start, { once: true });
-  setTimeout(() => { obs.disconnect(); unmount(); }, 6000);
+  if (document.body) startKillObs();
+  else window.addEventListener('DOMContentLoaded', startKillObs, { once: true });
+
+  // Unmount ha az app betöltött
+  const readyObs = new MutationObserver(() => {
+    if (isReady()) {
+      readyObs.disconnect();
+      strapiKillObs.disconnect();
+      requestAnimationFrame(unmount);
+    }
+  });
+  const startReadyObs = () => {
+    if (!document.body) return;
+    readyObs.observe(document.body, { childList: true, subtree: true });
+    if (isReady()) { readyObs.disconnect(); strapiKillObs.disconnect(); unmount(); }
+  };
+  if (document.body) startReadyObs();
+  else window.addEventListener('DOMContentLoaded', startReadyObs, { once: true });
+
+  // Fallback: max 8 másodperc
+  setTimeout(() => {
+    readyObs.disconnect();
+    strapiKillObs.disconnect();
+    unmount();
+  }, 8000);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -256,99 +349,54 @@ function installAutoLogoSwap(logos: { light: string; dark: string }) {
 
 /* ══════════════════════════════════════════════════════════
    WIDGET HEIGHT FIX
-   A Strapi 5 styled-components generált class neveket használ,
-   ezért CSS szelektorok helyett JS-sel keressük meg a
-   widget scroll konténereket és inline style-al javítjuk.
+   A Strapi 5 widget wrapper <main> elemre inline style-lal
+   tesz fix magasságot (pl. height: 261px; overflow: auto).
+   Ezt JS-sel nullázzuk, mert az inline style erősebb
+   mint bármilyen CSS rule.
 ══════════════════════════════════════════════════════════ */
 function installWidgetHeightFix() {
-  // Megkeresi azokat az elemeket, amelyek:
-  // 1. Egy widget konténer gyermekei (class tartalmaz "widget" vagy "Widget")
-  // 2. Overflow: hidden/auto/scroll ÉS van max-height korlátozásuk
-  // Ezeken eltávolítja a magasság korlátot.
-  const fixEl = (el: HTMLElement) => {
-    el.style.setProperty('max-height', 'none', 'important');
-    el.style.setProperty('height', 'auto', 'important');
-    el.style.setProperty('overflow', 'visible', 'important');
-  };
-
-  const isWidgetContainer = (el: HTMLElement): boolean => {
-    // Végigmegy a szülőkön és keresi a widget wrappert
-    let node: HTMLElement | null = el;
-    for (let i = 0; i < 8; i++) {
-      if (!node) break;
-      const cls = node.className || '';
-      const tag = node.tagName;
-      if (
-        typeof cls === 'string' && (
-          cls.toLowerCase().includes('widget') ||
-          node.hasAttribute('data-widget-id') ||
-          node.hasAttribute('data-testid') && String(node.getAttribute('data-testid')).toLowerCase().includes('widget')
-        )
-      ) return true;
-      // Strapi 5: a főoldalon a widgetek egy grid layoutban vannak
-      // Ha article tagben vagyunk, valószínűleg widget
-      if (tag === 'ARTICLE') return true;
-      node = node.parentElement;
-    }
-    return false;
-  };
-
-  const scanAndFix = () => {
-    // Minden div-et megvizsgálunk az oldalon
-    document.querySelectorAll<HTMLElement>('div, section, article').forEach(el => {
-      // Ha inline style-ban van max-height vagy overflow korlátozás
-      const inlineMaxH = el.style.maxHeight;
-      const inlineOverflow = el.style.overflow || el.style.overflowY;
-
-      if (
-        (inlineMaxH && inlineMaxH !== 'none' && inlineMaxH !== '') ||
-        (inlineOverflow && (inlineOverflow === 'hidden' || inlineOverflow === 'auto' || inlineOverflow === 'scroll'))
-      ) {
-        if (isWidgetContainer(el)) {
-          fixEl(el);
-          return;
-        }
+  const fix = () => {
+    document.querySelectorAll<HTMLElement>('section main, article main').forEach(el => {
+      if (el.style.height && el.style.height !== 'auto') {
+        el.style.setProperty('height', 'auto', 'important');
+        el.style.setProperty('max-height', 'none', 'important');
+        el.style.setProperty('overflow', 'visible', 'important');
       }
+    });
 
-      // Computed style alapján is ellenőrizzük
-      const computed = window.getComputedStyle(el);
-      const maxH = computed.maxHeight;
-      const overflow = computed.overflow;
-      const overflowY = computed.overflowY;
-
-      if (
-        maxH && maxH !== 'none' && maxH !== '' && parseInt(maxH) < 2000 &&
-        (overflow === 'hidden' || overflow === 'auto' || overflow === 'scroll' ||
-         overflowY === 'hidden' || overflowY === 'auto' || overflowY === 'scroll')
-      ) {
-        if (isWidgetContainer(el)) {
-          fixEl(el);
-        }
-      }
+    document.querySelectorAll<HTMLElement>('[data-radix-scroll-area-viewport]').forEach(el => {
+      el.style.setProperty('overflow', 'visible', 'important');
+      el.style.setProperty('height', 'auto', 'important');
     });
   };
 
-  // Betöltés után 8 másodpercig 400ms-enként fut (Strapi lassan renderel)
   const run = () => {
-    scanAndFix();
-    let count = 0;
+    fix();
+    let n = 0;
     const iv = setInterval(() => {
-      scanAndFix();
-      count++;
-      if (count >= 20) clearInterval(iv);
-    }, 400);
+      fix();
+      if (++n >= 30) clearInterval(iv);
+    }, 300);
   };
 
-  if (document.body) {
-    run();
-  } else {
-    window.addEventListener('DOMContentLoaded', run, { once: true });
-  }
+  if (document.body) run();
+  else window.addEventListener('DOMContentLoaded', run, { once: true });
 
-  // Route változásra is lefut (SPA navigáció)
-  window.addEventListener('popstate', () => setTimeout(scanAndFix, 300));
-  // Strapi saját router eseménye
-  window.addEventListener('strapi-theme-change', () => setTimeout(scanAndFix, 300));
+  window.addEventListener('popstate', () => setTimeout(fix, 300));
+  window.addEventListener('strapi-theme-change', () => setTimeout(fix, 300));
+
+  const obs = new MutationObserver(fix);
+  if (document.body) {
+    obs.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   PRELOADER AZONNALI INDÍTÁSA
+   Ez azonnal fut a modul betöltésekor.
+══════════════════════════════════════════════════════════ */
+if (typeof window !== 'undefined') {
+  installPreloader();
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -412,7 +460,7 @@ export default {
 
   bootstrap(_app: any) {
     installThemeBridge();
-    installPreloader();
+    // installPreloader() már lefutott a modul tetején
     installAutoLogoSwap({ light: logoLight, dark: logoDark });
     installWidgetHeightFix();
   },
