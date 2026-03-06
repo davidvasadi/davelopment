@@ -185,11 +185,17 @@ jobs:
             { echo "communications dist/server/index.js missing"; exit 1; }
           echo "All plugin dist files OK"
 
-      - name: Build Strapi
+      - name: Build Strapi (admin + server)
         working-directory: backend
         env:
           NODE_ENV: production
         run: pnpm build
+
+      - name: Verify Strapi admin dist
+        working-directory: backend
+        run: |
+          test -d dist/build || { echo "Strapi admin dist/build missing!"; exit 1; }
+          echo "Strapi admin dist OK"
 
       - name: Bundle (no node_modules / uploads / env / tmp)
         shell: bash
@@ -412,7 +418,7 @@ jobs:
 
             log "Installing deps in new release..."
             cd "$NEW_DIR"
-            export NODE_OPTIONS="--max-old-space-size=1024"
+            export NODE_OPTIONS="--max-old-space-size=1536"
             pnpm install --prod --frozen-lockfile=false --prefer-offline --network-concurrency 1
 
             log "Building better-sqlite3 native addon..."
@@ -424,6 +430,21 @@ jobs:
             find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q . || \
               { log "ERROR: better_sqlite3.node not found after build!"; exit 1; }
             log "better_sqlite3.node OK"
+
+            # ── Strapi admin UI build (CSS + admin customizations) ──────────
+            # A CI már buildelte, de --prod install után a Strapi saját
+            # post-install hook-ja felülírhatja. Ezért újrabuildelünk
+            # devDependencies nélkül, csak az admin dist-et frissítve.
+            log "Rebuilding Strapi admin on VPS to apply CSS + customizations..."
+            pnpm install --frozen-lockfile=false --prefer-offline --network-concurrency 1
+            NODE_ENV=production pnpm build
+            log "Strapi admin build done."
+
+            # devDependencies törlése a memória spóroláshoz
+            log "Pruning devDependencies after admin build..."
+            pnpm install --prod --frozen-lockfile=false --prefer-offline --network-concurrency 1
+            log "Prune done."
+            # ────────────────────────────────────────────────────────────────
 
             log "Stopping backend..."
             cd ~
