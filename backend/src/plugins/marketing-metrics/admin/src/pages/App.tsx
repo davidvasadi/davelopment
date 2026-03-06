@@ -1181,11 +1181,11 @@ export const App = () => {
           fetch('/api/marketing-metrics/gsc-top-pages'),
         ]);
         const [pd, td, tp] = await Promise.all([pageRes.json(), trendRes.json(), topRes.json()]);
-        console.log('[GSC prod response]', JSON.stringify(pd).slice(0, 400));
-        if (pd.ok) {
-          console.log('[GSC keys sample]', Object.keys(pd.data).slice(0, 5));
-          setGscData(normalizeGscData(pd.data));
-        }
+        // console.log('[GSC prod response]', JSON.stringify(pd).slice(0, 400));
+        // if (pd.ok) {
+        //   console.log('[GSC keys sample]', Object.keys(pd.data).slice(0, 5));
+        //   setGscData(normalizeGscData(pd.data));
+        // }
         if (td.ok) setTrend(td.trend);
         if (tp.ok) setTopPages(tp.pages);
       }

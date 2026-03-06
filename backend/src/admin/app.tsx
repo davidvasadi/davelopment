@@ -182,8 +182,6 @@ function installThemeBridge() {
 
 /* ══════════════════════════════════════════════════════════
    PRELOADER
-   Azonnal fut a modul betöltésekor (nem vár bootstrap-ra),
-   így a Strapi saját preloadere előtt jelenik meg.
 ══════════════════════════════════════════════════════════ */
 function installPreloader() {
   if (typeof window === 'undefined') return;
@@ -193,7 +191,6 @@ function installPreloader() {
 
   const t0 = Date.now();
 
-  // Strapi saját preloaderét azonnal elrejtjük
   const killStrapiPreloader = () => {
     document.querySelectorAll<HTMLElement>(
       '[class*="LoadingIndicatorOverlay"], [class*="LoadingIndicator"]'
@@ -207,48 +204,27 @@ function installPreloader() {
   const overlay = document.createElement('div');
   overlay.setAttribute(ATTR, '1');
   overlay.innerHTML = `
-    <div style="
-      display:flex; flex-direction:column; align-items:center; gap:28px;
-    ">
-      <div style="
-        font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-        font-size:26px; font-weight:700; letter-spacing:-1px;
-        color:#ededed; line-height:1; user-select:none;
-      ">[davelopment]<span style="
-        font-size:13px; font-weight:400; vertical-align:super;
-        color:#ededed; opacity:0.4; letter-spacing:0;
-      ">®</span></div>
-      <div style="
-        width:100px; height:1px; background:rgba(255,255,255,0.08);
-        border-radius:1px; overflow:hidden;
-      ">
-        <div data-dave-fill style="
-          height:100%; width:0%; background:rgba(255,255,255,0.6);
-        "></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:28px;">
+      <div style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:26px;font-weight:700;letter-spacing:-1px;color:#ededed;line-height:1;user-select:none;">
+        [davelopment]<span style="font-size:13px;font-weight:400;vertical-align:super;color:#ededed;opacity:0.4;letter-spacing:0;">®</span>
+      </div>
+      <div style="width:100px;height:1px;background:rgba(255,255,255,0.08);border-radius:1px;overflow:hidden;">
+        <div data-dave-fill style="height:100%;width:0%;background:rgba(255,255,255,0.6);"></div>
       </div>
     </div>
   `;
 
-  // Inline style — nem függ a CSS betöltésétől
   overlay.style.cssText = `
-    position:fixed; inset:0; z-index:2147483647;
-    display:flex; align-items:center; justify-content:center;
+    position:fixed;inset:0;z-index:2147483647;
+    display:flex;align-items:center;justify-content:center;
     background:#0a0a0a;
-    transition:opacity 250ms cubic-bezier(.25,.46,.45,.94),
-               transform 250ms cubic-bezier(.25,.46,.45,.94);
+    transition:opacity 250ms cubic-bezier(.25,.46,.45,.94),transform 250ms cubic-bezier(.25,.46,.45,.94);
   `;
 
-  // Progress bar animáció JS-sel (CSS keyframes nem biztos hogy betöltött)
   const animateFill = () => {
     const fill = overlay.querySelector<HTMLElement>('[data-dave-fill]');
     if (!fill) return;
-    const steps = [
-      [0,    '0%'],
-      [300,  '45%'],
-      [600,  '72%'],
-      [1000, '88%'],
-      [1800, '96%'],
-    ] as [number, string][];
+    const steps: [number, string][] = [[0,'0%'],[300,'45%'],[600,'72%'],[1000,'88%'],[1800,'96%']];
     steps.forEach(([ms, w]) => {
       setTimeout(() => { fill.style.width = w; fill.style.transition = `width ${ms === 0 ? 0 : 400}ms ease`; }, ms);
     });
@@ -271,19 +247,17 @@ function installPreloader() {
     }, wait);
   };
 
-  // Az app akkor ready, ha a Strapi navigáció megjelent
+  // Ready ha navigáció VAGY login form megjelent
   const isReady = () =>
     !!(document.querySelector('[data-strapi-root]')) &&
-    !!(document.querySelector('[data-strapi-navigation]'));
+    !!(
+      document.querySelector('[data-strapi-navigation]') ||
+      document.querySelector('form')
+    );
 
-  // Mount amint van body
-  if (document.body) {
-    mount();
-  } else {
-    window.addEventListener('DOMContentLoaded', mount, { once: true });
-  }
+  if (document.body) mount();
+  else window.addEventListener('DOMContentLoaded', mount, { once: true });
 
-  // Strapi preloader folyamatos ölése amíg mi vagyunk bent
   const strapiKillObs = new MutationObserver(killStrapiPreloader);
   const startKillObs = () => {
     if (!document.body) return;
@@ -293,7 +267,6 @@ function installPreloader() {
   if (document.body) startKillObs();
   else window.addEventListener('DOMContentLoaded', startKillObs, { once: true });
 
-  // Unmount ha az app betöltött
   const readyObs = new MutationObserver(() => {
     if (isReady()) {
       readyObs.disconnect();
@@ -309,12 +282,7 @@ function installPreloader() {
   if (document.body) startReadyObs();
   else window.addEventListener('DOMContentLoaded', startReadyObs, { once: true });
 
-  // Fallback: max 8 másodperc
-  setTimeout(() => {
-    readyObs.disconnect();
-    strapiKillObs.disconnect();
-    unmount();
-  }, 8000);
+  setTimeout(() => { readyObs.disconnect(); strapiKillObs.disconnect(); unmount(); }, 8000);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -349,24 +317,22 @@ function installAutoLogoSwap(logos: { light: string; dark: string }) {
 
 /* ══════════════════════════════════════════════════════════
    WIDGET HEIGHT FIX
-   A Strapi 5 widget wrapper <main> elemre inline style-lal
-   tesz fix magasságot (pl. height: 261px; overflow: auto).
-   Ezt JS-sel nullázzuk, mert az inline style erősebb
-   mint bármilyen CSS rule.
+   Csak section-ön belüli Radix viewport-okat célozzuk.
+   Az oldal fő scroll area (index 0) NEM section alatt van
+   — azt nem érintjük.
 ══════════════════════════════════════════════════════════ */
 function installWidgetHeightFix() {
   const fix = () => {
-    document.querySelectorAll<HTMLElement>('section main, article main').forEach(el => {
-      if (el.style.height && el.style.height !== 'auto') {
-        el.style.setProperty('height', 'auto', 'important');
-        el.style.setProperty('max-height', 'none', 'important');
-        el.style.setProperty('overflow', 'visible', 'important');
-      }
-    });
-
-    document.querySelectorAll<HTMLElement>('[data-radix-scroll-area-viewport]').forEach(el => {
+    document.querySelectorAll<HTMLElement>('section [data-radix-scroll-area-viewport]').forEach(el => {
+      // a viewport
       el.style.setProperty('overflow', 'visible', 'important');
       el.style.setProperty('height', 'auto', 'important');
+      // a közvetlen szülő (sc-hdBJTi) — ez adja a fix height-ot
+      const parent = el.parentElement;
+      if (parent) {
+        parent.style.setProperty('overflow', 'visible', 'important');
+        parent.style.setProperty('height', 'auto', 'important');
+      }
     });
   };
 
@@ -387,13 +353,12 @@ function installWidgetHeightFix() {
 
   const obs = new MutationObserver(fix);
   if (document.body) {
-    obs.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+    obs.observe(document.body, { childList: true, subtree: true });
   }
 }
 
 /* ══════════════════════════════════════════════════════════
    PRELOADER AZONNALI INDÍTÁSA
-   Ez azonnal fut a modul betöltésekor.
 ══════════════════════════════════════════════════════════ */
 if (typeof window !== 'undefined') {
   installPreloader();
@@ -415,7 +380,6 @@ export default {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   register(app: any) {
 
-    // ── Communications widget ──────────────────────────────────────────────
     app.widgets.register({
       icon: () => (
         <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 24 24"
@@ -425,10 +389,7 @@ export default {
           <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
         </svg>
       ),
-      title: {
-        id: 'widget.communications.title',
-        defaultMessage: 'Communications',
-      },
+      title: { id: 'widget.communications.title', defaultMessage: 'Communications' },
       component: async () => {
         const { default: Comp } = await import('./widgets/communications');
         return Comp;
@@ -436,7 +397,6 @@ export default {
       id: 'communications-stats',
     });
 
-    // ── Marketing widget ───────────────────────────────────────────────────
     app.widgets.register({
       icon: () => (
         <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 24 24"
@@ -445,10 +405,7 @@ export default {
           <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
         </svg>
       ),
-      title: {
-        id: 'widget.marketing.title',
-        defaultMessage: 'Marketing',
-      },
+      title: { id: 'widget.marketing.title', defaultMessage: 'Marketing' },
       component: async () => {
         const { default: Comp } = await import('./widgets/marketing');
         return Comp;
@@ -460,7 +417,6 @@ export default {
 
   bootstrap(_app: any) {
     installThemeBridge();
-    // installPreloader() már lefutott a modul tetején
     installAutoLogoSwap({ light: logoLight, dark: logoDark });
     installWidgetHeightFix();
   },

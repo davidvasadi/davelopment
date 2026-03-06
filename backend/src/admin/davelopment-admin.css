@@ -14,10 +14,10 @@
 }
 
 html[data-theme="dark"] {
-  --bg:         #0a0a0a;   /* oldal canvas */
-  --surface:    #111111;   /* kártya — kiemelkedik a bg-ból */
-  --surface2:   #171717;   /* belső elem */
-  --surface3:   #222222;   /* még beljebb */
+  --bg:         #0a0a0a;
+  --surface:    #111111;
+  --surface2:   #171717;
+  --surface3:   #222222;
   --border:     rgba(255,255,255,0.06);
   --border-h:   rgba(255,255,255,0.11);
   --text:       #ededed;
@@ -42,7 +42,6 @@ html[data-theme="dark"] {
   --info-bg:    rgba(96,165,250,0.07);
   --info-bd:    rgba(96,165,250,0.14);
 
-  /* Monokróm accent — semmi szín */
   --accent:     #ededed;
   --accent-bg:  rgba(237,237,237,0.06);
   --accent-bd:  rgba(237,237,237,0.14);
@@ -50,7 +49,7 @@ html[data-theme="dark"] {
 
 html[data-theme="light"] {
   --bg:         #fafafa;
-  --surface:    #ffffff;   /* fehér kártya */
+  --surface:    #ffffff;
   --surface2:   #f5f5f5;
   --surface3:   #efefef;
   --border:     rgba(0,0,0,0.08);
@@ -105,9 +104,6 @@ html[data-theme] [data-strapi-root] {
 
 /* ══════════════════════════════════════════════════════════
    KÁRTYÁK / PAPER
-   Dark: #111111 — kiemelkedik a #0a0a0a canvas-ból
-   Light: #ffffff — fehér lap a #fafafa háttéren
-   Csak border, semmi shadow
 ══════════════════════════════════════════════════════════ */
 [data-strapi-root] *[class*="Paper"],
 [data-strapi-root] *[class*="paper"],
@@ -272,25 +268,26 @@ svg [stroke="#4945FF"], svg [stroke="#4945ff"] { stroke: currentColor !important
   85%  { width: 88%; }
   100% { width: 96%; }
 }
+
 /* ══════════════════════════════════════════════════════════
-   WIDGET HEIGHT FIX — másold a davelopment-admin.css VÉGÉRE
-   Strapi 5: widgetek <article> tagben renderelődnek,
-   a közvetlen div gyermek az ami max-height-el scrollozik.
+   WIDGET SCROLL FIX
+   Csak section-ön belüli Radix scroll areákat célozzuk —
+   az index 0 (oldal fő scroll) NEM section alatt van,
+   azt nem érintjük.
 ══════════════════════════════════════════════════════════ */
-/* ══ WIDGET SCROLL FIX — Radix UI + Strapi 5 main ══ */
-[data-radix-scroll-area-viewport] {
+section [data-radix-scroll-area-viewport] {
   overflow: visible !important;
   height: auto !important;
   min-height: unset !important;
 }
 
-[data-radix-scroll-area-viewport] > div {
+section [data-radix-scroll-area-viewport] > div {
   height: auto !important;
   min-height: unset !important;
+  display: block !important;
 }
 
-section[aria-labelledby] main {
+/* A viewport közvetlen szülője (sc-hdBJTi) — csak section-ön belül */
+section [data-radix-scroll-area-viewport] > div > * {
   height: auto !important;
-  max-height: none !important;
-  overflow: visible !important;
 }
