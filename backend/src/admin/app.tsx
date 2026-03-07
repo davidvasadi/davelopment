@@ -320,14 +320,6 @@ function installAutoLogoSwap(logos: { light: string; dark: string }) {
    A Strapi WidgetRoot.js a Box tag="main" elemre inline
    style-ként rakja: height:261px + overflow:auto.
    CSS-sel nem lehet felülírni — csak inline style override.
-   MutationObserver figyeli a style attribútum változásait
-   és folyamatosan visszaírja az auto értéket.
-══════════════════════════════════════════════════════════ */
-/* ══════════════════════════════════════════════════════════
-   WIDGET HEIGHT FIX
-   A Strapi WidgetRoot.js a Box tag="main" elemre inline
-   style-ként rakja: height:261px + overflow:auto.
-   CSS-sel nem lehet felülírni — csak inline style override.
 ══════════════════════════════════════════════════════════ */
 function installWidgetHeightFix() {
   const fix = () => {

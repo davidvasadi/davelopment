@@ -14,13 +14,12 @@ function buildWelcomeHtml(name: string, language: 'hu' | 'en', unsubscribeUrl: s
     badge:      isHu ? 'feliratkozás sikeres' : 'subscription confirmed',
     title:      isHu ? 'Örülünk, hogy itt vagy.' : 'Great to have you here.',
     body:       isHu
-      ? 'Csatlakoztál a Davelopment közösségéhez. Webfejlesztésről, dizájnról és az általunk épített termékekről fogunk írni – csak akkor, ha van mondanivalónk.'
-      : "You've joined the Davelopment community. We'll write about web development, design, and the products we build — only when we have something worth saying.",
-    cta:        isHu ? 'Megnézem a weboldalt →' : 'Visit our website →',
+      ? 'Csatlakoztál a [davelopment]® közösségéhez. Webfejlesztésről, dizájnról és az általunk épített termékekről fogunk írni – csak akkor, ha van mondanivalónk.'
+      : "You've joined the [davelopment]® community. We'll write about web development, design, and the products we build — only when we have something worth saying.",
+    cta:        isHu ? 'Megnézem a weboldalt ›' : 'Visit our website ›',
     unsubLabel: isHu ? 'Leiratkozás a hírlevélről' : 'Unsubscribe from newsletter',
   };
 
-  // Inline SVG checkmark as data URI – renderable in most email clients
   const checkSvg = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%2316a34a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E`;
 
   return `<!DOCTYPE html>
@@ -54,27 +53,20 @@ function buildWelcomeHtml(name: string, language: 'hu' | 'en', unsubscribeUrl: s
             <!-- Body -->
             <tr><td style="padding:32px 24px 28px;">
 
-              <!-- Checkmark icon centered -->
+              <!-- Checkmark icon – kör háttérrel -->
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:22px;">
                 <tr><td align="center">
                   <table cellpadding="0" cellspacing="0" border="0">
-                    <tr><td align="center" valign="middle" width="52" height="52" style="width:52px;height:52px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;text-align:center;vertical-align:middle;">
+                    <tr><td align="center" valign="middle" width="52" height="52" style="width:52px;height:52px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:50%;text-align:center;vertical-align:middle;">
                       <img src="${checkSvg}" width="22" height="22" alt="ok" style="display:block;margin:0 auto;"/>
                     </td></tr>
                   </table>
                 </td></tr>
               </table>
 
-              <!-- Greeting -->
               <p style="font-size:14px;color:#6b7280;margin:0 0 6px;">${t.greeting}</p>
-
-              <!-- Title -->
               <h1 style="font-size:20px;font-weight:700;color:#111;margin:0 0 14px;letter-spacing:-0.3px;line-height:1.3;">${t.title}</h1>
-
-              <!-- Body -->
               <p style="font-size:14px;color:#6b7280;line-height:1.75;margin:0 0 28px;">${t.body}</p>
-
-              <!-- CTA -->
               <a href="${siteUrl}" style="display:inline-block;padding:11px 22px;background:#111;color:#ffffff;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:0.2px;">${t.cta}</a>
 
             </td></tr>
@@ -125,7 +117,7 @@ export default {
     }
 
     const isHu = language !== 'en';
-    const subject = isHu ? 'Feliratkozás sikeres – Davelopment' : 'Subscription confirmed – Davelopment';
+    const subject = isHu ? 'Feliratkozás sikeres – [davelopment]®' : 'Subscription confirmed – [davelopment]®';
 
     const documentId = result.documentId || result.id;
     const locale = language === 'en' ? 'en' : 'hu';
@@ -137,7 +129,7 @@ export default {
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from: `Davelopment <${fromEmail}>`, to: [email], subject, html }),
+        body: JSON.stringify({ from: `[davelopment]® <${fromEmail}>`, to: [email], subject, html }),
       });
       const data = await res.json() as any;
       if (res.ok) console.log(`[Communications] Welcome email → ${email} (${language})`);

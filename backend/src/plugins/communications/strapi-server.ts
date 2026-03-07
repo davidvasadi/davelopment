@@ -25,7 +25,6 @@ export default {
         strapi.entityService.count('api::newsletter.newsletter', { filters: { unsubscribed: false, confirmed: true, language: 'en' } }),
       ]);
 
-      // Havi email szám a kampányokból
       const knex = (strapi.db as any).connection;
       let monthSent = 0;
       try {
@@ -199,7 +198,6 @@ export default {
         return;
       }
 
-      // ── Teszt mód ────────────────────────────────────────────────────────────
       if (testEmail) {
         const testHtml = finalHtml.replace(/\{\{UNSUBSCRIBE_URL\}\}/g, `${FRONTEND_URL}/hu/unsubscribe?id=test`);
         const res = await fetch('https://api.resend.com/emails', {
@@ -226,7 +224,6 @@ export default {
         return;
       }
 
-      // ── Éles küldés ──────────────────────────────────────────────────────────
       const filters: any = { unsubscribed: false, confirmed: true };
       if (language && language !== 'all') filters.language = language;
 
@@ -301,7 +298,6 @@ export default {
       }
     });
 
-    // Újraküldés – csak azoknak akik a kampány eredeti küldése UTÁN iratkoztak fel
     router.post('/api/communications/resend-campaign', async (ctx: any) => {
       const { campaignId, testEmail } = ctx.request.body as any;
       if (!campaignId) { ctx.status = 400; ctx.body = { ok: false, error: 'campaignId szükséges' }; return; }
@@ -315,7 +311,6 @@ export default {
       const fromEmail = process.env.RESEND_FROM_EMAIL || 'hello@davelopment.hu';
       if (!resendApiKey) { ctx.status = 500; ctx.body = { ok: false, error: 'RESEND_API_KEY nincs beállítva' }; return; }
 
-      // Teszt mód
       if (testEmail) {
         const testHtml = campaign.full_html.replace(/\{\{UNSUBSCRIBE_URL\}\}/g, `${FRONTEND_URL}/hu/unsubscribe?id=test`);
         const res = await fetch('https://api.resend.com/emails', {
@@ -328,7 +323,6 @@ export default {
         return;
       }
 
-      // Csak azok akik a kampány eredeti küldése UTÁN iratkoztak fel
       const sentAt = new Date(campaign.sent_at);
       const filters: any = {
         unsubscribed: false,
@@ -396,12 +390,13 @@ export default {
       }
     });
 
-    // ─── Notify on new lead ───────────────────────────────────────────────────
+    // ─── Notify on new lead + autoreply ──────────────────────────────────────
 
     router.post('/api/communications/notify-lead', async (ctx: any) => {
       const { name, email, message, page } = ctx.request.body as any;
       const resendApiKey = process.env.RESEND_API_KEY;
       const fromEmail = process.env.RESEND_FROM_EMAIL || 'hello@davelopment.hu';
+      const adminUrl = `${process.env.URL || 'https://davelopment.hu'}/admin/plugins/communications`;
 
       if (!resendApiKey) {
         ctx.status = 500;
@@ -409,7 +404,8 @@ export default {
         return;
       }
 
-      const res = await fetch('https://api.resend.com/emails', {
+      // ── 1. Admin értesítő ────────────────────────────────────────────────────
+      const adminRes = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -418,27 +414,21 @@ export default {
           reply_to: email,
           subject: `📬 Új érdeklődő: ${name}`,
           html: `<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"/></head>
+<html><head><meta charset="UTF-8"/></head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="padding:32px 16px;background:#f5f5f5;">
     <tr><td align="center">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:460px;">
-
         <tr><td style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;">
           <table width="100%" cellpadding="0" cellspacing="0" border="0">
-
             <tr><td style="padding:18px 24px 16px;border-bottom:1px solid #f3f4f6;">
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td style="font-size:13px;font-weight:700;color:#111;font-family:'Courier New',Courier,monospace;">[davelopment]®</td>
-                  <td align="right">
-                    <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(240,199,66,0.1);border:1px solid rgba(240,199,66,0.3);color:#b45309;font-family:'Courier New',Courier,monospace;">új érdeklődő</span>
-                  </td>
+                  <td align="right"><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(240,199,66,0.1);border:1px solid rgba(240,199,66,0.3);color:#b45309;font-family:'Courier New',Courier,monospace;">új érdeklődő</span></td>
                 </tr>
               </table>
             </td></tr>
-
             <tr><td style="padding:24px 24px 8px;">
               <p style="font-size:13px;color:#6b7280;margin:0 0 16px;">Új üzenet érkezett a weboldalon keresztül.</p>
               <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #f3f4f6;border-radius:10px;overflow:hidden;">
@@ -448,29 +438,83 @@ export default {
                 <tr style="background:#fafafa;"><td style="padding:10px 14px;color:#9ca3af;font-size:12px;vertical-align:top;font-family:'Courier New',Courier,monospace;">üzenet</td><td style="padding:10px 14px;font-size:13px;color:#374151;line-height:1.6;">${message || '–'}</td></tr>
               </table>
             </td></tr>
-
             <tr><td style="padding:20px 24px 24px;">
-              <a href="https://davelopment.hu/admin/plugins/communications" style="display:inline-block;padding:10px 20px;background:#111;color:#fff;border-radius:9px;text-decoration:none;font-size:13px;font-weight:600;">Megnyitás az adminban →</a>
+              <a href="${adminUrl}" style="display:inline-block;padding:10px 20px;background:#111;color:#fff;border-radius:9px;text-decoration:none;font-size:13px;font-weight:600;">Megnyitás az adminban ›</a>
               <p style="font-size:11px;color:#9ca3af;margin:14px 0 0;font-family:'Courier New',Courier,monospace;">Válaszolva egyenesen <strong style="color:#6b7280;">${email}</strong>-nek írsz.</p>
             </td></tr>
-
           </table>
         </td></tr>
-
         <tr><td style="padding:14px 4px 0;text-align:center;">
           <p style="font-size:11px;color:#9ca3af;margin:0;font-family:'Courier New',Courier,monospace;">davelopment.hu · hello@davelopment.hu</p>
         </td></tr>
-
       </table>
     </td></tr>
   </table>
-</body>
-</html>`,
+</body></html>`,
         }),
       });
 
-      const result = await res.json() as any;
-      ctx.body = { ok: res.ok, result };
+      // ── 2. Autoreply az érdeklődőnek ─────────────────────────────────────────
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: `Davelopment <${fromEmail}>`,
+          to: [email],
+          subject: `Megkaptuk az üzeneted${name ? `, ${name}` : ''} 👋`,
+          html: `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="padding:40px 16px;background:#f5f5f5;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:440px;">
+        <tr><td style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr><td style="padding:18px 24px 16px;border-bottom:1px solid #f3f4f6;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="font-size:13px;font-weight:700;color:#111;font-family:'Courier New',Courier,monospace;">[davelopment]®</td>
+                  <td align="right"><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;font-family:'Courier New',Courier,monospace;">üzenet megérkezett</span></td>
+                </tr>
+              </table>
+            </td></tr>
+            <tr><td style="padding:32px 24px 28px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:22px;">
+                <tr><td align="center">
+                  <table cellpadding="0" cellspacing="0" border="0">
+                    <tr><td align="center" valign="middle" width="52" height="52"
+                      style="width:52px;height:52px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:50%;text-align:center;vertical-align:middle;">
+                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%2316a34a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E"
+                        width="22" height="22" alt="ok" style="display:block;margin:0 auto;"/>
+                    </td></tr>
+                  </table>
+                </td></tr>
+              </table>
+              <p style="font-size:14px;color:#6b7280;margin:0 0 6px;">Szia${name ? ` ${name}` : ''}!</p>
+              <h1 style="font-size:20px;font-weight:700;color:#111;margin:0 0 14px;letter-spacing:-0.3px;line-height:1.3;">Megkaptuk az üzenetedet.</h1>
+              <p style="font-size:14px;color:#6b7280;line-height:1.75;margin:0 0 20px;">Köszönjük, hogy megkerestél minket. Általában <strong style="color:#374151;">1-2 munkanapon belül</strong> visszajelzünk.</p>
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f9fafb;border:1px solid #f3f4f6;border-radius:10px;margin-bottom:24px;">
+                <tr><td style="padding:14px 16px;">
+                  <p style="font-size:11px;color:#9ca3af;margin:0 0 6px;text-transform:uppercase;letter-spacing:0.06em;font-family:'Courier New',Courier,monospace;">Az üzeneted</p>
+                  <p style="font-size:13px;color:#374151;margin:0;line-height:1.6;">${message || '–'}</p>
+                </td></tr>
+              </table>
+              <a href="${process.env.FRONTEND_URL || 'https://davelopment.hu'}" style="display:inline-block;padding:11px 22px;background:#111;color:#ffffff;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:0.2px;">Vissza a weboldalra ›</a>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="padding:18px 4px 0;text-align:center;">
+          <p style="font-size:11px;color:#9ca3af;margin:0;font-family:'Courier New',Courier,monospace;">davelopment.hu · hello@davelopment.hu</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`,
+        }),
+      });
+
+      const result = await adminRes.json() as any;
+      ctx.body = { ok: adminRes.ok, result };
     });
 
     // ─── Test email ───────────────────────────────────────────────────────────
@@ -520,7 +564,6 @@ export default {
       });
       console.log('[Communications] comm_campaigns_log tábla létrehozva');
     } else {
-      // Meglévő tábla: hiányzó oszlopok hozzáadása
       const hasIsTest = await knex.schema.hasColumn('comm_campaigns_log', 'is_test');
       if (!hasIsTest) {
         await knex.schema.alterTable('comm_campaigns_log', (table: any) => { table.boolean('is_test').defaultTo(false); });
