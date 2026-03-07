@@ -212,20 +212,17 @@ export function FormNextToSection({
     setShowAlert(true);
 
     try {
-      const res = await fetch(`${STRAPI_BASE_URL}/api/contacts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          data: {
-            name: formData.name,
-            email: formData.email,
-            message: formData.message,
-            page: pathname || '/',
-            language: lang,
-            // state-et nem muszáj küldeni, lifecycle beállítja new-ra
-          },
-        }),
-      });
+      const res = await fetch('/api/contact', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: formData.name,
+    email: formData.email,
+    message: formData.message,
+    page: pathname || '/',
+    language: lang,
+  }),
+});
 
       if (!res.ok) {
         let errorBody: any = null;

@@ -204,7 +204,7 @@ export default {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            from: `Davelopment <${fromEmail}>`,
+            from: `[davelopment]® <${fromEmail}>`,
             to: [testEmail],
             subject: `[TEST] ${subject}`,
             html: testHtml,
@@ -253,7 +253,7 @@ export default {
                 const unsubUrl = `${FRONTEND_URL}/${locale}/unsubscribe?id=${documentId}`;
                 const personalHtml = finalHtml.replace(/\{\{UNSUBSCRIBE_URL\}\}/g, unsubUrl);
                 return {
-                  from: `Davelopment <${fromEmail}>`,
+                  from: `[davelopment]® <${fromEmail}>`,
                   to: [sub.email],
                   subject,
                   html: personalHtml,
@@ -316,7 +316,7 @@ export default {
         const res = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ from: `Davelopment <${fromEmail}>`, to: [testEmail], subject: `[TEST] ${campaign.subject}`, html: testHtml }),
+          body: JSON.stringify({ from: `[davelopment]® <${fromEmail}>`, to: [testEmail], subject: `[TEST] ${campaign.subject}`, html: testHtml }),
         });
         const result = await res.json() as any;
         ctx.body = { ok: res.ok, result, sent: 1, mode: 'test' };
@@ -353,7 +353,7 @@ export default {
               const locale = sub.language === 'en' ? 'en' : 'hu';
               const unsubUrl = `${FRONTEND_URL}/${locale}/unsubscribe?id=${sub.documentId || sub.id}`;
               return {
-                from: `Davelopment <${fromEmail}>`,
+                from: `[davelopment]® <${fromEmail}>`,
                 to: [sub.email],
                 subject: campaign.subject,
                 html: campaign.full_html.replace(/\{\{UNSUBSCRIBE_URL\}\}/g, unsubUrl),
@@ -398,6 +398,8 @@ export default {
       const fromEmail = process.env.RESEND_FROM_EMAIL || 'hello@davelopment.hu';
       const adminUrl = `${process.env.URL || 'https://davelopment.hu'}/admin/plugins/communications`;
 
+      console.log(`[notify-lead] Indítás: name=${name}, email=${email}`);
+
       if (!resendApiKey) {
         ctx.status = 500;
         ctx.body = { ok: false, error: 'RESEND_API_KEY nincs beállítva' };
@@ -405,15 +407,17 @@ export default {
       }
 
       // ── 1. Admin értesítő ────────────────────────────────────────────────────
-      const adminRes = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from: `Davelopment <${fromEmail}>`,
-          to: [NOTIFY_TO],
-          reply_to: email,
-          subject: `📬 Új érdeklődő: ${name}`,
-          html: `<!DOCTYPE html>
+      let adminRes: Response;
+      try {
+        adminRes = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: `[davelopment]® <${fromEmail}>`,
+            to: [NOTIFY_TO],
+            reply_to: email,
+            subject: `Új érdeklődő: ${name}`,
+            html: `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"/></head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="padding:32px 16px;background:#f5f5f5;">
@@ -451,18 +455,30 @@ export default {
     </td></tr>
   </table>
 </body></html>`,
-        }),
-      });
+          }),
+        });
+        const adminResult = await adminRes.json() as any;
+        console.log(`[notify-lead] Admin email eredmény: ok=${adminRes.ok}`, JSON.stringify(adminResult));
+      } catch (err: any) {
+        console.error('[notify-lead] Admin email HIBA:', err.message);
+        ctx.status = 500;
+        ctx.body = { ok: false, error: 'Admin email küldés sikertelen', detail: err.message };
+        return;
+      }
 
       // ── 2. Autoreply az érdeklődőnek ─────────────────────────────────────────
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from: `Davelopment <${fromEmail}>`,
-          to: [email],
-          subject: `Megkaptuk az üzeneted${name ? `, ${name}` : ''} 👋`,
-          html: `<!DOCTYPE html>
+      let autoReplyOk = false;
+      let autoReplyResult: any = null;
+      try {
+        console.log(`[notify-lead] Autoreply küldése: ${email}`);
+        const autoRes = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: `[davelopment]® <${fromEmail}>`,
+            to: [email],
+            subject: `Megkaptuk az üzeneted${name ? `, ${name}` : ''} 👋`,
+            html: `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"/></head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="padding:40px 16px;background:#f5f5f5;">
@@ -499,7 +515,7 @@ export default {
                   <p style="font-size:13px;color:#374151;margin:0;line-height:1.6;">${message || '–'}</p>
                 </td></tr>
               </table>
-              <a href="${process.env.FRONTEND_URL || 'https://davelopment.hu'}" style="display:inline-block;padding:11px 22px;background:#111;color:#ffffff;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:0.2px;">Vissza a weboldalra ›</a>
+              <a href="${FRONTEND_URL}" style="display:inline-block;padding:11px 22px;background:#111;color:#ffffff;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:0.2px;">Vissza a weboldalra ›</a>
             </td></tr>
           </table>
         </td></tr>
@@ -510,11 +526,23 @@ export default {
     </td></tr>
   </table>
 </body></html>`,
-        }),
-      });
+          }),
+        });
+        autoReplyResult = await autoRes.json() as any;
+        autoReplyOk = autoRes.ok;
+        console.log(`[notify-lead] Autoreply eredmény: ok=${autoRes.ok}`, JSON.stringify(autoReplyResult));
+        if (!autoRes.ok) {
+          console.error('[notify-lead] Autoreply SIKERTELEN! Resend hiba:', JSON.stringify(autoReplyResult));
+        }
+      } catch (err: any) {
+        console.error('[notify-lead] Autoreply HIBA (exception):', err.message);
+      }
 
-      const result = await adminRes.json() as any;
-      ctx.body = { ok: adminRes.ok, result };
+      ctx.body = {
+        ok: true,
+        autoReplyOk,
+        autoReplyResult,
+      };
     });
 
     // ─── Test email ───────────────────────────────────────────────────────────
@@ -534,7 +562,7 @@ export default {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: `Davelopment <${fromEmail}>`,
+          from: `[davelopment]® <${fromEmail}>`,
           to: [to || NOTIFY_TO],
           subject: '✅ Test email – Communications plugin',
           html: `<div style="font-family:sans-serif;padding:24px;max-width:400px;"><h2 style="color:#1a7f37;">✅ Email küldés működik!</h2><p style="color:#444;">Ez egy teszt email a Communications pluginból.</p><p style="color:#999;font-size:12px;">Küldve: ${new Date().toLocaleString('hu-HU')}</p></div>`,

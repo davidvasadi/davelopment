@@ -252,6 +252,18 @@ jobs:
             -e "ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes" \
             frontend/ ${VPS_USER}@${VPS_HOST}:${REMOTE_PATH}/
 
+      - name: Write frontend .env on VPS
+        run: |
+          ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes \
+            ${VPS_USER}@${VPS_HOST} "printf '%s\n' \
+              'WEBSITE_URL=https://davelopment.hu' \
+              'NEXT_PUBLIC_API_URL=https://davelopment.hu' \
+              'NEXT_PUBLIC_STRAPI_URL=https://davelopment.hu' \
+              'STRAPI_URL=https://davelopment.hu' \
+              'STRAPI_API_TOKEN=${{ secrets.STRAPI_API_TOKEN }}' \
+              'PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}' \
+              > /var/www/davelopment/frontend/.env"
+
       - name: Install deps and restart PM2
         run: |
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes \
