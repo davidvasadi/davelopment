@@ -317,46 +317,37 @@ function installAutoLogoSwap(logos: { light: string; dark: string }) {
 
 /* ══════════════════════════════════════════════════════════
    WIDGET HEIGHT FIX
-   Csak section-ön belüli Radix viewport-okat célozzuk.
-   Az oldal fő scroll area (index 0) NEM section alatt van
-   — azt nem érintjük.
+   A Strapi WidgetRoot.js a Box tag="main" elemre inline
+   style-ként rakja: height:261px + overflow:auto.
+   CSS-sel nem lehet felülírni — csak inline style override.
+   MutationObserver figyeli a style attribútum változásait
+   és folyamatosan visszaírja az auto értéket.
+══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   WIDGET HEIGHT FIX
+   A Strapi WidgetRoot.js a Box tag="main" elemre inline
+   style-ként rakja: height:261px + overflow:auto.
+   CSS-sel nem lehet felülírni — csak inline style override.
 ══════════════════════════════════════════════════════════ */
 function installWidgetHeightFix() {
   const fix = () => {
-    document.querySelectorAll<HTMLElement>('section [data-radix-scroll-area-viewport]').forEach(el => {
-      // a viewport
-      el.style.setProperty('overflow', 'visible', 'important');
-      el.style.setProperty('height', 'auto', 'important');
-      // a közvetlen szülő (sc-hdBJTi) — ez adja a fix height-ot
-      const parent = el.parentElement;
-      if (parent) {
-        parent.style.setProperty('overflow', 'visible', 'important');
-        parent.style.setProperty('height', 'auto', 'important');
+    document.querySelectorAll<HTMLElement>('section main').forEach(el => {
+      if (el.style.height !== 'auto' || el.style.overflow !== 'visible') {
+        el.style.setProperty('height', 'auto', 'important');
+        el.style.setProperty('overflow', 'visible', 'important');
       }
     });
   };
 
   const run = () => {
     fix();
-    let n = 0;
-    const iv = setInterval(() => {
-      fix();
-      if (++n >= 30) clearInterval(iv);
-    }, 300);
+    const obs = new MutationObserver(fix);
+    obs.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
   };
 
   if (document.body) run();
   else window.addEventListener('DOMContentLoaded', run, { once: true });
-
-  window.addEventListener('popstate', () => setTimeout(fix, 300));
-  window.addEventListener('strapi-theme-change', () => setTimeout(fix, 300));
-
-  const obs = new MutationObserver(fix);
-  if (document.body) {
-    obs.observe(document.body, { childList: true, subtree: true });
-  }
 }
-
 /* ══════════════════════════════════════════════════════════
    PRELOADER AZONNALI INDÍTÁSA
 ══════════════════════════════════════════════════════════ */

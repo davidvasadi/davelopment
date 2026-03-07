@@ -6,6 +6,12 @@ const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const GSC_API_BASE = 'https://searchconsole.googleapis.com/webmasters/v3';
 const SITE_URL = 'sc-domain:davelopment.hu';
+
+// ─── Lokális dev: a .env-ben URL=http://localhost:1337 legyen,
+//     éles szerveren URL=https://davelopment.hu
+//     + Google Cloud Console-ban mindkét redirect URI legyen regisztrálva:
+//       http://localhost:1337/api/marketing-metrics/gsc-callback
+//       https://davelopment.hu/api/marketing-metrics/gsc-callback
 const REDIRECT_URI = `${process.env.URL || 'http://localhost:1337'}/api/marketing-metrics/gsc-callback`;
 const SCOPES = 'https://www.googleapis.com/auth/webmasters.readonly';
 const TOKEN_FILE = path.resolve(process.cwd(), '.tmp/gsc-token.json');
@@ -134,9 +140,13 @@ export default {
         });
 
         // ─── Status ───────────────────────────────────────────────────────
-        router.get('/api/marketing-metrics/gsc-status', (ctx: any) => {
+        // async: megpróbálja refreshelni a tokent — ha sikerül, connected: true
+        // ha nem (nincs refresh token vagy lejárt/visszavont), connected: false
+        // → a frontend helyesen mutatja a "csatlakoztatás" gombot
+        router.get('/api/marketing-metrics/gsc-status', async (ctx: any) => {
+            const token = await getValidToken();
             ctx.body = {
-                connected: !!(tokenStore.access_token && tokenStore.refresh_token),
+                connected: !!token,
                 valid: isTokenValid(),
             };
         });
@@ -247,101 +257,54 @@ export default {
         // ─── MARKETING WIDGET ENDPOINTS ───────────────────────────────────
         // ═════════════════════════════════════════════════════════════════
 
-        // ─── /api/marketing-metrics/stats ────────────────────────────────
-        // A marketing widget főbb KPI-jait adja vissza GSC adatokból aggregálva.
-        // Ha nincs GSC token → mock adatokat ad vissza (ok: false jelzővel).
         router.get('/api/marketing-metrics/stats', async (ctx: any) => {
             const token = await getValidToken();
-
-            // Ha nincs token, mock adatokkal tér vissza → widget átáll mock módra
-            if (!token) {
-                ctx.body = { ok: false };
-                return;
-            }
-
+            if (!token) { ctx.body = { ok: false }; return; }
             try {
-                // Aktuális 28 nap
                 const [pageData, trendData] = await Promise.all([
                     gscFetch(
                         `/sites/${encodeURIComponent(SITE_URL)}/searchAnalytics/query`,
-                        {
-                            startDate: daysAgo(31), endDate: daysAgo(3),
-                            dimensions: ['page'], rowLimit: 500, dataState: 'final',
-                        }
+                        { startDate: daysAgo(31), endDate: daysAgo(3), dimensions: ['page'], rowLimit: 500, dataState: 'final' }
                     ),
                     gscFetch(
                         `/sites/${encodeURIComponent(SITE_URL)}/searchAnalytics/query`,
-                        {
-                            startDate: daysAgo(31), endDate: daysAgo(3),
-                            dimensions: ['date'], rowLimit: 35, dataState: 'final',
-                        }
+                        { startDate: daysAgo(31), endDate: daysAgo(3), dimensions: ['date'], rowLimit: 35, dataState: 'final' }
                     ),
                 ]);
-
-                // Előző 28 nap (delta számításhoz)
                 const prevData = await gscFetch(
                     `/sites/${encodeURIComponent(SITE_URL)}/searchAnalytics/query`,
-                    {
-                        startDate: daysAgo(59), endDate: daysAgo(32),
-                        dimensions: ['page'], rowLimit: 500, dataState: 'final',
-                    }
+                    { startDate: daysAgo(59), endDate: daysAgo(32), dimensions: ['page'], rowLimit: 500, dataState: 'final' }
                 );
-
                 const rows: any[] = pageData?.rows || [];
                 const prevRows: any[] = prevData?.rows || [];
-                const trendRows: any[] = trendData?.rows || [];
-
-                // Összesítések
                 const totalClicks      = rows.reduce((s, r) => s + r.clicks, 0);
                 const totalImpressions = rows.reduce((s, r) => s + r.impressions, 0);
                 const avgCtr           = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
-                const avgPosition      = rows.length > 0
-                    ? rows.reduce((s, r) => s + r.position, 0) / rows.length
-                    : 0;
-
-                const prevClicks      = prevRows.reduce((s, r) => s + r.clicks, 0);
-                const prevImpressions = prevRows.reduce((s, r) => s + r.impressions, 0);
-
-                // Delta %-ok (előző időszakhoz képest)
+                const avgPosition      = rows.length > 0 ? rows.reduce((s, r) => s + r.position, 0) / rows.length : 0;
+                const prevClicks       = prevRows.reduce((s, r) => s + r.clicks, 0);
+                const prevImpressions  = prevRows.reduce((s, r) => s + r.impressions, 0);
                 const delta = (curr: number, prev: number) =>
                     prev === 0 ? 0 : Math.round(((curr - prev) / prev) * 100);
-
-                // Csatornabecslés: organikus = összes GSC klikk (mind organikus),
-                // fizetett és email nem elérhető GSC-ből → arányos becslés
-                const organicClicks = totalClicks;
-                const paidClicks    = Math.round(totalClicks * 0.35);  // ~35% becsült fizetett
-                const emailClicks   = Math.round(totalClicks * 0.20);  // ~20% becsült email
-
-                // Aktív "kampányok" = aktívan indexelt oldalak száma (kattintással)
                 const activeCampaigns = Math.min(rows.filter(r => r.clicks > 0).length, 99);
-
-                // Reach = összes megjelenés
-                // Engagement = CTR mint proxy (kattintások / megjelenések)
-                // Konverzió = kattintások ~3%-a (standard webshop konverziós ráta)
                 const conversions = Math.round(totalClicks * 0.032);
-                const convRate    = avgCtr > 0 ? Math.min(avgCtr * 0.26, 9.9) : 0; // CTR-arányos becsült konv.ráta
-
+                const convRate    = avgCtr > 0 ? Math.min(avgCtr * 0.26, 9.9) : 0;
                 ctx.body = {
                     ok: true,
-                    // Fő KPI-k
                     activeCampaigns,
                     totalReach:        totalImpressions,
                     avgEngagement:     Math.round(avgCtr * 10) / 10,
                     conversions,
                     ctr:               Math.round(avgCtr * 10) / 10,
                     convRate:          Math.round(convRate * 10) / 10,
-                    // Csatornák
-                    organicClicks,
-                    paidClicks,
-                    emailClicks,
-                    // Delták
+                    organicClicks:     totalClicks,
+                    paidClicks:        Math.round(totalClicks * 0.35),
+                    emailClicks:       Math.round(totalClicks * 0.20),
                     reachDelta:        delta(totalImpressions, prevImpressions),
-                    engagementDelta:   delta(totalClicks, prevClicks),       // klikk-arányos
+                    engagementDelta:   delta(totalClicks, prevClicks),
                     conversionsDelta:  delta(totalClicks, prevClicks),
                     organicDelta:      delta(totalClicks, prevClicks),
-                    paidDelta:         0,   // GSC-ből nem mérhető
-                    emailDelta:        0,   // GSC-ből nem mérhető
-                    // Extra meta
+                    paidDelta:         0,
+                    emailDelta:        0,
                     avgPosition:       Math.round(avgPosition * 10) / 10,
                     totalClicks,
                     totalImpressions,
@@ -352,35 +315,19 @@ export default {
             }
         });
 
-        // ─── /api/marketing-metrics/channel-trends ───────────────────────
-        // Csatorna-trendek: az utolsó 8 heti aggregált adat organikus/fizetett/email bontásban.
-        // GSC csak organikus adatot ad → a fizetett és email becsült arányokkal számolt.
         router.get('/api/marketing-metrics/channel-trends', async (ctx: any) => {
             const token = await getValidToken();
-
-            if (!token) {
-                ctx.body = { ok: false };
-                return;
-            }
-
+            if (!token) { ctx.body = { ok: false }; return; }
             try {
-                // 56 nap napi adatai → 8 hétre aggregálva
                 const data = await gscFetch(
                     `/sites/${encodeURIComponent(SITE_URL)}/searchAnalytics/query`,
-                    {
-                        startDate: daysAgo(59), endDate: daysAgo(3),
-                        dimensions: ['date'], rowLimit: 60, dataState: 'final',
-                    }
+                    { startDate: daysAgo(59), endDate: daysAgo(3), dimensions: ['date'], rowLimit: 60, dataState: 'final' }
                 );
-
                 const rows: any[] = (data?.rows || []).sort(
                     (a: any, b: any) => a.keys[0].localeCompare(b.keys[0])
                 );
-
-                // 8 egyenlő részre osztjuk a sorokat
                 const chunkSize = Math.max(1, Math.ceil(rows.length / 8));
                 const weeks: { organic: number; paid: number; email: number }[] = [];
-
                 for (let i = 0; i < 8; i++) {
                     const chunk = rows.slice(i * chunkSize, (i + 1) * chunkSize);
                     const organicSum = chunk.reduce((s: number, r: any) => s + r.clicks, 0);
@@ -390,13 +337,12 @@ export default {
                         email:   Math.round(organicSum * 0.20),
                     });
                 }
-
                 ctx.body = {
                     ok: true,
                     data: {
-                        organic:  weeks.map(w => ({ value: w.organic })),
-                        paid:     weeks.map(w => ({ value: w.paid })),
-                        email:    weeks.map(w => ({ value: w.email })),
+                        organic: weeks.map(w => ({ value: w.organic })),
+                        paid:    weeks.map(w => ({ value: w.paid })),
+                        email:   weeks.map(w => ({ value: w.email })),
                     },
                 };
             } catch (e) {
