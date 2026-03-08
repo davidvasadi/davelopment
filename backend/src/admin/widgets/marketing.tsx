@@ -133,6 +133,23 @@ const CSS = `
     pointer-events: none; width: 190px; word-break: break-word; white-space: normal;
   }
 
+  /* ── Glass chart tooltip ── */
+  .mkt-chart-tip {
+    position: absolute;
+    background: rgba(13, 17, 23, 0.96);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 9px;
+    padding: 8px 12px;
+    pointer-events: none;
+    white-space: nowrap;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
   @media (max-width: 500px) {
     .mkt-kpi-row { flex-wrap: wrap !important; }
     .mkt-kpi { min-width: calc(50% - 3px) !important; flex: none !important; }
@@ -222,25 +239,26 @@ const Spark = ({ data, color, w = 38, h = 16 }: { data: number[]; color: string;
 
 // ─── Smooth path helper ───────────────────────────────────────────────────────
 
-function smoothPath(pts: [number, number][]): string {
+function smoothPath(pts: [number, number][], maxY?: number): string {
   if (pts.length < 2) return '';
-  if (pts.length === 2) return `M${pts[0][0]},${pts[0][1]} L${pts[1][0]},${pts[1][1]}`;
-  let d = `M${pts[0][0].toFixed(2)},${pts[0][1].toFixed(2)}`;
+  const clamp = (y: number) => maxY !== undefined ? Math.min(y, maxY) : y;
+  if (pts.length === 2) return `M${pts[0][0]},${clamp(pts[0][1])} L${pts[1][0]},${clamp(pts[1][1])}`;
+  let d = `M${pts[0][0].toFixed(2)},${clamp(pts[0][1]).toFixed(2)}`;
   for (let i = 0; i < pts.length - 1; i++) {
     const p0 = pts[Math.max(i - 1, 0)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(i + 2, pts.length - 1)];
     const t = 0.15;
-    const cp1x = p1[0] + (p2[0] - p0[0]) * t, cp1y = p1[1] + (p2[1] - p0[1]) * t;
-    const cp2x = p2[0] - (p3[0] - p1[0]) * t, cp2y = p2[1] - (p3[1] - p1[1]) * t;
-    d += ` C${cp1x.toFixed(2)},${cp1y.toFixed(2)} ${cp2x.toFixed(2)},${cp2y.toFixed(2)} ${p2[0].toFixed(2)},${p2[1].toFixed(2)}`;
+    const cp1x = p1[0] + (p2[0] - p0[0]) * t, cp1y = clamp(p1[1] + (p2[1] - p0[1]) * t);
+    const cp2x = p2[0] - (p3[0] - p1[0]) * t, cp2y = clamp(p2[1] - (p3[1] - p1[1]) * t);
+    d += ` C${cp1x.toFixed(2)},${cp1y.toFixed(2)} ${cp2x.toFixed(2)},${cp2y.toFixed(2)} ${p2[0].toFixed(2)},${clamp(p2[1]).toFixed(2)}`;
   }
   return d;
 }
 
-// ─── Frost Grafikon ───────────────────────────────────────────────────────────
+// ─── Glass Grafikon ───────────────────────────────────────────────────────────
 
 interface GrafikonSeries { data: number[]; color: string; label: string; }
 
-const FrostGrafikon = ({ series, trend, tab, h = 110 }: {
+const GlassGrafikon = ({ series, trend, tab, h = 110 }: {
   series: GrafikonSeries[]; trend: TrendPoint[]; tab: string; h?: number;
 }) => {
   const uid = useRef(0);
@@ -268,56 +286,72 @@ const FrostGrafikon = ({ series, trend, tab, h = 110 }: {
     </div>
   );
 
-  // single-series mode when tab !== 'all'
   const isSingle = tab !== 'all';
-  const primary = series[0];
 
   const W = 300, H = h;
-  const PL = isSingle ? 28 : 4, PR = 4, PT = 8, PB = 16;
+  // single módban bal oldali Y tengelynek hely, multi módban nem kell
+  const PL = isSingle ? 26 : 4, PR = 6, PT = 8, PB = 18;
   const iW = W - PL - PR, iH = H - PT - PB;
   const baseY = PT + iH;
   const n = series[0].data.length;
   const px = (i: number) => PL + (i / (n - 1)) * iW;
 
-  // for single series: real min/max range
+  // single: valódi min/max skála — 0 érték = baseY (vonal lent marad)
   const buildSingle = (data: number[]) => {
     const max = Math.max(...data, 1);
-    const min = Math.min(...data, 0);
+    const min = 0;
     const range = max - min || 1;
-    const py = (v: number) => PT + iH - ((v - min) / range) * iH;
-    const pts: [number, number][] = data.map((v, i) => [px(i), py(v)]);
-    const vis = pts.slice(0, Math.max(2, Math.ceil(progress * (n - 1)) + 1));
-    const line = smoothPath(vis);
-    const area = vis.length >= 2 ? `${line} L${vis[vis.length - 1][0]},${baseY} L${PL},${baseY} Z` : '';
-    return { line, area, py, max, min, range };
+    const py = (v: number) => Math.min(PT + iH - ((v - min) / range) * iH, baseY);
+    const visEnd = Math.ceil(progress * (n - 1));
+    const vis = data.slice(0, Math.max(2, visEnd + 1)).map((v, i) => [px(i), py(v)] as [number, number]);
+    const line = smoothPath(vis, baseY);
+    const area = vis.length >= 2 ? `${line} L${vis[vis.length-1][0]},${baseY} L${vis[0][0]},${baseY} Z` : '';
+    const segs = [vis];
+    return { line, area, py, max, min, range, segs };
   };
 
-  // for multi: normalized 0-max
+  // multi: normalizált 0-max — 0 érték = baseY
   const buildMulti = (data: number[]) => {
     const max = Math.max(...data, 1);
     const py = (v: number) => Math.min(PT + iH - (v / max) * iH, baseY);
-    const pts: [number, number][] = data.map((v, i) => [px(i), py(v)]);
-    const vis = pts.slice(0, Math.max(2, Math.ceil(progress * (n - 1)) + 1));
-    const line = smoothPath(vis);
-    const area = vis.length >= 2 ? `${line} L${vis[vis.length - 1][0]},${baseY} L${PL},${baseY} Z` : '';
-    return { line, area, py, max, min: 0, range: max };
+    const visEnd = Math.ceil(progress * (n - 1));
+    const vis = data.slice(0, Math.max(2, visEnd + 1)).map((v, i) => [px(i), py(v)] as [number, number]);
+    const line = smoothPath(vis, baseY);
+    const area = vis.length >= 2 ? `${line} L${vis[vis.length-1][0]},${baseY} L${vis[0][0]},${baseY} Z` : '';
+    const segs = [vis];
+    return { line, area, py, max, min: 0, range: max, segs };
   };
 
   const built = series.map(s => {
     const b = isSingle ? buildSingle(s.data) : buildMulti(s.data);
-    return { ...b, color: s.color, label: s.label, data: s.data };
+    // multi módban a pozíció sorozathoz szegmenseket számolunk (0 = kihagyás)
+    const isPosSeries = !isSingle && s.label === 'poz.';
+    const visEnd = Math.ceil(progress * (n - 1));
+    const segments: Array<[number, number][]> = [];
+    if (isPosSeries) {
+      let seg: [number, number][] = [];
+      s.data.forEach((v, i) => {
+        if (i > visEnd) return;
+        if (v > 0) { seg.push([px(i), b.py(v)]); }
+        else { if (seg.length) { segments.push(seg); seg = []; } }
+      });
+      if (seg.length) segments.push(seg);
+    }
+    return { ...b, color: s.color, label: s.label, data: s.data, isPosSeries, segments };
   });
 
-  // Y ticks — only in single mode
+  // Y tengelycímkék — csak single módban
   const yTicks = isSingle ? (() => {
     const { min, max } = built[0];
     return [min, min + (max - min) * 0.5, max].map(v => ({
-      v: tab === 'position' ? v.toFixed(1) : Math.round(v) >= 1000 ? `${(Math.round(v) / 1000).toFixed(1)}k` : String(Math.round(v)),
+      v: tab === 'position'
+        ? v.toFixed(1)
+        : Math.round(v) >= 1000 ? `${(Math.round(v) / 1000).toFixed(1)}k` : String(Math.round(v)),
       y: built[0].py(v),
     }));
   })() : [];
 
-  // X axis date labels from trend
+  // X tengelycímkék dátumból
   const xDates = trend.length >= n
     ? [0, Math.floor((n - 1) / 2), n - 1].map(i => {
         const raw = trend[i]?.date;
@@ -335,102 +369,180 @@ const FrostGrafikon = ({ series, trend, tab, h = 110 }: {
     setTt(ni);
   };
 
-  // hover date
   const hovDate = tt !== null && trend[tt]?.date
     ? new Date(trend[tt].date).toLocaleDateString('hu-HU', { month: 'short', day: 'numeric' })
     : null;
 
+  // pozíció vonal szegmensek (csak ahol van adat > 0)
+  const posSegments: Array<Array<[number, number]>> = [];
+  if (tab === 'position' && isSingle) {
+    let seg: Array<[number, number]> = [];
+    built[0].data.forEach((v, i) => {
+      if (v > 0) { seg.push([px(i), built[0].py(v)]); }
+      else { if (seg.length) { posSegments.push(seg); seg = []; } }
+    });
+    if (seg.length) posSegments.push(seg);
+  }
+
   return (
     <div style={{ position: 'relative', userSelect: 'none' }}>
-      <svg key={uid.current} width="100%" viewBox={`0 0 ${W} ${H}`}
+      <svg
+        key={uid.current}
+        width="100%"
+        viewBox={`0 0 ${W} ${H}`}
         style={{ display: 'block', overflow: 'hidden', cursor: 'crosshair' }}
-        onMouseMove={onMove} onMouseLeave={() => setTt(null)}>
+        onMouseMove={onMove}
+        onMouseLeave={() => setTt(null)}
+      >
         <defs>
           {built.map((s, i) => (
-            <linearGradient key={i} id={`fg${uid.current}_${i}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={s.color} stopOpacity={0.12} />
+            <linearGradient key={i} id={`gg${uid.current}_${i}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={s.color} stopOpacity={isSingle ? 0.12 : 0.08} />
+              <stop offset="75%" stopColor={s.color} stopOpacity={0.03} />
               <stop offset="100%" stopColor={s.color} stopOpacity={0} />
             </linearGradient>
           ))}
-          <clipPath id={`fc${uid.current}`}>
-            <rect x={PL} y={PT} width={iW} height={iH} />
+          <clipPath id={`gc${uid.current}`}>
+            <rect x={PL} y={PT - 2} width={iW} height={iH + 4} />
           </clipPath>
         </defs>
 
-        {/* Y grid + labels (single mode) */}
+        {/* ── Grid vonalak ── */}
+        {isSingle
+          ? yTicks.map((tk, i) => (
+              <line key={i}
+                x1={PL} y1={tk.y} x2={PL + iW} y2={tk.y}
+                stroke="var(--border)"
+                strokeWidth="0.5"
+                strokeDasharray={i === 0 ? undefined : '3 6'}
+                opacity={i === 0 ? 0.8 : 0.4}
+              />
+            ))
+          : [0.25, 0.5, 0.75].map((f, i) => (
+              <line key={i}
+                x1={PL} y1={PT + (1 - f) * iH} x2={PL + iW} y2={PT + (1 - f) * iH}
+                stroke="var(--border)"
+                strokeWidth="0.5"
+                strokeDasharray="3 6"
+                opacity="0.35"
+              />
+            ))
+        }
+
+        {/* ── Y tengely címkék (single) ── */}
         {isSingle && yTicks.map((tk, i) => (
-          <g key={i}>
-            <line x1={PL} y1={tk.y} x2={PL + iW} y2={tk.y}
-              stroke="var(--border)" strokeWidth="0.5"
-              strokeDasharray={i === 0 ? 'none' : '3 5'} opacity={i === 0 ? 1 : 0.5} />
-            <text x={PL - 4} y={tk.y + 3.5} textAnchor="end" fontSize="6.5"
-              fill="var(--text-faint)" style={{ fontFamily: '-apple-system,sans-serif' }}>
-              {tk.v}
-            </text>
-          </g>
+          <text key={i}
+            x={PL - 4} y={tk.y + 3.5}
+            textAnchor="end" fontSize="6.5"
+            fill="var(--text-faint)"
+            style={{ fontFamily: 'ui-monospace, monospace' }}
+          >
+            {tk.v}
+          </text>
         ))}
 
-        {/* multi mode: subtle grid only */}
-        {!isSingle && [0.33, 0.66].map((t, i) => (
-          <line key={i} x1={PL} y1={PT + (1 - t) * iH} x2={PL + iW} y2={PT + (1 - t) * iH}
-            stroke="var(--border)" strokeWidth="0.5" opacity="0.5" />
-        ))}
-
-        {/* area + line */}
+        {/* ── Területek + vonalak szegmensenként ── */}
         {built.map((s, i) => (
           <g key={i}>
-            {s.area && <path d={s.area} fill={`url(#fg${uid.current}_${i})`} clipPath={`url(#fc${uid.current})`} />}
-            {s.line && <path d={s.line} fill="none" stroke={s.color} strokeWidth={isSingle ? '1' : '0.75'}
-              strokeLinejoin="round" strokeLinecap="round" clipPath={`url(#fc${uid.current})`} />}
+            {s.segs.map((seg, si) => {
+              if (seg.length < 2) {
+                // izolált pont
+                return <circle key={si} cx={seg[0][0]} cy={seg[0][1]} r={isSingle ? 3 : 2.5} fill={s.color} clipPath={`url(#gc${uid.current})`} />;
+              }
+              const segLine = smoothPath(seg, baseY);
+              const segArea = `${segLine} L${seg[seg.length-1][0]},${baseY} L${seg[0][0]},${baseY} Z`;
+              return (
+                <g key={si}>
+                  <path d={segArea} fill={`url(#gg${uid.current}_${i})`} clipPath={`url(#gc${uid.current})`} />
+                  <path d={segLine} fill="none" stroke={s.color}
+                    strokeWidth={isSingle ? '1' : '0.75'}
+                    strokeLinejoin="round" strokeLinecap="round"
+                    clipPath={`url(#gc${uid.current})`}
+                  />
+                </g>
+              );
+            })}
           </g>
         ))}
 
-        {/* hover crosshair */}
+        {/* ── Hover crosshair ── */}
         {tt !== null && (
           <>
-            <line x1={px(tt)} y1={PT} x2={px(tt)} y2={baseY}
-              stroke="var(--border-hover)" strokeWidth="1" />
-            {built.map((s, i) => (
-              <circle key={i} cx={px(tt)} cy={Math.min(s.py(s.data[tt]), baseY - 1)}
-                r={isSingle ? 4 : 2.5} fill={s.color} stroke="var(--bg-card)" strokeWidth="2" />
-            ))}
+            <line
+              x1={px(tt)} y1={PT}
+              x2={px(tt)} y2={baseY}
+              stroke="rgba(148,163,184,0.12)"
+              strokeWidth="1"
+            />
+            {built.map((s, i) => {
+              const cy = Math.min(s.py(s.data[tt]), baseY - 1);
+              return (
+                <circle key={i}
+                  cx={px(tt)} cy={cy}
+                  r={isSingle ? 4 : 3}
+                  fill={s.color}
+                  stroke="var(--bg-card)"
+                  strokeWidth="2"
+                />
+              );
+            })}
           </>
         )}
 
-        {/* end dot (single mode) */}
+        {/* ── Végpont dot (single, animáció végén) ── */}
         {isSingle && progress >= 0.99 && tt === null && (
-          <circle cx={px(n - 1)} cy={built[0].py(built[0].data[n - 1])}
-            r="3.5" fill={built[0].color} stroke="var(--bg-card)" strokeWidth="2" />
+          <circle
+            cx={px(n - 1)}
+            cy={built[0].py(built[0].data[n - 1])}
+            r="3.5"
+            fill={built[0].color}
+            stroke="var(--bg-card)"
+            strokeWidth="2"
+          />
         )}
 
-        {/* X axis date labels */}
+        {/* ── X tengely dátumcímkék ── */}
         {[0, Math.floor((n - 1) / 2), n - 1].map((i, li) => (
-          <text key={i} x={px(i)} y={H - 3} textAnchor="middle" fontSize="7"
-            fill="var(--text-faint)" style={{ fontFamily: '-apple-system,sans-serif' }}>
+          <text key={i}
+            x={px(i)} y={H - 3}
+            textAnchor={li === 0 ? 'start' : li === 2 ? 'end' : 'middle'}
+            fontSize="7"
+            fill="var(--text-faint)"
+            style={{ fontFamily: 'ui-monospace, monospace' }}
+          >
             {xDates[li]}
           </text>
         ))}
       </svg>
 
-      {/* tooltip */}
+      {/* ── Glassmorphism tooltip ── */}
       {tt !== null && (
-        <div style={{
-          position: 'absolute', top: 0,
-          left: `${Math.min(Math.max((tt / (n - 1)) * 100, 5), 80)}%`,
-          transform: 'translateX(-50%)',
-          background: 'var(--bg-inner)', border: '0.5px solid var(--border-hover)',
-          borderRadius: '8px', padding: '6px 10px',
-          pointerEvents: 'none', whiteSpace: 'nowrap',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.22)', zIndex: 20,
-          display: 'flex', flexDirection: 'column', gap: '3px',
-        }}>
+        <div
+          className="mkt-chart-tip"
+          style={{
+            top: 0,
+            left: `${Math.min(Math.max((tt / (n - 1)) * 100, 5), 75)}%`,
+            transform: 'translateX(-50%)',
+          }}
+        >
           {hovDate && (
-            <div style={{ fontSize: '9px', color: 'var(--text-faint)', marginBottom: '2px' }}>{hovDate}</div>
+            <div style={{ fontSize: '9px', color: 'var(--text-faint)', marginBottom: '2px', fontFamily: 'ui-monospace, monospace' }}>
+              {hovDate}
+            </div>
           )}
           {built.map((s, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: s.color, flexShrink: 0 }} />
-              <span style={{ fontSize: '12px', fontWeight: 600, color: s.color, letterSpacing: '-0.02em' }}>
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+              <div style={{
+                width: '5px', height: '5px', borderRadius: '50%',
+                background: s.color,
+                boxShadow: `0 0 5px ${s.color}66`,
+                flexShrink: 0,
+              }} />
+              <span style={{
+                fontSize: '12px', fontWeight: 700,
+                color: s.color, letterSpacing: '-0.03em',
+                fontFamily: 'ui-monospace, monospace',
+              }}>
                 {tab === 'position' ? `#${s.data[tt].toFixed(1)}` : fmt(s.data[tt])}
               </span>
               <span style={{ fontSize: '9px', color: 'var(--text-faint)' }}>{s.label}</span>
@@ -662,38 +774,36 @@ const MarketingWidget = () => {
   const posSpark = trend.slice(-8).map(t => t.position > 0 ? maxPos - t.position + 1 : 0);
 
   const S = {
-    clicks:      { data: trend.map(t => t.clicks),                           color: 'var(--accent-green)',  label: 'klikk' },
-    impressions: { data: trend.map(t => t.impressions),                       color: 'var(--accent-indigo)', label: 'megj.' },
-    position:    { data: trend.map(t => t.position > 0 ? t.position : 0),    color: 'var(--accent-amber)',  label: 'poz.' },
+    clicks:      { data: trend.map(t => t.clicks),                        color: 'var(--accent-green)',  label: 'klikk' },
+    impressions: { data: trend.map(t => t.impressions),                    color: 'var(--accent-indigo)', label: 'megj.' },
+    position:    { data: trend.map(t => t.position > 0 ? t.position : 0), color: 'var(--accent-amber)',  label: 'poz.' },
   };
 
   // all nézetben invertált pozíció: kisebb helyezés → magasabb vonal
   const positionAllData = trend.map(t => t.position > 0 ? maxPos - t.position + 1 : 0);
 
   const chartSeries: GrafikonSeries[] =
-    tab === 'all'           ? [S.clicks, S.impressions, { data: positionAllData, color: 'var(--accent-amber)', label: 'poz.' }]
+    tab === 'all'           ? [S.clicks, S.impressions]
     : tab === 'clicks'      ? [S.clicks]
     : tab === 'impressions' ? [S.impressions]
     :                         [S.position];
 
-  // tab color tokens
   const TAB_DEFS = [
-    { k: 'all' as const,         l: 'Összes',     c: isDark ? '#c9d1d9' : '#374151' },
-    { k: 'clicks' as const,      l: 'Klikk',      c: 'var(--accent-green)'  },
-    { k: 'impressions' as const, l: 'Megjelenés',  c: 'var(--accent-indigo)' },
-    { k: 'position' as const,    l: 'Pozíció',    c: 'var(--accent-amber)'  },
+    { k: 'all' as const,         l: 'Összes',    c: isDark ? '#c9d1d9' : '#374151' },
+    { k: 'clicks' as const,      l: 'Klikk',     c: 'var(--accent-green)'  },
+    { k: 'impressions' as const, l: 'Megjelenés', c: 'var(--accent-indigo)' },
+    { k: 'position' as const,    l: 'Pozíció',   c: 'var(--accent-amber)'  },
   ];
 
-  // single tab: delta + stats
   const singleData = tab !== 'all' ? S[tab].data : null;
   const singleFirst = singleData ? singleData[0] : 0;
-  const singleLast = singleData ? singleData[singleData.length - 1] : 0;
+  const singleLast  = singleData ? singleData[singleData.length - 1] : 0;
   const singleDelta = singleFirst > 0 ? Math.round(((singleLast - singleFirst) / singleFirst) * 100) : 0;
   const singleDeltaPos = tab === 'position' ? singleDelta < 0 : singleDelta > 0;
-  const singleAvg = singleData ? Math.round(singleData.reduce((a, b) => a + b, 0) / singleData.length * 10) / 10 : 0;
-  const singleMax = singleData ? Math.max(...singleData) : 0;
-  const singleMin = singleData ? Math.min(...singleData) : 0;
-  const fmtSingle = (v: number) => tab === 'position' ? `#${v.toFixed(1)}` : fmt(v);
+  const singleAvg  = singleData ? Math.round(singleData.reduce((a, b) => a + b, 0) / singleData.length * 10) / 10 : 0;
+  const singleMax  = singleData ? Math.max(...singleData) : 0;
+  const singleMin  = singleData ? Math.min(...singleData) : 0;
+  const fmtSingle  = (v: number) => tab === 'position' ? `#${v.toFixed(1)}` : fmt(v);
 
   return (
     <>
@@ -752,7 +862,7 @@ const MarketingWidget = () => {
             {/* Grafikon jobb oldal */}
             <div style={{ flex: 1, minWidth: 0 }}>
 
-              {/* ── Frost Vercel-style tabs ── */}
+              {/* Tabs */}
               <div className="mkt-frost-tabs">
                 {TAB_DEFS.map((bt, i) => (
                   <motion.button
@@ -772,7 +882,7 @@ const MarketingWidget = () => {
                 ))}
               </div>
 
-              {/* single tab: value + delta + mini stats sor */}
+              {/* Single tab: érték + delta + mini statisztika */}
               {tab !== 'all' && singleData && (
                 <motion.div
                   key={`stats-${tab}`}
@@ -810,20 +920,20 @@ const MarketingWidget = () => {
                 </motion.div>
               )}
 
-              {/* chart */}
+              {/* Grafikon */}
               <AnimatePresence mode="wait">
                 <motion.div key={tab}
                   initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -3 }}
                   transition={{ duration: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}>
-                  <FrostGrafikon series={chartSeries} trend={trend} tab={tab} h={tab !== 'all' ? 90 : 80} />
+                  <GlassGrafikon series={chartSeries} trend={trend} tab={tab} h={tab !== 'all' ? 90 : 80} />
                 </motion.div>
               </AnimatePresence>
 
-              {/* all mode legend */}
+              {/* All mode legenda */}
               {tab === 'all' && (
                 <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-                  {[S.clicks, S.impressions, S.position].map(s => (
+                  {[S.clicks, S.impressions].map(s => (
                     <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <div style={{ width: 12, height: 2, background: s.color, borderRadius: 1 }} />
                       <span style={{ fontSize: 8, color: 'var(--text-faint)', letterSpacing: '0.04em' }}>{s.label}</span>
@@ -864,7 +974,7 @@ const MarketingWidget = () => {
         <motion.a href="/admin/plugins/marketing-metrics"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
           whileHover={{ x: 2 }}
-          style={{ fontSize: '10px', color: 'var(--text-muted)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '3px',marginTop: '20px' }}
+          style={{ fontSize: '10px', color: 'var(--text-muted)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '3px', marginTop: '20px' }}
           onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = 'var(--text-primary)')}
           onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = 'var(--text-muted)')}>
           Megnyitás<ChevronRight />

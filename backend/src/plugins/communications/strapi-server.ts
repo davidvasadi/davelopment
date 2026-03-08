@@ -3,6 +3,18 @@ import type { Core } from '@strapi/strapi';
 const NOTIFY_TO = process.env.NOTIFY_EMAIL || 'hello.davelopment@gmail.com';
 const FRONTEND_URL = process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? (process.env.URL || 'https://davelopment.hu') : 'http://localhost:3000');
 
+// ─── Kvóta tracker helper ─────────────────────────────────────────────────────
+
+async function trackQuota(knex: any, count: number, type: 'campaign' | 'transactional' | 'test') {
+  try {
+    const now = new Date();
+    const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    await knex('comm_quota_log').insert({ year_month: yearMonth, email_type: type, count });
+  } catch (e) {
+    console.error('[trackQuota] hiba:', e);
+  }
+}
+
 export default {
   register({ strapi }: { strapi: Core.Strapi }) {
     const router = (strapi.server as any).router;
@@ -30,11 +42,23 @@ export default {
       try {
         const now = new Date();
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        // Kampányok (meglévő tábla, teszt nélkül)
         const hasIsTest = await knex.schema.hasColumn('comm_campaigns_log', 'is_test');
-        let q = knex('comm_campaigns_log').where('sent_at', '>=', monthStart);
-        if (hasIsTest) q = q.where('is_test', false);
-        const result = await q.sum('sent_count as total').first();
-        monthSent = Number(result?.total) || 0;
+        let campaignQ = knex('comm_campaigns_log').where('sent_at', '>=', monthStart).sum('sent_count as total').first();
+        if (hasIsTest) campaignQ = knex('comm_campaigns_log').where('sent_at', '>=', monthStart).where('is_test', false).sum('sent_count as total').first();
+        const campaignsSent = Number((await campaignQ)?.total) || 0;
+
+        // ÚJ: tranzakciós + teszt emailek a quota_log-ból
+        let otherSent = 0;
+        const quotaExists = await knex.schema.hasTable('comm_quota_log');
+        if (quotaExists) {
+          const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+          const quotaResult = await knex('comm_quota_log').where('year_month', yearMonth).sum('count as total').first();
+          otherSent = Number(quotaResult?.total) || 0;
+        }
+
+        monthSent = campaignsSent + otherSent;
       } catch {}
 
       ctx.body = { ok: true, newLeads, totalLeads, activeSubs, totalSubs, newSubs, huSubs, enSubs, monthSent };
@@ -57,6 +81,71 @@ export default {
         ctx.body = { data: rows.map((r: any) => ({ month: r.month, sent: Number(r.sent) || 0 })) };
       } catch {
         ctx.body = { data: [] };
+      }
+    });
+
+    // ─── Quota ────────────────────────────────────────────────────────────────
+
+    router.get('/api/communications/quota', async (ctx: any) => {
+      const knex = (strapi.db as any).connection;
+      try {
+        const now = new Date();
+        const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        // Kampányok hónapra
+        const hasIsTest = await knex.schema.hasColumn('comm_campaigns_log', 'is_test');
+        let campaignMonthQ = knex('comm_campaigns_log').where('sent_at', '>=', monthStart).sum('sent_count as total').first();
+        if (hasIsTest) campaignMonthQ = knex('comm_campaigns_log').where('sent_at', '>=', monthStart).where('is_test', false).sum('sent_count as total').first();
+        const campaignMonth = Number((await campaignMonthQ)?.total) || 0;
+
+        // Kampányok ma
+        const campaignToday = Number((await knex('comm_campaigns_log').where('sent_at', '>=', dayStart).sum('sent_count as total').first())?.total) || 0;
+
+        // Tranzakciós + teszt (comm_quota_log)
+        let transactionalMonth = 0;
+        let testMonth = 0;
+        let otherToday = 0;
+
+        const quotaExists = await knex.schema.hasTable('comm_quota_log');
+        if (quotaExists) {
+          const byType = await knex('comm_quota_log')
+            .where('year_month', yearMonth)
+            .select('email_type', knex.raw('SUM(count) as total'))
+            .groupBy('email_type');
+          for (const row of byType) {
+            if (row.email_type === 'transactional') transactionalMonth = Number(row.total) || 0;
+            if (row.email_type === 'test') testMonth = Number(row.total) || 0;
+          }
+          otherToday = Number((await knex('comm_quota_log').where('sent_at', '>=', dayStart).sum('count as total').first())?.total) || 0;
+        }
+
+        const totalMonth = campaignMonth + transactionalMonth + testMonth;
+        const totalToday = campaignToday + otherToday;
+        const MONTHLY_LIMIT = 3000;
+        const DAILY_LIMIT = 100;
+
+        ctx.body = {
+          ok: true,
+          month: {
+            sent: totalMonth,
+            limit: MONTHLY_LIMIT,
+            remaining: Math.max(0, MONTHLY_LIMIT - totalMonth),
+            percentUsed: Math.round((totalMonth / MONTHLY_LIMIT) * 100),
+            breakdown: { campaigns: campaignMonth, transactional: transactionalMonth, tests: testMonth },
+          },
+          today: {
+            sent: totalToday,
+            limit: DAILY_LIMIT,
+            remaining: Math.max(0, DAILY_LIMIT - totalToday),
+            percentUsed: Math.round((totalToday / DAILY_LIMIT) * 100),
+          },
+          yearMonth,
+        };
+      } catch (err: any) {
+        ctx.status = 500;
+        ctx.body = { ok: false, error: err.message };
       }
     });
 
@@ -83,16 +172,8 @@ export default {
     router.patch('/api/communications/leads/:id', async (ctx: any) => {
       const { id } = ctx.params;
       const { state } = ctx.request.body as any;
-
-      if (!state) {
-        ctx.status = 400;
-        ctx.body = { ok: false, error: 'state is required' };
-        return;
-      }
-
-      const updated = await (strapi.entityService as any).update('api::contact.contact', id, {
-        data: { state },
-      });
+      if (!state) { ctx.status = 400; ctx.body = { ok: false, error: 'state is required' }; return; }
+      const updated = await (strapi.entityService as any).update('api::contact.contact', id, { data: { state } });
       ctx.body = { ok: true, data: updated };
     });
 
@@ -191,6 +272,7 @@ export default {
 
       const resendApiKey = process.env.RESEND_API_KEY;
       const fromEmail = process.env.RESEND_FROM_EMAIL || 'hello@davelopment.hu';
+      const knex = (strapi.db as any).connection;
 
       if (!resendApiKey) {
         ctx.status = 500;
@@ -198,6 +280,7 @@ export default {
         return;
       }
 
+      // ── Teszt küldés ────────────────────────────────────────────────────────
       if (testEmail) {
         const testHtml = finalHtml.replace(/\{\{UNSUBSCRIBE_URL\}\}/g, `${FRONTEND_URL}/hu/unsubscribe?id=test`);
         const res = await fetch('https://api.resend.com/emails', {
@@ -219,11 +302,14 @@ export default {
             if (hasTCol) testRow.is_test = true;
             await knex2('comm_campaigns_log').insert(testRow);
           } catch {}
+          // ÚJ: kvóta tracking
+          await trackQuota(knex, 1, 'test');
         }
         ctx.body = { ok: res.ok, result, sent: 1, mode: 'test' };
         return;
       }
 
+      // ── Éles küldés ─────────────────────────────────────────────────────────
       const filters: any = { unsubscribed: false, confirmed: true };
       if (language && language !== 'all') filters.language = language;
 
@@ -261,8 +347,13 @@ export default {
               })
             ),
           });
-          if (res.ok) sent += batch.length;
-          else failed += batch.length;
+          if (res.ok) {
+            sent += batch.length;
+            // ÚJ: kvóta tracking
+            await trackQuota(knex, batch.length, 'campaign');
+          } else {
+            failed += batch.length;
+          }
         } catch {
           failed += batch.length;
         }
@@ -276,9 +367,7 @@ export default {
     router.get('/api/communications/campaigns', async (ctx: any) => {
       try {
         const knex = (strapi.db as any).connection;
-        const rows = await knex('comm_campaigns_log')
-          .orderBy('sent_at', 'desc')
-          .limit(100);
+        const rows = await knex('comm_campaigns_log').orderBy('sent_at', 'desc').limit(100);
         ctx.body = {
           ok: true,
           data: rows.map((r: any) => ({
@@ -319,6 +408,8 @@ export default {
           body: JSON.stringify({ from: `[davelopment]® <${fromEmail}>`, to: [testEmail], subject: `[TEST] ${campaign.subject}`, html: testHtml }),
         });
         const result = await res.json() as any;
+        // ÚJ: kvóta tracking
+        if (res.ok) await trackQuota(knex, 1, 'test');
         ctx.body = { ok: res.ok, result, sent: 1, mode: 'test' };
         return;
       }
@@ -360,7 +451,13 @@ export default {
               };
             })),
           });
-          if (res.ok) sent += batch.length; else failed += batch.length;
+          if (res.ok) {
+            sent += batch.length;
+            // ÚJ: kvóta tracking
+            await trackQuota(knex, batch.length, 'campaign');
+          } else {
+            failed += batch.length;
+          }
         } catch { failed += batch.length; }
       }
 
@@ -397,6 +494,7 @@ export default {
       const resendApiKey = process.env.RESEND_API_KEY;
       const fromEmail = process.env.RESEND_FROM_EMAIL || 'hello@davelopment.hu';
       const adminUrl = `${process.env.URL || 'https://davelopment.hu'}/admin/plugins/communications`;
+      const knex = (strapi.db as any).connection;
 
       console.log(`[notify-lead] Indítás: name=${name}, email=${email}`);
 
@@ -459,6 +557,8 @@ export default {
         });
         const adminResult = await adminRes.json() as any;
         console.log(`[notify-lead] Admin email eredmény: ok=${adminRes.ok}`, JSON.stringify(adminResult));
+        // ÚJ: kvóta tracking – admin értesítő
+        if (adminRes.ok) await trackQuota(knex, 1, 'transactional');
       } catch (err: any) {
         console.error('[notify-lead] Admin email HIBA:', err.message);
         ctx.status = 500;
@@ -495,17 +595,6 @@ export default {
               </table>
             </td></tr>
             <tr><td style="padding:32px 24px 28px;">
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:22px;">
-                <tr><td align="center">
-                  <table cellpadding="0" cellspacing="0" border="0">
-                    <tr><td align="center" valign="middle" width="52" height="52"
-                      style="width:52px;height:52px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:50%;text-align:center;vertical-align:middle;">
-                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%2316a34a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E"
-                        width="22" height="22" alt="ok" style="display:block;margin:0 auto;"/>
-                    </td></tr>
-                  </table>
-                </td></tr>
-              </table>
               <p style="font-size:14px;color:#6b7280;margin:0 0 6px;">Szia${name ? ` ${name}` : ''}!</p>
               <h1 style="font-size:20px;font-weight:700;color:#111;margin:0 0 14px;letter-spacing:-0.3px;line-height:1.3;">Megkaptuk az üzenetedet.</h1>
               <p style="font-size:14px;color:#6b7280;line-height:1.75;margin:0 0 20px;">Köszönjük, hogy megkerestél minket. Általában <strong style="color:#374151;">1-2 munkanapon belül</strong> visszajelzünk.</p>
@@ -531,6 +620,8 @@ export default {
         autoReplyResult = await autoRes.json() as any;
         autoReplyOk = autoRes.ok;
         console.log(`[notify-lead] Autoreply eredmény: ok=${autoRes.ok}`, JSON.stringify(autoReplyResult));
+        // ÚJ: kvóta tracking – autoreply
+        if (autoReplyOk) await trackQuota(knex, 1, 'transactional');
         if (!autoRes.ok) {
           console.error('[notify-lead] Autoreply SIKERTELEN! Resend hiba:', JSON.stringify(autoReplyResult));
         }
@@ -538,11 +629,7 @@ export default {
         console.error('[notify-lead] Autoreply HIBA (exception):', err.message);
       }
 
-      ctx.body = {
-        ok: true,
-        autoReplyOk,
-        autoReplyResult,
-      };
+      ctx.body = { ok: true, autoReplyOk, autoReplyResult };
     });
 
     // ─── Test email ───────────────────────────────────────────────────────────
@@ -551,6 +638,7 @@ export default {
       const { to } = ctx.request.body as any;
       const resendApiKey = process.env.RESEND_API_KEY;
       const fromEmail = process.env.RESEND_FROM_EMAIL || 'hello@davelopment.hu';
+      const knex = (strapi.db as any).connection;
 
       if (!resendApiKey) {
         ctx.status = 500;
@@ -570,6 +658,8 @@ export default {
       });
 
       const result = await res.json() as any;
+      // ÚJ: kvóta tracking
+      if (res.ok) await trackQuota(knex, 1, 'test');
       ctx.body = { ok: res.ok, result };
     });
   },
@@ -578,6 +668,8 @@ export default {
 
   async bootstrap({ strapi }: { strapi: Core.Strapi }) {
     const knex = (strapi.db as any).connection;
+
+    // Meglévő comm_campaigns_log tábla
     const exists = await knex.schema.hasTable('comm_campaigns_log');
     if (!exists) {
       await knex.schema.createTable('comm_campaigns_log', (table: any) => {
@@ -602,6 +694,19 @@ export default {
         await knex.schema.alterTable('comm_campaigns_log', (table: any) => { table.text('full_html'); });
         console.log('[Communications] comm_campaigns_log: full_html oszlop hozzáadva');
       }
+    }
+
+    // ÚJ: comm_quota_log tábla
+    const quotaExists = await knex.schema.hasTable('comm_quota_log');
+    if (!quotaExists) {
+      await knex.schema.createTable('comm_quota_log', (table: any) => {
+        table.increments('id').primary();
+        table.string('year_month', 7).notNullable();
+        table.string('email_type', 30).notNullable();
+        table.integer('count').defaultTo(1);
+        table.timestamp('sent_at').defaultTo(knex.fn.now());
+      });
+      console.log('[Communications] comm_quota_log tábla létrehozva');
     }
   },
 };

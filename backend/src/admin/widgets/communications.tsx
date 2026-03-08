@@ -1,3 +1,4 @@
+// ./src/admin/widgets/communications.tsx
 import React, { useEffect, useRef, useState } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -9,200 +10,231 @@ interface Stats {
   newSubs: number;
   monthSent: number;
 }
+interface MonthPoint { month: string; sent: number; }
 
-interface MonthPoint {
-  month: string; // "2025-01"
-  sent: number;
-}
-
-// ─── Theme tokens (mirrors marketing-metrics plugin) ──────────────────────────
+// ─── Theme ────────────────────────────────────────────────────────────────────
 const DARK: Record<string, string> = {
-  '--bg-page': '#030712', '--bg-card': '#0d1117', '--bg-inner': '#161b22',
-  '--bg-inner2': '#21262d', '--border': '#21262d', '--border-hover': '#30363d',
-  '--text-primary': '#f0f6fc', '--text-secondary': '#c9d1d9',
-  '--text-muted': '#8b949e', '--text-faint': '#484f58',
-  '--accent-green': '#3dffa0', '--accent-amber': '#f0c742',
-  '--accent-red': '#f85149', '--accent-indigo': '#7c6af7',
-  '--shadow': '0 0 0 1px rgba(240,246,252,0.04), 0 2px 8px rgba(0,0,0,0.5)',
-  '--shadow-hover': '0 0 0 1px rgba(240,246,252,0.06), 0 8px 28px rgba(0,0,0,0.55)',
-  '--chart-green': '#3dffa0', '--chart-indigo': '#7c6af7',
+  '--cw-bg':        '#0d1117',
+  '--cw-bg-inner':  '#161b22',
+  '--cw-bg-inner2': '#21262d',
+  '--cw-border':    '#21262d',
+  '--cw-border-h':  '#30363d',
+  '--cw-text':      '#f0f6fc',
+  '--cw-text-2':    '#c9d1d9',
+  '--cw-muted':     '#8b949e',
+  '--cw-faint':     '#484f58',
+  '--cw-green':     '#3dffa0',
+  '--cw-amber':     '#f0c742',
+  '--cw-red':       '#f85149',
+  '--cw-indigo':    '#7c6af7',
+  '--cw-bar-idle':  '#1a1f26',
 };
 const LIGHT: Record<string, string> = {
-  '--bg-page': '#fafafa', '--bg-card': '#ffffff', '--bg-inner': '#eeeeee',
-  '--bg-inner2': '#e6e6e6', '--border': 'rgba(15,23,42,0.09)', '--border-hover': 'rgba(15,23,42,0.17)',
-  '--text-primary': '#0b1220', '--text-secondary': '#1a2235',
-  '--text-muted': 'rgba(17,24,39,0.58)', '--text-faint': 'rgba(17,24,39,0.40)',
-  '--accent-green': '#1a7f37', '--accent-amber': '#9a6700',
-  '--accent-red': '#cf222e', '--accent-indigo': '#6639ba',
-  '--shadow': '0 0 0 1px rgba(15,23,42,0.06), 0 1px 4px rgba(15,23,42,0.06)',
-  '--shadow-hover': '0 0 0 1px rgba(15,23,42,0.08), 0 6px 20px rgba(15,23,42,0.10)',
-  '--chart-green': '#1a7f37', '--chart-indigo': '#6639ba',
+  '--cw-bg':        '#ffffff',
+  '--cw-bg-inner':  '#f5f5f5',
+  '--cw-bg-inner2': '#ebebeb',
+  '--cw-border':    'rgba(15,23,42,0.09)',
+  '--cw-border-h':  'rgba(15,23,42,0.17)',
+  '--cw-text':      '#0b1220',
+  '--cw-text-2':    '#1a2235',
+  '--cw-muted':     'rgba(17,24,39,0.55)',
+  '--cw-faint':     'rgba(17,24,39,0.35)',
+  '--cw-green':     '#059669',
+  '--cw-amber':     '#d97706',
+  '--cw-red':       '#dc2626',
+  '--cw-indigo':    '#4f46e5',
+  '--cw-bar-idle':  '#e5e7eb',
 };
 
 function getStrapiTheme(): 'light' | 'dark' {
-  const attr = document.documentElement.getAttribute('data-theme');
-  if (attr === 'light') return 'light';
-  if (attr === 'dark') return 'dark';
+  const a = document.documentElement.getAttribute('data-theme');
+  if (a === 'light') return 'light';
+  if (a === 'dark') return 'dark';
   return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
 function applyTokens(t: 'light' | 'dark') {
-  const tokens = t === 'dark' ? DARK : LIGHT;
-  Object.entries(tokens).forEach(([k, v]) => document.documentElement.style.setProperty(k, v));
+  Object.entries(t === 'dark' ? DARK : LIGHT).forEach(([k, v]) =>
+    document.documentElement.style.setProperty(k, v)
+  );
 }
 
-// ─── CSS ─────────────────────────────────────────────────────────────────────
+// ─── CSS ──────────────────────────────────────────────────────────────────────
 const CSS = `
-  @keyframes comm-spin { to { transform: rotate(360deg); } }
-  @keyframes comm-fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-  @keyframes chart-draw {
-    from { stroke-dashoffset: var(--dash-total); }
-    to   { stroke-dashoffset: 0; }
+  @keyframes cw-spin { to { transform: rotate(360deg); } }
+  @keyframes cw-in   { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+  .cw-w * { box-sizing: border-box; }
+  .cw-w { animation: cw-in 0.25s ease forwards; }
+
+  .cw-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--cw-border);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--cw-border);
   }
-  @keyframes bar-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-  .comm-widget { animation: comm-fadein 0.3s ease forwards; }
-  .comm-bar { transform-origin: bottom; animation: bar-grow 0.6s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
-  .chart-line {
-    stroke-dasharray: var(--dash-total);
-    stroke-dashoffset: var(--dash-total);
-    animation: chart-draw 1s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
+  .cw-cell {
+    background: var(--cw-bg);
+    padding: 13px 14px;
+    transition: background 120ms;
+  }
+  .cw-cell:hover { background: var(--cw-bg-inner); }
+  .cw-cell-val {
+    font-size: 22px; font-weight: 700; letter-spacing: -0.04em;
+    font-family: ui-monospace, monospace; line-height: 1;
+    color: var(--cw-text);
+  }
+  .cw-cell-lbl {
+    font-size: 11px; color: var(--cw-muted); margin-top: 3px;
+  }
+  .cw-cell-delta {
+    font-size: 10px; margin-top: 5px;
+    display: flex; align-items: center; gap: 3px;
+    font-weight: 500;
+  }
+
+  .cw-sec {
+    font-size: 9px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.09em; color: var(--cw-faint);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .cw-sec::after { content:''; flex:1; height:1px; background:var(--cw-border); }
+
+  .cw-quota-track {
+    height: 3px; background: var(--cw-bg-inner2);
+    border-radius: 999px; overflow: hidden;
+  }
+  .cw-quota-fill {
+    height: 100%; border-radius: 999px;
+    transition: width 0.8s cubic-bezier(.25,.46,.45,.94);
+  }
+
+  .cw-bar {
+    flex: 1; border-radius: 3px 3px 0 0;
+    cursor: pointer; transition: opacity 0.15s, filter 0.15s;
+    position: relative;
+  }
+  .cw-bar:not(.cw-bar-active) { opacity: 0.25; }
+  .cw-bar:hover { opacity: 1 !important; filter: brightness(1.15); }
+  .cw-bar-tip {
+    position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+    font-size: 9px; color: var(--cw-text-2);
+    background: var(--cw-bg-inner2); border: 1px solid var(--cw-border-h);
+    padding: 2px 6px; border-radius: 5px; white-space: nowrap;
+    font-family: ui-monospace, monospace;
+    pointer-events: none; opacity: 0; transition: opacity 0.1s;
+  }
+  .cw-bar:hover .cw-bar-tip { opacity: 1; }
+
+  .cw-footer {
+    font-size: 10px; color: var(--cw-muted); text-decoration: none;
+    display: inline-flex; align-items: center; gap: 3px;
+    transition: color 120ms;
+  }
+  .cw-footer:hover { color: var(--cw-text); }
+
+  .cw-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; padding: 2px 8px; border-radius: 20px;
+    border: 1px solid var(--cw-border); color: var(--cw-muted);
+    background: var(--cw-bg-inner);
+  }
+  .cw-badge-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--cw-green);
+    box-shadow: 0 0 5px var(--cw-green);
   }
 `;
 
-// ─── Sparkline ────────────────────────────────────────────────────────────────
-const Sparkline = ({ data, color, height = 40 }: { data: number[]; color: string; height?: number }) => {
-  const animKey = useRef(0);
-  const [mounted, setMounted] = useState(false);
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+const fmt = (n: number) =>
+  n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M`
+  : n >= 1000    ? `${(n / 1000).toFixed(1)}k`
+  : String(n);
 
-  useEffect(() => {
-    animKey.current++;
-    setMounted(false);
-    const t = setTimeout(() => setMounted(true), 30);
-    return () => clearTimeout(t);
-  }, [data]);
+const ChevronRight = () => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="9 18 15 12 9 6" />
+  </svg>
+);
 
-  if (data.length < 2) return null;
-  const W = 300, H = height;
-  const max = Math.max(...data, 1);
-  const px = (i: number) => (i / (data.length - 1)) * W;
-  const py = (v: number) => H - (v / max) * (H - 4) - 2;
-  const path = data.map((v, i) => `${i === 0 ? 'M' : 'L'}${px(i).toFixed(1)},${py(v).toFixed(1)}`).join(' ');
-  const area = `${path} L${W},${H} L0,${H} Z`;
-  const len = Math.round(data.reduce((acc, v, i) => {
-    if (i === 0) return 0;
-    const dx = px(i) - px(i - 1), dy = py(v) - py(data[i - 1]);
-    return acc + Math.sqrt(dx * dx + dy * dy);
-  }, 0));
-
-  const isDark = getStrapiTheme() === 'dark';
-  const greenRaw = isDark ? '#3dffa0' : '#1a7f37';
-
+// ─── Delta badge ──────────────────────────────────────────────────────────────
+const Delta = ({ v, inv }: { v: number; inv?: boolean }) => {
+  const pos = inv ? v < 0 : v > 0;
+  if (v === 0) return <span style={{ fontSize: 10, color: 'var(--cw-faint)' }}>— változatlan</span>;
   return (
-    <svg key={animKey.current} width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block', overflow: 'visible' }}>
-      <defs>
-        <linearGradient id="comm-grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={greenRaw} stopOpacity={isDark ? 0.18 : 0.12} />
-          <stop offset="100%" stopColor={greenRaw} stopOpacity={0} />
-        </linearGradient>
-      </defs>
-      {mounted && (
-        <>
-          <path d={area} fill="url(#comm-grad)" />
-          <path d={path} fill="none" stroke={color} strokeWidth="2"
-            strokeLinejoin="round" strokeLinecap="round"
-            className="chart-line"
-            style={{ '--dash-total': len } as React.CSSProperties} />
-        </>
-      )}
-    </svg>
+    <span style={{ color: pos ? 'var(--cw-green)' : 'var(--cw-red)' }}>
+      {pos ? '↑' : '↓'} {Math.abs(v)}% előző hónaphoz
+    </span>
   );
 };
 
-// ─── Quota Bar Chart ──────────────────────────────────────────────────────────
-const QuotaBar = ({ sent, limit = 3000 }: { sent: number; limit?: number }) => {
-  const pct = Math.min((sent / limit) * 100, 100);
-  const color = pct >= 90 ? 'var(--accent-red)' : pct >= 70 ? 'var(--accent-amber)' : 'var(--accent-green)';
-  return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
-        <span style={{ fontSize: '10px', color: 'var(--text-faint)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          Havi kvóta
-        </span>
-        <span style={{ fontSize: '11px', fontFamily: "'Geist Mono', monospace", color, fontWeight: 600 }}>
-          {sent} / {limit}
-        </span>
-      </div>
-      <div style={{ height: '6px', background: 'var(--bg-inner2)', borderRadius: '999px', overflow: 'hidden' }}>
-        <div style={{
-          height: '100%', width: `${pct}%`, background: color,
-          borderRadius: '999px', transition: 'width 0.7s cubic-bezier(0.25,0.46,0.45,0.94)',
+// ─── Metric cell ──────────────────────────────────────────────────────────────
+const Cell = ({ label, value, color, delta, inv, alert }: {
+  label: string; value: string | number; color?: string;
+  delta?: number; inv?: boolean; alert?: boolean;
+}) => (
+  <div className="cw-cell">
+    <div className="cw-cell-val" style={color ? { color } : undefined}>
+      {value}
+      {alert && (
+        <span style={{
+          display: 'inline-block', width: 6, height: 6, borderRadius: '50%',
+          background: 'var(--cw-amber)', boxShadow: '0 0 5px var(--cw-amber)',
+          marginLeft: 5, verticalAlign: 'middle', marginBottom: 2,
         }} />
-      </div>
-      <div style={{ fontSize: '10px', color: 'var(--text-faint)', marginTop: '4px', textAlign: 'right', fontFamily: "'Geist Mono', monospace" }}>
-        {Math.round(limit - sent)} maradt
-      </div>
+      )}
     </div>
-  );
-};
+    <div className="cw-cell-lbl">{label}</div>
+    {delta !== undefined && (
+      <div className="cw-cell-delta"><Delta v={delta} inv={inv} /></div>
+    )}
+  </div>
+);
 
 // ─── Monthly bar chart ────────────────────────────────────────────────────────
 const MonthlyBars = ({ data }: { data: MonthPoint[] }) => {
   const max = Math.max(...data.map(d => d.sent), 1);
   return (
-    <div>
-      <div style={{ fontSize: '10px', color: 'var(--text-faint)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-        Küldések / hó
-      </div>
-      <div style={{ display: 'flex', gap: '4px', alignItems: 'flex-end', height: '48px' }}>
-        {data.map((d, i) => {
-          const h = Math.max((d.sent / max) * 44, 2);
-          const isLast = i === data.length - 1;
-          return (
-            <div key={d.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
-              <div style={{
-                width: '100%', height: `${h}px`,
-                background: isLast ? 'var(--chart-green)' : 'var(--bg-inner2)',
-                borderRadius: '3px 3px 0 0',
-                transition: 'height 0.6s cubic-bezier(0.25,0.46,0.45,0.94)',
-              }} className="comm-bar" />
-            </div>
-          );
-        })}
-      </div>
-      <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
-        {data.map((d) => (
-          <div key={d.month} style={{ flex: 1, textAlign: 'center', fontSize: '9px', color: 'var(--text-faint)', fontFamily: "'Geist Mono', monospace" }}>
-            {d.month.slice(5)}
+    <div style={{ display: 'flex', gap: '3px', alignItems: 'flex-end', height: '48px' }}>
+      {data.map((d, i) => {
+        const h = Math.max((d.sent / max) * 44, 3);
+        const isLast = i === data.length - 1;
+        const mo = d.month.slice(5);
+        return (
+          <div key={d.month} className={`cw-bar${isLast ? ' cw-bar-active' : ''}`} style={{
+            height: `${h}px`,
+            background: isLast ? 'var(--cw-green)' : 'var(--cw-bar-idle)',
+            ...(isLast ? { boxShadow: '0 0 8px rgba(61,255,160,0.25)' } : {}),
+          }}>
+            <div className="cw-bar-tip">{mo}: {fmt(d.sent)}</div>
           </div>
-        ))}
-      </div>
+        );
+      })}
     </div>
   );
 };
 
-// ─── Stat pill ────────────────────────────────────────────────────────────────
-const Stat = ({ label, value, color, alert }: { label: string; value: number | string; color: string; alert?: boolean }) => (
-  <div style={{
-    background: 'var(--bg-inner)', border: '0.5px solid var(--border)',
-    borderRadius: '10px', padding: '10px 12px', flex: 1, minWidth: '80px',
-  }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-      <span style={{ fontSize: '18px', fontWeight: 600, color, fontVariantNumeric: 'tabular-nums', fontFamily: "'Geist Mono', monospace", letterSpacing: '-0.5px' }}>
-        {value}
-      </span>
-      {alert && (
-        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-amber)', flexShrink: 0, boxShadow: '0 0 5px var(--accent-amber)' }} />
-      )}
-    </div>
-    <div style={{ fontSize: '10px', color: 'var(--text-faint)', marginTop: '2px', fontWeight: 500 }}>{label}</div>
-  </div>
-);
+// ─── Data loader ──────────────────────────────────────────────────────────────
+async function loadData() {
+  const [s, m] = await Promise.all([
+    fetch('/api/communications/stats').then(r => r.json()),
+    fetch('/api/communications/monthly-stats').then(r => r.json()),
+  ]);
+  if (!s.ok) throw new Error('stats_error');
+  return {
+    stats: s as Stats,
+    monthly: Array.isArray(m.data) ? (m.data as MonthPoint[]) : [],
+  };
+}
 
 // ─── Main Widget ──────────────────────────────────────────────────────────────
 const CommunicationsWidget = () => {
-  const [stats, setStats] = useState<Stats | null>(null);
+  const [stats, setStats]     = useState<Stats | null>(null);
   const [monthly, setMonthly] = useState<MonthPoint[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError]     = useState(false);
 
   // theme
   useEffect(() => {
@@ -213,30 +245,19 @@ const CommunicationsWidget = () => {
     return () => obs.disconnect();
   }, []);
 
+  // data
   useEffect(() => {
     let alive = true;
-    const load = async () => {
-      try {
-        const [s, m] = await Promise.all([
-          fetch('/api/communications/stats').then(r => r.json()),
-          fetch('/api/communications/monthly-stats').then(r => r.json()),
-        ]);
-        if (!alive) return;
-        if (s.ok) setStats(s);
-        if (Array.isArray(m.data)) setMonthly(m.data);
-      } catch {
-        if (alive) setError(true);
-      } finally {
-        if (alive) setLoading(false);
-      }
-    };
-    load();
+    loadData()
+      .then(d => { if (!alive) return; setStats(d.stats); setMonthly(d.monthly); })
+      .catch(() => { if (alive) setError(true); })
+      .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
   }, []);
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '120px', color: 'var(--text-faint)', fontSize: '12px', gap: '8px' }}>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: 'comm-spin 1s linear infinite' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100px', color: 'var(--cw-faint)', fontSize: '12px', gap: '8px' }}>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: 'cw-spin 1s linear infinite' }}>
         <path d="M21 12a9 9 0 1 1-6.219-8.56" />
       </svg>
       Betöltés...
@@ -244,48 +265,95 @@ const CommunicationsWidget = () => {
   );
 
   if (error || !stats) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '80px', color: 'var(--accent-red)', fontSize: '12px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '80px', color: 'var(--cw-red)', fontSize: '12px' }}>
       Nem sikerült betölteni az adatokat
     </div>
   );
 
-  const sparkData = monthly.map(m => m.sent);
+  const LIMIT = 3000;
+  const pct = Math.min((stats.monthSent / LIMIT) * 100, 100);
+  const quotaColor = pct >= 90 ? 'var(--cw-red)' : pct >= 70 ? 'var(--cw-amber)' : 'var(--cw-green)';
+
+  // delta számítás havi adatokból
+  const prevMonth  = monthly.length >= 2 ? monthly[monthly.length - 2].sent : 0;
+  const thisMonth  = monthly.length >= 1 ? monthly[monthly.length - 1].sent : stats.monthSent;
+  const sentDelta  = prevMonth > 0 ? Math.round(((thisMonth - prevMonth) / prevMonth) * 100) : 0;
+  const subsDelta  = stats.newSubs > 0 ? Math.round((stats.newSubs / Math.max(stats.activeSubs - stats.newSubs, 1)) * 100) : 0;
+  const leadsDelta = 0; // nincs előző adat ehhez
 
   return (
     <>
       <style>{CSS}</style>
-      <div className="comm-widget" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '2px' }}>
+      <div className="cw-w" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '2px' }}>
 
-        {/* Stat pills */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <Stat label="Új érdeklődő" value={stats.newLeads} color="var(--accent-amber)" alert={stats.newLeads > 0} />
-          <Stat label="Összes lead" value={stats.totalLeads} color="var(--text-primary)" />
-          <Stat label="Feliratkozó" value={stats.activeSubs} color="var(--accent-green)" />
+        {/* ── Header ── */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="cw-sec" style={{ flex: 1 }}>Kommunikáció</div>
+          <span className="cw-badge">
+            <span className="cw-badge-dot" />
+            Aktív
+          </span>
         </div>
 
-        {/* Quota bar */}
-        <QuotaBar sent={stats.monthSent} limit={3000} />
+        {/* ── 2×2 Metric grid ── */}
+        <div className="cw-grid">
+          <Cell
+            label="Új érdeklődő" value={stats.newLeads}
+            color={stats.newLeads > 0 ? 'var(--cw-amber)' : undefined}
+            delta={leadsDelta} alert={stats.newLeads > 0}
+          />
+          <Cell
+            label="Összes lead" value={stats.totalLeads}
+          />
+          <Cell
+            label="Feliratkozó" value={stats.activeSubs}
+            color="var(--cw-green)" delta={subsDelta}
+          />
+          <Cell
+            label="Küldött / hó" value={fmt(stats.monthSent)}
+            color="var(--cw-indigo)" delta={sentDelta}
+          />
+        </div>
 
-        {/* Monthly bar chart */}
-        {monthly.length > 1 && <MonthlyBars data={monthly} />}
+        {/* ── Kvóta ── */}
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+            <span style={{ fontSize: 10, color: 'var(--cw-faint)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Havi kvóta</span>
+            <span style={{ fontSize: 11, fontFamily: 'ui-monospace, monospace', color: quotaColor, fontWeight: 600 }}>
+              {fmt(stats.monthSent)} / {fmt(LIMIT)}
+            </span>
+          </div>
+          <div className="cw-quota-track">
+            <div className="cw-quota-fill" style={{ width: `${pct}%`, background: quotaColor }} />
+          </div>
+          <div style={{ fontSize: 10, color: 'var(--cw-faint)', marginTop: 3, textAlign: 'right', fontFamily: 'ui-monospace, monospace' }}>
+            {fmt(LIMIT - stats.monthSent)} maradt
+          </div>
+        </div>
 
-        {/* Sparkline trend */}
-        {sparkData.length > 1 && (
+        {/* ── Havi bar chart ── */}
+        {monthly.length > 1 && (
           <div>
-            <div style={{ fontSize: '10px', color: 'var(--text-faint)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>
-              Trend
+            <div style={{ fontSize: 9, color: 'var(--cw-faint)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 7 }}>
+              Küldések / hó
             </div>
-            <Sparkline data={sparkData} color="var(--chart-green)" height={36} />
+            <MonthlyBars data={monthly} />
+            {/* X tengelycímkék */}
+            <div style={{ display: 'flex', gap: 3, marginTop: 4 }}>
+              {monthly.map(d => (
+                <div key={d.month} style={{ flex: 1, textAlign: 'center', fontSize: 8, color: 'var(--cw-faint)', fontFamily: 'ui-monospace, monospace' }}>
+                  {d.month.slice(5)}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
-        {/* Footer link */}
-        <a href="/admin/plugins/communications"
-          style={{ fontSize: '11px', color: 'var(--text-muted)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '-4px' }}
-          onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
-          onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}>
-          Megnyitás →
+        {/* ── Footer ── */}
+        <a href="/admin/plugins/communications" className="cw-footer">
+          Megnyitás <ChevronRight />
         </a>
+
       </div>
     </>
   );
