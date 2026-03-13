@@ -197,14 +197,14 @@ export function Services(props: ServicesBlockProps) {
                                 <p className="text-xs text-white/80">{badge_label}</p>
                             </div>
                         )}
-                        {heading && (
-                            <Heading className="text-left md:text-center font-bold text-white leading-none tracking-tight">
-                                {heading}
-                                <span className="text-sm lg:text-3xl font-semibold text-white/60 absolute">
-                                    ({services.length})
-                                </span>
-                            </Heading>
-                        )}
+                       {heading && (
+    <h2 className="text-left md:text-center font-bold text-white leading-none tracking-tight text-4xl md:text-7xl lg:text-8xl">
+        {heading}
+        <span className="text-sm lg:text-3xl font-semibold text-white/60 absolute">
+            ({services.length})
+        </span>
+    </h2>
+)}
                         {sub_heading && (
                             <p className="max-w-3xl text-white/70 mt-4">{sub_heading}</p>
                         )}
@@ -269,7 +269,7 @@ export function Services(props: ServicesBlockProps) {
                                                 style={{ paddingTop: 41 }}
                                             >
                                                 {/* Bal: kép + cím + leírás */}
-                                                <div className="flex gap-5 items-start">
+                                                <div className="flex gap-5 flex-col md:flex-row md:items-start">
                                                     {s.images.length > 0 && (
                                                         <div className="flex shrink-0">
                                                             {s.images.map((src, idx) => (

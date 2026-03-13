@@ -12,6 +12,8 @@ import fetchContentType from '@/lib/strapi/fetchContentType';
 import { cn } from '@/lib/utils';
 import { SmoothScroll } from '@/components/ui/smooth-scroll';
 import { AppWrapper, PageTransition } from '@/components/ui/preloader';
+import { BlurFooter } from '@/components/ui/blur-footer';
+
 
 const geist = Geist({
   subsets: ['latin'],
@@ -67,7 +69,7 @@ export default async function LocaleLayout(props: {
 
             {/* Footer — kívül marad, NEM animálódik oldalváltáskor */}
             <Footer data={pageData.footer} locale={locale} />
-
+            <BlurFooter />
             {isDraftMode && <DraftModeBanner />}
           </div>
         </AppWrapper>

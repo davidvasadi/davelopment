@@ -275,7 +275,7 @@ jobs:
           corepack prepare pnpm@latest --activate || true
 
           cd /var/www/davelopment/frontend
-          pnpm install --frozen-lockfile=false
+          pnpm install --frozen-lockfile=false --prefer-offline
 
           pm2 describe frontend >/dev/null 2>&1 && \
             pm2 restart frontend --update-env || \
@@ -315,19 +315,20 @@ jobs:
           name: backend_bundle
           path: .
 
-      - name: Upload bundle to VPS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_KEY }}
-          port: ${{ secrets.VPS_PORT }}
-          source: 'backend_bundle.tgz'
-          target: '/tmp'
-          overwrite: true
+      - name: Prepare SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_KEY }}" > ~/.ssh/id_ci
+          chmod 600 ~/.ssh/id_ci
+          ssh-keyscan -p "${VPS_PORT}" -H "${VPS_HOST}" >> ~/.ssh/known_hosts
+
+      - name: Upload bundle via rsync
+        run: |
+          rsync -avz \
+            -e "ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes" \
+            backend_bundle.tgz ${VPS_USER}@${VPS_HOST}:/tmp/backend_bundle.tgz
 
       - name: Deploy on VPS (atomic + rollback)
-        uses: appleboy/ssh-action@v1.0.3
         env:
           DEPLOY_SHA: ${{ github.sha }}
           STRAPI_APP_KEYS: ${{ secrets.STRAPI_APP_KEYS }}
@@ -341,139 +342,149 @@ jobs:
           STRAPI_ADMIN_PSI_API_KEY: ${{ secrets.STRAPI_ADMIN_PSI_API_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_KEY }}
-          port: ${{ secrets.VPS_PORT }}
-          envs: DEPLOY_SHA,STRAPI_APP_KEYS,STRAPI_API_TOKEN_SALT,STRAPI_ADMIN_JWT_SECRET,STRAPI_TRANSFER_TOKEN_SALT,STRAPI_ENCRYPTION_KEY,STRAPI_JWT_SECRET,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,STRAPI_ADMIN_PSI_API_KEY,RESEND_API_KEY,NOTIFY_EMAIL
-          command_timeout: 30m
-          script: |
-            set -Eeuo pipefail
+        run: |
+          ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes \
+            -o ServerAliveInterval=30 -o ServerAliveCountMax=60 \
+            ${VPS_USER}@${VPS_HOST} \
+            DEPLOY_SHA="${DEPLOY_SHA}" \
+            STRAPI_APP_KEYS="${STRAPI_APP_KEYS}" \
+            STRAPI_API_TOKEN_SALT="${STRAPI_API_TOKEN_SALT}" \
+            STRAPI_ADMIN_JWT_SECRET="${STRAPI_ADMIN_JWT_SECRET}" \
+            STRAPI_TRANSFER_TOKEN_SALT="${STRAPI_TRANSFER_TOKEN_SALT}" \
+            STRAPI_ENCRYPTION_KEY="${STRAPI_ENCRYPTION_KEY}" \
+            STRAPI_JWT_SECRET="${STRAPI_JWT_SECRET}" \
+            GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID}" \
+            GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET}" \
+            STRAPI_ADMIN_PSI_API_KEY="${STRAPI_ADMIN_PSI_API_KEY}" \
+            RESEND_API_KEY="${RESEND_API_KEY}" \
+            NOTIFY_EMAIL="${NOTIFY_EMAIL}" \
+            bash -s << 'ENDSSH'
+          set -Eeuo pipefail
 
-            LIVE_DIR="/var/www/davelopment/backend"
-            STORAGE_ROOT="/var/www/davelopment/storage"
-            STORAGE_UPLOADS="${STORAGE_ROOT}/uploads"
-            STORAGE_DB="${STORAGE_ROOT}/db"
+          LIVE_DIR="/var/www/davelopment/backend"
+          STORAGE_ROOT="/var/www/davelopment/storage"
+          STORAGE_UPLOADS="${STORAGE_ROOT}/uploads"
+          STORAGE_DB="${STORAGE_ROOT}/db"
 
-            TS="$(date +%F_%H%M%S)"
-            NEW_DIR="${LIVE_DIR}.new_${DEPLOY_SHA}"
-            PREV_DIR="${LIVE_DIR}.prev_${TS}"
-            TMP_DIR="/tmp/backend_deploy_${DEPLOY_SHA}"
+          TS="$(date +%F_%H%M%S)"
+          NEW_DIR="${LIVE_DIR}.new_${DEPLOY_SHA}"
+          PREV_DIR="${LIVE_DIR}.prev_${TS}"
+          TMP_DIR="/tmp/backend_deploy_${DEPLOY_SHA}"
 
-            log(){ printf '[%s] %s\n' "$(date -Is)" "$*"; }
+          log(){ printf '[%s] %s\n' "$(date -Is)" "$*"; }
 
-            mkdir -p "$STORAGE_UPLOADS" "$STORAGE_DB"
+          mkdir -p "$STORAGE_UPLOADS" "$STORAGE_DB"
 
-            rm -rf "$TMP_DIR" && mkdir -p "$TMP_DIR"
-            tar -xzf /tmp/backend_bundle.tgz -C "$TMP_DIR"
-            rm -f /tmp/backend_bundle.tgz
+          rm -rf "$TMP_DIR" && mkdir -p "$TMP_DIR"
+          tar -xzf /tmp/backend_bundle.tgz -C "$TMP_DIR"
+          rm -f /tmp/backend_bundle.tgz
 
-            rm -rf "$NEW_DIR" && mkdir -p "$NEW_DIR"
-            rsync -a --delete \
-              --exclude 'public/uploads/' \
-              --exclude '.tmp/' \
-              --exclude '.env' \
-              --exclude '.env.*' \
-              --exclude 'node_modules' \
-              "${TMP_DIR}/backend/" "${NEW_DIR}/"
-            rm -rf "$TMP_DIR"
+          rm -rf "$NEW_DIR" && mkdir -p "$NEW_DIR"
+          rsync -a --delete \
+            --exclude 'public/uploads/' \
+            --exclude '.tmp/' \
+            --exclude '.env' \
+            --exclude '.env.*' \
+            --exclude 'node_modules' \
+            "${TMP_DIR}/backend/" "${NEW_DIR}/"
+          rm -rf "$TMP_DIR"
 
-            log "Writing .env from secrets..."
-            printf '%s\n' \
-              "HOST=0.0.0.0" \
-              "PORT=1337" \
-              "URL=https://davelopment.hu" \
-              "PUBLIC_URL=https://davelopment.hu" \
-              "STRAPI_ADMIN_BACKEND_URL=https://davelopment.hu" \
-              "FRONTEND_URL=https://davelopment.hu" \
-              "NODE_ENV=production" \
-              "APP_KEYS=${STRAPI_APP_KEYS}" \
-              "API_TOKEN_SALT=${STRAPI_API_TOKEN_SALT}" \
-              "ADMIN_JWT_SECRET=${STRAPI_ADMIN_JWT_SECRET}" \
-              "TRANSFER_TOKEN_SALT=${STRAPI_TRANSFER_TOKEN_SALT}" \
-              "ENCRYPTION_KEY=${STRAPI_ENCRYPTION_KEY}" \
-              "JWT_SECRET=${STRAPI_JWT_SECRET}" \
-              "DATABASE_CLIENT=sqlite" \
-              "DATABASE_FILENAME=.tmp/data.db" \
-              "DATABASE_SSL=false" \
-              "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}" \
-              "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}" \
-              "STRAPI_ADMIN_PSI_API_KEY=${STRAPI_ADMIN_PSI_API_KEY}" \
-              "STRAPI_ADMIN_PSI_BASE_URL=https://davelopment.hu" \
-              "RESEND_API_KEY=${RESEND_API_KEY}" \
-              "RESEND_FROM_EMAIL=hello@davelopment.hu" \
-              "NOTIFY_EMAIL=${NOTIFY_EMAIL}" \
-              > "${NEW_DIR}/.env"
+          log "Writing .env from secrets..."
+          printf '%s\n' \
+            "HOST=0.0.0.0" \
+            "PORT=1337" \
+            "URL=https://davelopment.hu" \
+            "PUBLIC_URL=https://davelopment.hu" \
+            "STRAPI_ADMIN_BACKEND_URL=https://davelopment.hu" \
+            "FRONTEND_URL=https://davelopment.hu" \
+            "NODE_ENV=production" \
+            "APP_KEYS=${STRAPI_APP_KEYS}" \
+            "API_TOKEN_SALT=${STRAPI_API_TOKEN_SALT}" \
+            "ADMIN_JWT_SECRET=${STRAPI_ADMIN_JWT_SECRET}" \
+            "TRANSFER_TOKEN_SALT=${STRAPI_TRANSFER_TOKEN_SALT}" \
+            "ENCRYPTION_KEY=${STRAPI_ENCRYPTION_KEY}" \
+            "JWT_SECRET=${STRAPI_JWT_SECRET}" \
+            "DATABASE_CLIENT=sqlite" \
+            "DATABASE_FILENAME=.tmp/data.db" \
+            "DATABASE_SSL=false" \
+            "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}" \
+            "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}" \
+            "STRAPI_ADMIN_PSI_API_KEY=${STRAPI_ADMIN_PSI_API_KEY}" \
+            "STRAPI_ADMIN_PSI_BASE_URL=https://davelopment.hu" \
+            "RESEND_API_KEY=${RESEND_API_KEY}" \
+            "RESEND_FROM_EMAIL=hello@davelopment.hu" \
+            "NOTIFY_EMAIL=${NOTIFY_EMAIL}" \
+            > "${NEW_DIR}/.env"
 
-            mkdir -p "${NEW_DIR}/public" "${NEW_DIR}/.tmp"
-            ln -sfn "$STORAGE_UPLOADS" "${NEW_DIR}/public/uploads"
+          mkdir -p "${NEW_DIR}/public" "${NEW_DIR}/.tmp"
+          ln -sfn "$STORAGE_UPLOADS" "${NEW_DIR}/public/uploads"
 
-            if [ -f "${LIVE_DIR}/.tmp/data.db" ] && \
-               [ ! -L "${LIVE_DIR}/.tmp/data.db" ] && \
-               [ ! -f "${STORAGE_DB}/data.db" ]; then
-              mv "${LIVE_DIR}/.tmp/data.db" "${STORAGE_DB}/data.db" || true
-            fi
-            [ -f "${STORAGE_DB}/data.db" ] || touch "${STORAGE_DB}/data.db"
-            ln -sfn "${STORAGE_DB}/data.db" "${NEW_DIR}/.tmp/data.db"
+          if [ -f "${LIVE_DIR}/.tmp/data.db" ] && \
+             [ ! -L "${LIVE_DIR}/.tmp/data.db" ] && \
+             [ ! -f "${STORAGE_DB}/data.db" ]; then
+            mv "${LIVE_DIR}/.tmp/data.db" "${STORAGE_DB}/data.db" || true
+          fi
+          [ -f "${STORAGE_DB}/data.db" ] || touch "${STORAGE_DB}/data.db"
+          ln -sfn "${STORAGE_DB}/data.db" "${NEW_DIR}/.tmp/data.db"
 
-            export PNPM_HOME="$HOME/.local/share/pnpm"
-            export PATH="$PNPM_HOME:$PATH"
-            corepack enable || true
-            corepack prepare pnpm@latest --activate || true
+          export PNPM_HOME="$HOME/.local/share/pnpm"
+          export PATH="$PNPM_HOME:$PATH"
+          corepack enable || true
+          corepack prepare pnpm@latest --activate || true
 
-            log "Installing deps in new release..."
-            cd "$NEW_DIR"
-            export NODE_OPTIONS="--max-old-space-size=1024"
-            pnpm install --prod --frozen-lockfile=false --prefer-offline --network-concurrency 1
+          log "Installing deps in new release..."
+          cd "$NEW_DIR"
+          export NODE_OPTIONS="--max-old-space-size=1024"
+          pnpm install --prod --frozen-lockfile=false --prefer-offline --network-concurrency 1
 
-            log "Building better-sqlite3 native addon..."
-            cd "$NEW_DIR/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3"
-            npm run install
-            cd "$NEW_DIR"
+          log "Building better-sqlite3 native addon..."
+          cd "$NEW_DIR/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3"
+          npm run install
+          cd "$NEW_DIR"
 
-            log "Verifying better_sqlite3.node..."
-            find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q . || \
-              { log "ERROR: better_sqlite3.node not found after build!"; exit 1; }
-            log "better_sqlite3.node OK"
+          log "Verifying better_sqlite3.node..."
+          find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q . || \
+            { log "ERROR: better_sqlite3.node not found after build!"; exit 1; }
+          log "better_sqlite3.node OK"
 
-            log "Stopping backend..."
+          log "Stopping backend..."
+          cd ~
+          pm2 stop backend || true
+
+          [ -d "$LIVE_DIR" ] && mv "$LIVE_DIR" "$PREV_DIR"
+          mv "$NEW_DIR" "$LIVE_DIR"
+
+          log "Starting backend..."
+          pm2 describe backend >/dev/null 2>&1 && \
+            pm2 restart backend --update-env || \
+            pm2 start "pnpm start" --name backend --cwd "$LIVE_DIR"
+          pm2 save
+
+          sleep 30
+          smoke_ok=0
+          for i in $(seq 1 20); do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" -L \
+              --connect-timeout 3 --max-time 10 \
+              "http://127.0.0.1:1337/_health" || echo 000)
+            log "smoke try=$i code=$code"
+            [ "$code" -ge 200 ] && [ "$code" -lt 400 ] && { smoke_ok=1; break; }
+            sleep 5
+          done
+
+          if [ "$smoke_ok" -ne 1 ]; then
+            log "SMOKE FAILED - rolling back..."
             cd ~
             pm2 stop backend || true
-
-            [ -d "$LIVE_DIR" ] && mv "$LIVE_DIR" "$PREV_DIR"
-            mv "$NEW_DIR" "$LIVE_DIR"
-
-            log "Starting backend..."
-            pm2 describe backend >/dev/null 2>&1 && \
-              pm2 restart backend --update-env || \
-              pm2 start "pnpm start" --name backend --cwd "$LIVE_DIR"
+            rm -rf "$LIVE_DIR"
+            [ -d "$PREV_DIR" ] && mv "$PREV_DIR" "$LIVE_DIR"
+            pm2 restart backend --update-env || true
             pm2 save
+            log "Rollback done"
+            exit 1
+          fi
 
-            sleep 30
-            smoke_ok=0
-            for i in $(seq 1 20); do
-              code=$(curl -sS -o /dev/null -w "%{http_code}" -L \
-                --connect-timeout 3 --max-time 10 \
-                "http://127.0.0.1:1337/_health" || echo 000)
-              log "smoke try=$i code=$code"
-              [ "$code" -ge 200 ] && [ "$code" -lt 400 ] && { smoke_ok=1; break; }
-              sleep 5
-            done
+          ls -dt /var/www/davelopment/backend.prev_* 2>/dev/null \
+            | tail -n +3 | xargs -r rm -rf || true
 
-            if [ "$smoke_ok" -ne 1 ]; then
-              log "SMOKE FAILED - rolling back..."
-              cd ~
-              pm2 stop backend || true
-              rm -rf "$LIVE_DIR"
-              [ -d "$PREV_DIR" ] && mv "$PREV_DIR" "$LIVE_DIR"
-              pm2 restart backend --update-env || true
-              pm2 save
-              log "Rollback done"
-              exit 1
-            fi
-
-            ls -dt /var/www/davelopment/backend.prev_* 2>/dev/null \
-              | tail -n +3 | xargs -r rm -rf || true
-
-            log "DEPLOY DONE"
+          log "DEPLOY DONE"
+          ENDSSH

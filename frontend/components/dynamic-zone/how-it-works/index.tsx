@@ -59,7 +59,7 @@ export const HowItWorks = ({
       <Container className="relative z-40 mx-auto max-w-7xl py-20">
 
         {/* SOR 1: badge (bal) + [davelopment]® (jobb, heading indent-jén) */}
-        <div className="grid grid-cols-12 gap-x-6 items-center mb-12">
+        <div className="grid grid-cols-12 gap-x-6 gap-y-4 md:gap-y-0 items-center mb-8 md:mb-12">
           <div className="col-span-12 mb-2 lg:col-span-3 lg:mb-0">
             {badge_label && (
               <div className="flex items-center gap-2">
@@ -71,7 +71,7 @@ export const HowItWorks = ({
             )}
           </div>
           <div className="col-span-12 lg:col-start-5 lg:col-span-7">
-            <p className="text-xl font-semibold text-black/80">[davelopment]®</p>
+            <p className="text-md md:text-lg font-semibold text-black/80">[davelopment]®</p>
           </div>
         </div>
 
@@ -83,9 +83,9 @@ export const HowItWorks = ({
         >
           <div className="col-span-12 lg:col-start-5 lg:col-span-7">
             <h2 className="font-bold leading-tight tracking-tight">
-              <span className="text-4xl text-black md:text-5xl">{left}</span>
+              <span className="text-3xl text-black md:text-5xl">{left}</span>
               {right && (
-                <span className="text-4xl md:text-5xl text-black/60"> {right}</span>
+                <span className="text-3xl md:text-5xl text-black/60"> {right}</span>
               )}
             </h2>
             {sub_heading && (
