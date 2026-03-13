@@ -1,9 +1,10 @@
 'use client';
 
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Inter } from 'next/font/google';
+import { GrainCanvas } from './grain-canvas';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -21,59 +22,21 @@ export const PreloaderContext = createContext(false);
 export const usePreloaderDone = () => useContext(PreloaderContext);
 
 // ============================================================
-// GRAIN CANVAS — C erősség: base:8, range:55, alpha:255
-// Nincs mixBlendMode! A canvas maga a háttér, teljesen opák.
-// mixBlendMode:'screen' fekete háttéren = láthatatlan (bug volt)
+// NAV CLOSE CONTEXT
+// navigateAfterClose(href, closeMenu, delay?)
+//   → bezárja a menüt → vár delay ms-t → navigál
+//   → PageTransition csak ezután indul el → nincs ütközés
 // ============================================================
-function GrainCanvas() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    let raf: number;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener('resize', resize);
-
-    const draw = () => {
-      const { width, height } = canvas;
-      const img = ctx.createImageData(width, height);
-      for (let i = 0; i < img.data.length; i += 4) {
-        const v = 8 + Math.random() * 55; // C erősség
-        img.data[i]     = v;
-        img.data[i + 1] = v;
-        img.data[i + 2] = v;
-        img.data[i + 3] = 255; // teljesen opák — a canvas IS a háttér
-      }
-      ctx.putImageData(img, 0, 0);
-      raf = requestAnimationFrame(draw);
-    };
-    draw();
-
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('resize', resize);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ zIndex: 0 }}
-    />
-  );
-}
+type NavCloseCtx = {
+  navigateAfterClose: (href: string, closeMenu: () => void, delay?: number) => void;
+};
+export const NavCloseContext = createContext<NavCloseCtx>({
+  navigateAfterClose: () => {},
+});
+export const useNavClose = () => useContext(NavCloseContext);
 
 // ============================================================
-// PRELOADER — csak első betöltéskor
+// PRELOADER
 // ============================================================
 const LOGO = '[davelopment]®';
 
@@ -93,15 +56,12 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
     <AnimatePresence>
       {visible && (
         <motion.div
-          className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden"
+          className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-[#0a0a0a]"
           initial={{ y: 0 }}
           exit={{ y: '-100%' }}
           transition={{ duration: 0.7, ease: EASE_IN }}
         >
-          {/* Grain IS a háttér — z-0, opaque, nincs blend mode */}
-          <GrainCanvas />
-
-          {/* Betűk — z-20, grain felett */}
+          <GrainCanvas strength="medium" opacity={0.5} zIndex={1} />
           <div className="relative z-20 flex" style={{ overflow: 'hidden', paddingBottom: '0.1em' }}>
             {LOGO.split('').map((char, i) => (
               <motion.span
@@ -132,7 +92,6 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
 
 // ============================================================
 // PAGE TRANSITION
-// BE: alulról nő fel (0.55s gyors) → KI: felülről húzódik el (1.0s lassú)
 // ============================================================
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -146,15 +105,12 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
       isFirst.current = false;
       return;
     }
-
     setContentVisible(false);
     setCurtain('in');
-
     const t1 = setTimeout(() => { setCurrent(children); }, 550);
     const t2 = setTimeout(() => { setCurtain('out'); }, 600);
     const t3 = setTimeout(() => { setContentVisible(true); }, 1200);
     const t4 = setTimeout(() => { setCurtain('hidden'); }, 1700);
-
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
   }, [pathname]);
 
@@ -166,15 +122,12 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
     <>
       {curtain !== 'hidden' && (
         <>
-          {/* Grain overlay a függönyre — itt overlay blend rendben van */}
           <motion.div
             className="fixed inset-0 z-[9999] pointer-events-none overflow-hidden"
             initial={{ opacity: curtain === 'in' ? 0 : 1 }}
             animate={{ opacity: curtain === 'in' ? 1 : 0 }}
             transition={{ duration: curtain === 'in' ? 0.55 : 1.0, ease: curtain === 'in' ? EASE_IN : EASE_OUT }}
-          >
-            <GrainCanvas />
-          </motion.div>
+          />
           <motion.div
             className="fixed inset-0 z-[9998] bg-[#0a0a0a] pointer-events-none"
             style={{ transformOrigin: curtain === 'in' ? 'bottom' : 'top' }}
@@ -202,17 +155,31 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
 // ============================================================
 export function AppWrapper({ children }: { children: React.ReactNode }) {
   const [done, setDone] = useState(false);
+  const router = useRouter();
+
+  // Desktop bezárás: 560ms + 50ms buffer = 610ms
+  // Mobile bezárás:  380ms + 50ms buffer = 430ms
+  // 620ms biztonságos mindkettőre
+  const navigateAfterClose = useCallback(
+    (href: string, closeMenu: () => void, delay = 620) => {
+      closeMenu();
+      setTimeout(() => router.push(href), delay);
+    },
+    [router]
+  );
 
   return (
-    <PreloaderContext.Provider value={done}>
-      {!done && <Preloader onComplete={() => setDone(true)} />}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={done ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-        transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
-      >
-        {children}
-      </motion.div>
-    </PreloaderContext.Provider>
+    <NavCloseContext.Provider value={{ navigateAfterClose }}>
+      <PreloaderContext.Provider value={done}>
+        {!done && <Preloader onComplete={() => setDone(true)} />}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={done ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+          transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
+        >
+          {children}
+        </motion.div>
+      </PreloaderContext.Provider>
+    </NavCloseContext.Provider>
   );
 }

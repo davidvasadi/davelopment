@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Plus as PlusIcon, Minus as MinusIcon } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { Heading } from '../elements/heading';
+import { GrainCanvas } from '../ui/grain-canvas';
 
 export type ServicesBlockProps = {
     __component: string;
@@ -25,47 +26,47 @@ export type ServicesBlockProps = {
 // ============================================================
 // GRAIN CANVAS — ugyanaz mint a hero-ban
 // ============================================================
-function GrainCanvas() {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        let raf: number;
-        const resize = () => {
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
-        };
-        resize();
-        window.addEventListener('resize', resize);
-        const draw = () => {
-            const { width, height } = canvas;
-            const img = ctx.createImageData(width, height);
-            for (let i = 0; i < img.data.length; i += 4) {
-                const a = Math.random() * 25;
-                img.data[i]     = 255;
-                img.data[i + 1] = 255;
-                img.data[i + 2] = 255;
-                img.data[i + 3] = a;
-            }
-            ctx.putImageData(img, 0, 0);
-            raf = requestAnimationFrame(draw);
-        };
-        draw();
-        return () => {
-            cancelAnimationFrame(raf);
-            window.removeEventListener('resize', resize);
-        };
-    }, []);
-    return (
-        <canvas
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full pointer-events-none"
-            style={{ zIndex: 1 }}
-        />
-    );
-}
+// function GrainCanvas() {
+//     const canvasRef = useRef<HTMLCanvasElement>(null);
+//     useEffect(() => {
+//         const canvas = canvasRef.current;
+//         if (!canvas) return;
+//         const ctx = canvas.getContext('2d');
+//         if (!ctx) return;
+//         let raf: number;
+//         const resize = () => {
+//             canvas.width = canvas.offsetWidth;
+//             canvas.height = canvas.offsetHeight;
+//         };
+//         resize();
+//         window.addEventListener('resize', resize);
+//         const draw = () => {
+//             const { width, height } = canvas;
+//             const img = ctx.createImageData(width, height);
+//             for (let i = 0; i < img.data.length; i += 4) {
+//                 const a = Math.random() * 25;
+//                 img.data[i]     = 255;
+//                 img.data[i + 1] = 255;
+//                 img.data[i + 2] = 255;
+//                 img.data[i + 3] = a;
+//             }
+//             ctx.putImageData(img, 0, 0);
+//             raf = requestAnimationFrame(draw);
+//         };
+//         draw();
+//         return () => {
+//             cancelAnimationFrame(raf);
+//             window.removeEventListener('resize', resize);
+//         };
+//     }, []);
+//     return (
+//         <canvas
+//             ref={canvasRef}
+//             className="absolute inset-0 w-full h-full pointer-events-none"
+//             style={{ zIndex: 1 }}
+//         />
+//     );
+// }
 
 // ============================================================
 // SEGÉDEK
@@ -180,7 +181,7 @@ export function Services(props: ServicesBlockProps) {
                             className="w-full h-full object-cover" style={{ filter: 'brightness(1.15)' }} />
                     )}
                     {/* Grain overlay — ugyanaz mint a hero-ban */}
-                    <GrainCanvas />
+                    <GrainCanvas strength="medium" opacity={0.5} zIndex={1} />
                     <div className="absolute inset-0 opacity-5" />
                 </div>
 

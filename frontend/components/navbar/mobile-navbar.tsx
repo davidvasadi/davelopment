@@ -2,11 +2,12 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'next-view-transitions';
+import { useRouter } from 'next/navigation';
 
 import { LocaleSwitcher } from '../locale-switcher';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
+import { useNavClose } from '@/components/ui/preloader';
 
 type NavItem = { URL: string; text: string; target?: string };
 type LinkItem = { text: string; URL: string; target?: '_self' | '_blank' };
@@ -17,7 +18,7 @@ const withLocale = (u: string, locale: string) => (isExternal(u) ? u : `/${local
 
 const HEADER_H = 'h-16';
 const OVERLAY_OFFSET = 'top-16';
-const DURATION = 0.38;
+const DURATION = 0.38; // ← mobile bezárási idő
 const EASE: [number, number, number, number] = [0.2, 0.8, 0.2, 1];
 
 const CONTACT_ITEM = { initial: { y: 8, opacity: 0 }, enter: (i: number) => ({ y: 0, opacity: 1, transition: { delay: 0.06 * i, duration: 0.26, ease: EASE } }) } as const;
@@ -30,7 +31,7 @@ export function MobileNavbar({
   policyLinks = [],
   contactInputs = [],
   copyrightText,
-  navBgClass = 'bg-white', // ⬅️ ÚJ
+  navBgClass = 'bg-white',
 }: {
   leftNavbarItems: NavItem[];
   logo: any;
@@ -38,9 +39,11 @@ export function MobileNavbar({
   policyLinks?: LinkItem[];
   contactInputs?: ContactInput[];
   copyrightText?: string | null;
-  navBgClass?: string;              // ⬅️ ÚJ
+  navBgClass?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const { navigateAfterClose } = useNavClose();
+  const router = useRouter();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
@@ -50,10 +53,15 @@ export function MobileNavbar({
 
   useMemo(() => leftNavbarItems, [leftNavbarItems]);
 
+  const handleNavClick = (href: string, external?: boolean) => {
+    if (external) { window.open(href, '_blank'); return; }
+    setOpen(false);
+    router.push(href);
+  };
+
   return (
     <>
-      {/* FEJ */}
-      <div className={cn(navBgClass, HEADER_H)}>{/* ⬅️ bg-white → navBgClass */}
+      <div className={cn(navBgClass, HEADER_H)}>
         <nav className="flex items-center justify-between px-6 h-full">
           <Logo locale={locale} image={logo?.image} />
           <div className="flex items-center gap-6">
@@ -71,12 +79,11 @@ export function MobileNavbar({
         </nav>
       </div>
 
-      {/* OVERLAY */}
       <AnimatePresence initial={false}>
         {open && (
           <motion.div
             key="mobile-overlay"
-            className={cn('fixed left-0 right-0 bottom-0 z-[70]', OVERLAY_OFFSET, navBgClass)} // ⬅️ bg-white → navBgClass
+            className={cn('fixed left-0 right-0 bottom-0 z-[70]', OVERLAY_OFFSET, navBgClass)}
             style={{ transformOrigin: 'top', willChange: 'clip-path' }}
             initial={{ clipPath: 'inset(0 0 100% 0)' }}
             animate={{ clipPath: 'inset(0 0 0% 0)' }}
@@ -87,14 +94,15 @@ export function MobileNavbar({
               <ul className="max-w-md mx-auto flex flex-col items-center text-center gap-5">
                 {leftNavbarItems.map((it, i) => (
                   <li key={`${it.text}-${i}`} className="w-full">
-                    <Link
-                      href={`/${locale}${it.URL}`}
-                      target={it.target}
-                      onClick={() => setOpen(false)}
-                      className="block text-[38px] leading-[0.98] font-semibold text-black hover:opacity-90 transition"
+                    <button
+                      onClick={() => handleNavClick(
+                        isExternal(it.URL) ? it.URL : `/${locale}${it.URL}`,
+                        isExternal(it.URL)
+                      )}
+                      className="block w-full text-[38px] leading-[0.98] font-semibold text-black hover:opacity-90 transition"
                     >
                       {it.text}
-                    </Link>
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -107,17 +115,10 @@ export function MobileNavbar({
                     const isEmail = raw.includes('@');
                     const value = raw.replace(/^mailto:/, '');
                     const href = isEmail ? `mailto:${value}` : `tel:${value.replace(/[^\d+]/g, '')}`;
-
                     return isEmail ? (
-                      <motion.a
-                        key={`m-ct-${idx}`}
-                        href={href}
-                        onClick={() => setOpen(false)}
+                      <motion.a key={`m-ct-${idx}`} href={href} onClick={() => setOpen(false)}
                         className="group inline-flex items-center gap-3 py-1 cursor-pointer select-none"
-                        variants={CONTACT_ITEM}
-                        custom={idx}
-                        whileHover="hover"
-                      >
+                        variants={CONTACT_ITEM} custom={idx} whileHover="hover">
                         <motion.div className="w-6 h-6 rounded-full bg-black grid place-items-center" variants={{ hover: CONTACT_HOVER.plus }}>
                           <div className="relative w-3 h-3">
                             <span className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-0.5 bg-white block" />
@@ -130,9 +131,9 @@ export function MobileNavbar({
                         </span>
                       </motion.a>
                     ) : (
-                      <motion.a key={`m-ct-${idx}`} href={href} onClick={() => setOpen(false)} className="text-[16px] text-black hover:opacity-70 transition cursor-pointer" variants={CONTACT_ITEM} custom={idx}>
-                        {raw}
-                      </motion.a>
+                      <motion.a key={`m-ct-${idx}`} href={href} onClick={() => setOpen(false)}
+                        className="text-[16px] text-black hover:opacity-70 transition cursor-pointer"
+                        variants={CONTACT_ITEM} custom={idx}>{raw}</motion.a>
                     );
                   })}
                 </motion.div>
@@ -142,13 +143,9 @@ export function MobileNavbar({
                 <div className="mt-10 max-w-md mx-auto flex flex-col items-center gap-2">
                   {policyLinks.map((p, i) =>
                     isExternal(p.URL) ? (
-                      <a key={`m-pol-${i}`} href={p.URL} target={p.target || '_self'} rel={p.target === '_blank' ? 'noreferrer' : undefined} onClick={() => setOpen(false)} className="text-sm text-black hover:opacity-70 transition">
-                        {p.text}
-                      </a>
+                      <a key={`m-pol-${i}`} href={p.URL} target={p.target || '_self'} rel={p.target === '_blank' ? 'noreferrer' : undefined} onClick={() => setOpen(false)} className="text-sm text-black hover:opacity-70 transition">{p.text}</a>
                     ) : (
-                      <Link key={`m-pol-${i}`} href={withLocale(p.URL, locale)} onClick={() => setOpen(false)} className="text-sm text-black hover:opacity-70 transition">
-                        {p.text}
-                      </Link>
+                      <button key={`m-pol-${i}`} onClick={() => handleNavClick(withLocale(p.URL, locale))} className="text-sm text-black hover:opacity-70 transition">{p.text}</button>
                     )
                   )}
                 </div>

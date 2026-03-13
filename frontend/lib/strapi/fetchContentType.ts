@@ -98,9 +98,21 @@ export default async function fetchContentType(
   const query = qs.stringify(queryObj, { encodeValuesOnly: true });
   const url = `${API_BASE}/api/${contentType}${query ? `?${query}` : ''}`;
 
+  // const res = await fetch(url, {
+  //   method: 'GET',
+  //   cache: 'no-store',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     ...(process.env.STRAPI_API_TOKEN
+  //       ? { Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}` }
+  //       : {}),
+  //     'strapi-encode-source-maps': isDraftMode ? 'true' : 'false',
+  //   },
+  // });
+
   const res = await fetch(url, {
     method: 'GET',
-    cache: 'no-store',
+    next: { revalidate: isDraftMode ? 0 : 60 },
     headers: {
       'Content-Type': 'application/json',
       ...(process.env.STRAPI_API_TOKEN
