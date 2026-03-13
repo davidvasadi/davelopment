@@ -1,25 +1,24 @@
 // frontend/app/[locale]/layout.tsx
 import type { Metadata } from 'next';
 import { ViewTransitions } from 'next-view-transitions';
-import { Inter } from 'next/font/google';
+import { Geist } from 'next/font/google';
 import { draftMode } from 'next/headers';
 import React from 'react';
 import { DraftModeBanner } from '@/components/draft-mode-banner';
 import { Footer } from '@/components/footer';
 import { Navbar } from '@/components/navbar';
-import { AIToast } from '@/components/toast';
-import { CartProvider } from '@/context/cart-context';
 import { generateMetadataObject } from '@/lib/shared/metadata';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import { cn } from '@/lib/utils';
+import { SmoothScroll } from '@/components/ui/smooth-scroll';
+import { AppWrapper, PageTransition } from '@/components/ui/preloader';
 
-const inter = Inter({
+const geist = Geist({
   subsets: ['latin'],
   display: 'swap',
-  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-geist',
 });
 
-// Globális (default) SEO – oldalak, ahol nincs külön SEO
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
@@ -54,15 +53,25 @@ export default async function LocaleLayout(props: {
 
   return (
     <ViewTransitions>
-      {/* <CartProvider> */}
-        <div className={cn(inter.className, 'bg-[#f5f5f5] antialiased h-full w-full pt-16')}>
-          <Navbar data={pageData.navbar} locale={locale} />
-          {children}
-          <Footer data={pageData.footer} locale={locale} />
-          {/* <AIToast /> */}
-          {isDraftMode && <DraftModeBanner />}
-        </div>
-      {/* </CartProvider> */}
+      <SmoothScroll>
+        <AppWrapper>
+          <div className={cn(geist.className, 'bg-[#f5f5f5] antialiased h-full w-full pt-16')}>
+
+            {/* Navbar — kívül marad, NEM animálódik oldalváltáskor */}
+            <Navbar data={pageData.navbar} locale={locale} />
+
+            {/* PageTransition — CSAK a children köré, Navbar/Footer érintetlen marad */}
+            <PageTransition>
+              {children}
+            </PageTransition>
+
+            {/* Footer — kívül marad, NEM animálódik oldalváltáskor */}
+            <Footer data={pageData.footer} locale={locale} />
+
+            {isDraftMode && <DraftModeBanner />}
+          </div>
+        </AppWrapper>
+      </SmoothScroll>
     </ViewTransitions>
   );
 }

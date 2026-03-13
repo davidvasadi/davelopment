@@ -5,14 +5,16 @@ import { DesktopNavbar } from './desktop-navbar';
 import { MobileNavbar } from './mobile-navbar';
 import { cn } from '@/lib/utils';
 
+const DEFAULT_NAV_BG = 'bg-[#f5f5f5]';
+
 export function Navbar({
   data,
   locale,
-  navBgClass = 'bg-#f5f5f5', // ⬅️ ÚJ: kívülről állítható háttér
+  navBgClass = DEFAULT_NAV_BG,
 }: {
   data: any;
   locale: string;
-  navBgClass?: string;              // ⬅️ ÚJ
+  navBgClass?: string;
 }) {
   const policyLinks = data?.policy_links ?? data?.policy ?? [];
   const contactInputs =
@@ -26,8 +28,16 @@ export function Navbar({
     data?.global?.copyright ??
     '';
 
+  // Fix: navBgClass-t clean class stringként adjuk át, nem assignment-ként
+  const resolvedBg = navBgClass || DEFAULT_NAV_BG;
+
   return (
-    <motion.nav className={cn('fixed top-0 inset-x-0 z-50 isolate', navBgClass='bg-[#f5f5f5]')}>{/* ⬅️ wrapper is kap háttért */}
+    <motion.nav
+      className={cn('fixed top-0 inset-x-0 z-50 isolate', resolvedBg)}
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+    >
       {/* DESKTOP */}
       <div className="hidden lg:block">
         <DesktopNavbar
@@ -38,7 +48,7 @@ export function Navbar({
           policyLinks={policyLinks}
           contactInputs={contactInputs}
           copyrightText={copyrightText}
-          navBgClass={navBgClass} // ⬅️ továbbadjuk
+          navBgClass={resolvedBg}
         />
       </div>
 
@@ -51,7 +61,7 @@ export function Navbar({
           policyLinks={policyLinks}
           contactInputs={contactInputs}
           copyrightText={copyrightText}
-          navBgClass={navBgClass} // ⬅️ továbbadjuk
+          navBgClass={resolvedBg}
         />
       </div>
     </motion.nav>

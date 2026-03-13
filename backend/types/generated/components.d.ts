@@ -224,6 +224,7 @@ export interface DynamicZoneHero extends Struct.ComponentSchema {
     icon: 'layout';
   };
   attributes: {
+    badge_label: Schema.Attribute.String;
     contact_anchor_id: Schema.Attribute.String &
       Schema.Attribute.DefaultTo<'kapcsolat'>;
     copyright: Schema.Attribute.String;

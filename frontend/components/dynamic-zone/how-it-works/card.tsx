@@ -18,12 +18,13 @@ export const Card = ({
 
   return (
     <motion.div
-      className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm transition-shadow duration-150 hover:shadow-md"
+      // h-full + min-h → egységes magasság a grid sorban
+      className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm transition-shadow duration-150 hover:shadow-md h-full min-h-[280px] md:min-h-[320px] flex flex-col"
       initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
     >
-      {/* fej + sorszám */}
+      {/* Fejléc: pöttyök + sorszám */}
       <div className="flex items-center justify-between">
         <div className="flex gap-2" aria-hidden>
           {[1, 2, 3, 4].map((d) => (
@@ -33,23 +34,32 @@ export const Card = ({
             />
           ))}
         </div>
-        <div className="text-xs font-semibold text-black/50">
+        <div className="text-xs font-semibold text-black/40">
           {String(index).padStart(2, '0')}
         </div>
       </div>
 
-      {/* tartalom */}
-      <div className="mt-4 space-y-3">
-        {imageSrc ? (
-          <div className="h-12 w-12 overflow-hidden rounded-lg">
-            <img src={imageSrc} alt="" className="h-full w-full object-cover" />
-          </div>
-        ) : null}
+      {/* Tartalom — kép és cím egy sorban, leírás legalul */}
+      <div className="mt-6 flex flex-col flex-1">
 
-        <p className="text-sm font-medium leading-relaxed text-black/70">{title}</p>
-        {description ? (
-          <p className="text-sm leading-relaxed text-gray-500">{description}</p>
-        ) : null}
+        {/* Kép + cím egymás mellett */}
+        <div className="flex items-center gap-3">
+          {imageSrc && (
+            <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl">
+              <img src={imageSrc} alt="" className="h-full w-full object-cover" />
+            </div>
+          )}
+          <p className="text-lg font-medium leading-snug text-black">{title}</p>
+        </div>
+
+        {/* Spacer — leírást lenyomja a kártya aljára */}
+        <div className="flex-1" />
+
+        {/* Leírás — mindig legalul */}
+        {description && (
+          <p className="mt-4 text-sm leading-relaxed text-gray-500">{description}</p>
+        )}
+
       </div>
     </motion.div>
   );

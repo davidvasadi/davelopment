@@ -93,6 +93,9 @@
         }
       },
       "enum": [
+        "starter",
+        "pro",
+        "studio",
         "project",
         "monthly",
         "enterprise"

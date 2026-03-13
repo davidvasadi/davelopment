@@ -63,6 +63,9 @@
     },
     "description_body": {
       "type": "string"
+    },
+    "badge_label": {
+      "type": "string"
     }
   }
 }

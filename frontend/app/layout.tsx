@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="hu" suppressHydrationWarning>
       <body suppressHydrationWarning>
         <Preview />
         <SlugProvider>{children}</SlugProvider>

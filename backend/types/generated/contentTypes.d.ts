@@ -968,7 +968,7 @@ export interface ApiPlanPlan extends Struct.CollectionTypeSchema {
         };
       }>;
     plan_type: Schema.Attribute.Enumeration<
-      ['project', 'monthly', 'enterprise']
+      ['starter', 'pro', 'studio', 'project', 'monthly', 'enterprise']
     > &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
