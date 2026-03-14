@@ -15,7 +15,7 @@ import { usePathname } from 'next/navigation';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 
 type FormInput = {
-  type: 'text' | 'email' | 'textarea' | 'submit';
+  type: 'text' | 'email' | 'textarea' | 'submit' | string;
   name: string;
   placeholder?: string;
 };
@@ -65,41 +65,50 @@ type FormNextToSectionProps = {
   social_media_icon_links?: any[];
   person_card?: PersonCard;
   copyright?: string;
-
   video?: Media;
   video_poster?: Media;
-
   benefits?: Benefit[] | null;
-
   policy_links?: PolicyLink[] | null;
   policy_prefix?: string | null;
   policy_and_word?: string | null;
 };
 
-// STRAPI BASE (mint a newsletternél is)
-const STRAPI_BASE_URL =
-  process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
-
-// Strapi media → abszolút URL
 const toAbs = (m?: Media): string | undefined => {
-  const raw = typeof m === 'string' ? m : m?.url || '';
+  const raw = typeof m === 'string' ? m : (m as any)?.url || '';
   return raw ? strapiImage(raw) : undefined;
 };
 
-// ikon választó a Benefit ikon enum alapján
 const renderBenefitIcon = (icon?: BenefitIcon | null) => {
   switch (icon) {
-    case 'rotate':
-      return <RotateCwIcon className="w-6 h-6 text-white mt-1" />;
-    case 'step':
-      return <StepForwardIcon className="w-6 h-6 text-white mt-1" />;
-    case 'check':
-      return <CheckCircleIcon className="w-6 h-6 text-white mt-1" />;
-    case 'clock':
-      return <ClockIcon className="w-6 h-6 text-white mt-1" />;
-    default:
-      return <CheckCircleIcon className="w-6 h-6 text-white mt-1" />;
+    case 'rotate': return <RotateCwIcon className="w-6 h-6 text-white mt-1" />;
+    case 'step':   return <StepForwardIcon className="w-6 h-6 text-white mt-1" />;
+    case 'check':  return <CheckCircleIcon className="w-6 h-6 text-white mt-1" />;
+    case 'clock':  return <ClockIcon className="w-6 h-6 text-white mt-1" />;
+    default:       return <CheckCircleIcon className="w-6 h-6 text-white mt-1" />;
   }
+};
+
+// ─────────────────────────────────────────────────────────────
+// Mező-azonosítás: name tartalom alapján, NEM type alapján.
+// Strapi-ban minden input type="text" lehet — a name adja meg a szerepet.
+// ─────────────────────────────────────────────────────────────
+const fieldRole = (
+  input: FormInput,
+): 'name' | 'email' | 'phone' | 'message' | 'submit' | 'unknown' => {
+  const n = (input.name ?? '').toLowerCase();
+  const t = (input.type ?? '').toLowerCase();
+
+  if (t === 'submit') return 'submit';
+  if (t === 'textarea' || n.includes('üzenet') || n.includes('message') || n.includes('uzenet'))
+    return 'message';
+  if (t === 'tel' || n.includes('telefon') || n.includes('phone') || n.includes('tel'))
+    return 'phone';
+  if (t === 'email' || n.includes('e-mail') || n.includes('email') || n.includes('mail'))
+    return 'email';
+  if (n.includes('név') || n.includes('name') || n.includes('nev'))
+    return 'name';
+
+  return 'unknown';
 };
 
 export function FormNextToSection({
@@ -107,7 +116,6 @@ export function FormNextToSection({
   sub_heading,
   form,
   section,
-  social_media_icon_links,
   person_card,
   copyright,
   video,
@@ -117,91 +125,72 @@ export function FormNextToSection({
   policy_prefix,
   policy_and_word,
 }: FormNextToSectionProps) {
-  // --- nyelv detektálása URL-ből (/hu vs /en) ---
   const pathname = usePathname();
   const lang: 'hu' | 'en' = pathname?.startsWith('/hu') ? 'hu' : 'en';
 
-  const messages = lang === 'hu'
-    ? {
-        nameRequired: 'A név megadása kötelező.',
-        emailRequired: 'Az email megadása kötelező.',
-        emailInvalid: 'Érvényes email címet adj meg.',
-        messageRequired: 'Az üzenet megadása kötelező.',
-        submitFailed: 'Beküldés sikertelen. Próbáld újra.',
-        networkError: 'Hálózati hiba. Próbáld újra.',
-        sending: 'Küldés folyamatban...',
-        success: 'Köszönöm! Hamarosan jelentkezem.',
-      }
-    : {
-        nameRequired: 'Your name is required.',
-        emailRequired: 'E-mail is required.',
-        emailInvalid: 'Please enter a valid e-mail address.',
-        messageRequired: 'Message is required.',
-        submitFailed: 'Submission failed. Please try again.',
-        networkError: 'Network error. Please try again.',
-        sending: 'Sending...',
-        success: 'Thank you! I will get back to you soon.',
-      };
+  const messages =
+    lang === 'hu'
+      ? {
+          nameRequired: 'A név megadása kötelező.',
+          emailRequired: 'Az email megadása kötelező.',
+          emailInvalid: 'Érvényes email címet adj meg.',
+          messageRequired: 'Az üzenet megadása kötelező.',
+          submitFailed: 'Beküldés sikertelen. Próbáld újra.',
+          networkError: 'Hálózati hiba. Próbáld újra.',
+          sending: 'Küldés folyamatban...',
+          success: 'Köszönöm! Hamarosan jelentkezem.',
+        }
+      : {
+          nameRequired: 'Your name is required.',
+          emailRequired: 'E-mail is required.',
+          emailInvalid: 'Please enter a valid e-mail address.',
+          messageRequired: 'Message is required.',
+          submitFailed: 'Submission failed. Please try again.',
+          networkError: 'Network error. Please try again.',
+          sending: 'Sending...',
+          success: 'Thank you! I will get back to you soon.',
+        };
 
-  // --- 1. lokális form state ---
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: '',
-  });
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
+  const [isSubmitting, setIsSubmitting]   = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [showAlert, setShowAlert] = useState(false);
+  const [submitError, setSubmitError]     = useState<string | null>(null);
+  const [showAlert, setShowAlert]         = useState(false);
+  const [nameError, setNameError]         = useState<string | null>(null);
+  const [emailError, setEmailError]       = useState<string | null>(null);
+  const [messageError, setMessageError]   = useState<string | null>(null);
 
-  const [nameError, setNameError] = useState<string | null>(null);
-  const [emailError, setEmailError] = useState<string | null>(null);
-  const [messageError, setMessageError] = useState<string | null>(null);
+  // ── Mezők kigyűjtése role alapján ──
+  const inputs      = form?.inputs ?? [];
+  const nameInput    = inputs.find(i => fieldRole(i) === 'name');
+  const emailInput   = inputs.find(i => fieldRole(i) === 'email');
+  const phoneInput   = inputs.find(i => fieldRole(i) === 'phone');
+  const messageInput = inputs.find(i => fieldRole(i) === 'message');
+  const submitInput  = inputs.find(i => fieldRole(i) === 'submit');
 
-  // --- 2. Strapi form mezők ---
-  const nameInput = form?.inputs?.find((i) => i.type === 'text');
-  const emailInput = form?.inputs?.find((i) => i.type === 'email');
-  const messageInput = form?.inputs?.find((i) => i.type === 'textarea');
-  const submitInput = form?.inputs?.find((i) => i.type === 'submit');
-
-  // --- 3. Validáció ---
+  // ── Validáció ──
   const validate = () => {
     let valid = true;
     setNameError(null);
     setEmailError(null);
     setMessageError(null);
 
-    if (!formData.name.trim()) {
-      setNameError(messages.nameRequired);
-      valid = false;
-    }
-
+    if (!formData.name.trim()) { setNameError(messages.nameRequired); valid = false; }
     if (!formData.email.trim()) {
-      setEmailError(messages.emailRequired);
-      valid = false;
+      setEmailError(messages.emailRequired); valid = false;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setEmailError(messages.emailInvalid);
-      valid = false;
+      setEmailError(messages.emailInvalid); valid = false;
     }
-
-    if (!formData.message.trim()) {
-      setMessageError(messages.messageRequired);
-      valid = false;
-    }
+    if (!formData.message.trim()) { setMessageError(messages.messageRequired); valid = false; }
 
     return valid;
   };
 
-  // --- 4. Input change handler ---
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // --- 5. Submit handler -> KÖZVETLEN Strapi Contact ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
@@ -213,36 +202,30 @@ export function FormNextToSection({
 
     try {
       const res = await fetch('/api/contact', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    name: formData.name,
-    email: formData.email,
-    message: formData.message,
-    page: pathname || '/',
-    language: lang,
-  }),
-});
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          message: formData.message,
+          page: pathname || '/',
+          language: lang,
+        }),
+      });
 
       if (!res.ok) {
-        let errorBody: any = null;
         try {
-          const contentType = res.headers.get('content-type') || '';
-          if (contentType.includes('application/json')) {
-            errorBody = await res.json();
-          } else {
-            errorBody = await res.text();
-          }
-          console.error('Beküldési hiba (Strapi):', errorBody);
-        } catch {
-          // ignore
-        }
+          const ct = res.headers.get('content-type') || '';
+          const body = ct.includes('application/json') ? await res.json() : await res.text();
+          console.error('Beküldési hiba (Strapi):', body);
+        } catch {}
         setSubmitError(messages.submitFailed);
         return;
       }
 
       setSubmitSuccess(true);
-      setFormData({ name: '', email: '', message: '' });
+      setFormData({ name: '', email: '', phone: '', message: '' });
     } catch (err) {
       console.error('Beküldési hiba (hálózat):', err);
       setSubmitError(messages.networkError);
@@ -251,83 +234,65 @@ export function FormNextToSection({
     }
   };
 
-  // --- 6. Animációs variánsok ---
+  // ── Animációk ──
   const wheelVariants: Variants = {
     rest: { y: '-50%' },
-    hover: {
-      y: '0%',
-      transition: { duration: 0.3, ease: 'easeInOut' },
-    },
+    hover: { y: '0%', transition: { duration: 0.3, ease: 'easeInOut' } },
   };
-
   const dotVariants: Variants = {
     rest: { scale: 1 },
-    hover: {
-      scale: 1.1,
-      transition: { duration: 0.3, ease: 'easeInOut' },
-    },
+    hover: { scale: 1.1, transition: { duration: 0.3, ease: 'easeInOut' } },
   };
 
-  // --- 7. Person card kép / gomb adatok ---
-  const personImgUrl = toAbs(person_card?.image);
-
-  const buttonCfg = person_card?.button || null;
-  const buttonLabel = buttonCfg?.text || 'Kérdezz közvetlenül';
-  const rawHrefFromButton = buttonCfg?.URL?.trim() || '';
-  const rawEmail = (person_card?.email || '').trim();
-
+  // ── Person card adatok ──
+  const personImgUrl        = toAbs(person_card?.image);
+  const buttonCfg           = person_card?.button || null;
+  const buttonLabel         = buttonCfg?.text || 'Kérdezz közvetlenül';
+  const rawHrefFromButton   = buttonCfg?.URL?.trim() || '';
+  const rawEmail            = (person_card?.email || '').trim();
   const buttonHref = (() => {
     if (rawHrefFromButton) {
-      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawHrefFromButton)) {
-        return `mailto:${rawHrefFromButton}`;
-      }
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawHrefFromButton)) return `mailto:${rawHrefFromButton}`;
       return rawHrefFromButton;
     }
-    if (rawEmail) {
-      return rawEmail.startsWith('mailto:')
-        ? rawEmail
-        : `mailto:${rawEmail}`;
-    }
+    if (rawEmail) return rawEmail.startsWith('mailto:') ? rawEmail : `mailto:${rawEmail}`;
     return 'mailto:hello@davelopment.hu';
   })();
-
   const buttonTarget =
     buttonCfg?.target === '_blank' || buttonCfg?.target === '_self'
       ? buttonCfg.target
       : undefined;
 
-  const handlePersonButtonClick = (
-    e: React.MouseEvent<HTMLAnchorElement>,
-  ) => {
+  const handlePersonButtonClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (buttonHref.startsWith('#')) {
       e.preventDefault();
       const id = buttonHref.replace(/^#/, '');
       const el = document.getElementById(id);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-      } else {
-        window.location.hash = `#${id}`;
-      }
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      else window.location.hash = `#${id}`;
     }
   };
 
-  // --- 8. Dinamikus videó, mint a Hero-ban ---
-  const videoUrl = toAbs(video);
+  const videoUrl    = toAbs(video);
   const videoPoster = toAbs(video_poster);
-
   const hasBenefits = !!benefits && benefits.length > 0;
-
   const filteredPolicyLinks: PolicyLink[] = (policy_links ?? []).filter(
     (l): l is PolicyLink => !!l && !!l.text && !!l.URL,
   );
 
+  // ── Input osztály helper ──
+  const inputCls = (hasError: boolean) =>
+    `w-full px-4 py-3 rounded-xl bg-gray-50 text-black focus:outline-none focus:ring-2 ${
+      hasError ? 'border border-red-500 ring-red-300' : 'focus:ring-black/10'
+    }`;
+
   return (
-    <div className="px-0 md:px-2 ">
+    <div className="px-0 md:px-2">
       <section
         id="contact"
-        className="relative bg-gray-50 py-20  md:py-32 overflow-hidden md:rounded-3xl"
+        className="relative bg-gray-50 py-20 md:py-32 overflow-hidden md:rounded-3xl"
       >
-        {/* Dinamikus háttérvideó Strapi-ból */}
+        {/* Háttérvideó */}
         {videoUrl && (
           <video
             className="absolute inset-0 w-full h-full object-cover z-0"
@@ -339,13 +304,12 @@ export function FormNextToSection({
             playsInline
           />
         )}
-
         <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-black/10 to-transparent z-0" />
 
-        {/* Tartalom konténer */}
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            {/* BAL: ŰRLAP */}
+
+            {/* ── BAL: ŰRLAP ── */}
             <motion.div
               className="order-1 lg:order-1 px-4"
               initial={{ opacity: 0, y: 30 }}
@@ -355,113 +319,97 @@ export function FormNextToSection({
             >
               <div className="flex flex-col h-full w-full sm:justify-self-center lg:max-w-md">
                 <div className="bg-white backdrop-blur-md rounded-2xl p-8 md:p-10 shadow-lg flex-grow">
-                  {/* Címsor */}
-                  <div className="mb-4">
-                    <p className="text-lg font-semibold mb-2 text-black/80">
-                      [davelopment]®
-                    </p>
 
-                    <h2 className="text-3xl  font-bold mb-2">
+                  {/* Cím */}
+                  <div className="mb-4">
+                    <p className="text-lg font-semibold mb-2 text-black/80">[davelopment]®</p>
+                    <h2 className="text-3xl font-bold mb-2">
                       <span className="text-black">{heading}</span>
-                      {sub_heading && (
-                        <span className="text-black/60"> {sub_heading}</span>
-                      )}
+                      {sub_heading && <span className="text-black/60"> {sub_heading}</span>}
                     </h2>
                   </div>
 
-                  {/* Űrlap */}
                   <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Név */}
-                    <div>
-                      {nameInput?.name && (
-                        <p className="text-xs font-medium text-black/80 mb-1">
-                          {nameInput.name}
-                        </p>
-                      )}
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        placeholder={
-                          nameInput?.placeholder ??
-                          nameInput?.name ??
-                          'Név'
-                        }
-                        className={`w-full px-4 py-3 rounded-xl bg-gray-50 text-black focus:outline-none focus:ring-2 ${
-                          nameError
-                            ? 'border border-red-500 ring-red-300'
-                            : 'focus:ring-black/10'
-                        }`}
-                      />
-                      {nameError && (
-                        <p className="text-sm text-red-600 mt-1">
-                          {nameError}
-                        </p>
-                      )}
-                    </div>
 
-                    {/* Email */}
-                    <div>
-                      {emailInput?.name && (
-                        <p className="text-xs font-medium text-black/80 mb-1">
-                          {emailInput.name}
-                        </p>
-                      )}
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder={
-                          emailInput?.placeholder ??
-                          emailInput?.name ??
-                          'Email'
-                        }
-                        className={`w-full px-4 py-3 rounded-xl bg-gray-50 text-black focus:outline-none focus:ring-2 ${
-                          emailError
-                            ? 'border border-red-500 ring-red-300'
-                            : 'focus:ring-black/10'
-                        }`}
-                      />
-                      {emailError && (
-                        <p className="text-sm text-red-600 mt-1">
-                          {emailError}
-                        </p>
-                      )}
-                    </div>
+                    {/* NÉV */}
+                    {nameInput && (
+                      <div>
+                        <p className="text-xs font-medium text-black/80 mb-1">{nameInput.name}</p>
+                        <input
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleChange}
+                          placeholder={nameInput.placeholder ?? nameInput.name}
+                          className={inputCls(!!nameError)}
+                        />
+                        {nameError && <p className="text-sm text-red-600 mt-1">{nameError}</p>}
+                      </div>
+                    )}
 
-                    {/* Üzenet */}
-                    <div>
-                      {messageInput?.name && (
-                        <p className="text-xs font-medium text-black/80 mb-1">
-                          {messageInput.name}
-                        </p>
-                      )}
-                      <textarea
-                        name="message"
-                        value={formData.message}
-                        onChange={handleChange}
-                        rows={4}
-                        placeholder={
-                          messageInput?.placeholder ??
-                          messageInput?.name ??
-                          'Üzenet'
-                        }
-                        className={`w-full px-4 py-3 rounded-xl bg-gray-50 text-black focus:outline-none focus:ring-2 ${
-                          messageError
-                            ? 'border border-red-500 ring-red-300'
-                            : 'focus:ring-black/10'
-                        }`}
-                      />
-                      {messageError && (
-                        <p className="text-sm text-red-600 mt-1">
-                          {messageError}
-                        </p>
-                      )}
-                    </div>
+                    {/* EMAIL */}
+                    {emailInput && (
+                      <div>
+                        <p className="text-xs font-medium text-black/80 mb-1">{emailInput.name}</p>
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          placeholder={emailInput.placeholder ?? emailInput.name}
+                          className={inputCls(!!emailError)}
+                        />
+                        {emailError && <p className="text-sm text-red-600 mt-1">{emailError}</p>}
+                      </div>
+                    )}
 
-                    {/* Küldés gomb */}
+                    {/* TELEFON — opcionális, nincs kötelező validáció */}
+                    {phoneInput && (
+                      <div>
+                        <p className="text-xs font-medium text-black/80 mb-1">{phoneInput.name}</p>
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          placeholder={phoneInput.placeholder ?? phoneInput.name}
+                          className={inputCls(false)}
+                        />
+                      </div>
+                    )}
+
+                    {/* ÜZENET */}
+                    {messageInput && (
+                      <div>
+                        <p className="text-xs font-medium text-black/80 mb-1">{messageInput.name}</p>
+                        <textarea
+                          name="message"
+                          value={formData.message}
+                          onChange={handleChange}
+                          rows={4}
+                          placeholder={messageInput.placeholder ?? messageInput.name}
+                          className={inputCls(!!messageError)}
+                        />
+                        {messageError && <p className="text-sm text-red-600 mt-1">{messageError}</p>}
+                      </div>
+                    )}
+
+                    {/* ISMERETLEN TÍPUSÚ MEZŐK — generikusan renderelve */}
+                    {inputs
+                      .filter(i => fieldRole(i) === 'unknown')
+                      .map((input, idx) => (
+                        <div key={`unknown-${idx}`}>
+                          <p className="text-xs font-medium text-black/80 mb-1">{input.name}</p>
+                          <input
+                            type="text"
+                            name={`extra_${idx}`}
+                            placeholder={input.placeholder ?? input.name}
+                            className={inputCls(false)}
+                          />
+                        </div>
+                      ))}
+
+                    {/* SUBMIT GOMB */}
                     <motion.button
                       type="submit"
                       disabled={isSubmitting}
@@ -471,21 +419,12 @@ export function FormNextToSection({
                       whileTap={{ scale: 0.98 }}
                     >
                       {isSubmitting ? (
-                        <span className="animate-pulse">
-                          {messages.sending}
-                        </span>
+                        <span className="animate-pulse">{messages.sending}</span>
                       ) : (
                         <motion.div className="overflow-hidden h-6">
-                          <motion.div
-                            className="flex flex-col"
-                            variants={wheelVariants}
-                          >
-                            <span>
-                              {submitInput?.name ?? 'Üzenet küldése'}
-                            </span>
-                            <span>
-                              {submitInput?.name ?? 'Üzenet küldése'}
-                            </span>
+                          <motion.div className="flex flex-col" variants={wheelVariants}>
+                            <span>{submitInput?.name ?? 'Üzenet küldése'}</span>
+                            <span>{submitInput?.name ?? 'Üzenet küldése'}</span>
                           </motion.div>
                         </motion.div>
                       )}
@@ -498,17 +437,9 @@ export function FormNextToSection({
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3 }}
                         className={`relative mt-6 rounded-xl px-5 py-4 text-sm text-center backdrop-blur-md border ${
-                          isSubmitting
-                            ? 'bg-yellow-50 border-yellow-300 text-yellow-800'
-                            : ''
-                        } ${
-                          submitSuccess
-                            ? 'bg-green-50 border-green-300 text-green-800'
-                            : ''
-                        } ${
-                          submitError
-                            ? 'bg-red-50 border-red-300 text-red-800'
-                            : ''
+                          isSubmitting ? 'bg-yellow-50 border-yellow-300 text-yellow-800' : ''
+                        } ${submitSuccess ? 'bg-green-50 border-green-300 text-green-800' : ''} ${
+                          submitError ? 'bg-red-50 border-red-300 text-red-800' : ''
                         }`}
                       >
                         <button
@@ -519,15 +450,9 @@ export function FormNextToSection({
                           <XIcon className="w-4 h-4" />
                         </button>
                         <div className="flex items-center justify-center space-x-2">
-                          {isSubmitting && (
-                            <ClockIcon className="w-5 h-5" />
-                          )}
-                          {submitSuccess && (
-                            <CheckCircleIcon className="w-5 h-5" />
-                          )}
-                          {submitError && (
-                            <XCircleIcon className="w-5 h-5" />
-                          )}
+                          {isSubmitting && <ClockIcon className="w-5 h-5" />}
+                          {submitSuccess && <CheckCircleIcon className="w-5 h-5" />}
+                          {submitError && <XCircleIcon className="w-5 h-5" />}
                           <span>
                             {isSubmitting && messages.sending}
                             {submitSuccess && messages.success}
@@ -537,43 +462,28 @@ export function FormNextToSection({
                       </motion.div>
                     )}
 
-                    {/* Jogi szöveg – dinamikus policy_links Strapi-ból */}
+                    {/* Policy linkek */}
                     {filteredPolicyLinks.length > 0 ? (
                       <p className="text-xs text-black/60 text-left">
                         {policy_prefix}{' '}
                         {filteredPolicyLinks.map((link, index) => {
-                          const isLast =
-                            index === filteredPolicyLinks.length - 1;
-                          const isSecondLast =
-                            index === filteredPolicyLinks.length - 2;
-
+                          const isLast       = index === filteredPolicyLinks.length - 1;
+                          const isSecondLast = index === filteredPolicyLinks.length - 2;
                           const separator =
-                            filteredPolicyLinks.length === 1
-                              ? ''
-                              : isLast
-                              ? ''
-                              : isSecondLast
-                              ? ` ${policy_and_word} `
-                              : ', ';
-
+                            filteredPolicyLinks.length === 1 ? ''
+                            : isLast ? ''
+                            : isSecondLast ? ` ${policy_and_word} `
+                            : ', ';
                           const target =
-                            link.target === '_blank' ||
-                            link.target === '_self'
+                            link.target === '_blank' || link.target === '_self'
                               ? link.target
                               : undefined;
-
                           return (
-                            <React.Fragment
-                              key={`${link.URL}-${index}`}
-                            >
+                            <React.Fragment key={`${link.URL}-${index}`}>
                               <a
                                 href={link.URL!}
                                 target={target}
-                                rel={
-                                  target === '_blank'
-                                    ? 'noopener noreferrer'
-                                    : undefined
-                                }
+                                rel={target === '_blank' ? 'noopener noreferrer' : undefined}
                                 className="text-black font-semibold hover:underline underline-offset-2"
                               >
                                 {link.text}
@@ -586,23 +496,20 @@ export function FormNextToSection({
                       </p>
                     ) : (
                       <p className="text-xs text-black/60 text-center">
-                        Az űrlap elküldésével elfogadod az ÁSZF-et és az
-                        Adatkezelési tájékoztatót.
+                        Az űrlap elküldésével elfogadod az ÁSZF-et és az Adatkezelési tájékoztatót.
                       </p>
                     )}
                   </form>
                 </div>
 
-                {/* Lábléc copyright */}
+                {/* Copyright */}
                 <div className="mt-4 text-left">
-                  <p className="text-sm text-gray-100">
-                    {copyright ?? '© [davelopment]®'}
-                  </p>
+                  <p className="text-sm text-gray-100">{copyright ?? '© [davelopment]®'}</p>
                 </div>
               </div>
             </motion.div>
 
-            {/* JOBB: szöveg + benefits + person card */}
+            {/* ── JOBB: szöveg + benefits + person card ── */}
             <motion.div
               className="order-1 lg:order-2"
               initial={{ opacity: 0, y: 30 }}
@@ -611,7 +518,6 @@ export function FormNextToSection({
               viewport={{ once: true }}
             >
               <div className="flex flex-col h-full rounded-2xl p-8 md:p-10 text-white">
-                {/* Főcím */}
                 <motion.h2
                   className="text-5xl md:text-8xl xl:text-8xl font-bold mb-8"
                   initial={{ opacity: 0, y: 20 }}
@@ -622,7 +528,6 @@ export function FormNextToSection({
                   {section?.heading ?? 'Beszéljünk a projektedről'}
                 </motion.h2>
 
-                {/* Leírás + BENEFITS LISTA Strapi-ból */}
                 <motion.div
                   className="mb-10"
                   initial={{ opacity: 0, y: 20 }}
@@ -631,9 +536,7 @@ export function FormNextToSection({
                   viewport={{ once: true }}
                 >
                   {section?.sub_heading && (
-                    <p className="text-xl mb-6 text-white/80">
-                      {section.sub_heading}
-                    </p>
+                    <p className="text-xl mb-6 text-white/80">{section.sub_heading}</p>
                   )}
 
                   <div className="w-full h-px bg-white/10 my-8" />
@@ -646,25 +549,14 @@ export function FormNextToSection({
                           className="flex items-start space-x-4"
                           initial={{ opacity: 0, x: -20 }}
                           whileInView={{ opacity: 1, x: 0 }}
-                          transition={{
-                            duration: 0.6,
-                            delay: 0.5 + index * 0.1,
-                          }}
+                          transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
                           viewport={{ once: true }}
                         >
-                          <div className="shrink-0">
-                            {renderBenefitIcon(
-                              benefit.icon || undefined,
-                            )}
-                          </div>
+                          <div className="shrink-0">{renderBenefitIcon(benefit.icon || undefined)}</div>
                           <div>
-                            <h3 className="text-lg font-semibold mb-2">
-                              {benefit.title}
-                            </h3>
+                            <h3 className="text-lg font-semibold mb-2">{benefit.title}</h3>
                             {benefit.description && (
-                              <p className="text-white/60 text-sm">
-                                {benefit.description}
-                              </p>
+                              <p className="text-white/60 text-sm">{benefit.description}</p>
                             )}
                           </div>
                         </motion.div>
@@ -683,7 +575,6 @@ export function FormNextToSection({
                     viewport={{ once: true }}
                   >
                     <div className="flex space-x-1">
-                      {/* Profilkép */}
                       <div className="w-28 h-36 bg-white rounded-xl overflow-hidden shrink-0">
                         {personImgUrl ? (
                           <Image
@@ -698,30 +589,19 @@ export function FormNextToSection({
                         )}
                       </div>
 
-                      {/* Név és gomb */}
                       <div className="bg-white text-black rounded-xl p-4 flex-grow max-w-[260px]">
                         {person_card.role && (
-                          <p className="text-sm font-semibold">
-                            {person_card.role}
-                          </p>
+                          <p className="text-sm font-semibold">{person_card.role}</p>
                         )}
                         {person_card.org && (
-                          <p className="text-xs text-black/60">
-                            {person_card.org}
-                          </p>
+                          <p className="text-xs text-black/60">{person_card.org}</p>
                         )}
-                        <p className="text-xl font-semibold mb-3">
-                          {person_card.name}
-                        </p>
+                        <p className="text-xl font-semibold mb-3">{person_card.name}</p>
 
                         <motion.a
                           href={buttonHref}
                           target={buttonTarget}
-                          rel={
-                            buttonTarget === '_blank'
-                              ? 'noopener noreferrer'
-                              : undefined
-                          }
+                          rel={buttonTarget === '_blank' ? 'noopener noreferrer' : undefined}
                           onClick={handlePersonButtonClick}
                           className="inline-flex items-center bg-black text-white px-3 py-2 rounded-full text-xs font-semibold"
                           initial="rest"
@@ -749,6 +629,7 @@ export function FormNextToSection({
                 )}
               </div>
             </motion.div>
+
           </div>
         </div>
       </section>

@@ -181,7 +181,7 @@ export function Services(props: ServicesBlockProps) {
                             className="w-full h-full object-cover" style={{ filter: 'brightness(1.15)' }} />
                     )}
                     {/* Grain overlay — ugyanaz mint a hero-ban */}
-                    <GrainCanvas strength="medium" opacity={0.5} zIndex={1} />
+                    <GrainCanvas strength="light" opacity={0.5} zIndex={1} />
                     <div className="absolute inset-0 opacity-5" />
                 </div>
 

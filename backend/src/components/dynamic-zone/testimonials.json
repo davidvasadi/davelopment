@@ -7,6 +7,9 @@
   },
   "options": {},
   "attributes": {
+    "badge_label": {
+      "type": "string"
+    },
     "heading": {
       "type": "string"
     },
@@ -17,6 +20,30 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::testimonial.testimonial"
+    },
+    "stat_rating": {
+      "type": "decimal"
+    },
+    "stat_rating_max": {
+      "type": "integer"
+    },
+    "stat_description": {
+      "type": "string"
+    },
+    "stat_description_bold": {
+      "type": "string"
+    },
+    "stat_trust_label": {
+      "type": "string"
+    },
+    "stat_cta_text": {
+      "type": "string"
+    },
+    "stat_cta_url": {
+      "type": "string"
+    },
+    "stat_brand": {
+      "type": "string"
     }
   }
 }

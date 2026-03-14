@@ -18,11 +18,16 @@ const withLocale = (u: string, locale: string) => (isExternal(u) ? u : `/${local
 
 const HEADER_H = 'h-16';
 const OVERLAY_OFFSET = 'top-16';
-const DURATION = 0.38; // ← mobile bezárási idő
+const DURATION = 0.38;
 const EASE: [number, number, number, number] = [0.2, 0.8, 0.2, 1];
 
 const CONTACT_ITEM = { initial: { y: 8, opacity: 0 }, enter: (i: number) => ({ y: 0, opacity: 1, transition: { delay: 0.06 * i, duration: 0.26, ease: EASE } }) } as const;
 const CONTACT_HOVER = { plus: { rotate: 90, transition: { duration: 0.22 } }, underline: { scaleX: 0, transition: { duration: 0.3 } } } as const;
+
+const FLIP_VARIANTS = {
+  rest: { y: '0%' },
+  hover: { y: '-50%', transition: { duration: 0.3, ease: 'easeInOut' } },
+} as const;
 
 export function MobileNavbar({
   leftNavbarItems,
@@ -84,25 +89,39 @@ export function MobileNavbar({
           <motion.div
             key="mobile-overlay"
             className={cn('fixed left-0 right-0 bottom-0 z-[70]', OVERLAY_OFFSET, navBgClass)}
-            style={{ transformOrigin: 'top', willChange: 'clip-path' }}
-            initial={{ clipPath: 'inset(0 0 100% 0)' }}
-            animate={{ clipPath: 'inset(0 0 0% 0)' }}
-            exit={{ clipPath: 'inset(0 0 100% 0)' }}
-            transition={{ duration: DURATION, ease: EASE }}
+            style={{ transformOrigin: 'top', overflow: 'hidden', willChange: 'transform, opacity' }}
+            initial={{ y: -10, scaleY: 0.965, opacity: 0 }}
+            animate={{ y: 0, scaleY: 1, opacity: 1 }}
+            exit={{ y: -10, scaleY: 0.965, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 240, damping: 26, mass: 0.95 }}
           >
             <div className="px-6 pt-10 pb-24">
               <ul className="max-w-md mx-auto flex flex-col items-center text-center gap-5">
                 {leftNavbarItems.map((it, i) => (
                   <li key={`${it.text}-${i}`} className="w-full">
-                    <button
+                    {/* Szöveg-flip hover: overflow-hidden + dupla szöveg + translateY
+                        Mobilon touch eszközön a hover nem aktív, de desktop szélességen működik */}
+                    <motion.button
                       onClick={() => handleNavClick(
                         isExternal(it.URL) ? it.URL : `/${locale}${it.URL}`,
                         isExternal(it.URL)
                       )}
-                      className="block w-full text-[38px] leading-[0.98] font-semibold text-black hover:opacity-90 transition"
+                      className="block w-full font-semibold text-black text-center"
+                      whileHover="hover"
+                      initial="rest"
+                      animate="rest"
                     >
-                      {it.text}
-                    </button>
+                      <div style={{ height: 50, overflow: 'hidden', position: 'relative' }}>
+                        <motion.div
+                          style={{ position: 'absolute', top: 0, left: 0, right: 0, fontSize: 38, lineHeight: '50px', textAlign: 'center' }}
+                          variants={{ rest: { y: 0 }, hover: { y: -50, transition: { duration: 0.35, ease: [0.33,1,0.68,1] } } }}
+                        >{it.text}</motion.div>
+                        <motion.div
+                          style={{ position: 'absolute', top: 50, left: 0, right: 0, fontSize: 38, lineHeight: '50px', textAlign: 'center' }}
+                          variants={{ rest: { y: 0 }, hover: { y: -50, transition: { duration: 0.35, ease: [0.33,1,0.68,1] } } }}
+                        >{it.text}</motion.div>
+                      </div>
+                    </motion.button>
                   </li>
                 ))}
               </ul>

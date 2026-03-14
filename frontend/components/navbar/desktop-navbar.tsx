@@ -20,7 +20,7 @@ const withLocale = (u: string, locale: string) =>
 
 const HEADER_H = 'h-16';
 const OVERLAY_OFFSET = 'top-16';
-const DURATION = 0.56; // ← ezt használja a navigateAfterClose delay kiszámításához
+const DURATION = 0.56;
 const EASE: [number, number, number, number] = [0.33, 1, 0.68, 1];
 
 const OVERLAY_SPRING = { type: 'spring', stiffness: 240, damping: 26, mass: 0.95 } as const;
@@ -30,6 +30,11 @@ const ITEM_VARIANTS = { closed: { opacity: 0, y: -10 }, open: { opacity: 1, y: 0
 const CONTACT_ITEM = { initial: { y: 8, opacity: 0 }, enter: (i: number) => ({ y: 0, opacity: 1, transition: { delay: 0.06 * i, duration: 0.26, ease: EASE } }) } as const;
 const CONTACT_HOVER = { plus: { rotate: 90, transition: { duration: 0.22 } }, underline: { scaleX: 0, transition: { duration: 0.3 } } } as const;
 const SPRING_FAST = { type: 'spring', stiffness: 260, damping: 28, mass: 0.9, restDelta: 0.001 } as const;
+
+const FLIP_VARIANTS = {
+  rest: { y: '0%' },
+  hover: { y: '-50%', transition: { duration: 0.3, ease: 'easeInOut' } },
+} as const;
 
 export function DesktopNavbar({
   leftNavbarItems,
@@ -71,7 +76,6 @@ export function DesktopNavbar({
 
   const handleNavClick = (href: string, external?: boolean) => {
     if (external) { window.open(href, '_blank'); return; }
-    // Menü azonnal bezárul + navigál egyszerre — a függöny takarja
     setOpen(false);
     router.push(href);
   };
@@ -82,6 +86,7 @@ export function DesktopNavbar({
         <nav className="relative flex items-center px-6 h-full">
           <Logo locale={locale} image={logo?.image} />
 
+          {/* Inline nav gombok — ezeken nincs flip hover, csak az overlay-en */}
           <div className={cn(
             'hidden xl:flex absolute left-1/2 -translate-x-1/2 gap-[12rem] transition-opacity',
             open ? 'opacity-0 pointer-events-none' : 'opacity-100'
@@ -128,15 +133,29 @@ export function DesktopNavbar({
               <motion.ul className="max-w-4xl mx-auto text-center space-y-6" variants={LIST_VARIANTS} initial="closed" animate="open">
                 {leftNavbarItems.map((it, i) => (
                   <motion.li key={`${it.text}-${i}`} variants={ITEM_VARIANTS}>
-                    <button
+                    {/* Szöveg-flip hover: overflow-hidden + dupla szöveg + translateY animáció
+                        A gomb magassága a szövegmérethez igazodik (leading-[0.95]) */}
+                    <motion.button
                       onClick={() => handleNavClick(
                         isExternal(it.URL) ? it.URL : `/${locale}${it.URL}`,
                         isExternal(it.URL)
                       )}
-                      className="block w-full text-[60px] md:text-[72px] leading-[0.95] font-semibold text-black hover:opacity-90 transition"
+                      className="block w-full font-semibold text-black text-center"
+                      whileHover="hover"
+                      initial="rest"
+                      animate="rest"
                     >
-                      {it.text}
-                    </button>
+                      <div style={{ height: 90, overflow: 'hidden', position: 'relative' }}>
+                        <motion.div
+                          style={{ position: 'absolute', top: 0, left: 0, right: 0, fontSize: 72, lineHeight: '90px', textAlign: 'center' }}
+                          variants={{ rest: { y: 0 }, hover: { y: -90, transition: { duration: 0.35, ease: [0.33,1,0.68,1] } } }}
+                        >{it.text}</motion.div>
+                        <motion.div
+                          style={{ position: 'absolute', top: 90, left: 0, right: 0, fontSize: 72, lineHeight: '90px', textAlign: 'center' }}
+                          variants={{ rest: { y: 0 }, hover: { y: -90, transition: { duration: 0.35, ease: [0.33,1,0.68,1] } } }}
+                        >{it.text}</motion.div>
+                      </div>
+                    </motion.button>
                   </motion.li>
                 ))}
               </motion.ul>

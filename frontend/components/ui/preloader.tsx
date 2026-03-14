@@ -61,7 +61,7 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
           exit={{ y: '-100%' }}
           transition={{ duration: 0.7, ease: EASE_IN }}
         >
-          <GrainCanvas strength="medium" opacity={0.5} zIndex={1} />
+          <GrainCanvas strength="light" opacity={0.5} zIndex={1} />
           <div className="relative z-20 flex" style={{ overflow: 'hidden', paddingBottom: '0.1em' }}>
             {LOGO.split('').map((char, i) => (
               <motion.span

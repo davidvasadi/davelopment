@@ -25,10 +25,17 @@
       }
     },
     "user": {
-      "displayName": "User",
       "type": "component",
-      "repeatable": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "component": "shared.user",
+      "repeatable": false
+    },
+    "rating": {
+      "type": "integer",
       "pluginOptions": {
         "i18n": {
           "localized": true

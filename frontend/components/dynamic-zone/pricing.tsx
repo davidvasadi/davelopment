@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useMemo, useState, useRef } from 'react';
-import { motion, type Variants } from 'framer-motion';
+import React, { useEffect, useMemo, useState } from 'react';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { PlusIcon, ChevronDown, ChevronUp } from 'lucide-react';
 import { Heading } from '../elements/heading';
 import { Subheading } from '../elements/subheading';
-import { strapiImage } from '@/lib/strapi/strapiImage'; // ✅ Strapi URL normalizálás
-import { GrainCanvas } from '../ui/grain-canvas'; 
+import { strapiImage } from '@/lib/strapi/strapiImage';
+import { GrainCanvas } from '../ui/grain-canvas';
+
 type CTA = {
   text?: string | null;
   URL?: string | null;
@@ -36,23 +37,29 @@ type PricingProps = {
   badge_label?: string | null;
   question?: string | null;
   sub_heading?: string | null;
-
   profile_image?: { url?: string | null } | null;
   profile_label?: string | null;
   profile_job?: string | null;
   profile_description?: string | null;
-
   plans?: Plan[];
   background?: { url?: string | null } | null;
   background_url?: string | null;
   locale?: string;
 };
 
-// ✅ Strapi URL normalizáló (string vagy {url})
 const toAbs = (m?: { url?: string | null } | string | null) => {
   const raw = typeof m === 'string' ? m : m?.url || '';
   return raw ? strapiImage(raw) : undefined;
 };
+
+// Közös kártya animáció variáns
+const cardVariants: Variants = {
+  initial: { opacity: 0, y: 24 },
+  animate: { opacity: 1, y: 0 },
+  exit:    { opacity: 0, y: -24 },
+};
+
+const cardTransition = { duration: 0.35, ease: [0.25, 0.1, 0.25, 1] as any };
 
 export const Pricing = ({
   heading,
@@ -68,12 +75,10 @@ export const Pricing = ({
   background_url,
   locale = 'hu-HU',
 }: PricingProps) => {
-  // ===== Állapotok
   const [pricingType, setPricingType] = useState<string>('project');
   const [marketingAddon, setMarketingAddon] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
-  // ===== Típusok kigyűjtése
   const planTypes = useMemo(() => {
     const s = new Set<string>();
     plans.forEach((p) => p?.plan_type && s.add(p.plan_type));
@@ -86,141 +91,70 @@ export const Pricing = ({
     }
   }, [planTypes, pricingType]);
 
-  // ===== Aktív plan kiválasztása
   const poolForType = useMemo(
     () => plans.filter((p) => (p?.plan_type || '') === pricingType),
     [plans, pricingType]
   );
+
   const activePlan = useMemo(() => {
     if (!poolForType.length) return undefined;
     return poolForType.find((p) => !!p?.featured) || poolForType[0];
   }, [poolForType]);
 
-  // ===== Árak
   const basePrice = Number(activePlan?.price ?? 0);
   const addon = Number(activePlan?.addon_price ?? 0);
   const total = marketingAddon ? basePrice + addon : basePrice;
-  const formattedPrice = Number.isFinite(total)
-    ? Math.round(total).toLocaleString(locale)
-    : '—';
+  const formattedPrice = Number.isFinite(total) ? Math.round(total).toLocaleString(locale) : '—';
   const currency = activePlan?.currency || '';
   const priceSuffix = activePlan?.currency_project_label || '';
 
-  // ===== Feature lista
   const featureList: string[] = useMemo(() => {
     const primary = (activePlan?.perks || []).map((x) => x?.text).filter(Boolean) as string[];
     const extra = (activePlan?.additional_perks || []).map((x) => x?.text).filter(Boolean) as string[];
     return [...primary, ...extra];
   }, [activePlan]);
 
-  // ===== CTA
   const ctaText = activePlan?.CTA?.text || 'Get in touch';
   const ctaHref = activePlan?.CTA?.URL || '#';
   const ctaTarget = activePlan?.CTA?.target || '_self';
 
-  // ===== Háttér — ✅ abszolút URL, nem lesz /en/uploads 404
   const bgUrl =
     toAbs(background_url) ||
     toAbs(background) ||
     'https://framerusercontent.com/images/vrhxHFTuxnCduP4nljUulqZcuQ.jpg';
 
   const labelForType = (t: string) => {
-    const pool = plans.filter(p => (p?.plan_type || '') === t);
-    const preferred = pool.find(p => p?.featured) || pool[0];
+    const pool = plans.filter((p) => (p?.plan_type || '') === t);
+    const preferred = pool.find((p) => p?.featured) || pool[0];
     const dynamicName = preferred?.name?.trim();
-    return dynamicName
-      || ({ project: 'Per project', monthly: 'Monthly' }[t] as string)
-      || (t ? t.charAt(0).toUpperCase() + t.slice(1) : '');
+    return (
+      dynamicName ||
+      ({ project: 'Per project', monthly: 'Monthly' }[t] as string) ||
+      (t ? t.charAt(0).toUpperCase() + t.slice(1) : '')
+    );
   };
-  // ===== Alsó leírás felbontása lead + folytatásra (— vagy mondathatár)
+
   const splitDescription = (txt?: string | null): [string, string] => {
     if (!txt) return ['', ''];
     const dashIdx = txt.indexOf('—');
     if (dashIdx !== -1) {
-      const lead = txt.slice(0, dashIdx + 1).trimEnd();
-      const rest = txt.slice(dashIdx + 1).trimStart();
-      return [lead, rest];
+      return [txt.slice(0, dashIdx + 1).trimEnd(), txt.slice(dashIdx + 1).trimStart()];
     }
     const m = txt.match(/([\s\S]+?[.!?]+)(\s+)([\s\S]*)$/);
-    if (m) {
-      return [m[1].trimEnd(), m[3].trimStart()];
-    }
+    if (m) return [m[1].trimEnd(), m[3].trimStart()];
     return [txt, ''];
   };
   const [descLead, descRest] = splitDescription(profile_description);
 
-  // ===== CTA animáció – a „régi, jó” setup
   const buttonVariants: Variants = {
     rest: { y: '-50%' },
     hover: { y: '0%', transition: { duration: 0.2, ease: 'easeInOut' } },
   };
 
-  // ============================================================
-  // GRAIN CANVAS — C erősség (base:8, range:55, alpha:255)
-  // Teljesen opák, nincs mixBlendMode — a canvas maga a réteg.
-  // Használható: preloader háttér, hero videó felett overlay-ként.
-  // ============================================================
-  // function GrainCanvas({ opacity = 1 }: { opacity?: number }) {
-  //   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  //   React.useEffect(() => {
-  //     const canvas = canvasRef.current;
-  //     if (!canvas) return;
-  //     const ctx = canvas.getContext('2d');
-  //     if (!ctx) return;
-  //     let raf: number;
-
-  //     const resize = () => {
-  //       canvas.width = window.innerWidth;
-  //       canvas.height = window.innerHeight;
-  //     };
-  //     resize();
-  //     window.addEventListener('resize', resize);
-
-  //     const draw = () => {
-  //       const { width, height } = canvas;
-  //       const img = ctx.createImageData(width, height);
-  //       for (let i = 0; i < img.data.length; i += 4) {
-  //         // Fehér pixel, alpha csatornával szabályozva
-  //         // Így fekete háttéren IS látható — nem a brightness, hanem az alpha számít
-  //         // opacity prop = extra finomhangolás felette
-  //         const a = Math.random() * 15; // 0–25 alpha = finom, nem tolakodó
-  //         img.data[i] = 255;
-  //         img.data[i + 1] = 255;
-  //         img.data[i + 2] = 255;
-  //         img.data[i + 3] = a;
-  //       }
-  //       ctx.putImageData(img, 0, 0);
-  //       raf = requestAnimationFrame(draw);
-  //     };
-  //     draw();
-
-  //     return () => {
-  //       cancelAnimationFrame(raf);
-  //       window.removeEventListener('resize', resize);
-  //     };
-  //   }, []);
-
-  //   return (
-  //     <canvas
-  //       ref={canvasRef}
-  //       className="absolute inset-0 w-full h-full pointer-events-none"
-  //       style={{
-  //         zIndex: 1,
-  //         // Nincs opacity — az alpha csatorna kezeli, így fekete háttéren is látható
-  //       }}
-  //     />
-  //   );
-  // }
-
   return (
-    <div className='px-0 md:px-2 '>
+    <div className="px-0 md:px-2">
+      <section className="w-full px-4 py-20 md:py-32 relative overflow-hidden rounded-none md:rounded-3xl font-sans">
 
-      <section className="w-full px-4 py-20 md:py-32 relative overflow-hidden rounded-none  md:rounded-3xl font-sans">
-        {/* háttér */}
-        {/* Grain overlay — C erősség, overlay blend mode videó felett
-          overlay blend: sötét területeken sötétít, világosokon világosít
-          → szépen rátelepszik a videóra, nem tünteti el azt */}
         <GrainCanvas strength="light" opacity={0.5} zIndex={1} />
         <div className="absolute inset-0 z-0">
           <img
@@ -233,7 +167,8 @@ export const Pricing = ({
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto">
-          {/* fejlécek */}
+
+          {/* Fejléc */}
           <div className="mb-6">
             {badge_label && (
               <div className="flex items-center space-x-2 mb-4">
@@ -251,20 +186,31 @@ export const Pricing = ({
             )}
           </div>
 
-          {/* típusválasztó */}
+          {/* Típusválasztó — sliding pill */}
           {!!planTypes.length && (
             <div className="flex items-center justify-start md:justify-center">
-              <div className="bg-white/10 rounded-full p-1 flex gap-2 mt-2">
+              <div className="bg-white/10 rounded-full p-1 flex gap-2 mt-2 relative">
                 {planTypes.map((t) => {
                   const active = pricingType === t;
                   return (
                     <button
                       key={t}
-                      onClick={() => setPricingType(t)}
-                      className={`px-6 py-4 rounded-full text-sm font-medium transition-all ${active ? 'bg-white text-black' : 'text-white hover:text-white/80'
-                        }`}
+                      onClick={() => {
+                        setPricingType(t);
+                        setExpanded(false);
+                        setMarketingAddon(false);
+                      }}
+                      className="relative px-6 py-4 rounded-full text-sm font-medium transition-colors z-10"
+                      style={{ color: active ? 'black' : 'rgba(255,255,255,0.8)' }}
                     >
-                      {labelForType(t)}
+                      {active && (
+                        <motion.div
+                          layoutId="activePill"
+                          className="absolute inset-0 bg-white rounded-full"
+                          transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                        />
+                      )}
+                      <span className="relative z-10">{labelForType(t)}</span>
                     </button>
                   );
                 })}
@@ -272,146 +218,168 @@ export const Pricing = ({
             </div>
           )}
 
-          {/* fő rács */}
+          {/* Fő rács — minden kártya külön AnimatePresence */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch mt-10">
-            {/* bal kártya: addon */}
-            <div className="bg-white/5 rounded-xl p-6 flex flex-col justify-between min-h-[360px]">
-              <div>
-                <h4 className="text-white text-lg font-medium mb-1">
-                  {activePlan?.addon_title || 'Add marketing add-on'}
-                </h4>
-                <p className="text-white/50 text-sm md:text-base">
-                  {activePlan?.addon_description || 'Flexible tools to strengthen your launch.'}
-                </p>
-              </div>
-              <div className="flex items-center justify-between mt-auto pt-6">
-                <p className="text-white/70 text-lg font-semibold">
-                  +{Number(activePlan?.addon_price || 0).toLocaleString(locale)} {currency}
-                </p>
-                <motion.button
-                  onClick={() => setMarketingAddon(!marketingAddon)}
-                  className={`relative w-16 h-10 rounded-full transition-colors ${marketingAddon ? 'bg-white' : 'bg-white/20'
-                    }`}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <motion.div
-                    className="w-8 h-8 bg-black rounded-full absolute top-1"
-                    animate={{ x: marketingAddon ? 26 : 4 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                </motion.button>
-              </div>
-            </div>
 
-            {/* jobb kártya: ár + lista + CTA (CTA fixen alul) */}
-            <div className="lg:col-span-2 bg-white/5 rounded-xl p-6 md:p-8 flex flex-col lg:flex-row lg:gap-x-10 min-h-[360px]">
-              {/* ár blokk */}
-              <div className="flex-1 flex flex-col justify-between">
-                <div className="text-white text-4xl md:text-5xl font-bold">
-                  {formattedPrice}
-                  <span className="text-white/60 text-sm font-normal ml-2">
-                    <span className="mx-1">{currency}</span>
-                    {priceSuffix}
-                  </span>
+            {/* BAL kártya: addon */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`addon-${pricingType}`}
+                className="bg-white/5 rounded-xl p-6 flex flex-col justify-between min-h-[360px]"
+                variants={cardVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={cardTransition}
+              >
+                <div>
+                  <h4 className="text-white text-lg font-medium mb-1">
+                    {activePlan?.addon_title || 'Add marketing add-on'}
+                  </h4>
+                  <p className="text-white/50 text-sm md:text-base">
+                    {activePlan?.addon_description || 'Flexible tools to strengthen your launch.'}
+                  </p>
                 </div>
-
-                <div className="flex flex-col">
-                  <div className="flex flex-row justify-between items-center m-5">
-                    <p className="text-white/60 text-sm font-semibold mb-1">
-                      {activePlan?.time_label || 'Delivery time'}
-                    </p>
-                    <p className="text-white text-sm font-semibold">
-                      {activePlan?.time_value || '—'}
-                    </p>
-                  </div>
-                  <div className="relative w-full h-[1px] bg-white/10 overflow-hidden group mt-4">
+                <div className="flex items-center justify-between mt-auto pt-6">
+                  <p className="text-white/70 text-lg font-semibold">
+                    +{Number(activePlan?.addon_price || 0).toLocaleString(locale)} {currency}
+                  </p>
+                  <motion.button
+                    onClick={() => setMarketingAddon(!marketingAddon)}
+                    className={`relative w-16 h-10 rounded-full transition-colors ${
+                      marketingAddon ? 'bg-white' : 'bg-white/20'
+                    }`}
+                    whileTap={{ scale: 0.95 }}
+                  >
                     <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-50 to-transparent"
-                      initial={{ x: '-100%' }}
-                      whileInView={{ x: '100%' }}
-                      transition={{ duration: 1.4, ease: 'easeInOut' }}
+                      className="w-8 h-8 bg-black rounded-full absolute top-1"
+                      animate={{ x: marketingAddon ? 26 : 4 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                     />
+                  </motion.button>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* JOBB kártya: ár + lista + CTA */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`main-${pricingType}`}
+                className="lg:col-span-2 bg-white/5 rounded-xl p-6 md:p-8 flex flex-col lg:flex-row lg:gap-x-10 min-h-[360px]"
+                variants={cardVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ ...cardTransition, delay: 0.04 }}
+              >
+                {/* Ár blokk */}
+                <div className="flex-1 flex flex-col justify-between">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={String(marketingAddon) + pricingType}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.25 }}
+                      className="text-white text-4xl md:text-5xl font-bold"
+                    >
+                      {formattedPrice}
+                      <span className="text-white/60 text-sm font-normal ml-2">
+                        <span className="mx-1">{currency}</span>
+                        {priceSuffix}
+                      </span>
+                    </motion.div>
+                  </AnimatePresence>
+
+                  <div className="flex flex-col">
+                    <div className="flex flex-row justify-between items-center m-5">
+                      <p className="text-white/60 text-sm font-semibold mb-1">
+                        {activePlan?.time_label || 'Delivery time'}
+                      </p>
+                      <p className="text-white text-sm font-semibold">
+                        {activePlan?.time_value || '—'}
+                      </p>
+                    </div>
+                    <div className="relative w-full h-[1px] bg-white/10 overflow-hidden mt-4">
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-50 to-transparent"
+                        initial={{ x: '-100%' }}
+                        whileInView={{ x: '100%' }}
+                        transition={{ duration: 1.4, ease: 'easeInOut' }}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* lista + CTA */}
-              <div className="flex-1 relative min-h-[360px] pb-16 mt-8 lg:mt-0">
-                {/* feature lista – PLUS ICON */}
-                <div
-                  className={`space-y-3 md:space-y-4 overflow-hidden transition-all duration-500 ${!expanded ? 'max-h-[300px] mask-fade-bottom' : 'max-h-[1500px]'
+                {/* Lista + CTA */}
+                <div className="flex-1 relative min-h-[360px] pb-16 mt-8 lg:mt-0">
+                  <div
+                    className={`space-y-3 md:space-y-4 overflow-hidden transition-all duration-500 ${
+                      !expanded ? 'max-h-[300px] mask-fade-bottom' : 'max-h-[1500px]'
                     }`}
-                >
-                  {featureList.map((text, i) => (
-                    <div key={i} className="flex items-center space-x-3">
-                      <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center">
-                        <PlusIcon className="w-3 h-3 text-white" />
+                  >
+                    {featureList.map((text, i) => (
+                      <div key={i} className="flex items-center space-x-3">
+                        <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center">
+                          <PlusIcon className="w-3 h-3 text-white" />
+                        </div>
+                        <p className="text-white text-md">{text}</p>
                       </div>
-                      <p className="text-white text-md">{text}</p>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
 
-                {/* expand/collapse */}
-                <div className="flex justify-center mt-4">
-                  <button
-                    onClick={() => setExpanded(!expanded)}
-                    className="text-white/80 hover:text-white transition-all flex items-center gap-2"
-                  >
-                    {expanded ? (
-                      <>
-                        <ChevronUp className="w-5 h-5" />
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown className="w-5 h-5 animate-bounce" />
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {/* CTA – fixen alul, animációval (középre zárt szöveg) */}
-                <div className="absolute inset-x-0 bottom-0">
-                  <motion.a
-                    href={ctaHref}
-                    target={ctaTarget || undefined}
-                    rel={ctaTarget === '_blank' ? 'noopener noreferrer' : undefined}
-                    initial="rest"
-                    whileHover="hover"
-                    animate="rest"
-                    className="w-full relative text-lg inline-flex items-center justify-center bg-white text-black px-6 py-4 rounded-full font-semibold text-base overflow-hidden group transition-all"
-                  >
-                    {/* A VÁLTÁS KULCSA: fix 1 sor magas „ablak” + azonos line-height */}
-                    <div
-                      className="overflow-hidden transform-gpu"
-                      style={{ height: '1.5rem' }}               // 24px
+                  {/* Expand / collapse */}
+                  <div className="flex justify-center mt-4">
+                    <button
+                      onClick={() => setExpanded(!expanded)}
+                      className="text-white/80 hover:text-white transition-all flex items-center gap-2"
                     >
-                      <motion.div
-                        className="flex flex-col will-change-transform"
-                        style={{ lineHeight: '1.5rem' }}          // 24px
-                        variants={buttonVariants}
-                      >
-                        <span className="block">{ctaText}</span>
-                        <span className="block" aria-hidden="true">{ctaText}</span>
-                      </motion.div>
-                    </div>
-                  </motion.a>
+                      {expanded ? (
+                        <ChevronUp className="w-5 h-5" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 animate-bounce" />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* CTA — fixen alul */}
+                  <div className="absolute inset-x-0 bottom-0">
+                    <motion.a
+                      href={ctaHref}
+                      target={ctaTarget || undefined}
+                      rel={ctaTarget === '_blank' ? 'noopener noreferrer' : undefined}
+                      initial="rest"
+                      whileHover="hover"
+                      animate="rest"
+                      className="w-full relative text-lg inline-flex items-center justify-center bg-white text-black px-6 py-4 rounded-full font-semibold text-base overflow-hidden group transition-all"
+                    >
+                      <div className="overflow-hidden transform-gpu" style={{ height: '1.5rem' }}>
+                        <motion.div
+                          className="flex flex-col will-change-transform"
+                          style={{ lineHeight: '1.5rem' }}
+                          variants={buttonVariants}
+                        >
+                          <span className="block">{ctaText}</span>
+                          <span className="block" aria-hidden="true">{ctaText}</span>
+                        </motion.div>
+                      </div>
+                    </motion.a>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </AnimatePresence>
+
           </div>
 
-          {/* alsó blokk – 2 oszlop: question (3/12) + description/profil (9/12, responsive indent) */}
+          {/* Alsó blokk */}
           {(question || profile_label || profile_description) && (
             <div className="mt-20 px-4 grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-              {/* bal oszlop: kis question */}
               <div className="md:col-span-3 flex justify-left md:block md:justify-center">
                 {question && (
                   <p className="text-white/50 text-sm md:text-sm">{question}</p>
                 )}
               </div>
 
-              {/* jobb oszlop: leírás + profil – responsive indent styled-jsx-szel */}
               <div className="md:col-span-9 text-left md:text-left md:pl-10 lg:pl-16">
                 {(descLead || descRest) && (
                   <p className="desc-indent text-2xl md:text-3xl font-semibold text-white">
@@ -447,13 +415,12 @@ export const Pricing = ({
           )}
         </div>
 
-        {/* responsive text-indent CSS */}
         <style jsx>{`
-        .desc-indent { text-indent: 5.5rem; }        /* mobil */
-        @media (min-width: 768px) {
-          .desc-indent { text-indent: 10.5rem; }     /* md és fölötte */
-        }
-      `}</style>
+          .desc-indent { text-indent: 5.5rem; }
+          @media (min-width: 768px) {
+            .desc-indent { text-indent: 10.5rem; }
+          }
+        `}</style>
       </section>
     </div>
   );

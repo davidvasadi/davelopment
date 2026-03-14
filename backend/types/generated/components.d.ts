@@ -395,7 +395,16 @@ export interface DynamicZoneTestimonials extends Struct.ComponentSchema {
     icon: 'emotionHappy';
   };
   attributes: {
+    badge_label: Schema.Attribute.String;
     heading: Schema.Attribute.String;
+    stat_brand: Schema.Attribute.String;
+    stat_cta_text: Schema.Attribute.String;
+    stat_cta_url: Schema.Attribute.String;
+    stat_description: Schema.Attribute.String;
+    stat_description_bold: Schema.Attribute.String;
+    stat_rating: Schema.Attribute.Decimal;
+    stat_rating_max: Schema.Attribute.Integer;
+    stat_trust_label: Schema.Attribute.String;
     sub_heading: Schema.Attribute.String;
     testimonials: Schema.Attribute.Relation<
       'oneToMany',

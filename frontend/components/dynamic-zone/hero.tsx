@@ -78,7 +78,7 @@ export const Hero = ({
   const heroRef = useRef<HTMLElement | null>(null);
   const { y, scale } = useSlowScroll(heroRef);
 
-  const videoUrl  = toAbs(video);
+  const videoUrl = toAbs(video);
   const posterUrl = toAbs(video_poster);
   const personImgUrl = toAbs(person?.image || null);
   const hasVideo = !!videoUrl;
@@ -177,31 +177,30 @@ export const Hero = ({
         - A poster az LCP elem — azonnal látható, gyors
       */}
 
-      {/* Poster — LCP elem, priority betöltéssel */}
+      {/* Poster — LCP elem, z-[1] hogy a videó felett legyen */}
       {posterUrl && (
-        <Image
-          src={posterUrl}
-          alt=""
-          fill
-          priority
-          className="object-cover z-0"
-          sizes="100vw"
-          aria-hidden
-        />
-      )}
+  <Image
+    src={posterUrl}
+    alt=""
+    fill
+    priority
+    fetchPriority="high"
+    className="object-cover z-[1]"
+    sizes="100vw"
+    aria-hidden
+  />
+)}
 
-      {/* Videó — preload="none", csak akkor tölt ha a böngésző ráér */}
-      <video
-        className="absolute inset-0 h-full w-full object-cover z-0"
-        src={videoUrl}
-        {...(posterUrl ? { poster: posterUrl } : {})}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="none"
-        aria-hidden
-      />
+<video
+  className="absolute inset-0 h-full w-full object-cover z-[2]"
+  src={videoUrl}
+  autoPlay
+  loop
+  muted
+  playsInline
+  preload="metadata"
+  aria-hidden
+/>
 
       <GrainCanvas opacity={0.25} />
 
