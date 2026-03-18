@@ -124,7 +124,7 @@ export const Hero = ({
               <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
                 <PlusIcon className="w-3 h-3 text-white" />
               </div>
-              <p className="text-xs font-medium text-black">{badge_label ?? '[davelopment]®'}</p>
+              <p className="text-xs font-medium text-black">{badge_label}</p>
             </div>
             <div className="max-w-3xl flex flex-col md:flex-row gap-8 md:gap-20 items-start md:items-end">
               {sub_heading && (

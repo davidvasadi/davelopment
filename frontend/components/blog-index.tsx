@@ -12,8 +12,8 @@ import type { Article } from '@/types/types';
 
 type BlogIndexProps = {
     locale: string;
-    blogPage: any;        // Strapi single type /blog
-    articles: Article[];  // Strapi cikkek
+    blogPage: any;
+    articles: Article[];
 };
 
 const formatDate = (dateStr?: string, locale?: string) => {
@@ -30,7 +30,6 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
     blogPage,
     articles,
 }) => {
-    // --- Strapi cikkek rendezése dátum szerint ---
     const sorted = [...articles].sort(
         (a, b) =>
             new Date(b.publishedAt ?? '').getTime() -
@@ -71,7 +70,8 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
         <section className='max-w-9xl mx-auto px-0 xl:px-20'>
             <main className="w-full pt-24 md:pt-32 pb-20">
                 <div className="max-w-9xl mx-auto px-2 md:px-8">
-                    {/* --- Fejléc + leírás (ugyanaz, mint az eredetiben) --- */}
+
+                    {/* --- Fejléc --- */}
                     <motion.h1
                         className="text-6xl md:text-8xl lg:text-9xl font-semibold text-black mb-16 md:mb-36"
                         initial={{ opacity: 0, y: 20 }}
@@ -113,9 +113,11 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                         </div>
                     </motion.div>
 
-                    {/* --- Fő poszt + 2 további poszt (1:1 az eredetivel) --- */}
-                    <div className="grid grid-cols-1  lg:grid-cols-4 gap-1 mb-2">
-                        {/* FŐ POSZT */}
+                    {/* --- Fő poszt + 2 oldalsó kártya --- */}
+                    {/* items-stretch: a két oszlop egyforma magasságú lesz */}
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-1 mb-2 items-stretch">
+
+                        {/* FŐ POSZT — h-full, kép absolute inset-0 */}
                         <motion.div
                             className="h-full lg:col-span-2 col-span-1 group relative"
                             initial={{ opacity: 0, y: 40 }}
@@ -124,27 +126,20 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                         >
                             <Link
                                 href={featured.url}
-                                className="block bg-white rounded-2xl overflow-hidden group"
+                                className="block bg-white rounded-2xl overflow-hidden group h-full"
                             >
-                                <div className="relative aspect-[3/2] w-full">
+                                {/* min-h biztosítja, hogy mobilon legyen minimális magasság,
+                                    desktopon a szomszéd kártyák magasságához igazodik (stretch) */}
+                                <div className="relative h-full w-full min-h-[320px]">
                                     {featured.image && (
                                         <img
                                             src={featured.image}
                                             alt={featured.title}
-                                            className="aspect-[3/2] object-cover transition-transform 0 duration-300 group-hover:scale-105 group-hover:blur-[4px]"
+                                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 group-hover:blur-[4px]"
                                         />
                                     )}
-                                    {/* overlay */}
-                                    <div
-                                        className="
-                                                    absolute inset-x-0 bottom-0 
-                                                    h-2/3
-                                                    bg-gradient-to-t 
-                                                    from-black/80 via-black/50 to-transparent
-                                                    pointer-events-none 
-                                                    transition-all duration-500
-                                                "
-                                    />
+                                    {/* gradient overlay */}
+                                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/50 to-transparent pointer-events-none transition-all duration-500" />
                                     {/* plus ikon */}
                                     <div className="absolute top-6 right-6 w-8 h-8 bg-black rounded-full flex items-center justify-center group-hover:rotate-180 transition-transform duration-300">
                                         <div className="w-3 h-0.5 bg-white" />
@@ -159,7 +154,7 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                                             {featured.title}
                                         </h2>
                                         {featured.description && (
-                                            <p className="text-sm md:text-md text-white/80 mb-6 max-w-3xl">
+                                            <p className="hidden md:blocktext-sm md:text-md text-white/80 mb-6 max-w-3xl">
                                                 {featured.description}
                                             </p>
                                         )}
@@ -168,52 +163,54 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                             </Link>
                         </motion.div>
 
-                        {/* 2. és 3. poszt */}
-                        {[second, third].filter(Boolean).map((post, idx) => (
-                            <motion.div
-                                className="col-span-1 group flex flex-col"        // <<< nincs flex flex-col
-                                key={post!.slug}
-                                initial={{ opacity: 0, y: 40 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8, delay: 0.5 + idx * 0.05 }}
-                            >
-                                <Link
-                                    href={post!.url}
-                                    className="flex flex-wrap bg-white rounded-2xl h-full"  // <<< block, nem flex
+                        {/* 2. és 3. kártya — közös wrapper, h-full, egymás alatt */}
+                        <div className="lg:col-span-2 col-span-1 grid grid-cols-2 gap-1 h-full">
+                            {[second, third].filter(Boolean).map((post, idx) => (
+                                <motion.div
+                                    className="col-span-1 group flex flex-col h-full"
+                                    key={post!.slug}
+                                    initial={{ opacity: 0, y: 40 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.8, delay: 0.5 + idx * 0.05 }}
                                 >
-                                    <div className="relative w-full p-2 ">
-                                        <div className="p-2">
-                                            {post!.image && (
-                                                <img
-                                                    src={post!.image}
-                                                    alt={post!.title}
-                                                    className="w-28 h-28 rounded-xl object-cover transition-transform duration-300 group-hover:scale-150"
-                                                    style={{ transformOrigin: '0% 0%' }}
-                                                />
+                                    <Link
+                                        href={post!.url}
+                                        className="flex flex-col bg-white rounded-2xl h-full"
+                                    >
+                                        <div className="relative w-full p-2">
+                                            <div className="p-2">
+                                                {post!.image && (
+                                                    <img
+                                                        src={post!.image}
+                                                        alt={post!.title}
+                                                        className="w-28 h-28 rounded-xl object-cover transition-transform duration-300 group-hover:scale-150"
+                                                        style={{ transformOrigin: '0% 0%' }}
+                                                    />
+                                                )}
+                                            </div>
+                                            <div className="absolute top-4 right-4 w-5 h-5 bg-black rounded-full flex items-center justify-center group-hover:rotate-180 transition-transform duration-300">
+                                                <div className="w-2 h-0.5 bg-white" />
+                                                <div className="w-0.5 h-2 bg-white absolute" />
+                                            </div>
+                                        </div>
+
+                                        <div className="p-6 flex-1 flex flex-col justify-end">
+                                            <p className="text-xs text-gray-400 font-medium transition-all duration-300 mt-3 group-hover:mt-4">
+                                                {post!.date}
+                                            </p>
+                                            <h3 className="text-xl text-black font-medium leading-tight transition-all duration-300 mt-6 group-hover:mt-3">
+                                                {post!.title}
+                                            </h3>
+                                            {post!.description && (
+                                                <p className="hidden md:block text-sm text-black/60 transition-all duration-300 mt-6 group-hover:mt-5">
+                                                    {post!.description}
+                                                </p>
                                             )}
                                         </div>
-                                        <div className="absolute top-4 right-4 w-5 h-5 bg-black rounded-full flex items-center justify-center group-hover:rotate-180 transition-transform duration-300">
-                                            <div className="w-2 h-0.5 bg-white" />
-                                            <div className="w-0.5 h-2 bg-white absolute" />
-                                        </div>
-                                    </div>
-
-                                    <div className="p-6 flex-1 flex flex-col justify-end">
-                                        <p className="text-xs text-gray-400 font-medium transition-all duration-300 mt-3 group-hover:mt-4">
-                                            {post!.date}
-                                        </p>
-                                        <h3 className="text-xl text-black font-medium leading-tight transition-all duration-300 mt-6 group-hover:mt-3">
-                                            {post!.title}
-                                        </h3>
-                                        {post!.description && (
-                                            <p className="text-sm text-black/60 transition-all duration-300 mt-6 group-hover:mt-5">
-                                                {post!.description}
-                                            </p>
-                                        )}
-                                    </div>
-                                </Link>
-                            </motion.div>
-                        ))}
+                                    </Link>
+                                </motion.div>
+                            ))}
+                        </div>
 
                     </div>
 
@@ -231,7 +228,7 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                                     href={post.url}
                                     className="block bg-white rounded-2xl h-full"
                                 >
-                                    <div className="relative  w-full p-2">
+                                    <div className="relative w-full p-2">
                                         <div className="p-2">
                                             {post.image && (
                                                 <img
@@ -264,6 +261,7 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                             </motion.div>
                         ))}
                     </div>
+
                 </div>
             </main>
         </section>

@@ -150,7 +150,7 @@ export const Pricing = ({
 
   return (
     <div className="px-0 md:px-2">
-      <section className="w-full px-4 py-20 md:py-32 relative overflow-hidden rounded-none md:rounded-3xl font-sans">
+      <section className="w-full px-4 py-12 md:py-18 relative overflow-hidden rounded-none md:rounded-3xl font-sans">
 
         <GrainCanvas strength="light" opacity={0.5} zIndex={1} />
         <div className="absolute inset-0 z-0">
@@ -174,7 +174,7 @@ export const Pricing = ({
             transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
           >
             {badge_label && (
-              <div className="flex items-center space-x-2 mb-4">
+              <div className="flex items-center space-x-2 mb-8 md:mb-12">
                 <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center">
                   <PlusIcon className="w-2.5 h-2.5 text-black" />
                 </div>

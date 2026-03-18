@@ -130,7 +130,7 @@ export function DesktopNavbar({
             transition={OVERLAY_SPRING}
           >
             <div className="px-6 pt-10 pb-16">
-              <motion.ul className="max-w-4xl mx-auto text-center space-y-6" variants={LIST_VARIANTS} initial="closed" animate="open">
+              <motion.ul className="max-w-4xl mx-auto text-center space-y-1" variants={LIST_VARIANTS} initial="closed" animate="open">
                 {leftNavbarItems.map((it, i) => (
                   <motion.li key={`${it.text}-${i}`} variants={ITEM_VARIANTS}>
                     {/* Szöveg-flip hover: overflow-hidden + dupla szöveg + translateY animáció

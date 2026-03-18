@@ -118,7 +118,7 @@ export const Projects: React.FC<ProjectsProps> = ({
 
   if (!first) {
     return (
-      <div ref={sectionRef} className="relative py-24 md:py-28 lg:py-32">
+      <div ref={sectionRef} className="relative ">
         <Container className="relative z-10">
           <Header
             badge_label={badge_label}
@@ -353,7 +353,7 @@ const LargeTile: React.FC<TileBaseProps & { arrowClassName?: string }> = ({
       <Link href={href as never} className="hidden md:block h-full w-full">
         <TileWithImageBackground product={product}>
           <div className="flex h-full flex-col justify-between">
-            <div className="flex justify-between gap-2 md:gap-0">
+            <div className="flex justify-between gap-2 md:gap-2">
               <span className="text-white text-xl md:text-4xl font-medium tracking-tight leading-tight">
                 {label}
               </span>

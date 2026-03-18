@@ -54,7 +54,7 @@
     "copyright": {
       "type": "string"
     },
-    "contact_anchor_id": {
+    "anchor_id": {
       "type": "string",
       "default": "kapcsolat"
     },

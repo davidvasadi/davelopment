@@ -10,7 +10,7 @@ import { Navbar } from '@/components/navbar';
 import { generateMetadataObject } from '@/lib/shared/metadata';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import { cn } from '@/lib/utils';
-import { SmoothScroll } from '@/components/ui/smooth-scroll';
+import { SmoothScroll, ScrollToTop } from '@/components/ui/smooth-scroll';
 import { AppWrapper, PageTransition } from '@/components/ui/preloader';
 import { BlurFooter } from '@/components/ui/blur-footer';
 
@@ -64,6 +64,7 @@ export default async function LocaleLayout(props: {
 
             {/* PageTransition — CSAK a children köré, Navbar/Footer érintetlen marad */}
             <PageTransition>
+            <ScrollToTop />  
               {children}
             </PageTransition>
 

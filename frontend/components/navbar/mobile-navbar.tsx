@@ -96,7 +96,7 @@ export function MobileNavbar({
             transition={{ type: 'spring', stiffness: 240, damping: 26, mass: 0.95 }}
           >
             <div className="px-6 pt-10 pb-24">
-              <ul className="max-w-md mx-auto flex flex-col items-center text-center gap-5">
+              <ul className="max-w-md mx-auto flex flex-col items-center text-center gap-1">
                 {leftNavbarItems.map((it, i) => (
                   <li key={`${it.text}-${i}`} className="w-full">
                     {/* Szöveg-flip hover: overflow-hidden + dupla szöveg + translateY
