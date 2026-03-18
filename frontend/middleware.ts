@@ -3,6 +3,7 @@ import Negotiator from 'negotiator';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { i18n } from '@/i18n.config';
+import { localeSegments } from '@/lib/i18n/segments';
 
 function getLocale(request: NextRequest): string {
   const headers = Object.fromEntries(request.headers);
@@ -22,7 +23,7 @@ function getLocale(request: NextRequest): string {
   }
 
   try {
-    // @ts-ignore i18n.locales readonly – csak olvassuk
+    // @ts-ignore
     return matchLocale(languages, i18n.locales, i18n.defaultLocale);
   } catch {
     return i18n.defaultLocale;
@@ -32,7 +33,7 @@ function getLocale(request: NextRequest): string {
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // Ha már lokálos, ne irányítsunk át
+  // 1. Locale hiányzik → redirect /{locale}/...
   const pathnameIsMissingLocale = i18n.locales.every(
     (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
   );
@@ -43,9 +44,34 @@ export function middleware(request: NextRequest) {
       new URL(`/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}`, request.url)
     );
   }
+
+  // 2. Segment lokalizáció
+  // /{locale}/{segment}(/{slug})?
+  const match = pathname.match(/^\/([a-z]{2})\/([^/]+)(\/.*)?$/)
+  if (match) {
+    const [, locale, segment, rest = ''] = match
+    const segmentMap = localeSegments[locale] ?? {}
+
+    // /hu/projektek → rewrite → /hu/products (Next.js rendereli)
+    const internal = Object.entries(segmentMap).find(([, v]) => v === segment)?.[0]
+    if (internal) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/${locale}/${internal}${rest}`
+      return NextResponse.rewrite(url)
+    }
+
+    // /hu/products → 301 redirect → /hu/projektek
+    const localized = segmentMap[segment]
+    if (localized) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/${locale}/${localized}${rest}`
+      return NextResponse.redirect(url, 301)
+    }
+  }
+
+  return NextResponse.next();
 }
 
-// Hagyjuk békén a statikus és SEO útvonalakat
 export const config = {
   matcher: [
     '/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.webmanifest|opengraph-image|twitter-image|icon|apple-icon).*)',

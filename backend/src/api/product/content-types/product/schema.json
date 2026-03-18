@@ -41,7 +41,7 @@
       }
     },
     "description": {
-      "type": "string",
+      "type": "text",
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -98,7 +98,11 @@
       },
       "components": [
         "dynamic-zone.related-products",
-        "dynamic-zone.cta"
+        "dynamic-zone.cta",
+        "dynamic-zone.testimonials",
+        "dynamic-zone.form-next-to-section",
+        "dynamic-zone.newsletter",
+        "dynamic-zone.faq"
       ]
     },
     "featured": {
@@ -129,7 +133,7 @@
       }
     },
     "heading_center": {
-      "type": "string",
+      "type": "text",
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -137,7 +141,7 @@
       }
     },
     "description_center": {
-      "type": "string",
+      "type": "text",
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -178,7 +182,7 @@
       }
     },
     "heading_bottom": {
-      "type": "string",
+      "type": "text",
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -186,6 +190,38 @@
       }
     },
     "description_bottom": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "year": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "industry": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "scope": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "timeline": {
       "type": "string",
       "pluginOptions": {
         "i18n": {

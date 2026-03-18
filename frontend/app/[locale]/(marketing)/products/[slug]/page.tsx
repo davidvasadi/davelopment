@@ -8,6 +8,7 @@ import DynamicZoneManager from '@/components/dynamic-zone/manager';
 import { SingleProduct } from '@/components/products/single-product';
 import { generateMetadataObject } from '@/lib/shared/metadata';
 import fetchContentType from '@/lib/strapi/fetchContentType';
+import { getLocalizedSegment } from '@/lib/i18n/segments';
 import type { Product } from '@/types/types';
 
 export async function generateMetadata(props: {
@@ -49,7 +50,7 @@ export default async function SingleProductPage(props: {
   )) as Product | null;
 
   if (!product) {
-    redirect(`/${params.locale}/products`);
+    redirect(`/${params.locale}/${getLocalizedSegment(params.locale, 'products')}`);
   }
 
   const localizedSlugs =

@@ -1,18 +1,15 @@
 // frontend/app/[locale]/(marketing)/products/page.tsx
 
-import { IconShoppingCartUp } from '@tabler/icons-react';
 import { Metadata } from 'next';
 
 import ClientSlugHandler from '../ClientSlugHandler';
 import { Container } from '@/components/container';
-import { AmbientColor } from '@/components/decorations/ambient-color';
-import { FeatureIconContainer } from '@/components/dynamic-zone/features/feature-icon-container';
 import { Heading } from '@/components/elements/heading';
 import { Subheading } from '@/components/elements/subheading';
 import { Featured } from '@/components/products/featured';
-import { ProductItems } from '@/components/products/product-items';
 import { generateMetadataObject } from '@/lib/shared/metadata';
 import fetchContentType from '@/lib/strapi/fetchContentType';
+import { localeSegments, getLocalizedSegment } from '@/lib/i18n/segments';
 import type { Product } from '@/types/types';
 
 export async function generateMetadata(props: {
@@ -40,7 +37,6 @@ export default async function Products(props: {
 }) {
   const params = await props.params;
 
-  // product-page (single type) – locale szerint
   const productPage = await fetchContentType(
     'product-page',
     {
@@ -51,26 +47,24 @@ export default async function Products(props: {
     true
   );
 
-  // products – *locale szerint* szűrve
   const productsRes = await fetchContentType(
     'products',
     {
       filters: {
         locale: params.locale,
       },
-      // ha kell még: populate: ['images', 'categories'],
     },
     false
   );
 
   const products = (productsRes?.data ?? []) as Product[];
 
-  const localizedSlugs = productPage.localizations?.reduce(
-    (acc: Record<string, string>, localization: any) => {
-      acc[localization.locale] = 'products';
+  const localizedSlugs = Object.keys(localeSegments).reduce(
+    (acc, loc) => {
+      acc[loc] = getLocalizedSegment(loc, 'products');
       return acc;
     },
-    { [params.locale]: 'products' }
+    {} as Record<string, string>
   );
 
   const featured = products.filter((product) => product.featured);
@@ -78,18 +72,14 @@ export default async function Products(props: {
   return (
     <div className="relative overflow-hidden mx-0 md:mx-auto">
       <ClientSlugHandler localizedSlugs={localizedSlugs} />
-      {/* <AmbientColor /> */}
       <Container className="pt-10 md:pt-40 pb-40">
-        {/* <FeatureIconContainer className="flex justify-center items-center overflow-hidden">
-          <IconShoppingCartUp className="h-6 w-6 text-white" />
-        </FeatureIconContainer> */}
         <div className="flex flex-col gap-12 md:flex-row md:items-end md:gap-32">
           <Heading as="h1" className="w-full pt-14 text-left font-semibold">
             {productPage.heading}
           </Heading>
           <div className="flex flex-col">
             <Subheading className="text-black m-0 p-0">
-              (2024-25©)
+              (2025-26©)
               <br />
               {productPage.sub_heading}
             </Subheading>
@@ -97,10 +87,6 @@ export default async function Products(props: {
         </div>
 
         <Featured products={featured} locale={params.locale} />
-
-        {/* ha kell majd a sima lista is:
-        <ProductItems products={products} locale={params.locale} />
-        */}
       </Container>
     </div>
   );
