@@ -365,6 +365,8 @@ jobs:
           STORAGE_ROOT="/var/www/davelopment/storage"
           STORAGE_UPLOADS="${STORAGE_ROOT}/uploads"
           STORAGE_DB="${STORAGE_ROOT}/db"
+          # Perzisztens pnpm store a VPS-en - deploy-onként újrahasználja a cachet
+          PNPM_STORE_DIR="/var/www/davelopment/.pnpm-store"
 
           TS="$(date +%F_%H%M%S)"
           NEW_DIR="${LIVE_DIR}.new_${DEPLOY_SHA}"
@@ -373,7 +375,7 @@ jobs:
 
           log(){ printf '[%s] %s\n' "$(date -Is)" "$*"; }
 
-          mkdir -p "$STORAGE_UPLOADS" "$STORAGE_DB"
+          mkdir -p "$STORAGE_UPLOADS" "$STORAGE_DB" "$PNPM_STORE_DIR"
 
           rm -rf "$TMP_DIR" && mkdir -p "$TMP_DIR"
           tar -xzf /tmp/backend_bundle.tgz -C "$TMP_DIR"
@@ -416,6 +418,14 @@ jobs:
             "NOTIFY_EMAIL=${NOTIFY_EMAIL}" \
             > "${NEW_DIR}/.env"
 
+          # FIX: .npmrc a NEW_DIR-be - engedélyezi az összes build scriptet pnpm v10-ben
+          # Ez nélkül az @swc/core, esbuild, sharp natív addonjai NEM épülnek fel,
+          # és a Strapi el sem tud indulni.
+          printf '%s\n' \
+            "enable-pre-post-scripts=true" \
+            "store-dir=${PNPM_STORE_DIR}" \
+            > "${NEW_DIR}/.npmrc"
+
           mkdir -p "${NEW_DIR}/public" "${NEW_DIR}/.tmp"
           ln -sfn "$STORAGE_UPLOADS" "${NEW_DIR}/public/uploads"
 
@@ -435,17 +445,44 @@ jobs:
           log "Installing deps in new release..."
           cd "$NEW_DIR"
           export NODE_OPTIONS="--max-old-space-size=1024"
-          pnpm install --prod --frozen-lockfile=false --prefer-offline --network-concurrency 1
+          # --ignore-scripts=false explicit, hogy a pnpm v10 ne blokkolja a build scripteket
+          pnpm install \
+            --prod \
+            --frozen-lockfile=false \
+            --prefer-offline \
+            --network-concurrency 1 \
+            --ignore-scripts=false
 
-          log "Building better-sqlite3 native addon..."
-          cd "$NEW_DIR/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3"
-          npm run install
-          cd "$NEW_DIR"
-
+          # better-sqlite3: prebuild-install letölti a prebuilt binaryt,
+          # de ha az nem sikerül (pl. glibc mismatch), node-gyp-pel újraforgatjuk.
           log "Verifying better_sqlite3.node..."
-          find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q . || \
-            { log "ERROR: better_sqlite3.node not found after build!"; exit 1; }
+          if ! find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q .; then
+            log "better_sqlite3.node not found, rebuilding from source..."
+            cd "$NEW_DIR/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3"
+            npm run install
+            cd "$NEW_DIR"
+            find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q . || \
+              { log "ERROR: better_sqlite3.node build failed!"; exit 1; }
+          fi
           log "better_sqlite3.node OK"
+
+          # @swc/core: natív addon - pnpm v10-ben blokkolva volt, most a .npmrc fix megoldja,
+          # de ellenőrizzük és ha hiányzik, manuálisan futtatjuk a postinstall-t
+          log "Verifying @swc/core native addon..."
+          SWC_BINDING=$(find "$NEW_DIR/node_modules" -name "*.node" -path "*swc*" 2>/dev/null | head -1)
+          if [ -z "$SWC_BINDING" ]; then
+            log "@swc/core binding not found, running postinstall..."
+            SWC_PKG=$(find "$NEW_DIR/node_modules/.pnpm" -maxdepth 1 -name "@swc+core*" -type d | head -1)
+            if [ -n "$SWC_PKG" ]; then
+              SWC_DIR="${SWC_PKG}/node_modules/@swc/core"
+              cd "$SWC_DIR"
+              npm run postinstall || node postinstall.js || true
+              cd "$NEW_DIR"
+            fi
+            SWC_BINDING=$(find "$NEW_DIR/node_modules" -name "*.node" -path "*swc*" 2>/dev/null | head -1)
+            [ -n "$SWC_BINDING" ] || { log "ERROR: @swc/core binding still missing!"; exit 1; }
+          fi
+          log "@swc/core OK: $SWC_BINDING"
 
           log "Stopping backend..."
           cd ~
@@ -460,19 +497,35 @@ jobs:
             pm2 start "pnpm start" --name backend --cwd "$LIVE_DIR"
           pm2 save
 
-          sleep 30
+          # Strapi cold start tipikusan 20-40s, adunk neki 45s-t mielőtt smoke-ot futtatunk
+          log "Waiting for Strapi to boot (45s)..."
+          sleep 45
+
           smoke_ok=0
-          for i in $(seq 1 20); do
+          for i in $(seq 1 24); do
             code=$(curl -sS -o /dev/null -w "%{http_code}" -L \
               --connect-timeout 3 --max-time 10 \
               "http://127.0.0.1:1337/_health" || echo 000)
             log "smoke try=$i code=$code"
             [ "$code" -ge 200 ] && [ "$code" -lt 400 ] && { smoke_ok=1; break; }
+            # Ha a process már kilépett, nincs értelme tovább várni
+            pm2_status=$(pm2 jlist 2>/dev/null | python3 -c "
+          import sys, json
+          procs = json.load(sys.stdin)
+          be = [p for p in procs if p.get('name') == 'backend']
+          print(be[0]['pm2_env']['status'] if be else 'unknown')
+          " 2>/dev/null || echo "unknown")
+            if [ "$pm2_status" = "errored" ] || [ "$pm2_status" = "stopped" ]; then
+              log "Backend process died (status=$pm2_status), aborting smoke test"
+              break
+            fi
             sleep 5
           done
 
           if [ "$smoke_ok" -ne 1 ]; then
-            log "SMOKE FAILED - rolling back..."
+            log "SMOKE FAILED - dumping last PM2 logs..."
+            pm2 logs backend --lines 50 --nostream || true
+            log "Rolling back..."
             cd ~
             pm2 stop backend || true
             rm -rf "$LIVE_DIR"
@@ -483,6 +536,7 @@ jobs:
             exit 1
           fi
 
+          # Régi prev könyvtárak törlése (max 2-t tartunk meg)
           ls -dt /var/www/davelopment/backend.prev_* 2>/dev/null \
             | tail -n +3 | xargs -r rm -rf || true
 
