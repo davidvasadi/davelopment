@@ -18,11 +18,15 @@ export const Card = ({
 
   return (
     <motion.div
-      // h-full + min-h → egységes magasság a grid sorban
       className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm transition-shadow duration-150 hover:shadow-md h-full min-h-[280px] md:min-h-[320px] flex flex-col"
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{
+        duration: 0.55,
+        delay: (index - 1) * 0.1,
+        ease: [0.33, 1, 0.68, 1],
+      }}
     >
       {/* Fejléc: pöttyök + sorszám */}
       <div className="flex items-center justify-between">
@@ -39,10 +43,8 @@ export const Card = ({
         </div>
       </div>
 
-      {/* Tartalom — kép és cím egy sorban, leírás legalul */}
+      {/* Tartalom */}
       <div className="mt-6 flex flex-col flex-1">
-
-        {/* Kép + cím egymás mellett */}
         <div className="flex items-center gap-3">
           {imageSrc && (
             <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl">
@@ -51,15 +53,10 @@ export const Card = ({
           )}
           <p className="text-lg font-medium leading-snug text-black">{title}</p>
         </div>
-
-        {/* Spacer — leírást lenyomja a kártya aljára */}
         <div className="flex-1" />
-
-        {/* Leírás — mindig legalul */}
         {description && (
           <p className="mt-4 text-sm leading-relaxed text-gray-500">{description}</p>
         )}
-
       </div>
     </motion.div>
   );

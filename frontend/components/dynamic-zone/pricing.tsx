@@ -52,7 +52,6 @@ const toAbs = (m?: { url?: string | null } | string | null) => {
   return raw ? strapiImage(raw) : undefined;
 };
 
-// Közös kártya animáció variáns
 const cardVariants: Variants = {
   initial: { opacity: 0, y: 24 },
   animate: { opacity: 1, y: 0 },
@@ -137,9 +136,7 @@ export const Pricing = ({
   const splitDescription = (txt?: string | null): [string, string] => {
     if (!txt) return ['', ''];
     const dashIdx = txt.indexOf('—');
-    if (dashIdx !== -1) {
-      return [txt.slice(0, dashIdx + 1).trimEnd(), txt.slice(dashIdx + 1).trimStart()];
-    }
+    if (dashIdx !== -1) return [txt.slice(0, dashIdx + 1).trimEnd(), txt.slice(dashIdx + 1).trimStart()];
     const m = txt.match(/([\s\S]+?[.!?]+)(\s+)([\s\S]*)$/);
     if (m) return [m[1].trimEnd(), m[3].trimStart()];
     return [txt, ''];
@@ -168,8 +165,14 @@ export const Pricing = ({
 
         <div className="relative z-10 max-w-7xl mx-auto">
 
-          {/* Fejléc */}
-          <div className="mb-6">
+          {/* ── FEJLÉC — fade up, minden görgetéskor ── */}
+          <motion.div
+            className="mb-6"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
+          >
             {badge_label && (
               <div className="flex items-center space-x-2 mb-4">
                 <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center">
@@ -184,11 +187,17 @@ export const Pricing = ({
                 {sub_heading}
               </Subheading>
             )}
-          </div>
+          </motion.div>
 
-          {/* Típusválasztó — sliding pill */}
+          {/* ── TÍPUSVÁLASZTÓ — fade up, kis delay ── */}
           {!!planTypes.length && (
-            <div className="flex items-center justify-start md:justify-center">
+            <motion.div
+              className="flex items-center justify-start md:justify-center"
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.5, delay: 0.1, ease: [0.33, 1, 0.68, 1] }}
+            >
               <div className="bg-white/10 rounded-full p-1 flex gap-2 mt-2 relative">
                 {planTypes.map((t) => {
                   const active = pricingType === t;
@@ -215,12 +224,17 @@ export const Pricing = ({
                   );
                 })}
               </div>
-            </div>
+            </motion.div>
           )}
 
-          {/* Fő rács — minden kártya külön AnimatePresence */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch mt-10">
-
+          {/* ── FŐ RÁCS — kártyák fade up, stagger ── */}
+          <motion.div
+            className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch mt-10"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.15 }}
+            transition={{ duration: 0.6, delay: 0.15, ease: [0.33, 1, 0.68, 1] }}
+          >
             {/* BAL kártya: addon */}
             <AnimatePresence mode="wait">
               <motion.div
@@ -328,7 +342,6 @@ export const Pricing = ({
                     ))}
                   </div>
 
-                  {/* Expand / collapse */}
                   <div className="flex justify-center mt-4">
                     <button
                       onClick={() => setExpanded(!expanded)}
@@ -342,7 +355,6 @@ export const Pricing = ({
                     </button>
                   </div>
 
-                  {/* CTA — fixen alul */}
                   <div className="absolute inset-x-0 bottom-0">
                     <motion.a
                       href={ctaHref}
@@ -368,12 +380,17 @@ export const Pricing = ({
                 </div>
               </motion.div>
             </AnimatePresence>
+          </motion.div>
 
-          </div>
-
-          {/* Alsó blokk */}
+          {/* ── ALSÓ BLOKK — fade up ── */}
           {(question || profile_label || profile_description) && (
-            <div className="mt-20 px-4 grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+            <motion.div
+              className="mt-20 px-4 grid grid-cols-1 md:grid-cols-12 gap-6 items-start"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
+            >
               <div className="md:col-span-3 flex justify-left md:block md:justify-center">
                 {question && (
                   <p className="text-white/50 text-sm md:text-sm">{question}</p>
@@ -411,7 +428,7 @@ export const Pricing = ({
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           )}
         </div>
 

@@ -9,7 +9,6 @@ import { format } from 'date-fns';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { Container } from '@/components/container';
 
-// --- Helper: Strapi media → abszolút URL ---
 const toAbs = (m?: any): string | undefined => {
   if (!m) return undefined;
   if (typeof m === 'string') return strapiImage(m);
@@ -39,18 +38,14 @@ type BlogProps = {
   __component: string;
   id: number;
   locale: string;
-
   badge_label?: string | null;
   heading_left?: string | null;
   heading_right?: string | null;
   description?: string | null;
-
   button?: ButtonConfig;
-
   highlight_heading?: string | null;
   highlight_subheading?: string | null;
   highlight_image?: any;
-
   articles?: any[] | null;
 };
 
@@ -92,7 +87,7 @@ export const Blog: React.FC<BlogProps> = ({
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        viewport={{ once: true }}
+        viewport={{ once: true, amount: 0.1 }}
       >
         {/* --- Fejléc --- */}
         <div className="space-y-6 md:space-y-8">
@@ -106,10 +101,7 @@ export const Blog: React.FC<BlogProps> = ({
               </span>
             </div>
           )}
-
-          {/* >>> Itt módosult a grid: md:items-center */}
           <div className="grid grid-cols-1 items-start md:items-center gap-8 md:grid-cols-[minmax(0,2.6fr)_minmax(0,2fr)_auto] md:gap-10">
-            {/* Heading (1. oszlop) */}
             <div>
               {(heading_left || heading_right) && (
                 <h2 className="text-[2.6rem] sm:text-[3.2rem] lg:text-[4rem] font-semibold leading-[0.9] tracking-tight text-black">
@@ -124,8 +116,6 @@ export const Blog: React.FC<BlogProps> = ({
                 </h2>
               )}
             </div>
-
-            {/* Subheading / description (2. oszlop) – rövidebb & középre húzva */}
             <div className="md:self-center md:max-w-sm lg:max-w-md">
               {description && (
                 <p className="text-sm sm:text-base text-neutral-700 leading-relaxed">
@@ -133,8 +123,6 @@ export const Blog: React.FC<BlogProps> = ({
                 </p>
               )}
             </div>
-
-            {/* Button (3. oszlop) */}
             <div className="flex md:justify-end md:self-center">
               {button && ctaHref && (
                 <Link
@@ -153,8 +141,7 @@ export const Blog: React.FC<BlogProps> = ({
         </div>
 
         {/* --- Kártyák + highlight --- */}
-        <div className="grid grid-cols-1 items-stretch  lg:grid-cols-[minmax(0,2.3fr)_minmax(0,1.5fr)] gap-2">
-          {/* Bal: 2 cikk kártya – ugyanaz a logika, mint a blog-index 2–3. kártya */}
+        <div className="grid grid-cols-1 items-stretch lg:grid-cols-[minmax(0,2.3fr)_minmax(0,1.5fr)] gap-2">
           <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
             {blogPosts.map((post: any, index: number) => {
               const postUrl = `/${locale}/blog/${post.slug}`;
@@ -167,13 +154,12 @@ export const Blog: React.FC<BlogProps> = ({
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: true, amount: 0.2 }}
                 >
                   <Link
                     href={postUrl}
                     className="group flex h-full flex-col rounded-xl bg-white shadow-[0_18px_40px_rgba(15,23,42,0.06)]"
                   >
-                    {/* kis kép + plusz ikon (zoom, mint BlogIndex-ben) */}
                     <div className="relative w-full ">
                       <div className="p-3">
                         {imageUrl && (
@@ -185,7 +171,6 @@ export const Blog: React.FC<BlogProps> = ({
                           />
                         )}
                       </div>
-
                       <div className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full bg-black transition-transform duration-300 group-hover:rotate-180">
                         <div className="relative flex h-3 w-3 items-center justify-center">
                           <div className="h-0.5 w-full bg-white" />
@@ -193,8 +178,6 @@ export const Blog: React.FC<BlogProps> = ({
                         </div>
                       </div>
                     </div>
-
-                    {/* szövegrész */}
                     <div className="flex flex-1 flex-col justify-end px-5 pb-6 pt-1">
                       <p className="mt-3 text-[11px] uppercase tracking-[0.12em] text-neutral-500 transition-all duration-300 group-hover:mt-4">
                         {formatDate(post.publishedAt, locale)}
@@ -214,13 +197,13 @@ export const Blog: React.FC<BlogProps> = ({
             })}
           </div>
 
-          {/* Jobb: nagy highlight blokk (marad) */}
+          {/* Jobb: nagy highlight blokk */}
           <motion.div
             className="group relative min-h-[360px] sm:min-h-[400px] lg:min-h-[460px] overflow-hidden rounded-xl bg-black shadow-[0_18px_40px_rgba(15,23,42,0.08)]"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, amount: 0.2 }}
           >
             <img
               src={heroImage}
@@ -228,20 +211,14 @@ export const Blog: React.FC<BlogProps> = ({
               className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/10" />
-
-            {/* bal felső: davelopment */}
             <div className="pointer-events-none absolute left-6 top-6 sm:left-8 sm:top-8">
               <span className="text-base font-semibold tracking-tight text-white">
                 [davelopment]®
               </span>
             </div>
-
-            {/* jobb felső: forgó + ikon */}
             <div className="absolute right-6 top-6 sm:right-8 sm:top-8 flex h-9 w-9 items-center justify-center rounded-full border border-white/40 bg-white/15 backdrop-blur-sm">
               <PlusIcon className="h-4 w-4 text-white transition-transform duration-300 group-hover:rotate-90" />
             </div>
-
-            {/* alsó headline */}
             <div className="absolute bottom-6 right-6 text-right sm:bottom-8 sm:right-8">
               {highlight_heading && (
                 <p className="text-3xl sm:text-4xl lg:text-[2.6rem] font-bold leading-[0.9] text-white">

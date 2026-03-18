@@ -50,16 +50,22 @@ export const HowItWorks = ({
     offset: ['start 70%', 'end 30%'],
   });
 
-  const headerY = useTransform(scrollYProgress, [0, 1], [0, -60]);
-  const headerScale = useTransform(scrollYProgress, [0, 1], [1, 0.98]);
+  const headerY       = useTransform(scrollYProgress, [0, 1], [0, -60]);
+  const headerScale   = useTransform(scrollYProgress, [0, 1], [1, 0.98]);
   const headerOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.92]);
 
   return (
     <div ref={sectionRef}>
       <Container className="relative z-40 mx-auto max-w-7xl py-20">
 
-        {/* SOR 1: badge (bal) + [davelopment]® (jobb, heading indent-jén) */}
-        <div className="grid grid-cols-12 gap-x-6 gap-y-4 md:gap-y-0 items-center mb-8 md:mb-12">
+        {/* SOR 1: badge — fade up, minden görgetéskor */}
+        <motion.div
+          className="grid grid-cols-12 gap-x-6 gap-y-4 md:gap-y-0 items-center mb-8 md:mb-12"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5, ease: [0.33, 1, 0.68, 1] }}
+        >
           <div className="col-span-12 mb-2 lg:col-span-3 lg:mb-0">
             {badge_label && (
               <div className="flex items-center gap-2">
@@ -73,16 +79,21 @@ export const HowItWorks = ({
           <div className="col-span-12 lg:col-start-5 lg:col-span-7">
             <p className="text-md md:text-lg font-semibold text-black/80">[davelopment]®</p>
           </div>
-        </div>
+        </motion.div>
 
-        {/* SOR 2: heading + sub_heading (jobb, heading indent-jén) — parallax */}
+        {/* SOR 2: heading — külső div: fade up belépő, belső div: scroll parallax */}
         <motion.div
-          className="grid grid-cols-12 gap-x-6"
-          style={{ y: headerY, scale: headerScale, opacity: headerOpacity }}
-          transition={{ type: 'tween', duration: 0.2 }}
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, delay: 0.08, ease: [0.33, 1, 0.68, 1] }}
         >
+          <motion.div
+            className="grid grid-cols-12 gap-x-6"
+            style={{ y: headerY, scale: headerScale, opacity: headerOpacity }}
+          >
           <div className="col-span-12 lg:col-start-5 lg:col-span-7">
-            <h2 className="font-bold leading-tight tracking-tight">
+            <h2 className="font-semibold leading-tight tracking-tight">
               <span className="text-3xl text-black md:text-5xl">{left}</span>
               {right && (
                 <span className="text-3xl md:text-5xl text-black/60"> {right}</span>
@@ -94,9 +105,10 @@ export const HowItWorks = ({
               </p>
             )}
           </div>
+          </motion.div>
         </motion.div>
 
-        {/* STEPS GRID */}
+        {/* STEPS GRID — kártyák a Card-on belül animálódnak (once: true, stagger) */}
         {steps?.length ? (
           <div className="mt-10 grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-4 items-stretch">
             {steps.map((item, index) => (
@@ -114,9 +126,15 @@ export const HowItWorks = ({
 
         {/* Opcionális videó */}
         {showVideo && (
-          <div className="mt-12 h-80 overflow-hidden rounded-3xl bg-black md:h-[480px] lg:h-[560px]">
+          <motion.div
+            className="mt-12 h-80 overflow-hidden rounded-3xl bg-black md:h-[480px] lg:h-[560px]"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
+          >
             <video className="h-full w-full object-cover" controls playsInline src={videoSrc} />
-          </div>
+          </motion.div>
         )}
 
       </Container>

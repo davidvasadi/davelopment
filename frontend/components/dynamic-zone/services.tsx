@@ -1,10 +1,9 @@
 'use client';
 
-import { useMemo, useState, useRef, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus as PlusIcon, Minus as MinusIcon } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
-import { Heading } from '../elements/heading';
 import { GrainCanvas } from '../ui/grain-canvas';
 
 export type ServicesBlockProps = {
@@ -23,54 +22,6 @@ export type ServicesBlockProps = {
     elements_service_item?: any[];
 };
 
-// ============================================================
-// GRAIN CANVAS — ugyanaz mint a hero-ban
-// ============================================================
-// function GrainCanvas() {
-//     const canvasRef = useRef<HTMLCanvasElement>(null);
-//     useEffect(() => {
-//         const canvas = canvasRef.current;
-//         if (!canvas) return;
-//         const ctx = canvas.getContext('2d');
-//         if (!ctx) return;
-//         let raf: number;
-//         const resize = () => {
-//             canvas.width = canvas.offsetWidth;
-//             canvas.height = canvas.offsetHeight;
-//         };
-//         resize();
-//         window.addEventListener('resize', resize);
-//         const draw = () => {
-//             const { width, height } = canvas;
-//             const img = ctx.createImageData(width, height);
-//             for (let i = 0; i < img.data.length; i += 4) {
-//                 const a = Math.random() * 25;
-//                 img.data[i]     = 255;
-//                 img.data[i + 1] = 255;
-//                 img.data[i + 2] = 255;
-//                 img.data[i + 3] = a;
-//             }
-//             ctx.putImageData(img, 0, 0);
-//             raf = requestAnimationFrame(draw);
-//         };
-//         draw();
-//         return () => {
-//             cancelAnimationFrame(raf);
-//             window.removeEventListener('resize', resize);
-//         };
-//     }, []);
-//     return (
-//         <canvas
-//             ref={canvasRef}
-//             className="absolute inset-0 w-full h-full pointer-events-none"
-//             style={{ zIndex: 1 }}
-//         />
-//     );
-// }
-
-// ============================================================
-// SEGÉDEK
-// ============================================================
 const toAbs = (m?: any): string | undefined => {
     if (!m) return undefined;
     if (typeof m === 'string') return strapiImage(m);
@@ -107,12 +58,9 @@ type UIService = {
 };
 
 const GRID = 'grid grid-cols-[80px_1fr_60px] lg:grid-cols-[200px_1fr_60px]';
-const TITLE_H = 96; // px — fejsor magassága (py-8 * 2 + szöveg)
+const TITLE_H = 96;
 const EASE = [0.76, 0, 0.24, 1] as const;
 
-// ============================================================
-// FŐ KOMPONENS
-// ============================================================
 export function Services(props: ServicesBlockProps) {
     const {
         heading = 'Services',
@@ -180,7 +128,6 @@ export function Services(props: ServicesBlockProps) {
                         <img src={rawBgUrl as string} alt=""
                             className="w-full h-full object-cover" style={{ filter: 'brightness(1.15)' }} />
                     )}
-                    {/* Grain overlay — ugyanaz mint a hero-ban */}
                     <GrainCanvas strength="light" opacity={0.5} zIndex={1} />
                     <div className="absolute inset-0 opacity-5" />
                 </div>
@@ -188,8 +135,14 @@ export function Services(props: ServicesBlockProps) {
                 {/* TARTALOM */}
                 <div className="relative z-10 max-w-7xl mx-auto">
 
-                    {/* FEJLÉC */}
-                    <div className="mb-6">
+                    {/* FEJLÉC — fade up, minden görgetéskor */}
+                    <motion.div
+                        className="mb-6"
+                        initial={{ opacity: 0, y: 24 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, amount: 0.3 }}
+                        transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
+                    >
                         {badge_label && (
                             <div className="flex items-center space-x-2 mb-4">
                                 <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center">
@@ -198,26 +151,36 @@ export function Services(props: ServicesBlockProps) {
                                 <p className="text-xs text-white/80">{badge_label}</p>
                             </div>
                         )}
-                       {heading && (
-    <h2 className="text-left md:text-center font-bold text-white leading-none tracking-tight text-4xl md:text-7xl lg:text-8xl">
-        {heading}
-        <span className="text-sm lg:text-3xl font-semibold text-white/60 absolute">
-            ({services.length})
-        </span>
-    </h2>
-)}
+                        {heading && (
+                            <h2 className="text-left md:text-center font-bold text-white leading-none tracking-tight text-4xl md:text-7xl lg:text-8xl">
+                                {heading}
+                                <span className="text-sm lg:text-3xl font-semibold text-white/60 absolute">
+                                    ({services.length})
+                                </span>
+                            </h2>
+                        )}
                         {sub_heading && (
                             <p className="max-w-3xl text-white/70 mt-4">{sub_heading}</p>
                         )}
-                    </div>
+                    </motion.div>
 
-                    {/* ACCORDION */}
+                    {/* ACCORDION — sorok egyenként fade up, stagger */}
                     <div>
-                        {services.map((s) => {
+                        {services.map((s, idx) => {
                             const isOpen = openIds.has(s.id);
                             return (
-                                <div key={s.id} className={`border-b border-white/10 ${GRID}`}>
-
+                                <motion.div
+                                    key={s.id}
+                                    className={`border-b border-white/10 ${GRID}`}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true, amount: 0.2 }}
+                                    transition={{
+                                        duration: 0.5,
+                                        delay: idx * 0.08,
+                                        ease: [0.33, 1, 0.68, 1],
+                                    }}
+                                >
                                     {/* Sorszám */}
                                     <div
                                         className="flex items-center cursor-pointer"
@@ -229,15 +192,13 @@ export function Services(props: ServicesBlockProps) {
 
                                     {/* Középső: cím flip + tartalom */}
                                     <div className="flex flex-col">
-
-                                        {/* Cím sor — overflow hidden, lecsúszik nyitáskor */}
                                         <div
                                             className="overflow-hidden cursor-pointer flex items-center"
                                             style={{ height: TITLE_H }}
                                             onClick={() => toggle(s.id)}
                                         >
                                             <motion.h3
-                                                className="text-2xl md:text-3xl font-semibold text-white group-hover:opacity-80"
+                                                className="text-2xl md:text-3xl font-semibold text-white"
                                                 animate={{
                                                     y: isOpen ? '120%' : '0%',
                                                     opacity: isOpen ? 0 : 1,
@@ -248,8 +209,6 @@ export function Services(props: ServicesBlockProps) {
                                             </motion.h3>
                                         </div>
 
-                                        {/* Tartalom — felülről csúszik be a cím helyére
-                                            marginTop: -TITLE_H tolja fel, paddingTop: TITLE_H kompenzálja */}
                                         <motion.div
                                             style={{ marginTop: -TITLE_H }}
                                             animate={{
@@ -269,17 +228,16 @@ export function Services(props: ServicesBlockProps) {
                                                 className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-12"
                                                 style={{ paddingTop: 41 }}
                                             >
-                                                {/* Bal: kép + cím + leírás */}
                                                 <div className="flex gap-5 flex-col md:flex-row md:items-start">
                                                     {s.images.length > 0 && (
                                                         <div className="flex shrink-0">
-                                                            {s.images.map((src, idx) => (
+                                                            {s.images.map((src, i) => (
                                                                 <div
-                                                                    key={idx}
+                                                                    key={i}
                                                                     className="w-20 h-20 rounded-xl overflow-hidden"
                                                                     style={{
-                                                                        zIndex: s.images.length - idx,
-                                                                        marginLeft: idx > 0 ? '-12px' : '0',
+                                                                        zIndex: s.images.length - i,
+                                                                        marginLeft: i > 0 ? '-12px' : '0',
                                                                     }}
                                                                 >
                                                                     <img src={src} alt="" className="w-full h-full object-cover" />
@@ -295,7 +253,6 @@ export function Services(props: ServicesBlockProps) {
                                                     </div>
                                                 </div>
 
-                                                {/* Jobb: kategóriák */}
                                                 <div>
                                                     <h5 className="text-sm font-medium text-white/70 tracking-wider mb-4">
                                                         {s.categoriesTitle}
@@ -317,7 +274,7 @@ export function Services(props: ServicesBlockProps) {
                                         </motion.div>
                                     </div>
 
-                                    {/* Gomb — eredeti MinusIcon/PlusIcon váltás */}
+                                    {/* Toggle gomb */}
                                     <div
                                         className="flex items-center justify-end cursor-pointer"
                                         style={{ height: TITLE_H }}
@@ -335,34 +292,40 @@ export function Services(props: ServicesBlockProps) {
                                             }
                                         </motion.div>
                                     </div>
-
-                                </div>
+                                </motion.div>
                             );
                         })}
                     </div>
 
                     {/* CTA */}
                     {cta_title && (
-                        <motion.button
-                            onClick={onCta}
-                            className="inline-block mt-6 px-8 py-5 bg-white text-black font-semibold rounded-full hover:opacity-80 transition"
-                            initial="rest"
-                            whileHover="hover"
-                            animate="rest"
+                        <motion.div
+                            initial={{ opacity: 0, y: 16 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, amount: 0.5 }}
+                            transition={{ duration: 0.5, ease: [0.33, 1, 0.68, 1] }}
                         >
-                            <div className="overflow-hidden h-5">
-                                <motion.div
-                                    className="flex flex-col"
-                                    variants={{
-                                        rest: { y: '-50%' },
-                                        hover: { y: '0%', transition: { duration: 0.3, ease: 'easeInOut' } },
-                                    }}
-                                >
-                                    <span>{cta_title}</span>
-                                    <span>{cta_title}</span>
-                                </motion.div>
-                            </div>
-                        </motion.button>
+                            <motion.button
+                                onClick={onCta}
+                                className="inline-block mt-6 px-8 py-5 bg-white text-black font-semibold rounded-full hover:opacity-80 transition"
+                                initial="rest"
+                                whileHover="hover"
+                                animate="rest"
+                            >
+                                <div className="overflow-hidden h-5">
+                                    <motion.div
+                                        className="flex flex-col"
+                                        variants={{
+                                            rest: { y: '-50%' },
+                                            hover: { y: '0%', transition: { duration: 0.3, ease: 'easeInOut' } },
+                                        }}
+                                    >
+                                        <span>{cta_title}</span>
+                                        <span>{cta_title}</span>
+                                    </motion.div>
+                                </div>
+                            </motion.button>
+                        </motion.div>
                     )}
                 </div>
             </section>

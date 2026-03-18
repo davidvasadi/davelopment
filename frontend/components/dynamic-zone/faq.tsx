@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlusIcon } from 'lucide-react';
@@ -24,13 +26,15 @@ export const FAQ = ({
   return (
     <section className="w-full">
       <Container className="py-20 md:py-32">
-        <div className="flex flex-col md:flex-row ">
-          {/* Bal oldal (cím + leírás Strapi-ból) */}
+        <div className="flex flex-col md:flex-row">
+
+          {/* Bal oldal — fade up, minden görgetéskor */}
           <motion.div
             className="mb-12 md:mb-0 md:w-1/2"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
           >
             <Heading as="h1" className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold leading-none tracking-tight text-black">
               {heading}
@@ -42,21 +46,33 @@ export const FAQ = ({
             ) : null}
           </motion.div>
 
-          {/* Jobb oldal (FAQ accordion Strapi-ból) */}
+          {/* Jobb oldal — FAQ itemek staggerelve */}
           <div className="md:w-1/2 space-y-1 text-black">
             {Array.isArray(faqs) && faqs.length > 0 ? (
               faqs.map((item, i) => (
-                <FAQItemComponent 
+                <motion.div
                   key={`${item.question}-${i}`}
-                  item={item}
-                  isExpanded={expandedId === i}
-                  onToggle={() => handleToggle(i)}
-                />
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{
+                    duration: 0.5,
+                    delay: i * 0.07,
+                    ease: [0.33, 1, 0.68, 1],
+                  }}
+                >
+                  <FAQItemComponent
+                    item={item}
+                    isExpanded={expandedId === i}
+                    onToggle={() => handleToggle(i)}
+                  />
+                </motion.div>
               ))
             ) : (
               <div className="text-gray-500">Nincs megjeleníthető kérdés.</div>
             )}
           </div>
+
         </div>
       </Container>
     </section>
@@ -72,7 +88,7 @@ const FAQItemComponent = ({
   isExpanded: boolean;
   onToggle: () => void;
 }) => (
-  <motion.div className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+  <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
     <button
       onClick={onToggle}
       className="w-full flex items-center justify-between p-6 text-left"
@@ -104,5 +120,5 @@ const FAQItemComponent = ({
         </motion.div>
       )}
     </AnimatePresence>
-  </motion.div>
+  </div>
 );

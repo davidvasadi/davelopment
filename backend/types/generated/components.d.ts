@@ -151,8 +151,14 @@ export interface DynamicZoneCta extends Struct.ComponentSchema {
     icon: 'cursor';
   };
   attributes: {
+    badge_label: Schema.Attribute.String;
     CTAs: Schema.Attribute.Component<'shared.button', true>;
     heading: Schema.Attribute.String;
+    heading_highlight: Schema.Attribute.String;
+    image: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
     sub_heading: Schema.Attribute.String;
   };
 }
