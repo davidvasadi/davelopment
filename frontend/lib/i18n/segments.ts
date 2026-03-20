@@ -1,9 +1,11 @@
 export const localeSegments: Record<string, Record<string, string>> = {
   hu: {
     products: 'projektek',
+    services: 'szolgaltatasok',
   },
   en: {
     products: 'products',
+    services: 'services',
   },
 }
 

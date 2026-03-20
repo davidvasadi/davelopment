@@ -1,7 +1,7 @@
 // frontend/components/dynamic-zone/projects.tsx
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { motion, type Variants, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'next-view-transitions';
 
@@ -11,10 +11,6 @@ import { Product } from '@/types/types';
 import { truncate } from '@/lib/utils';
 import { PlusIcon, ArrowUpRight as ArrowUpRightIcon } from 'lucide-react';
 
-/* -----------------------------------------------------------------------------
- * ANIMÁCIÓK
- * -------------------------------------------------------------------------- */
-
 const arrowWheelVariants: Variants = {
   rest: { y: '0%' },
   hover: {
@@ -22,24 +18,6 @@ const arrowWheelVariants: Variants = {
     transition: { duration: 0.28, ease: [0.33, 1, 0.68, 1] },
   },
 };
-
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, ease: [0.33, 1, 0.68, 1] },
-  },
-};
-
-const stagger: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.11, delayChildren: 0.05 } },
-};
-
-/* -----------------------------------------------------------------------------
- * TÍPUSOK
- * -------------------------------------------------------------------------- */
 
 type Chip = { id?: number; label?: string | null };
 
@@ -66,10 +44,6 @@ type ProjectWithProduct = {
   product: Product;
 };
 
-/* -----------------------------------------------------------------------------
- * HELPER
- * -------------------------------------------------------------------------- */
-
 const getProductFromProject = (project: ProjectCardFromStrapi): Product | undefined => {
   const raw = project.product as any;
   if (!raw) return undefined;
@@ -78,16 +52,6 @@ const getProductFromProject = (project: ProjectCardFromStrapi): Product | undefi
   return undefined;
 };
 
-const getPrimaryLabel = (item: ProjectWithProduct): string =>
-  item.project.badge_label ||
-  (item.product as any).badge_label ||
-  item.product.categories?.[0]?.name ||
-  'Highlight';
-
-/* -----------------------------------------------------------------------------
- * FŐ KOMPONENS
- * -------------------------------------------------------------------------- */
-
 export const Projects: React.FC<ProjectsProps> = ({
   badge_label,
   heading,
@@ -95,18 +59,20 @@ export const Projects: React.FC<ProjectsProps> = ({
   projects = [],
   locale,
 }) => {
-  const items: ProjectWithProduct[] = projects
-    .map((p) => {
-      const product = getProductFromProject(p);
-      if (!product) return undefined;
-      return { project: p, product };
-    })
-    .filter((x): x is ProjectWithProduct => !!x);
+  const allItems: ProjectWithProduct[] = useMemo(() =>
+    projects
+      .map((p) => {
+        const product = getProductFromProject(p);
+        if (!product) return undefined;
+        return { project: p, product };
+      })
+      .filter((x): x is ProjectWithProduct => !!x),
+    [projects]
+  );
 
-  const first  = items[0];
-  const second = items[1];
+  const first  = allItems[0];
+  const second = allItems[1];
 
-  // Scroll parallax — ugyanaz mint a how-it-works-ben
   const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -116,37 +82,11 @@ export const Projects: React.FC<ProjectsProps> = ({
   const headerScale   = useTransform(scrollYProgress, [0, 1], [1, 0.98]);
   const headerOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.92]);
 
-  if (!first) {
-    return (
-      <div ref={sectionRef} className="relative ">
-        <Container className="relative z-10">
-          <Header
-            badge_label={badge_label}
-            heading={heading}
-            sub_heading={sub_heading}
-            headerY={headerY}
-            headerScale={headerScale}
-            headerOpacity={headerOpacity}
-          />
-          <motion.p
-            className="mt-8 text-sm text-neutral-500"
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.5, ease: [0.33, 1, 0.68, 1] }}
-          >
-            Jelenleg nincs beállított projekt ebben a szekcióban.
-          </motion.p>
-        </Container>
-      </div>
-    );
-  }
+  const isHu = locale === 'hu';
 
   return (
     <div ref={sectionRef} className="relative py-24 md:py-28 lg:py-32">
       <Container className="relative z-10">
-
-        {/* HEADER — fade up belépő + scroll parallax (mint how-it-works) */}
         <Header
           badge_label={badge_label}
           heading={heading}
@@ -156,45 +96,57 @@ export const Projects: React.FC<ProjectsProps> = ({
           headerOpacity={headerOpacity}
         />
 
-        {/* KÁRTYÁK — whileInView once:false, stagger (mint card.tsx) */}
-        <div className="mt-8 md:mt-28">
+        <div className="mt-8 md:mt-16">
           <div className="max-w-7xl mx-auto">
 
-            {/* MOBIL GRID */}
-            <div className="grid grid-cols-2 gap-2 text-black md:hidden">
-              <ProjectTriplet locale={locale} item={first} truncateLength={50} layout={{
-                large: 'col-span-2 rounded-2xl bg-white min-h-[260px]',
-                small: 'col-span-1 rounded-2xl bg-white min-h-[180px]',
-                image: 'col-span-1 rounded-2xl overflow-hidden min-h-[180px]',
-                largeArrowClassName: 'text-white',
-              }} />
-              {second && (
-                <ProjectTriplet locale={locale} item={second} truncateLength={50} layout={{
-                  large: 'col-span-2 rounded-2xl bg-white min-h-[260px]',
-                  small: 'col-span-1 rounded-2xl bg-white min-h-[180px]',
-                  image: 'col-span-1 rounded-2xl overflow-hidden min-h-[180px]',
+            {/* NINCS TALÁLAT */}
+            {!first && (
+              <div className="rounded-[6px] border border-dashed border-neutral-200 bg-neutral-50 px-6 py-8 text-center">
+                <p className="text-sm font-medium text-neutral-800">
+                  {isHu ? 'Jelenleg nincs beállított projekt ebben a szekcióban.' : 'No projects configured in this section.'}
+                </p>
+              </div>
+            )}
+
+            {/* MOBIL */}
+            {first && (
+              <div className="grid grid-cols-2 gap-2 text-black md:hidden">
+                <ProjectTriplet locale={locale} item={first} truncateLength={50} layout={{
+                  large: 'col-span-2 bg-white min-h-[260px]',
+                  small: 'col-span-1 bg-white min-h-[180px]',
+                  image: 'col-span-1 overflow-hidden min-h-[180px]',
                   largeArrowClassName: 'text-white',
                 }} />
-              )}
-            </div>
+                {second && (
+                  <ProjectTriplet locale={locale} item={second} truncateLength={50} layout={{
+                    large: 'col-span-2 bg-white min-h-[260px]',
+                    small: 'col-span-1 bg-white min-h-[180px]',
+                    image: 'col-span-1 overflow-hidden min-h-[180px]',
+                    largeArrowClassName: 'text-white',
+                  }} />
+                )}
+              </div>
+            )}
 
-            {/* DESKTOP GRID */}
-            <div className="hidden md:grid grid-cols-6 grid-rows-12 gap-1 text-black">
-              <ProjectTriplet locale={locale} item={first} truncateLength={60} layout={{
-                large: 'col-span-4 row-span-6 rounded-2xl bg-white',
-                small: 'col-span-2 row-span-3 col-start-5 bg-white rounded-2xl',
-                image: 'col-span-2 row-span-3 col-start-5 row-start-4 bg-white rounded-2xl p-0 overflow-hidden',
-                largeArrowClassName: 'text-white',
-              }} />
-              {second && (
-                <ProjectTriplet locale={locale} item={second} truncateLength={60} layout={{
-                  large: 'col-span-4 row-span-6 col-start-3 row-start-7 bg-white rounded-2xl',
-                  small: 'col-span-2 row-span-3 col-start-1 row-start-7 bg-white rounded-2xl',
-                  image: 'col-span-2 row-span-3 row-start-10 bg-white rounded-2xl p-0 overflow-hidden',
-                  largeArrowClassName: 'text-gray-500',
+            {/* DESKTOP */}
+            {first && (
+              <div className="hidden md:grid grid-cols-6 grid-rows-12 gap-2 text-black">
+                <ProjectTriplet locale={locale} item={first} truncateLength={60} layout={{
+                  large: 'col-span-4 row-span-6 bg-white',
+                  small: 'col-span-2 row-span-3 col-start-5 bg-white',
+                  image: 'col-span-2 row-span-3 col-start-5 row-start-4 bg-white p-0 overflow-hidden',
+                  largeArrowClassName: 'text-white',
                 }} />
-              )}
-            </div>
+                {second && (
+                  <ProjectTriplet locale={locale} item={second} truncateLength={60} layout={{
+                    large: 'col-span-4 row-span-6 col-start-3 row-start-7 bg-white',
+                    small: 'col-span-2 row-span-3 col-start-1 row-start-7 bg-white',
+                    image: 'col-span-2 row-span-3 row-start-10 bg-white p-0 overflow-hidden',
+                    largeArrowClassName: 'text-gray-500',
+                  }} />
+                )}
+              </div>
+            )}
 
           </div>
         </div>
@@ -203,18 +155,8 @@ export const Projects: React.FC<ProjectsProps> = ({
   );
 };
 
-/* -----------------------------------------------------------------------------
- * HEADER — fade up belépő (külső) + scroll parallax (belső)
- * Ugyanaz a két-rétegű minta mint a how-it-works heading-je
- * -------------------------------------------------------------------------- */
-
 const Header = ({
-  badge_label,
-  heading,
-  sub_heading,
-  headerY,
-  headerScale,
-  headerOpacity,
+  badge_label, heading, sub_heading, headerY, headerScale, headerOpacity,
 }: {
   badge_label?: string | null;
   heading?: string | null;
@@ -224,34 +166,22 @@ const Header = ({
   headerScale: any;
   headerOpacity: any;
 }) => (
-  <>
-    {/* Badge — fade up, minden görgetéskor */}
-    {badge_label && (
-      <motion.div
-        className="flex items-center gap-2 mb-6"
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.3 }}
-        transition={{ duration: 0.5, ease: [0.33, 1, 0.68, 1] }}
-      >
-        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-black">
-          <PlusIcon className="h-3 w-3 text-white" />
+  <motion.div
+    initial={{ opacity: 0, y: 24 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, amount: 0.3 }}
+    transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
+  >
+    <motion.div style={{ y: headerY, scale: headerScale, opacity: headerOpacity }}>
+      {badge_label && (
+        <div className="flex items-center gap-2 mb-6">
+          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-black">
+            <PlusIcon className="h-3 w-3 text-white" />
+          </div>
+          <p className="text-xs sm:text-sm text-neutral-500 font-medium tracking-tight">{badge_label}</p>
         </div>
-        <p className="text-xs sm:text-sm text-neutral-500 font-medium tracking-tight">{badge_label}</p>
-      </motion.div>
-    )}
-
-    {/* Heading + subheading — külső: fade up belépő, belső: scroll parallax */}
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 0.6, delay: 0.08, ease: [0.33, 1, 0.68, 1] }}
-    >
-      <motion.div
-        className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-10"
-        style={{ y: headerY, scale: headerScale, opacity: headerOpacity }}
-      >
+      )}
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-10">
         <div>
           {heading && (
             <h2 className="text-6xl md:text-7xl xl:text-9xl font-medium tracking-tight text-black leading-none">
@@ -266,45 +196,25 @@ const Header = ({
             </p>
           )}
         </div>
-      </motion.div>
+      </div>
     </motion.div>
-  </>
+  </motion.div>
 );
-
-/* -----------------------------------------------------------------------------
- * ARROW BADGE — saját whileHover, fix méret
- * -------------------------------------------------------------------------- */
 
 const ArrowBadge = ({ iconClassName = '', href }: { iconClassName?: string; href?: string }) => {
   const inner = (
-    <div
-      className="inline-flex flex-shrink-0"
-      style={{ width: 28, height: 28, overflow: 'hidden' }}
-    >
-      <motion.div
-        style={{ display: 'flex', flexDirection: 'column' }}
-        variants={arrowWheelVariants}
-      >
+    <div className="inline-flex flex-shrink-0" style={{ width: 28, height: 28, overflow: 'hidden' }}>
+      <motion.div style={{ display: 'flex', flexDirection: 'column' }} variants={arrowWheelVariants}>
         <ArrowUpRightIcon className={`flex-shrink-0 ${iconClassName}`} style={{ width: 28, height: 28 }} />
         <ArrowUpRightIcon className={`flex-shrink-0 ${iconClassName}`} style={{ width: 28, height: 28 }} />
       </motion.div>
     </div>
   );
-
-  // Mobilon a nyíl maga egy kattintható link
   if (href) {
-    return (
-      <Link href={href as never} className="md:pointer-events-none" aria-label="Megnyitás">
-        {inner}
-      </Link>
-    );
+    return <Link href={href as never} className="md:pointer-events-none" aria-label="Megnyitás">{inner}</Link>;
   }
   return inner;
 };
-
-/* -----------------------------------------------------------------------------
- * TRIPLET
- * -------------------------------------------------------------------------- */
 
 type TileLayoutSet = {
   large: string;
@@ -328,20 +238,16 @@ const ProjectTriplet: React.FC<{
 
 type TileBaseProps = { item: ProjectWithProduct; locale: string; className?: string };
 
-/* -----------------------------------------------------------------------------
- * LargeTile — whileInView fade up (mint card.tsx)
- * -------------------------------------------------------------------------- */
-
 const LargeTile: React.FC<TileBaseProps & { arrowClassName?: string }> = ({
   item, locale, className, arrowClassName,
 }) => {
   const { product } = item;
-  const label = getPrimaryLabel(item);
+  const label = product.categories?.[0]?.name ?? item.project.badge_label ?? 'Highlight';
   const href = `/${locale}/products/${product.slug}`;
 
   return (
     <motion.div
-      className={className}
+      className={`rounded-2xl overflow-hidden ${className}`}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.1 }}
@@ -349,14 +255,11 @@ const LargeTile: React.FC<TileBaseProps & { arrowClassName?: string }> = ({
       animate="rest"
       whileHover="hover"
     >
-      {/* Desktop: teljes csempe link */}
       <Link href={href as never} className="hidden md:block h-full w-full">
         <TileWithImageBackground product={product}>
           <div className="flex h-full flex-col justify-between">
-            <div className="flex justify-between gap-2 md:gap-2">
-              <span className="text-white text-xl md:text-4xl font-medium tracking-tight leading-tight">
-                {label}
-              </span>
+            <div className="flex justify-between gap-2">
+              <span className="text-white text-xl md:text-4xl font-medium tracking-tight leading-tight">{label}</span>
               <ArrowBadge iconClassName={arrowClassName ?? 'text-white'} />
             </div>
             <h2 className="text-4xl md:text-8xl font-medium tracking-tight text-white mt-6 md:mt-16 lg:mt-40 xl:mt-60 leading-none">
@@ -365,19 +268,14 @@ const LargeTile: React.FC<TileBaseProps & { arrowClassName?: string }> = ({
           </div>
         </TileWithImageBackground>
       </Link>
-      {/* Mobil: div, nyíl kattintható */}
       <div className="md:hidden h-full w-full">
         <TileWithImageBackground product={product}>
           <div className="flex h-full flex-col justify-between">
             <div className="flex justify-between gap-2">
-              <span className="text-white text-xl font-medium tracking-tight leading-tight">
-                {label}
-              </span>
+              <span className="text-white text-xl font-medium tracking-tight leading-tight">{label}</span>
               <ArrowBadge iconClassName={arrowClassName ?? 'text-white'} href={href} />
             </div>
-            <h2 className="text-4xl font-medium tracking-tight text-white mt-6 leading-none">
-              {product.name}
-            </h2>
+            <h2 className="text-4xl font-medium tracking-tight text-white mt-6 leading-none">{product.name}</h2>
           </div>
         </TileWithImageBackground>
       </div>
@@ -385,19 +283,16 @@ const LargeTile: React.FC<TileBaseProps & { arrowClassName?: string }> = ({
   );
 };
 
-/* -----------------------------------------------------------------------------
- * SmallTextTile — whileInView fade up, kis delay
- * -------------------------------------------------------------------------- */
-
 const SmallTextTile: React.FC<TileBaseProps & { truncateLength: number }> = ({
   item, locale, className, truncateLength,
 }) => {
   const { product, project } = item;
+  const label = product.categories?.[1]?.name ?? product.categories?.[0]?.name ?? item.project.badge_label ?? 'Highlight';
   const href = `/${locale}/products/${product.slug}`;
 
   return (
     <motion.div
-      className={className}
+      className={`rounded-2xl overflow-hidden ${className}`}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.1 }}
@@ -405,55 +300,41 @@ const SmallTextTile: React.FC<TileBaseProps & { truncateLength: number }> = ({
       animate="rest"
       whileHover="hover"
     >
-      {/* Desktop */}
       <Link href={href as never} className="hidden md:block h-full w-full">
         <div className="relative h-full w-full overflow-hidden rounded-2xl bg-white">
           <div className="relative z-10 flex h-full flex-col justify-between p-4 md:p-6">
             <div className="flex justify-between gap-2">
               <div className="flex flex-col">
-                <span className="text-lg md:text-2xl font-medium tracking-tight leading-tight">
-                  {getPrimaryLabel(item)}
-                </span>
+                <span className="text-lg md:text-2xl font-medium tracking-tight leading-tight">{label}</span>
                 <span className="text-neutral-400 text-xs md:text-sm font-light mt-1 leading-relaxed">
                   {truncate(project.result_line || product.description, truncateLength)}
                 </span>
               </div>
               <ArrowBadge iconClassName="text-neutral-400" />
             </div>
-            <h2 className="text-2xl md:text-4xl font-medium tracking-tight mt-3 md:mt-10 leading-tight">
-              {product.name}
-            </h2>
+            <h2 className="text-2xl md:text-4xl font-medium tracking-tight mt-3 md:mt-10 leading-tight">{product.name}</h2>
           </div>
         </div>
       </Link>
-      {/* Mobil */}
       <div className="md:hidden h-full w-full">
         <div className="relative h-full w-full overflow-hidden rounded-2xl bg-white">
           <div className="relative z-10 flex h-full flex-col justify-between p-4">
             <div className="flex justify-between gap-2">
               <div className="flex flex-col">
-                <span className="text-lg font-medium tracking-tight leading-tight">
-                  {getPrimaryLabel(item)}
-                </span>
+                <span className="text-lg font-medium tracking-tight leading-tight">{label}</span>
                 <span className="text-neutral-400 text-xs font-light mt-1 leading-relaxed">
                   {truncate(project.result_line || product.description, truncateLength)}
                 </span>
               </div>
               <ArrowBadge iconClassName="text-neutral-400" href={href} />
             </div>
-            <h2 className="text-2xl font-medium tracking-tight mt-3 leading-tight">
-              {product.name}
-            </h2>
+            <h2 className="text-2xl font-medium tracking-tight mt-3 leading-tight">{product.name}</h2>
           </div>
         </div>
       </div>
     </motion.div>
   );
 };
-
-/* -----------------------------------------------------------------------------
- * ImageTile — whileInView fade up, nagyobb delay
- * -------------------------------------------------------------------------- */
 
 const ImageTile: React.FC<TileBaseProps & { imageIndex?: number }> = ({
   item, locale, className, imageIndex = 0,
@@ -469,21 +350,15 @@ const ImageTile: React.FC<TileBaseProps & { imageIndex?: number }> = ({
       animate="rest"
       whileHover="hover"
     >
-      {/* Desktop */}
       <Link href={href as never} className="hidden md:block h-full w-full">
         <PureImageTile product={item.product} imageIndex={imageIndex} />
       </Link>
-      {/* Mobil: nyíl kattintható a PureImageTile-on belül */}
       <div className="md:hidden h-full w-full">
         <PureImageTile product={item.product} imageIndex={imageIndex} mobileHref={href} />
       </div>
     </motion.div>
   );
 };
-
-/* -----------------------------------------------------------------------------
- * TileWithImageBackground
- * -------------------------------------------------------------------------- */
 
 const TileWithImageBackground: React.FC<{
   children: React.ReactNode;
@@ -492,7 +367,7 @@ const TileWithImageBackground: React.FC<{
 }> = ({ children, product, imageIndex = 0 }) => {
   const img = product.images?.[imageIndex];
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-2xl">
+    <div className="relative h-full w-full overflow-hidden rounded-2xl group">
       {img?.url && (
         <>
           <StrapiImage
@@ -500,9 +375,9 @@ const TileWithImageBackground: React.FC<{
             alt={img.alternativeText || product.name}
             width={1600}
             height={900}
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover scale-[1.03] transition-transform duration-500 ease-out group-hover:scale-100"
           />
-          <div className="absolute inset-0 bg-black/15" />
+          <div className="absolute inset-0 bg-black/20 transition-colors duration-500 group-hover:bg-black/40" />
         </>
       )}
       <div className="relative z-10 h-full w-full p-6 md:p-8">{children}</div>
@@ -510,16 +385,12 @@ const TileWithImageBackground: React.FC<{
   );
 };
 
-/* -----------------------------------------------------------------------------
- * PureImageTile
- * -------------------------------------------------------------------------- */
-
 const PureImageTile: React.FC<{ product: Product; imageIndex?: number; mobileHref?: string }> = ({
   product, imageIndex = 0, mobileHref,
 }) => {
   const img = product.images?.[imageIndex] || product.images?.[0];
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full group">
       {img?.url ? (
         <>
           <StrapiImage
@@ -527,9 +398,9 @@ const PureImageTile: React.FC<{ product: Product; imageIndex?: number; mobileHre
             alt={img.alternativeText || product.name}
             width={1600}
             height={900}
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover scale-[1.03] transition-transform duration-500 ease-out group-hover:scale-100"
           />
-          <div className="absolute inset-0 bg-black/15" />
+          <div className="absolute inset-0 bg-black/20 transition-colors duration-500 group-hover:bg-black/40" />
         </>
       ) : (
         <div className="absolute inset-0 h-full w-full bg-neutral-200" />

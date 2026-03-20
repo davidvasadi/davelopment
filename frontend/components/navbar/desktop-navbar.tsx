@@ -65,14 +65,14 @@ export function DesktopNavbar({
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  const inline = useMemo(
-    () => (leftNavbarItems || []).filter((it) => {
-      const t = (it.text || '').toLowerCase();
-      const u = it.URL || '';
-      return !(u === '/' || u === '' || t === 'home' || t === 'főoldal');
-    }),
-    [leftNavbarItems]
-  );
+const inline = useMemo(
+  () => (leftNavbarItems || []).filter((it) => {
+    const t = (it.text || '').toLowerCase();
+    const u = it.URL || '';
+    return !(u === '/' || u === '' || t === 'home' || t === 'főoldal');
+  }).slice(0, 4), // ← inline max 4 elem, hogy ne zsúfoljuk túl a felső sávot (ha több van, úgyis ott a hamburger menü)
+  [leftNavbarItems]
+);
 
   const handleNavClick = (href: string, external?: boolean) => {
     if (external) { window.open(href, '_blank'); return; }
@@ -88,7 +88,7 @@ export function DesktopNavbar({
 
           {/* Inline nav gombok — ezeken nincs flip hover, csak az overlay-en */}
           <div className={cn(
-            'hidden xl:flex absolute left-1/2 -translate-x-1/2 gap-[12rem] transition-opacity',
+            'hidden xl:flex absolute left-1/2 -translate-x-1/2 gap-[10rem] transition-opacity',
             open ? 'opacity-0 pointer-events-none' : 'opacity-100'
           )}>
             {inline.map((it) => (

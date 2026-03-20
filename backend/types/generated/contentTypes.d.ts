@@ -1287,6 +1287,108 @@ export interface ApiRedirectionRedirection extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiServiceService extends Struct.SingleTypeSchema {
+  collectionName: 'services';
+  info: {
+    displayName: '/services';
+    pluralName: 'services';
+    singularName: 'service';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    cta: Schema.Attribute.DynamicZone<
+      [
+        'dynamic-zone.why-choose-us',
+        'dynamic-zone.testimonials',
+        'dynamic-zone.services',
+        'dynamic-zone.related-products',
+        'dynamic-zone.related-articles',
+        'dynamic-zone.products',
+        'dynamic-zone.pricing',
+        'dynamic-zone.newsletter',
+        'dynamic-zone.launches',
+        'dynamic-zone.how-it-works',
+        'dynamic-zone.hero',
+        'dynamic-zone.form-next-to-section',
+        'dynamic-zone.features',
+        'dynamic-zone.faq',
+        'dynamic-zone.cta',
+        'dynamic-zone.brands',
+        'dynamic-zone.blog',
+      ]
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    dynamic_zone: Schema.Attribute.DynamicZone<
+      [
+        'dynamic-zone.why-choose-us',
+        'dynamic-zone.testimonials',
+        'dynamic-zone.services',
+        'dynamic-zone.related-products',
+        'dynamic-zone.related-articles',
+        'dynamic-zone.products',
+        'dynamic-zone.pricing',
+        'dynamic-zone.newsletter',
+        'dynamic-zone.launches',
+        'dynamic-zone.how-it-works',
+        'dynamic-zone.hero',
+        'dynamic-zone.form-next-to-section',
+        'dynamic-zone.features',
+        'dynamic-zone.faq',
+        'dynamic-zone.cta',
+        'dynamic-zone.brands',
+        'dynamic-zone.blog',
+      ]
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    heading: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    locale: Schema.Attribute.String;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::service.service'
+    >;
+    pages: Schema.Attribute.Relation<'oneToMany', 'api::page.page'>;
+    publishedAt: Schema.Attribute.DateTime;
+    seo: Schema.Attribute.Component<'shared.seo', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    sub_heading: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiTestimonialTestimonial extends Struct.CollectionTypeSchema {
   collectionName: 'testimonials';
   info: {
@@ -1860,6 +1962,7 @@ declare module '@strapi/strapi' {
       'api::product-page.product-page': ApiProductPageProductPage;
       'api::product.product': ApiProductProduct;
       'api::redirection.redirection': ApiRedirectionRedirection;
+      'api::service.service': ApiServiceService;
       'api::testimonial.testimonial': ApiTestimonialTestimonial;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
