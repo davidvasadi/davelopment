@@ -7,7 +7,7 @@ import React, { useRef, useState } from 'react';
 
 import { Heading } from '../elements/heading';
 import { Subheading } from '../elements/subheading';
-import { FeatureIconContainer } from './features/feature-icon-container';
+// import { FeatureIconContainer } from './features/feature-icon-container';
 import { StickyScroll } from '@/components/ui/sticky-scroll';
 
 export const Launches = ({
@@ -66,9 +66,9 @@ export const Launches = ({
       className="w-full relative h-full pt-20 md:pt-40"
     >
       <div className="px-6">
-        <FeatureIconContainer className="flex justify-center items-center overflow-hidden">
+        {/* <FeatureIconContainer className="flex justify-center items-center overflow-hidden"> */}
           <IconRocket className="h-6 w-6 text-white" />
-        </FeatureIconContainer>
+        {/* </FeatureIconContainer> */}
         <Heading className="mt-4">{heading}</Heading>
         <Subheading>{sub_heading}</Subheading>
       </div>

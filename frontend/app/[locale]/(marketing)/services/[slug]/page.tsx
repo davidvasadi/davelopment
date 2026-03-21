@@ -62,9 +62,9 @@ export default async function ServiceSlugPage(props: {
   return (
     <>
       <ClientSlugHandler localizedSlugs={localizedSlugs} />
-         <Container>
+         {/* <Container> */}
       <PageContent pageData={pageData} />
-        </Container>
+        {/* </Container> */}
     </>
   );
 }
