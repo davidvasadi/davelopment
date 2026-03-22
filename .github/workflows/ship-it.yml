@@ -191,17 +191,27 @@ jobs:
           NODE_ENV: production
         run: pnpm build
 
-      - name: Bundle (no node_modules / uploads / env / tmp)
+      - name: Build better-sqlite3 native addon (linux-x64)
         shell: bash
         run: |
-          rm -rf backend/node_modules || true
+          cd backend/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3
+          npm run install
+          find . -name "better_sqlite3.node" | head -3
+          echo "better_sqlite3.node build OK"
+
+      - name: Bundle (with better_sqlite3.node, no other node_modules)
+        shell: bash
+        run: |
+          rm -rf backend/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3/node_modules || true
           tar -czf backend_bundle.tgz \
+            --exclude="backend/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3/node_modules" \
             --exclude="backend/node_modules" \
             --exclude="backend/public/uploads" \
             --exclude="backend/.env" \
             --exclude="backend/.env.*" \
             --exclude="backend/.tmp" \
-            backend/
+            backend/ \
+            backend/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3/build/Release/better_sqlite3.node
 
       - uses: actions/upload-artifact@v4
         with:
@@ -365,7 +375,6 @@ jobs:
           STORAGE_ROOT="/var/www/davelopment/storage"
           STORAGE_UPLOADS="${STORAGE_ROOT}/uploads"
           STORAGE_DB="${STORAGE_ROOT}/db"
-          # Perzisztens pnpm store a VPS-en - deploy-onként újrahasználja a cachet
           PNPM_STORE_DIR="/var/www/davelopment/.pnpm-store"
 
           TS="$(date +%F_%H%M%S)"
@@ -418,9 +427,6 @@ jobs:
             "NOTIFY_EMAIL=${NOTIFY_EMAIL}" \
             > "${NEW_DIR}/.env"
 
-          # FIX: .npmrc a NEW_DIR-be - engedélyezi az összes build scriptet pnpm v10-ben
-          # Ez nélkül az @swc/core, esbuild, sharp natív addonjai NEM épülnek fel,
-          # és a Strapi el sem tud indulni.
           printf '%s\n' \
             "enable-pre-post-scripts=true" \
             "store-dir=${PNPM_STORE_DIR}" \
@@ -449,7 +455,6 @@ jobs:
           log "Installing deps in new release..."
           cd "$NEW_DIR"
           export NODE_OPTIONS="--max-old-space-size=1024"
-          # --ignore-scripts=false explicit, hogy a pnpm v10 ne blokkolja a build scripteket
           pnpm install \
             --prod \
             --frozen-lockfile=false \
@@ -457,22 +462,25 @@ jobs:
             --network-concurrency 1 \
             --ignore-scripts=false
 
-          # better-sqlite3: prebuild-install letölti a prebuilt binaryt,
-          # de ha az nem sikerül (pl. glibc mismatch), node-gyp-pel újraforgatjuk.
-          # --jobs 1 hogy ne párhuzamosan fordítson és ne menjen OOM-ba
+          # better-sqlite3: a prebuilt bináris a CI-ban lett lefordítva és a bundle tartalmazza
+          # Csak ellenőrzés - nem fordítunk a szerveren
           log "Verifying better_sqlite3.node..."
-          if ! find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q .; then
-            log "better_sqlite3.node not found, rebuilding from source..."
-            cd "$NEW_DIR/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3"
-            node-gyp rebuild --release --jobs 1
-            cd "$NEW_DIR"
-            find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q . || \
-              { log "ERROR: better_sqlite3.node build failed!"; exit 1; }
+          SQLITE_NODE=$(find "$NEW_DIR/node_modules" -name "better_sqlite3.node" 2>/dev/null | head -1)
+          if [ -z "$SQLITE_NODE" ]; then
+            log "better_sqlite3.node not found in bundle, checking bundle path..."
+            # A CI által beépített .node fájl másolása a megfelelő helyre
+            SQLITE_SRC=$(find "$NEW_DIR" -name "better_sqlite3.node" 2>/dev/null | head -1)
+            if [ -n "$SQLITE_SRC" ]; then
+              SQLITE_DEST="$NEW_DIR/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3/build/Release/"
+              mkdir -p "$SQLITE_DEST"
+              cp "$SQLITE_SRC" "$SQLITE_DEST"
+              log "better_sqlite3.node copied from bundle"
+            else
+              log "ERROR: better_sqlite3.node not found anywhere!"; exit 1
+            fi
           fi
           log "better_sqlite3.node OK"
 
-          # @swc/core: natív addon - pnpm v10-ben blokkolva volt, most a .npmrc fix megoldja,
-          # de ellenőrizzük és ha hiányzik, manuálisan futtatjuk a postinstall-t
           log "Verifying @swc/core native addon..."
           SWC_BINDING=$(find "$NEW_DIR/node_modules" -name "*.node" -path "*swc*" 2>/dev/null | head -1)
           if [ -z "$SWC_BINDING" ]; then
@@ -502,7 +510,6 @@ jobs:
             pm2 start "pnpm start" --name backend --cwd "$LIVE_DIR"
           pm2 save
 
-          # Strapi cold start tipikusan 20-40s, adunk neki 45s-t mielőtt smoke-ot futtatunk
           log "Waiting for Strapi to boot (45s)..."
           sleep 45
 
@@ -513,7 +520,6 @@ jobs:
               "http://127.0.0.1:1337/_health" || echo 000)
             log "smoke try=$i code=$code"
             [ "$code" -ge 200 ] && [ "$code" -lt 400 ] && { smoke_ok=1; break; }
-            # Ha a process már kilépett, nincs értelme tovább várni
             pm2_status=$(pm2 jlist 2>/dev/null | python3 -c "
           import sys, json
           procs = json.load(sys.stdin)
@@ -541,7 +547,6 @@ jobs:
             exit 1
           fi
 
-          # Régi prev könyvtárak törlése (max 2-t tartunk meg)
           ls -dt /var/www/davelopment/backend.prev_* 2>/dev/null \
             | tail -n +3 | xargs -r rm -rf || true
 
