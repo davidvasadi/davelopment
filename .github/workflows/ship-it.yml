@@ -459,11 +459,12 @@ jobs:
 
           # better-sqlite3: prebuild-install letölti a prebuilt binaryt,
           # de ha az nem sikerül (pl. glibc mismatch), node-gyp-pel újraforgatjuk.
+          # --jobs 1 hogy ne párhuzamosan fordítson és ne menjen OOM-ba
           log "Verifying better_sqlite3.node..."
           if ! find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q .; then
             log "better_sqlite3.node not found, rebuilding from source..."
             cd "$NEW_DIR/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3"
-            npm run install
+            node-gyp rebuild --release --jobs 1
             cd "$NEW_DIR"
             find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q . || \
               { log "ERROR: better_sqlite3.node build failed!"; exit 1; }
