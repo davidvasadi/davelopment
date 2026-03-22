@@ -196,22 +196,32 @@ jobs:
         run: |
           cd backend/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3
           npm run install
-          find . -name "better_sqlite3.node" | head -3
-          echo "better_sqlite3.node build OK"
+          ls -la build/Release/better_sqlite3.node
+          echo "better_sqlite3.node built OK"
 
-      - name: Bundle (with better_sqlite3.node, no other node_modules)
+      - name: Bundle (no node_modules, with better_sqlite3.node)
         shell: bash
         run: |
-          rm -rf backend/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3/node_modules || true
+          # Prebuilt .node mentése
+          cp backend/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3/build/Release/better_sqlite3.node /tmp/better_sqlite3.node
+
+          # node_modules törlése
+          rm -rf backend/node_modules
+
+          # Bundle készítése
           tar -czf backend_bundle.tgz \
-            --exclude="backend/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3/node_modules" \
-            --exclude="backend/node_modules" \
             --exclude="backend/public/uploads" \
             --exclude="backend/.env" \
             --exclude="backend/.env.*" \
             --exclude="backend/.tmp" \
-            backend/ \
-            backend/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3/build/Release/better_sqlite3.node
+            backend/
+
+          # Prebuilt .node hozzáadása a bundle-hoz
+          mkdir -p /tmp/prebuilt
+          cp /tmp/better_sqlite3.node /tmp/prebuilt/
+          cd /tmp && tar -rzf $GITHUB_WORKSPACE/backend_bundle.tgz prebuilt/
+
+          echo "Bundle size: $(ls -lh $GITHUB_WORKSPACE/backend_bundle.tgz)"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -390,6 +400,9 @@ jobs:
           tar -xzf /tmp/backend_bundle.tgz -C "$TMP_DIR"
           rm -f /tmp/backend_bundle.tgz
 
+          # Prebuilt better_sqlite3.node kimentése
+          PREBUILT_NODE=$(find "$TMP_DIR/prebuilt" -name "better_sqlite3.node" 2>/dev/null | head -1)
+
           rm -rf "$NEW_DIR" && mkdir -p "$NEW_DIR"
           rsync -a --delete \
             --exclude 'public/uploads/' \
@@ -448,7 +461,7 @@ jobs:
           corepack enable || true
           corepack prepare pnpm@latest --activate || true
 
-          log "Stopping services to free memory for build..."
+          log "Stopping services to free memory for install..."
           pm2 stop backend || true
           pm2 stop frontend || true
 
@@ -462,24 +475,16 @@ jobs:
             --network-concurrency 1 \
             --ignore-scripts=false
 
-          # better-sqlite3: a prebuilt bináris a CI-ban lett lefordítva és a bundle tartalmazza
-          # Csak ellenőrzés - nem fordítunk a szerveren
-          log "Verifying better_sqlite3.node..."
-          SQLITE_NODE=$(find "$NEW_DIR/node_modules" -name "better_sqlite3.node" 2>/dev/null | head -1)
-          if [ -z "$SQLITE_NODE" ]; then
-            log "better_sqlite3.node not found in bundle, checking bundle path..."
-            # A CI által beépített .node fájl másolása a megfelelő helyre
-            SQLITE_SRC=$(find "$NEW_DIR" -name "better_sqlite3.node" 2>/dev/null | head -1)
-            if [ -n "$SQLITE_SRC" ]; then
-              SQLITE_DEST="$NEW_DIR/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3/build/Release/"
-              mkdir -p "$SQLITE_DEST"
-              cp "$SQLITE_SRC" "$SQLITE_DEST"
-              log "better_sqlite3.node copied from bundle"
-            else
-              log "ERROR: better_sqlite3.node not found anywhere!"; exit 1
-            fi
+          # better-sqlite3: prebuilt bináris behelyezése a CI bundle-ból
+          log "Installing prebuilt better_sqlite3.node..."
+          SQLITE_DEST="$NEW_DIR/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3/build/Release"
+          mkdir -p "$SQLITE_DEST"
+          if [ -n "$PREBUILT_NODE" ] && [ -f "$PREBUILT_NODE" ]; then
+            cp "$PREBUILT_NODE" "$SQLITE_DEST/better_sqlite3.node"
+            log "better_sqlite3.node OK (from CI bundle)"
+          else
+            log "ERROR: prebuilt better_sqlite3.node not found in bundle!"; exit 1
           fi
-          log "better_sqlite3.node OK"
 
           log "Verifying @swc/core native addon..."
           SWC_BINDING=$(find "$NEW_DIR/node_modules" -name "*.node" -path "*swc*" 2>/dev/null | head -1)
