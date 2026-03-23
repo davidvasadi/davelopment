@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  turbopack: {
-    root: process.cwd().replace('/next', ''),
-  },
+  // turbopack: {
+  //   root: process.cwd().replace('/next', ''),
+  // },
   images: {
     remotePatterns: [
       { protocol: 'http',  hostname: 'localhost',      port: '1337', pathname: '/uploads/**' },
