@@ -4,11 +4,14 @@ import { twMerge } from 'tailwind-merge';
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
-export const truncate = (text: string, length: number) => {
+// hibás angolon
+// export const truncate = (text: string, length: number) => {
+//   return text.length > length ? text.slice(0, length) + '...' : text;
+// };
+export const truncate = (text: string | null | undefined, length: number) => {
+  if (!text) return '';
   return text.length > length ? text.slice(0, length) + '...' : text;
 };
-
 export const formatNumber = (
   number: number,
   locale: string = 'en-US'

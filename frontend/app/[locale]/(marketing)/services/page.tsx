@@ -38,40 +38,86 @@ export default async function ServicesRoute(props: {
         'service',
         {
             locale: params.locale,
-            ppopulate: {
+            populate: {
                 dynamic_zone: {
-                    populate: {
-                        projects: {
-                            populate: ['product', 'product.images']
-                        }
-                    }
+                    on: {
+                        'dynamic-zone.hero': {
+                            populate: {
+                                CTAs: true,
+                                video: true,
+                                video_poster: true,
+                            },
+                        },
+                        'dynamic-zone.why-choose-us': {
+                            populate: {
+                                why_choose_us: {
+                                    populate: {
+                                        background: true,
+                                        CTAs: true,
+                                    },
+                                },
+                                why_choose_us_item: true,
+                            },
+                        },
+                    },
                 },
                 pages: true,
-                cta: { populate: '*' },
-                seo: { populate: '*' },
-            }
+                cta: {
+                    on: {
+                        'dynamic-zone.products': {
+                            populate: {
+                                projects: {
+                                    populate: {
+                                        product: {
+                                            populate: {
+                                                images: true,
+                                            },
+                                        },
+                                        tags: true,
+                                    },
+                                },
+                            },
+                        },
+                        'dynamic-zone.faq': {
+                            populate: {
+                                faqs: true,
+                            },
+                        },
+                        'dynamic-zone.cta': {
+                            populate: {
+                                CTAs: true,
+                                image: true,
+                            },
+                        },
+                    },
+                },
+                seo: {
+                    populate: {
+                        metaImage: true,
+                    },
+                },
+            },
         },
         true
     );
 
-    // Ugyanaz mint a [slug]/page.tsx - ez már működik
     const pagesWithImages = await Promise.all(
         (pageData?.pages ?? []).map(async (page: any) => {
             const fullPage = await fetchContentType(
-    'pages',
-    {
-        filters: {
-            slug: page.slug,
-            locale: params.locale,
-        },
-        populate: {
-            dynamic_zone: {
-                populate: '*'
-            }
-        },
-    },
-    true
-).catch(() => null);
+                'pages',
+                {
+                    filters: {
+                        slug: page.slug,
+                        locale: params.locale,
+                    },
+                    populate: {
+                        dynamic_zone: {
+                            populate: '*',
+                        },
+                    },
+                },
+                true
+            ).catch(() => null);
 
             const hero = fullPage?.dynamic_zone?.find(
                 (c: any) => c.__component === 'dynamic-zone.hero'
@@ -96,9 +142,9 @@ export default async function ServicesRoute(props: {
         <>
             <ClientSlugHandler localizedSlugs={localizedSlugs} />
             <Container>
-            <PageContent pageData={pageData} />
+                <PageContent pageData={pageData} />
                 <ServicesPage pages={pagesWithImages} locale={params.locale} />
-            <PageContent pageData={{ ...pageData, dynamic_zone: pageData?.cta ?? [] }} />
+                <PageContent pageData={{ ...pageData, dynamic_zone: pageData?.cta ?? [] }} />
             </Container>
         </>
     );
