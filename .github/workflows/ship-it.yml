@@ -239,6 +239,12 @@ jobs:
       - name: Unpack bundle
         run: tar -xzf frontend_bundle.tgz
 
+      - name: Remove chattr protection
+        run: |
+          ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes \
+            ${VPS_USER}@${VPS_HOST} \
+            "sudo chattr -i /home/deploy/.cache && sudo chattr -i /var/www/davelopment/frontend"
+
       - name: Ensure remote dir
         run: |
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes \
@@ -298,6 +304,13 @@ jobs:
           echo "Frontend smoke test failed"
           exit 1
 
+      - name: Restore chattr protection
+        if: always()
+        run: |
+          ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes \
+            ${VPS_USER}@${VPS_HOST} \
+            "sudo chattr +i /home/deploy/.cache && sudo chattr +i /var/www/davelopment/frontend" || true
+
   # ---------------------------------------------------------
   # JOB 6 - Backend deploy (atomic + rollback)
   # ---------------------------------------------------------
@@ -327,6 +340,12 @@ jobs:
           rsync -avz \
             -e "ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes" \
             backend_bundle.tgz ${VPS_USER}@${VPS_HOST}:/tmp/backend_bundle.tgz
+
+      - name: Remove chattr protection
+        run: |
+          ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes \
+            ${VPS_USER}@${VPS_HOST} \
+            "sudo chattr -i /home/deploy/.cache"
 
       - name: Deploy on VPS (atomic + rollback)
         env:
@@ -365,7 +384,6 @@ jobs:
           STORAGE_ROOT="/var/www/davelopment/storage"
           STORAGE_UPLOADS="${STORAGE_ROOT}/uploads"
           STORAGE_DB="${STORAGE_ROOT}/db"
-          # Perzisztens pnpm store a VPS-en - deploy-onként újrahasználja a cachet
           PNPM_STORE_DIR="/var/www/davelopment/.pnpm-store"
 
           TS="$(date +%F_%H%M%S)"
@@ -418,9 +436,6 @@ jobs:
             "NOTIFY_EMAIL=${NOTIFY_EMAIL}" \
             > "${NEW_DIR}/.env"
 
-          # FIX: .npmrc a NEW_DIR-be - engedélyezi az összes build scriptet pnpm v10-ben
-          # Ez nélkül az @swc/core, esbuild, sharp natív addonjai NEM épülnek fel,
-          # és a Strapi el sem tud indulni.
           printf '%s\n' \
             "enable-pre-post-scripts=true" \
             "store-dir=${PNPM_STORE_DIR}" \
@@ -445,7 +460,6 @@ jobs:
           log "Installing deps in new release..."
           cd "$NEW_DIR"
           export NODE_OPTIONS="--max-old-space-size=1024"
-          # --ignore-scripts=false explicit, hogy a pnpm v10 ne blokkolja a build scripteket
           pnpm install \
             --prod \
             --frozen-lockfile=false \
@@ -453,8 +467,6 @@ jobs:
             --network-concurrency 1 \
             --ignore-scripts=false
 
-          # better-sqlite3: prebuild-install letölti a prebuilt binaryt,
-          # de ha az nem sikerül (pl. glibc mismatch), node-gyp-pel újraforgatjuk.
           log "Verifying better_sqlite3.node..."
           if ! find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q .; then
             log "better_sqlite3.node not found, rebuilding from source..."
@@ -466,8 +478,6 @@ jobs:
           fi
           log "better_sqlite3.node OK"
 
-          # @swc/core: natív addon - pnpm v10-ben blokkolva volt, most a .npmrc fix megoldja,
-          # de ellenőrizzük és ha hiányzik, manuálisan futtatjuk a postinstall-t
           log "Verifying @swc/core native addon..."
           SWC_BINDING=$(find "$NEW_DIR/node_modules" -name "*.node" -path "*swc*" 2>/dev/null | head -1)
           if [ -z "$SWC_BINDING" ]; then
@@ -497,7 +507,6 @@ jobs:
             pm2 start "pnpm start" --name backend --cwd "$LIVE_DIR"
           pm2 save
 
-          # Strapi cold start tipikusan 20-40s, adunk neki 45s-t mielőtt smoke-ot futtatunk
           log "Waiting for Strapi to boot (45s)..."
           sleep 45
 
@@ -508,7 +517,6 @@ jobs:
               "http://127.0.0.1:1337/_health" || echo 000)
             log "smoke try=$i code=$code"
             [ "$code" -ge 200 ] && [ "$code" -lt 400 ] && { smoke_ok=1; break; }
-            # Ha a process már kilépett, nincs értelme tovább várni
             pm2_status=$(pm2 jlist 2>/dev/null | python3 -c "
           import sys, json
           procs = json.load(sys.stdin)
@@ -536,9 +544,15 @@ jobs:
             exit 1
           fi
 
-          # Régi prev könyvtárak törlése (max 2-t tartunk meg)
           ls -dt /var/www/davelopment/backend.prev_* 2>/dev/null \
             | tail -n +3 | xargs -r rm -rf || true
 
           log "DEPLOY DONE"
           ENDSSH
+
+      - name: Restore chattr protection
+        if: always()
+        run: |
+          ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes \
+            ${VPS_USER}@${VPS_HOST} \
+            "sudo chattr +i /home/deploy/.cache" || true
