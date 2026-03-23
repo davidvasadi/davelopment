@@ -471,6 +471,8 @@ jobs:
           if ! find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q .; then
             log "better_sqlite3.node not found, rebuilding from source..."
             cd "$NEW_DIR/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3"
+            export npm_config_cache=/tmp/npm-cache-deploy
+            export npm_config_devdir=/tmp/node-gyp-deploy
             npm run install
             cd "$NEW_DIR"
             find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q . || \

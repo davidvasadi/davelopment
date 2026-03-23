@@ -19,3 +19,6 @@ backend/.env*
 IGN
 
 trash/
+.DS_Store
+vps/
+docs/
