@@ -1,4 +1,5 @@
 // frontend/app/[locale]/layout.tsx
+
 import type { Metadata } from 'next';
 import { ViewTransitions } from 'next-view-transitions';
 import { Geist } from 'next/font/google';
@@ -13,7 +14,7 @@ import { cn } from '@/lib/utils';
 import { SmoothScroll, ScrollToTop } from '@/components/ui/smooth-scroll';
 import { AppWrapper, PageTransition } from '@/components/ui/preloader';
 import { BlurFooter } from '@/components/ui/blur-footer';
-
+import { locales } from '@/config';
 
 const geist = Geist({
   subsets: ['latin'],
@@ -25,6 +26,8 @@ export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const params = await props.params;
+
+  if (!locales.includes(params.locale as any)) return {};
 
   const pageData = await fetchContentType(
     'global',
@@ -51,6 +54,8 @@ export default async function LocaleLayout(props: {
 
   const { isEnabled: isDraftMode } = await draftMode();
 
+  if (!locales.includes(locale as any)) return <>{children}</>;
+
   const pageData = await fetchContentType('global', { filters: { locale } }, true);
 
   return (
@@ -58,17 +63,11 @@ export default async function LocaleLayout(props: {
       <SmoothScroll>
         <AppWrapper>
           <div className={cn(geist.className, 'bg-[#f5f5f5] antialiased h-full w-full pt-16')}>
-
-            {/* Navbar — kívül marad, NEM animálódik oldalváltáskor */}
             <Navbar data={pageData.navbar} locale={locale} />
-
-            {/* PageTransition — CSAK a children köré, Navbar/Footer érintetlen marad */}
             <PageTransition>
-            <ScrollToTop />  
+              <ScrollToTop />
               {children}
             </PageTransition>
-
-            {/* Footer — kívül marad, NEM animálódik oldalváltáskor */}
             <Footer data={pageData.footer} locale={locale} />
             <BlurFooter />
             {isDraftMode && <DraftModeBanner />}
