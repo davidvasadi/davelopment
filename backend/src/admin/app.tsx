@@ -189,102 +189,56 @@ function installPreloader() {
   const ATTR = 'data-dave-preloader';
   if (document.querySelector(`[${ATTR}]`)) return;
 
-  const t0 = Date.now();
-
-  const killStrapiPreloader = () => {
-    document.querySelectorAll<HTMLElement>(
-      '[class*="LoadingIndicatorOverlay"], [class*="LoadingIndicator"]'
-    ).forEach(el => {
-      el.style.setProperty('display', 'none', 'important');
-      el.style.setProperty('opacity', '0', 'important');
-      el.style.setProperty('pointer-events', 'none', 'important');
-    });
-  };
-
   const overlay = document.createElement('div');
   overlay.setAttribute(ATTR, '1');
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:2147483647;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:#0a0a0a;color:#fff;font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  `;
+
   overlay.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;gap:28px;">
-      <div style="font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:26px;font-weight:700;letter-spacing:-1px;color:#ededed;line-height:1;user-select:none;">
-        [davelopment]<span style="font-size:13px;font-weight:400;vertical-align:super;color:#ededed;opacity:0.4;letter-spacing:0;">®</span>
-      </div>
-      <div style="width:100px;height:1px;background:rgba(255,255,255,0.08);border-radius:1px;overflow:hidden;">
-        <div data-dave-fill style="height:100%;width:0%;background:rgba(255,255,255,0.6);"></div>
-      </div>
+    <div style="margin-bottom:20px;font-size:26px;font-weight:700;letter-spacing:-1px;color:#fff;user-select:none;">
+      [davelopment]<span style="font-size:13px;font-weight:700;vertical-align:super;color:#fff;">®</span>
+    </div>
+    <div id="dave-bars" style="display:flex;gap:8px;align-items:flex-end;height:40px;position:relative;">
+      ${Array.from({ length: 10 }).map(() => `<div style="width:40px;height:40px;background:#333;border-radius:4px;position:relative;box-shadow:0 0 6px rgba(255,255,255,0.1);"></div>`).join('')}
+      <div id="dave-percent" style="position:absolute;bottom:-48px;right:0;font-size:18px;font-weight:700;color:#fff;">0%</div>
     </div>
   `;
 
-  overlay.style.cssText = `
-    position:fixed;inset:0;z-index:2147483647;
-    display:flex;align-items:center;justify-content:center;
-    background:#0a0a0a;
-    transition:opacity 250ms cubic-bezier(.25,.46,.45,.94),transform 250ms cubic-bezier(.25,.46,.45,.94);
-  `;
+  document.body.appendChild(overlay);
 
-  const animateFill = () => {
-    const fill = overlay.querySelector<HTMLElement>('[data-dave-fill]');
-    if (!fill) return;
-    const steps: [number, string][] = [[0,'0%'],[300,'45%'],[600,'72%'],[1000,'88%'],[1800,'96%']];
-    steps.forEach(([ms, w]) => {
-      setTimeout(() => { fill.style.width = w; fill.style.transition = `width ${ms === 0 ? 0 : 400}ms ease`; }, ms);
+  const bars = Array.from(overlay.querySelectorAll<HTMLDivElement>('#dave-bars > div:not(#dave-percent)'));
+  const percentEl = overlay.querySelector<HTMLDivElement>('#dave-percent');
+
+  let progress = 0;
+
+  const animate = () => {
+    progress = Math.min(100, progress + 1.5);
+    if (percentEl) percentEl.textContent = `${Math.floor(progress)}%`;
+
+    const filledCount = Math.floor(progress / (100 / bars.length));
+    bars.forEach((bar, i) => {
+      if (i < filledCount) {
+        bar.style.background = '#fff';
+        bar.style.boxShadow = '0 0 12px rgba(255,255,255,0.6)';
+      } else {
+        bar.style.background = '#333';
+        bar.style.boxShadow = '0 0 6px rgba(255,255,255,0.1)';
+      }
     });
-  };
 
-  const mount = () => {
-    if (document.querySelector(`[${ATTR}]`)) return;
-    document.body.appendChild(overlay);
-    animateFill();
-    killStrapiPreloader();
-  };
-
-  const unmount = () => {
-    const wait = Math.max(0, 700 - (Date.now() - t0));
-    setTimeout(() => {
+    if (progress < 100) requestAnimationFrame(animate);
+    else {
+      overlay.style.transition = 'opacity 0.3s';
       overlay.style.opacity = '0';
-      overlay.style.transform = 'scale(1.01)';
-      overlay.style.pointerEvents = 'none';
       setTimeout(() => overlay.remove(), 300);
-    }, wait);
-  };
-
-  // Ready ha navigáció VAGY login form megjelent
-  const isReady = () =>
-    !!(document.querySelector('[data-strapi-root]')) &&
-    !!(
-      document.querySelector('[data-strapi-navigation]') ||
-      document.querySelector('form')
-    );
-
-  if (document.body) mount();
-  else window.addEventListener('DOMContentLoaded', mount, { once: true });
-
-  const strapiKillObs = new MutationObserver(killStrapiPreloader);
-  const startKillObs = () => {
-    if (!document.body) return;
-    strapiKillObs.observe(document.body, { childList: true, subtree: true });
-    killStrapiPreloader();
-  };
-  if (document.body) startKillObs();
-  else window.addEventListener('DOMContentLoaded', startKillObs, { once: true });
-
-  const readyObs = new MutationObserver(() => {
-    if (isReady()) {
-      readyObs.disconnect();
-      strapiKillObs.disconnect();
-      requestAnimationFrame(unmount);
     }
-  });
-  const startReadyObs = () => {
-    if (!document.body) return;
-    readyObs.observe(document.body, { childList: true, subtree: true });
-    if (isReady()) { readyObs.disconnect(); strapiKillObs.disconnect(); unmount(); }
   };
-  if (document.body) startReadyObs();
-  else window.addEventListener('DOMContentLoaded', startReadyObs, { once: true });
 
-  setTimeout(() => { readyObs.disconnect(); strapiKillObs.disconnect(); unmount(); }, 8000);
+  requestAnimationFrame(animate);
 }
-
 /* ══════════════════════════════════════════════════════════
    AUTO LOGO SWAP
 ══════════════════════════════════════════════════════════ */
