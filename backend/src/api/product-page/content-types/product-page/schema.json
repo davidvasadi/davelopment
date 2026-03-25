@@ -17,37 +17,37 @@
   "attributes": {
     "seo": {
       "type": "component",
-      "repeatable": false,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "component": "shared.seo"
+      "component": "shared.seo",
+      "repeatable": false
     },
     "heading": {
+      "type": "string",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      },
-      "type": "string"
+      }
     },
     "sub_heading": {
+      "type": "string",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      },
-      "type": "string"
+      }
     },
     "dynamic_zone": {
+      "type": "dynamiczone",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "type": "dynamiczone",
       "components": [
         "dynamic-zone.testimonials",
         "dynamic-zone.related-products",
@@ -60,7 +60,12 @@
         "dynamic-zone.features",
         "dynamic-zone.faq",
         "dynamic-zone.cta",
-        "dynamic-zone.brands"
+        "dynamic-zone.brands",
+        "dynamic-zone.why-choose-us",
+        "dynamic-zone.services",
+        "dynamic-zone.products",
+        "dynamic-zone.newsletter",
+        "dynamic-zone.blog"
       ]
     }
   }

@@ -342,7 +342,7 @@ export const Pricing = ({
                     ))}
                   </div>
 
-                  <div className="flex justify-center mt-4">
+                  {/* <div className="flex justify-center mt-4">
                     <button
                       onClick={() => setExpanded(!expanded)}
                       className="text-white/80 hover:text-white transition-all flex items-center gap-2"
@@ -353,7 +353,7 @@ export const Pricing = ({
                         <ChevronDown className="w-5 h-5 animate-bounce" />
                       )}
                     </button>
-                  </div>
+                  </div> */}
 
                   <div className="absolute inset-x-0 bottom-0">
                     <motion.a

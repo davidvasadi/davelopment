@@ -3,6 +3,7 @@
 import { Metadata } from 'next';
 
 import ClientSlugHandler from '../ClientSlugHandler';
+import PageContent from '@/lib/shared/PageContent';
 import { Container } from '@/components/container';
 import { Heading } from '@/components/elements/heading';
 import { Subheading } from '@/components/elements/subheading';
@@ -40,11 +41,18 @@ export default async function Products(props: {
   const productPage = await fetchContentType(
     'product-page',
     {
-      filters: {
-        locale: params.locale,
-      },
-    },
-    true
+      locale: params.locale,
+      populate: {
+        dynamic_zone: {
+          populate:'*'
+        },
+        seo:{
+          populate: {
+            metaImage: true
+          }
+        }
+      }
+    },true
   );
 
   const productsRes = await fetchContentType(
@@ -87,6 +95,7 @@ export default async function Products(props: {
         </div>
 
         <Featured products={featured} locale={params.locale} />
+        <PageContent pageData={productPage} />
       </Container>
     </div>
   );

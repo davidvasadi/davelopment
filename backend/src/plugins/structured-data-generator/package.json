@@ -18,12 +18,15 @@
   },
   "devDependencies": {
     "@strapi/sdk-plugin": "5.2.6",
-    "@strapi/strapi": "^5.0.6"
+    "@strapi/strapi": "^5.40.0"
   },
   "strapi": {
     "name": "structured-data-generator",
     "displayName": "Structured Data Generator",
     "description": "Auto-generates schema.org JSON-LD structured data",
     "kind": "plugin"
+  },
+  "dependencies": {
+    "@strapi/admin": "^5.40.0"
   }
 }

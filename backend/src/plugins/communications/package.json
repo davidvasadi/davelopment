@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@strapi/sdk-plugin": "5.2.6",
-    "@strapi/strapi": "^5.0.6"
+    "@strapi/strapi": "^5.40.0"
   },
   "strapi": {
     "name": "communications",
@@ -37,6 +37,7 @@
     "kind": "plugin"
   },
   "dependencies": {
+    "@strapi/admin": "^5.40.0",
     "framer-motion": "^12.34.5"
   }
 }
