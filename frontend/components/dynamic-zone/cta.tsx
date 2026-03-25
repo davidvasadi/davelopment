@@ -170,7 +170,7 @@ export const CTA = ({
 
         {/* Content — staggered children */}
         <motion.div
-          className="flex flex-col gap-5 px-6 pt-5 pb-8"
+          className="flex flex-col gap-5 md:px-6 pt-5 pb-8"
           variants={stagger}
           initial="hidden"
           whileInView="show"
