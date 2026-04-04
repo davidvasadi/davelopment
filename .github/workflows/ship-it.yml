@@ -388,6 +388,9 @@ jobs:
           printf '%s\n' \
             "enable-pre-post-scripts=true" \
             "store-dir=${PNPM_STORE_DIR}" \
+            "allow-build[]=sharp" \
+            "allow-build[]=esbuild" \
+            "allow-build[]=@parcel/watcher" \
             > "${NEW_DIR}/.npmrc"
 
           mkdir -p "${NEW_DIR}/public"
