@@ -374,6 +374,7 @@ jobs:
             "NODE_ENV=production" \
             "PORT=1337" \
             "NEXT_PUBLIC_SERVER_URL=https://davelopment.hu" \
+            "PAYLOAD_PUBLIC_SERVER_URL=https://davelopment.hu" \
             "FRONTEND_URL=https://davelopment.hu" \
             "PAYLOAD_SECRET=${PAYLOAD_SECRET}" \
             "DATABASE_URI=${DATABASE_URI}" \
