@@ -1,4 +1,5 @@
 // frontend/app/[locale]/layout.tsx
+export const dynamic = 'force-dynamic'
 
 import type { Metadata } from 'next';
 import { ViewTransitions } from 'next-view-transitions';
