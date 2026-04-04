@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 // frontend/app/[locale]/(marketing)/blog/page.tsx
 import { type Metadata } from 'next';
 

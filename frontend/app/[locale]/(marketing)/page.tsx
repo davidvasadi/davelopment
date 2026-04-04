@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 //app/[locale]/(marketing)/page.tsx
 import { Metadata } from 'next';
 

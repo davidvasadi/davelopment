@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import React from 'react';
 import { LexicalContent } from '@/components/lexical-content';
 import JsonLd from '@/components/seo/JsonLd';
