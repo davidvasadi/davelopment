@@ -17,11 +17,22 @@ export function Navbar({
   navBgClass?: string;
 }) {
   const policyLinks = data?.policy_links ?? data?.policy ?? [];
-  const contactInputs =
-    data?.Form?.[0]?.inputs ??
-    data?.form?.[0]?.inputs ??
-    data?.contact?.inputs ??
-    [];
+  const contactInputs = (() => {
+    // Payload Global navbar.contact_email / contact_phone
+    if (data?.contact_email || data?.contact_phone) {
+      return [
+        data?.contact_phone ? { type: 'tel', name: data.contact_phone } : null,
+        data?.contact_email ? { type: 'email', name: data.contact_email } : null,
+      ].filter(Boolean);
+    }
+    // fallback: old Strapi form inputs format
+    return (
+      data?.Form?.[0]?.inputs ??
+      data?.form?.[0]?.inputs ??
+      data?.contact?.inputs ??
+      []
+    );
+  })();
   const copyrightText =
     data?.copyright ??
     data?.footer?.copyright ??

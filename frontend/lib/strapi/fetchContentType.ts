@@ -1,136 +1,119 @@
-// lib/strapi/fetchContentType.ts
+// lib/strapi/fetchContentType.ts  — Payload CMS REST API wrapper
+// Keeps the same call signature as the old Strapi version for drop-in compatibility.
 import { draftMode } from 'next/headers';
-import qs from 'qs';
 
-const API_BASE = (process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337').replace(
-  /\/+$/,
-  ''
-);
+const API_BASE = (process.env.NEXT_PUBLIC_PAYLOAD_URL ?? 'http://localhost:1337').replace(/\/+$/, '');
+
+// These content-types live under /api/globals/{slug} in Payload
+const GLOBALS = new Set(['global', 'service', 'blog-page', 'product-page']);
+
+// All supported locales
+const ALL_LOCALES = ['hu', 'en'];
 
 type AnyRecord = Record<string, any>;
 
-interface StrapiItem {
-  id: number;
-  attributes?: AnyRecord;
-  [k: string]: any;
+function buildHeaders(): HeadersInit {
+  return { 'Content-Type': 'application/json' };
 }
 
-interface StrapiResponse {
-  data: StrapiItem | StrapiItem[] | null;
-  meta?: AnyRecord;
+function strapiSortToPayload(sort: string | string[]): string {
+  const s = Array.isArray(sort) ? sort[0] : sort;
+  if (s.includes(':desc')) return `-${s.split(':')[0]}`;
+  if (s.includes(':asc')) return s.split(':')[0];
+  return s;
 }
 
-/** Segéd: media/reláció laposítás */
-function unwrapRelation(value: any) {
-  if (!value) return value;
-
-  // Single media / single relation
-  if (value?.data && !Array.isArray(value.data)) {
-    const d = value.data;
-    return d?.attributes ? { id: d.id, ...d.attributes } : d;
-  }
-
-  // Multiple media / multiple relation
-  if (Array.isArray(value?.data)) {
-    return value.data.map((d: any) => (d?.attributes ? { id: d.id, ...d.attributes } : d));
-  }
-
-  return value;
-}
-
-/** Egy Strapi bejegyzés laposítása (attributes → top-level) + gyakori relációk kinyitása */
-function flattenEntry(entry: any) {
-  if (!entry) return null;
-
-  const src = entry.attributes ?? entry;
-  const out: AnyRecord = { id: entry.id, ...src };
-
-  // localizations: { data: [...] } → [...]
-  if (out.localizations?.data) {
-    out.localizations = out.localizations.data.map((l: any) =>
-      l?.attributes ? { id: l.id, ...l.attributes } : l
-    );
-  }
-
-  // seo.metaImage: { data: {...} } → {...}
-  if (out.seo?.metaImage) {
-    out.seo.metaImage = unwrapRelation(out.seo.metaImage);
-  }
-
-  return out;
-}
-
-export function spreadStrapiData(data: StrapiResponse): StrapiItem | null {
-  if (!data?.data) return null;
-  return Array.isArray(data.data) ? data.data[0] ?? null : data.data;
-}
-
-/**
- * Strapi v5 fetch – status, locale top-level, populate objektumként.
- */
 export default async function fetchContentType(
   contentType: string,
   params: AnyRecord = {},
   spreadData?: boolean
 ): Promise<any> {
   const { isEnabled: isDraftMode } = await draftMode();
+  const { filters = {}, sort, ...restParams } = params;
 
-  // Strapi v5: publicationState helyett status; 'draft' | 'published'
-  const { filters, ...restParams } = params;
+  // locale may live in filters OR at the top level
+  const locale = (filters.locale ?? restParams.locale) as string | undefined;
+  const slug = filters.slug as string | undefined;
+  const remainingFilters = Object.fromEntries(
+    Object.entries(filters).filter(([k]) => k !== 'locale' && k !== 'slug')
+  );
 
-  // Ha filters-ben volt locale, emeljük ki top-level-re (Strapi v5)
-  const localeFromFilters = filters?.locale;
-  const remainingFilters = filters
-    ? Object.fromEntries(Object.entries(filters).filter(([k]) => k !== 'locale'))
-    : undefined;
+  const isGlobal = GLOBALS.has(contentType);
+  const q = new URLSearchParams();
 
-  const queryObj: AnyRecord = {
-    status: isDraftMode ? 'draft' : 'published',
-    // locale top-level
-    ...(localeFromFilters ? { locale: localeFromFilters } : {}),
-    // maradék filters (locale nélkül)
-    ...(remainingFilters && Object.keys(remainingFilters).length > 0
-      ? { filters: remainingFilters }
-      : {}),
-    ...restParams,
-  };
+  if (locale) q.set('locale', locale);
+  if (isDraftMode) q.set('draft', 'true');
+  q.set('depth', '2');
 
-  const query = qs.stringify(queryObj, { encodeValuesOnly: true });
-  const url = `${API_BASE}/api/${contentType}${query ? `?${query}` : ''}`;
-
-  // const res = await fetch(url, {
-  //   method: 'GET',
-  //   cache: 'no-store',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     ...(process.env.STRAPI_API_TOKEN
-  //       ? { Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}` }
-  //       : {}),
-  //     'strapi-encode-source-maps': isDraftMode ? 'true' : 'false',
-  //   },
-  // });
-
-  const res = await fetch(url, {
-    method: 'GET',
-    next: { revalidate: isDraftMode ? 0 : 60 },
-    headers: {
-      'Content-Type': 'application/json',
-      ...(process.env.STRAPI_API_TOKEN
-        ? { Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}` }
-        : {}),
-      'strapi-encode-source-maps': isDraftMode ? 'true' : 'false',
-    },
-  });
-
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`Failed to fetch data from Strapi (url=${url}, status=${res.status})\n${body}`);
+  if (!isGlobal) {
+    if (slug) q.set('where[slug][equals]', slug);
+    for (const [k, v] of Object.entries(remainingFilters)) {
+      if (v != null) q.set(`where[${k}][equals]`, String(v));
+    }
+    if (sort) q.set('sort', strapiSortToPayload(sort));
+    q.set('limit', '100');
   }
 
-  const json: StrapiResponse = await res.json();
+  const endpoint = isGlobal
+    ? `${API_BASE}/api/globals/${contentType}`
+    : `${API_BASE}/api/${contentType}`;
 
-  if (!spreadData) return json;
+  const url = `${endpoint}?${q.toString()}`;
+  const headers = buildHeaders();
+  const fetchOpts: RequestInit = {
+    method: 'GET',
+    next: { revalidate: isDraftMode ? 0 : 60 },
+    headers,
+  };
 
-  const item = spreadStrapiData(json);
-  return flattenEntry(item);
+  const res = await fetch(url, fetchOpts);
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Payload fetch failed (${url}, ${res.status})\n${body}`);
+  }
+
+  const json = await res.json();
+
+  if (!spreadData) {
+    if (isGlobal) return { data: [json] };
+    return { data: json.docs ?? [] };
+  }
+
+  // spreadData=true → return single flat document
+  const doc: AnyRecord | null = isGlobal ? json : (json.docs?.[0] ?? null);
+  if (!doc) return null;
+
+  // Synthesize `localizations` for the language switcher
+  // Only needed for collections (globals are language-independent singletons here)
+  if (!isGlobal && locale && doc.slug) {
+    const otherLocales = ALL_LOCALES.filter((l) => l !== locale);
+    const localizations = (
+      await Promise.all(
+        otherLocales.map(async (otherLocale) => {
+          try {
+            const aq = new URLSearchParams({
+              'where[slug][equals]': String(doc.slug),
+              locale: otherLocale,
+              depth: '0',
+              limit: '1',
+            });
+            const r = await fetch(`${API_BASE}/api/${contentType}?${aq}`, {
+              ...fetchOpts,
+              next: { revalidate: isDraftMode ? 0 : 300 },
+            });
+            if (!r.ok) return null;
+            const d = await r.json();
+            const alt = d.docs?.[0];
+            return alt ? { locale: otherLocale, slug: alt.slug, id: alt.id } : null;
+          } catch {
+            return null;
+          }
+        })
+      )
+    ).filter(Boolean);
+
+    doc.localizations = localizations;
+  }
+
+  return doc;
 }

@@ -73,22 +73,21 @@ export const Footer = ({ data, locale }: FooterProps) => {
     profile,
   } = data ?? {};
 
-  // --- phone + email a form.inputs-ből ---
+  // --- phone + email: Payload direct fields, fallback to old form.inputs ---
   const inputs = form?.inputs ?? [];
-  const phoneInput =
-    inputs.find((i) => i.type === 'phone' || i.type === 'tel') ?? inputs[0];
-  const emailInput =
-    inputs.find((i) => i.type === 'email') ?? inputs[1];
-
-  const phone = phoneInput?.name ?? '';
-  const email = emailInput?.name ?? '';
+  const phone =
+    (data as any)?.contact_phone ??
+    (inputs.find((i) => i.type === 'phone' || i.type === 'tel') ?? inputs[0])?.name ??
+    '';
+  const email =
+    (data as any)?.contact_email ??
+    (inputs.find((i) => i.type === 'email') ?? inputs[1])?.name ??
+    '';
 
   // --- profilkép URL Strapi-ból ---
   const profileSrc = profile
     ? strapiImage(
       profile?.url ??
-      profile?.data?.attributes?.url ??
-      profile?.attributes?.url ??
       profile
     )
     : undefined;

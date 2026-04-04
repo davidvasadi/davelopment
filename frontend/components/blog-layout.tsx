@@ -84,7 +84,7 @@ export const BlogLayout: React.FC<BlogLayoutProps> = ({
   prevArticle,
   nextArticle,
 }) => {
-  const publishedAt = formatDate(article.publishedAt, locale);
+  const publishedAt = formatDate(article.publishedAt || article.createdAt, locale);
   const ui = getUiText(locale);
 
   const personCard = article.person_card;

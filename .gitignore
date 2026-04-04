@@ -9,14 +9,33 @@ frontend/.next
 frontend/.env*
 frontend/.turbo
 
-# Backend (Strapi)
+# Backend (Payload)
 backend/node_modules
-backend/.tmp
+backend/.next
 backend/build
 backend/.cache
 backend/public/uploads
+backend/public/media
+backend/media
 backend/.env*
-IGN
+backend/tsconfig.tsbuildinfo
+backend/next-env.d.ts
+backend/package-lock.json
+
+# Strapi maradványok
+backend/.strapi
+backend/.strapi-updater.json
+backend/.tmp
+
+# Migrációs scriptek (egyszeri használat, kész)
+backend/scripts/migrate-*.mjs
+backend/scripts/remigrate-*.mjs
+backend/scripts/media-id-map.json
+payload-migracio.md
+strapi-backup.db
+
+# Claude memory
+.claude/
 
 trash/
 .DS_Store

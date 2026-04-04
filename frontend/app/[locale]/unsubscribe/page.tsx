@@ -12,11 +12,15 @@ export async function generateMetadata(props: {
   };
 }
 
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
+const PAYLOAD_URL = (
+  process.env.NEXT_PUBLIC_PAYLOAD_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  'http://localhost:1337'
+).replace(/\/+$/, '');
 
 async function unsubscribe(id: string): Promise<'ok' | 'already' | 'error'> {
   try {
-    const res = await fetch(`${STRAPI_URL}/api/communications/unsubscribe`, {
+    const res = await fetch(`${PAYLOAD_URL}/api/newsletters/unsubscribe`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),

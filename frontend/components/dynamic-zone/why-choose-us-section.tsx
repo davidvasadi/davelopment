@@ -10,12 +10,9 @@ const toAbs = (m?: any): string | undefined => {
     if (!m) return undefined;
     if (typeof m === 'string') return strapiImage(m);
     if (m?.url) return strapiImage(m.url);
-    if (m?.data?.attributes?.url) return strapiImage(m.data.attributes.url);
-    if (m?.attributes?.url) return strapiImage(m.attributes.url);
     return undefined;
 };
-const getMime = (m?: any): string | undefined =>
-    m?.mime || m?.data?.attributes?.mime || m?.attributes?.mime;
+const getMime = (m?: any): string | undefined => m?.mime;
 
 const splitAtFirstComma = (txt?: string | null): { left: string; right: string } => {
     if (!txt) return { left: '', right: '' };
@@ -35,7 +32,7 @@ const splitFirstSentence = (txt?: string | null): { lead: string; rest: string }
 type LinkBtn = { text?: string | null; URL?: string | null; url?: string | null; target?: string | null; variant?: string | null };
 type SocialMediaIconLinks = { image?: any; link?: LinkBtn[] | LinkBtn | null };
 type WhyChooseUsItem = { id: number; number?: string | null; title?: string | null; description?: string | null; social_media_links?: SocialMediaIconLinks[] | null };
-type WhyChooseUsCard = { title?: string | null; background?: any | null; CTAs?: LinkBtn | LinkBtn[] | null };
+type WhyChooseUsCard = { title?: string | null; background?: any | null; CTAs?: LinkBtn | LinkBtn[] | null; cta?: LinkBtn | null };
 
 export type WhyChooseUsProps = {
     __component: string;
@@ -44,8 +41,10 @@ export type WhyChooseUsProps = {
     heading?: string | null;
     sub_heading?: string | null;
     badge_label?: string | null;
-    why_choose_us?: WhyChooseUsCard | null;
+    why_choose_us?: WhyChooseUsCard | null;  // legacy Strapi
+    hero_card?: WhyChooseUsCard | null;       // Payload
     why_choose_us_item?: WhyChooseUsItem[] | null;
+    cards?: WhyChooseUsItem[] | null;
 };
 
 type UIStat = {
@@ -71,19 +70,24 @@ export function WhyChooseUsSection({
     sub_heading,
     badge_label,
     why_choose_us,
+    hero_card,
     why_choose_us_item,
+    cards,
 }: WhyChooseUsProps) {
-    const heroUrl = toAbs(why_choose_us?.background) || 'https://davelopment.hu/assets/profile-DMhlnSSY.jpg';
-    const heroMime = getMime(why_choose_us?.background);
+    const card = hero_card ?? why_choose_us;
+    const heroUrl = toAbs(card?.background) || 'https://davelopment.hu/assets/profile-DMhlnSSY.jpg';
+    const heroMime = getMime(card?.background);
     const heroIsVideo = !!heroMime?.startsWith('video/');
 
-    const rawCTA = getFirstLink(why_choose_us?.CTAs);
+    const rawCTA = getFirstLink(card?.cta ?? card?.CTAs);
     const ctaHref: string | undefined = rawCTA?.URL ?? rawCTA?.url ?? undefined;
     const ctaTarget = rawCTA?.target || undefined;
     const ctaText = rawCTA?.text;
 
     const stats: UIStat[] = useMemo(() => {
-        const items = Array.isArray(why_choose_us_item) ? why_choose_us_item : [];
+        const items = Array.isArray(why_choose_us_item) && why_choose_us_item.length > 0
+            ? why_choose_us_item
+            : (Array.isArray(cards) ? cards : []);
         return items.map((it, idx) => {
             const raw = (it?.number || '').toString().trim();
             const m = raw.match(/^\s*(\d+(?:[.,]\d+)?)(.*)$/);
@@ -99,7 +103,7 @@ export function WhyChooseUsSection({
             });
             return { id: it?.id ?? idx, rawNumber: raw, value, suffix, title: it?.title || '', description: it?.description || '', logos };
         });
-    }, [why_choose_us_item]);
+    }, [why_choose_us_item, cards]);
 
     const { left: headingLeft, right: headingRight } = splitAtFirstComma(heading);
     const { lead: subLead, rest: subRest } = splitFirstSentence(sub_heading);
@@ -165,9 +169,9 @@ export function WhyChooseUsSection({
                         </div>
 
                         <div className="absolute inset-0 flex flex-col justify-end p-6">
-                            {!!why_choose_us?.title && (
+                            {!!card?.title && (
                                 <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 mb-3">
-                                    <h3 className="text-sm font-semibold text-white">{why_choose_us.title}</h3>
+                                    <h3 className="text-sm font-semibold text-white">{card.title}</h3>
                                 </div>
                             )}
                             {!!ctaHref && (

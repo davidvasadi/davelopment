@@ -84,7 +84,7 @@ const inline = useMemo(
     <>
       <div className={cn(navBgClass, HEADER_H)}>
         <nav className="relative flex items-center px-6 h-full">
-          <Logo locale={locale} image={logo?.image} />
+          <Logo locale={locale} image={logo?.image} text={logo?.company} />
 
           {/* Inline nav gombok — ezeken nincs flip hover, csak az overlay-en */}
           <div className={cn(

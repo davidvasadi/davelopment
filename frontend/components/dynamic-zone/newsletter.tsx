@@ -9,8 +9,6 @@ const toAbs = (m?: any): string | undefined => {
   if (!m) return undefined;
   if (typeof m === 'string') return strapiImage(m);
   if (m?.url) return strapiImage(m.url);
-  if (m?.data?.attributes?.url) return strapiImage(m.data.attributes.url);
-  if (m?.attributes?.url) return strapiImage(m.attributes.url);
   return undefined;
 };
 
@@ -36,8 +34,8 @@ export const Newsletter: React.FC<NewsletterProps> = ({
 }) => {
   const isHu = locale?.toLowerCase().startsWith('hu');
   const inputs = form?.inputs ?? [];
-  const textInputs = inputs.filter((i) => i.type !== 'button');
-  const buttonInput = inputs.find((i) => i.type === 'button');
+  const textInputs = inputs.filter((i) => ['text', 'email'].includes(i.type));
+  const buttonInput = inputs.find((i) => !['text', 'email'].includes(i.type));
   const buttonLabel = buttonInput?.placeholder || (isHu ? 'Feliratkozás' : 'Subscribe');
   const buttonSending = isHu ? 'Küldés...' : 'Sending...';
   const successMessage = isHu ? 'Sikeres feliratkozás!' : 'You have successfully subscribed.';
@@ -72,15 +70,18 @@ export const Newsletter: React.FC<NewsletterProps> = ({
     const nameValue = formData['name'] ?? '';
     const emailValue = formData['email'] ?? '';
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL ?? process.env.NEXT_PUBLIC_STRAPI_URL ?? '';
+      const API_URL = (process.env.NEXT_PUBLIC_PAYLOAD_URL ?? process.env.NEXT_PUBLIC_API_URL ?? '').replace(/\/+$/, '');
       const res = await fetch(`${API_URL}/api/newsletters`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: { name: nameValue, email: emailValue, language: locale, source: source || 'footer' } }),
+        credentials: 'omit',
+        body: JSON.stringify({ name: nameValue, email: emailValue, language: locale, source: source || 'footer' }),
       });
       const result = await res.json();
       if (!res.ok) {
-        const isUniqueError = typeof result?.error?.message === 'string' && result.error.message.toLowerCase().includes('unique');
+        const isUniqueError =
+          (typeof result?.error?.message === 'string' && result.error.message.toLowerCase().includes('unique')) ||
+          (typeof result?.errors?.[0]?.message === 'string' && result.errors[0].message.toLowerCase().includes('unique'));
         setSubmitError(isUniqueError ? duplicateError : genericError);
         return;
       }

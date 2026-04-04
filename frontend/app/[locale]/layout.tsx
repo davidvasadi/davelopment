@@ -16,6 +16,10 @@ import { AppWrapper, PageTransition } from '@/components/ui/preloader';
 import { BlurFooter } from '@/components/ui/blur-footer';
 import { locales } from '@/config';
 
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }));
+}
+
 const geist = Geist({
   subsets: ['latin'],
   display: 'swap',
@@ -36,11 +40,23 @@ export async function generateMetadata(props: {
   );
 
   const seo = pageData?.seo;
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const base = (process.env.NEXT_PUBLIC_SITE_URL || 'https://davelopment.hu').replace(/\/+$/, '');
+
+  // Fallback hreflang — page-level generateMetadata overrides with exact URLs
+  const altLocale = params.locale === 'hu' ? 'en' : 'hu';
+  const languages: Record<string, string> = {
+    [params.locale]: `${base}/${params.locale}`,
+    [altLocale]: `${base}/${altLocale}`,
+    'x-default': `${base}/hu`,
+  };
 
   return {
     ...generateMetadataObject(seo),
     metadataBase: new URL(base),
+    alternates: {
+      canonical: `${base}/${params.locale}`,
+      languages,
+    },
   };
 }
 

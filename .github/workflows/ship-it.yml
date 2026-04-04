@@ -159,48 +159,29 @@ jobs:
           corepack enable
           corepack prepare pnpm@latest --activate
 
-      - name: Install (workspace root)
-        working-directory: .
+      - name: Install
+        working-directory: backend
         run: pnpm install --frozen-lockfile=false
 
-      - name: Build plugins
-        working-directory: .
-        run: |
-          pnpm --filter marketing-metrics build
-          pnpm --filter structured-data-generator build
-          pnpm --filter communications build
-
-      - name: Verify plugin dist files
-        working-directory: .
-        run: |
-          test -f backend/src/plugins/marketing-metrics/dist/admin/index.mjs || \
-            { echo "marketing-metrics dist/admin/index.mjs missing"; exit 1; }
-          test -f backend/src/plugins/marketing-metrics/dist/server/index.js || \
-            { echo "marketing-metrics dist/server/index.js missing"; exit 1; }
-          test -f backend/src/plugins/structured-data-generator/dist/server/index.js || \
-            { echo "structured-data-generator dist/server/index.js missing"; exit 1; }
-          test -f backend/src/plugins/communications/dist/admin/index.mjs || \
-            { echo "communications dist/admin/index.mjs missing"; exit 1; }
-          test -f backend/src/plugins/communications/dist/server/index.js || \
-            { echo "communications dist/server/index.js missing"; exit 1; }
-          echo "All plugin dist files OK"
-
-      - name: Build Strapi
+      - name: Build Payload
         working-directory: backend
         env:
           NODE_ENV: production
+          PAYLOAD_SECRET: build-placeholder
+          DATABASE_URI: file:./build-placeholder.db
+          NEXT_PUBLIC_SERVER_URL: https://davelopment.hu
         run: pnpm build
 
-      - name: Bundle (no node_modules / uploads / env / tmp)
+      - name: Bundle (no node_modules / media / env)
         shell: bash
         run: |
-          rm -rf backend/node_modules || true
           tar -czf backend_bundle.tgz \
             --exclude="backend/node_modules" \
+            --exclude="backend/public/media" \
             --exclude="backend/public/uploads" \
-            --exclude="backend/.env" \
-            --exclude="backend/.env.*" \
-            --exclude="backend/.tmp" \
+            --exclude="backend/.env*" \
+            --exclude="backend/.next/cache" \
+            --exclude="backend/media" \
             backend/
 
       - uses: actions/upload-artifact@v4
@@ -263,10 +244,8 @@ jobs:
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes \
             ${VPS_USER}@${VPS_HOST} "printf '%s\n' \
               'WEBSITE_URL=https://davelopment.hu' \
-              'NEXT_PUBLIC_API_URL=https://davelopment.hu' \
               'NEXT_PUBLIC_STRAPI_URL=https://davelopment.hu' \
-              'STRAPI_URL=http://127.0.0.1:1337' \
-              'STRAPI_API_TOKEN=${{ secrets.STRAPI_API_TOKEN }}' \
+              'NEXT_PUBLIC_API_URL=https://davelopment.hu' \
               'PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}' \
               > /var/www/davelopment/frontend/.env"
 
@@ -350,15 +329,11 @@ jobs:
       - name: Deploy on VPS (atomic + rollback)
         env:
           DEPLOY_SHA: ${{ github.sha }}
-          STRAPI_APP_KEYS: ${{ secrets.STRAPI_APP_KEYS }}
-          STRAPI_API_TOKEN_SALT: ${{ secrets.STRAPI_API_TOKEN_SALT }}
-          STRAPI_ADMIN_JWT_SECRET: ${{ secrets.STRAPI_ADMIN_JWT_SECRET }}
-          STRAPI_TRANSFER_TOKEN_SALT: ${{ secrets.STRAPI_TRANSFER_TOKEN_SALT }}
-          STRAPI_ENCRYPTION_KEY: ${{ secrets.STRAPI_ENCRYPTION_KEY }}
-          STRAPI_JWT_SECRET: ${{ secrets.STRAPI_JWT_SECRET }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          DATABASE_URI: ${{ secrets.DATABASE_URI }}
+          PREVIEW_SECRET: ${{ secrets.PREVIEW_SECRET }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          STRAPI_ADMIN_PSI_API_KEY: ${{ secrets.STRAPI_ADMIN_PSI_API_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
         run: |
@@ -366,15 +341,11 @@ jobs:
             -o ServerAliveInterval=30 -o ServerAliveCountMax=60 \
             ${VPS_USER}@${VPS_HOST} \
             DEPLOY_SHA="${DEPLOY_SHA}" \
-            STRAPI_APP_KEYS="${STRAPI_APP_KEYS}" \
-            STRAPI_API_TOKEN_SALT="${STRAPI_API_TOKEN_SALT}" \
-            STRAPI_ADMIN_JWT_SECRET="${STRAPI_ADMIN_JWT_SECRET}" \
-            STRAPI_TRANSFER_TOKEN_SALT="${STRAPI_TRANSFER_TOKEN_SALT}" \
-            STRAPI_ENCRYPTION_KEY="${STRAPI_ENCRYPTION_KEY}" \
-            STRAPI_JWT_SECRET="${STRAPI_JWT_SECRET}" \
+            PAYLOAD_SECRET="${PAYLOAD_SECRET}" \
+            DATABASE_URI="${DATABASE_URI}" \
+            PREVIEW_SECRET="${PREVIEW_SECRET}" \
             GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID}" \
             GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET}" \
-            STRAPI_ADMIN_PSI_API_KEY="${STRAPI_ADMIN_PSI_API_KEY}" \
             RESEND_API_KEY="${RESEND_API_KEY}" \
             NOTIFY_EMAIL="${NOTIFY_EMAIL}" \
             bash -s << 'ENDSSH'
@@ -383,7 +354,6 @@ jobs:
           LIVE_DIR="/var/www/davelopment/backend"
           STORAGE_ROOT="/var/www/davelopment/storage"
           STORAGE_UPLOADS="${STORAGE_ROOT}/uploads"
-          STORAGE_DB="${STORAGE_ROOT}/db"
           PNPM_STORE_DIR="/var/www/davelopment/.pnpm-store"
 
           TS="$(date +%F_%H%M%S)"
@@ -393,7 +363,7 @@ jobs:
 
           log(){ printf '[%s] %s\n' "$(date -Is)" "$*"; }
 
-          mkdir -p "$STORAGE_UPLOADS" "$STORAGE_DB" "$PNPM_STORE_DIR"
+          mkdir -p "$STORAGE_UPLOADS" "$PNPM_STORE_DIR"
 
           rm -rf "$TMP_DIR" && mkdir -p "$TMP_DIR"
           tar -xzf /tmp/backend_bundle.tgz -C "$TMP_DIR"
@@ -402,7 +372,7 @@ jobs:
           rm -rf "$NEW_DIR" && mkdir -p "$NEW_DIR"
           rsync -a --delete \
             --exclude 'public/uploads/' \
-            --exclude '.tmp/' \
+            --exclude 'public/media/' \
             --exclude '.env' \
             --exclude '.env.*' \
             --exclude 'node_modules' \
@@ -411,26 +381,15 @@ jobs:
 
           log "Writing .env from secrets..."
           printf '%s\n' \
-            "HOST=0.0.0.0" \
-            "PORT=1337" \
-            "URL=https://davelopment.hu" \
-            "PUBLIC_URL=https://davelopment.hu" \
-            "STRAPI_ADMIN_BACKEND_URL=https://davelopment.hu" \
-            "FRONTEND_URL=https://davelopment.hu" \
             "NODE_ENV=production" \
-            "APP_KEYS=${STRAPI_APP_KEYS}" \
-            "API_TOKEN_SALT=${STRAPI_API_TOKEN_SALT}" \
-            "ADMIN_JWT_SECRET=${STRAPI_ADMIN_JWT_SECRET}" \
-            "TRANSFER_TOKEN_SALT=${STRAPI_TRANSFER_TOKEN_SALT}" \
-            "ENCRYPTION_KEY=${STRAPI_ENCRYPTION_KEY}" \
-            "JWT_SECRET=${STRAPI_JWT_SECRET}" \
-            "DATABASE_CLIENT=sqlite" \
-            "DATABASE_FILENAME=.tmp/data.db" \
-            "DATABASE_SSL=false" \
+            "PORT=1337" \
+            "NEXT_PUBLIC_SERVER_URL=https://davelopment.hu" \
+            "FRONTEND_URL=https://davelopment.hu" \
+            "PAYLOAD_SECRET=${PAYLOAD_SECRET}" \
+            "DATABASE_URI=${DATABASE_URI}" \
+            "PREVIEW_SECRET=${PREVIEW_SECRET}" \
             "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}" \
             "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}" \
-            "STRAPI_ADMIN_PSI_API_KEY=${STRAPI_ADMIN_PSI_API_KEY}" \
-            "STRAPI_ADMIN_PSI_BASE_URL=https://davelopment.hu" \
             "RESEND_API_KEY=${RESEND_API_KEY}" \
             "RESEND_FROM_EMAIL=hello@davelopment.hu" \
             "NOTIFY_EMAIL=${NOTIFY_EMAIL}" \
@@ -441,16 +400,8 @@ jobs:
             "store-dir=${PNPM_STORE_DIR}" \
             > "${NEW_DIR}/.npmrc"
 
-          mkdir -p "${NEW_DIR}/public" "${NEW_DIR}/.tmp"
+          mkdir -p "${NEW_DIR}/public"
           ln -sfn "$STORAGE_UPLOADS" "${NEW_DIR}/public/uploads"
-
-          if [ -f "${LIVE_DIR}/.tmp/data.db" ] && \
-             [ ! -L "${LIVE_DIR}/.tmp/data.db" ] && \
-             [ ! -f "${STORAGE_DB}/data.db" ]; then
-            mv "${LIVE_DIR}/.tmp/data.db" "${STORAGE_DB}/data.db" || true
-          fi
-          [ -f "${STORAGE_DB}/data.db" ] || touch "${STORAGE_DB}/data.db"
-          ln -sfn "${STORAGE_DB}/data.db" "${NEW_DIR}/.tmp/data.db"
 
           export PNPM_HOME="$HOME/.local/share/pnpm"
           export PATH="$PNPM_HOME:$PATH"
@@ -467,35 +418,6 @@ jobs:
             --network-concurrency 1 \
             --ignore-scripts=false
 
-          log "Verifying better_sqlite3.node..."
-          if ! find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q .; then
-            log "better_sqlite3.node not found, rebuilding from source..."
-            cd "$NEW_DIR/node_modules/.pnpm/better-sqlite3@11.7.0/node_modules/better-sqlite3"
-            export npm_config_cache=/tmp/npm-cache-deploy
-            export npm_config_devdir=/tmp/node-gyp-deploy
-            npm run install
-            cd "$NEW_DIR"
-            find "$NEW_DIR/node_modules" -name "better_sqlite3.node" | grep -q . || \
-              { log "ERROR: better_sqlite3.node build failed!"; exit 1; }
-          fi
-          log "better_sqlite3.node OK"
-
-          log "Verifying @swc/core native addon..."
-          SWC_BINDING=$(find "$NEW_DIR/node_modules" -name "*.node" -path "*swc*" 2>/dev/null | head -1)
-          if [ -z "$SWC_BINDING" ]; then
-            log "@swc/core binding not found, running postinstall..."
-            SWC_PKG=$(find "$NEW_DIR/node_modules/.pnpm" -maxdepth 1 -name "@swc+core*" -type d | head -1)
-            if [ -n "$SWC_PKG" ]; then
-              SWC_DIR="${SWC_PKG}/node_modules/@swc/core"
-              cd "$SWC_DIR"
-              npm run postinstall || node postinstall.js || true
-              cd "$NEW_DIR"
-            fi
-            SWC_BINDING=$(find "$NEW_DIR/node_modules" -name "*.node" -path "*swc*" 2>/dev/null | head -1)
-            [ -n "$SWC_BINDING" ] || { log "ERROR: @swc/core binding still missing!"; exit 1; }
-          fi
-          log "@swc/core OK: $SWC_BINDING"
-
           log "Stopping backend..."
           cd ~
           pm2 stop backend || true
@@ -509,14 +431,14 @@ jobs:
             pm2 start "pnpm start" --name backend --cwd "$LIVE_DIR"
           pm2 save
 
-          log "Waiting for Strapi to boot (45s)..."
+          log "Waiting for Payload to boot (45s)..."
           sleep 45
 
           smoke_ok=0
           for i in $(seq 1 24); do
             code=$(curl -sS -o /dev/null -w "%{http_code}" -L \
               --connect-timeout 3 --max-time 10 \
-              "http://127.0.0.1:1337/_health" || echo 000)
+              "http://127.0.0.1:1337/api/health" || echo 000)
             log "smoke try=$i code=$code"
             [ "$code" -ge 200 ] && [ "$code" -lt 400 ] && { smoke_ok=1; break; }
             pm2_status=$(pm2 jlist 2>/dev/null | python3 -c "

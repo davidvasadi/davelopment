@@ -3,9 +3,13 @@ import { Metadata } from 'next';
 
 import ClientSlugHandler from '../ClientSlugHandler';
 import PageContent from '@/lib/shared/PageContent';
-import { generateMetadataObject } from '@/lib/shared/metadata';
+import JsonLd from '@/components/seo/JsonLd';
+import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
+import { webPageSchema, resolveSchema } from '@/lib/shared/structured-data';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import  {notFound}  from 'next/navigation';
+
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://davelopment.hu').replace(/\/+$/, '');
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string; slug: string }>;
@@ -18,14 +22,19 @@ export async function generateMetadata(props: {
         slug: params.slug,
         locale: params.locale,
       },
-      populate: 'seo.metaImage',
     },
     true
   );
   if (!pageData) return {};
-  const seo = pageData?.seo;
-  const metadata = generateMetadataObject(seo);
-  return metadata;
+  return {
+    ...generateMetadataObject(pageData?.seo),
+    alternates: buildAlternates(
+      params.locale,
+      `/${params.locale}/${params.slug}`,
+      pageData?.localizations,
+      pageData?.seo?.canonicalURL,
+    ),
+  };
 }
 
 export default async function Page(props: {
@@ -51,10 +60,20 @@ export default async function Page(props: {
     { [params.locale]: params.slug }
   );
 
+  const jsonLd = resolveSchema(
+    webPageSchema({
+      title: pageData?.seo?.metaTitle || pageData?.label || params.slug,
+      description: pageData?.seo?.metaDescription,
+      url: `${SITE_URL}/${params.locale}/${params.slug}`,
+    }),
+    pageData?.seo?.structuredData
+  );
+
   return (
     <>
+      <JsonLd data={jsonLd} />
       <ClientSlugHandler localizedSlugs={localizedSlugs} />
-      <PageContent pageData={pageData} />
+      <PageContent pageData={pageData} locale={params.locale} />
     </>
   );
 }

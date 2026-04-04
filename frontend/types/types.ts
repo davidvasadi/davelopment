@@ -1,12 +1,11 @@
-import { text } from "stream/consumers";
-
 export interface Category {
   name: string;
 }
 
 export interface Image {
   url: string;
-  alternativeText: string;
+  alt?: string;
+  alternativeText?: string; // legacy Strapi compat
 }
 
 export type StrapiButton ={
@@ -22,7 +21,7 @@ export interface Article {
   title: string;
   description: string;
   slug: string;
-  content: string;
+  content: { root: any } | null;
   dynamic_zone: any[];
   createdAt: string;
   updatedAt: string;

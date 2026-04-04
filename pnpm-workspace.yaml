@@ -1,7 +1,6 @@
 packages:
   - frontend
   - backend
-  - backend/src/plugins/*
 
 ignoredBuiltDependencies:
   - core-js-pure
@@ -10,6 +9,5 @@ ignoredBuiltDependencies:
 onlyBuiltDependencies:
   - '@swc/core'
   - '@tailwindcss/oxide'
-  - better-sqlite3
   - esbuild
   - sharp

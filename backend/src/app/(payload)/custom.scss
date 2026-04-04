@@ -1,0 +1,36 @@
+@use "@payloadcms/ui/scss" as payload;
+
+@layer payload {
+  /* Breadcrumb wrapper fills remaining space */
+  .app-header__step-nav-wrapper {
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  /* [davelopment]® brand before breadcrumb trail */
+  .step-nav::before {
+    content: '[davelopment]\00AE';
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--theme-text);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Hide default home icon */
+  .step-nav__home {
+    display: none;
+  }
+
+  /*
+   * Move Localizer left to create space for the notification bell:
+   * bell sits at: right = var(--gutter-h) + 28px (avatar) + 8px (gap) = ~110px
+   * localizer must start (right edge) after: 110px + 28px (bell) + 8px (gap) = ~146px
+   * Formula: calc(var(--gutter-h) + 72px)  [72 = avatar + bell + 2×gap]
+   */
+  .app-header__localizer.localizer {
+    right: calc(var(--gutter-h) + 72px) !important;
+  }
+}

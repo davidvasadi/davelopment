@@ -10,7 +10,7 @@ interface StrapiImageProps
 }
 
 export function getStrapiMedia(url: string | null) {
-  const strapiURL = process.env.NEXT_PUBLIC_API_URL;
+  const strapiURL = process.env.NEXT_PUBLIC_PAYLOAD_URL;
   if (url == null) return null;
   if (url.startsWith('data:')) return url;
   if (url.startsWith('http') || url.startsWith('//')) return url;

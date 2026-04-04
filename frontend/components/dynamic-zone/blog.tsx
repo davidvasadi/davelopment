@@ -14,7 +14,6 @@ const toAbs = (m?: any): string | undefined => {
   if (typeof m === 'string') return strapiImage(m);
   if (Array.isArray(m)) return strapiImage(m[0]);
   if (m.url) return strapiImage(m.url);
-  if (m.data?.attributes?.url) return strapiImage(m.data.attributes.url);
   return undefined;
 };
 
@@ -34,6 +33,21 @@ type ButtonConfig = {
   variant?: string | null;
 } | null;
 
+function lexicalToText(value: unknown): string {
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  // Lexical JSON: {root: {children: [{children: [{text: '...'}]}]}}
+  const root = (value as any)?.root;
+  if (!root) return '';
+  const texts: string[] = [];
+  const walk = (node: any) => {
+    if (node?.text) texts.push(node.text);
+    if (Array.isArray(node?.children)) node.children.forEach(walk);
+  };
+  walk(root);
+  return texts.join(' ');
+}
+
 type BlogProps = {
   __component: string;
   id: number;
@@ -41,7 +55,7 @@ type BlogProps = {
   badge_label?: string | null;
   heading_left?: string | null;
   heading_right?: string | null;
-  description?: string | null;
+  description?: string | object | null;
   button?: ButtonConfig;
   highlight_heading?: string | null;
   highlight_subheading?: string | null;
@@ -119,7 +133,7 @@ export const Blog: React.FC<BlogProps> = ({
             <div className="md:self-center md:max-w-sm lg:max-w-md">
               {description && (
                 <p className="text-sm sm:text-base text-neutral-700 leading-relaxed">
-                  {description}
+                  {lexicalToText(description)}
                 </p>
               )}
             </div>

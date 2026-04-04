@@ -1,0 +1,32 @@
+import type { Metadata } from 'next'
+import { RootLayout, handleServerFunctions } from '@payloadcms/next/layouts'
+import '@payloadcms/next/css'
+import './custom.scss'
+import React from 'react'
+import configPromise from '@payload-config'
+import { importMap } from './admin/importMap.js'
+
+export const metadata: Metadata = {
+  title: '[davelopment]® Admin',
+}
+
+const serverFunction = async (args: any) => {
+  'use server'
+  return handleServerFunctions({
+    ...args,
+    config: configPromise,
+    importMap,
+  })
+}
+
+type Args = {
+  children: React.ReactNode
+}
+
+export default function Layout({ children }: Args) {
+  return (
+    <RootLayout config={configPromise} importMap={importMap} serverFunction={serverFunction}>
+      {children}
+    </RootLayout>
+  )
+}

@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { getLocalizedSegment } from '@/lib/i18n/segments';
+import { strapiImage } from '@/lib/strapi/strapiImage';
 
 type Page = {
     id: number;
@@ -28,9 +29,7 @@ export function ServicesPage({ pages, locale }: ServicesPageProps) {
     const detailsLabel = isHu ? 'Részletek megtekintése' : 'View details';
 
     const getImageUrl = (page: Page) =>
-        page.video_poster?.url
-            ? `${process.env.NEXT_PUBLIC_STRAPI_URL}${page.video_poster.url}`
-            : null;
+        page.video_poster?.url ? strapiImage(page.video_poster.url) : null;
 
     return (
         <div className="px-4 max-w-7xl mx-auto py-12">
@@ -44,7 +43,7 @@ export function ServicesPage({ pages, locale }: ServicesPageProps) {
 
                     return (
                         <Link
-                            key={page.id}
+                            key={page.id ?? idx}
                             href={`/${locale}/${segment}/${page.slug}`}
                             className="relative rounded-2xl cursor-pointer flex flex-col bg-white overflow-hidden"
                             style={{
@@ -128,7 +127,7 @@ export function ServicesPage({ pages, locale }: ServicesPageProps) {
 
                     return (
                         <div
-                            key={page.id}
+                            key={page.id ?? idx}
                             className="relative rounded-2xl cursor-pointer bg-white"
                             style={{
                                 padding: '16px',

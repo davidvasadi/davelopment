@@ -117,6 +117,7 @@ export function FormNextToSection({
   form,
   section,
   person_card,
+  person: personAlias,
   copyright,
   video,
   video_poster,
@@ -124,7 +125,8 @@ export function FormNextToSection({
   policy_links,
   policy_prefix,
   policy_and_word,
-}: FormNextToSectionProps) {
+}: FormNextToSectionProps & { person?: PersonCard }) {
+  const _person = person_card ?? personAlias;
   const pathname = usePathname();
   const lang: 'hu' | 'en' = pathname?.startsWith('/hu') ? 'hu' : 'en';
 
@@ -245,11 +247,11 @@ export function FormNextToSection({
   };
 
   // ── Person card adatok ──
-  const personImgUrl        = toAbs(person_card?.image);
-  const buttonCfg           = person_card?.button || null;
+  const personImgUrl        = toAbs(_person?.image);
+  const buttonCfg           = _person?.button || null;
   const buttonLabel         = buttonCfg?.text || 'Kérdezz közvetlenül';
   const rawHrefFromButton   = buttonCfg?.URL?.trim() || '';
-  const rawEmail            = (person_card?.email || '').trim();
+  const rawEmail            = (_person?.email || '').trim();
   const buttonHref = (() => {
     if (rawHrefFromButton) {
       if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawHrefFromButton)) return `mailto:${rawHrefFromButton}`;
@@ -566,7 +568,7 @@ export function FormNextToSection({
                 </motion.div>
 
                 {/* Person card */}
-                {person_card && (
+                {_person && (
                   <motion.div
                     className="mt-auto"
                     initial={{ opacity: 0, y: 20 }}
@@ -579,7 +581,7 @@ export function FormNextToSection({
                         {personImgUrl ? (
                           <Image
                             src={personImgUrl}
-                            alt={person_card.name}
+                            alt={_person.name}
                             width={112}
                             height={144}
                             className="w-full h-full object-cover border-4 border-white/30 rounded-xl"
@@ -590,13 +592,13 @@ export function FormNextToSection({
                       </div>
 
                       <div className="bg-white text-black rounded-xl p-4 flex-grow max-w-[260px]">
-                        {person_card.role && (
-                          <p className="text-sm font-semibold">{person_card.role}</p>
+                        {_person.role && (
+                          <p className="text-sm font-semibold">{_person.role}</p>
                         )}
-                        {person_card.org && (
-                          <p className="text-xs text-black/60">{person_card.org}</p>
+                        {_person.org && (
+                          <p className="text-xs text-black/60">{_person.org}</p>
                         )}
-                        <p className="text-xl font-semibold mb-3">{person_card.name}</p>
+                        <p className="text-xl font-semibold mb-3">{_person.name}</p>
 
                         <motion.a
                           href={buttonHref}

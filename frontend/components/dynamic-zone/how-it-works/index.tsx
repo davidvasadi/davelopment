@@ -24,9 +24,9 @@ export const HowItWorks = ({
     if (!m) return undefined;
     if (typeof m === 'string') return strapiImage(m);
     if (Array.isArray(m)) return toAbs(m[0]);
-    const direct = m?.url || m?.attributes?.url || m?.data?.attributes?.url;
+    const direct = m?.url;
     if (direct) return strapiImage(direct);
-    const formats = m?.formats || m?.attributes?.formats || m?.data?.attributes?.formats;
+    const formats = m?.formats;
     const pick = formats?.small?.url ?? formats?.thumbnail?.url ?? formats?.medium?.url ?? formats?.large?.url;
     return pick ? strapiImage(pick) : undefined;
   };
@@ -40,7 +40,7 @@ export const HowItWorks = ({
     return { left: words.slice(0, cut).join(' '), right: words.slice(cut).join(' ') };
   };
 
-  const { left, right } = splitHeading(heading);
+  const { left, right } = splitHeading(heading ?? '');
   const videoSrc = toAbs(video);
   const showVideo = !!videoSrc;
 

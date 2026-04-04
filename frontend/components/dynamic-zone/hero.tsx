@@ -92,7 +92,7 @@ export const Hero = ({
   }, [safeCTAs]);
 
   const serviceLabels = (services || [])
-    .map((s: any) => (typeof s === 'string' ? s : s?.label))
+    .map((s: any) => (typeof s === 'string' ? s : s?.label ?? s?.title))
     .filter(Boolean) as string[];
 
   const computedDescription = useMemo(() => {

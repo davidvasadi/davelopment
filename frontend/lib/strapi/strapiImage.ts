@@ -1,7 +1,7 @@
 // lib/strapi/strapiImage.ts
 import { unstable_noStore as noStore } from 'next/cache';
 
-const STRAPI_BASE_URL = (process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337').replace(
+const STRAPI_BASE_URL = (process.env.NEXT_PUBLIC_PAYLOAD_URL ?? 'http://localhost:1337').replace(
   /\/+$/,
   ''
 );
@@ -14,7 +14,7 @@ const STRAPI_BASE_URL = (process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost
 export function strapiImage(url?: string | null): string {
   noStore();
 
-  if (!url) return '';
+  if (!url || typeof url !== 'string') return '';
 
   // már abszolút (pl. https://davelopment.hu/uploads/...)
   if (url.startsWith('http://') || url.startsWith('https://')) {

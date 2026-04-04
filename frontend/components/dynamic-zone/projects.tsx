@@ -48,7 +48,7 @@ const getProductFromProject = (project: ProjectCardFromStrapi): Product | undefi
   const raw = project.product as any;
   if (!raw) return undefined;
   if ('slug' in raw) return raw as Product;
-  if (raw.data?.attributes) return { id: raw.data.id, ...raw.data.attributes } as Product;
+  if (typeof raw === 'object') return raw as Product;
   return undefined;
 };
 
@@ -60,7 +60,7 @@ export const Projects: React.FC<ProjectsProps> = ({
   locale,
 }) => {
   const allItems: ProjectWithProduct[] = useMemo(() =>
-    projects
+    (projects ?? [])
       .map((p) => {
         const product = getProductFromProject(p);
         if (!product) return undefined;

@@ -1,10 +1,37 @@
-import { BlocksRenderer } from '@strapi/blocks-react-renderer';
 import React from 'react';
+import { LexicalContent } from '@/components/lexical-content';
+import JsonLd from '@/components/seo/JsonLd';
 
 import ClientSlugHandler from '../../ClientSlugHandler';
 import { BlogLayout } from '@/components/blog-layout';
 import fetchContentType from '@/lib/strapi/fetchContentType';
+import { strapiImage } from '@/lib/strapi/strapiImage';
+import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
+import { articleSchema, resolveSchema } from '@/lib/shared/structured-data';
+import type { Metadata } from 'next';
 import type { Article } from '@/types/types';
+
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://davelopment.hu').replace(/\/+$/, '');
+
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string; locale: string }>;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const article = await fetchContentType(
+    'articles',
+    { filters: { slug: params.slug, locale: params.locale } },
+    true
+  );
+  return {
+    ...generateMetadataObject(article?.seo),
+    alternates: buildAlternates(
+      params.locale,
+      `/${params.locale}/blog/${params.slug}`,
+      article?.localizations,
+      article?.seo?.canonicalURL,
+    ),
+  };
+}
 
 export default async function SingleArticlePage(props: {
   params: Promise<{ slug: string; locale: string }>;
@@ -68,15 +95,30 @@ export default async function SingleArticlePage(props: {
     { [params.locale]: params.slug }
   );
 
+  const jsonLd = resolveSchema(
+    articleSchema({
+      title: article.seo?.metaTitle || article.title,
+      description: article.seo?.metaDescription,
+      imageUrl: article.image?.url ? strapiImage(article.image.url) : null,
+      publishedAt: article.publishedAt || article.createdAt,
+      updatedAt: article.updatedAt,
+      url: `${SITE_URL}/${params.locale}/blog/${params.slug}`,
+    }),
+    article.seo?.structuredData
+  );
+
   return (
-    <BlogLayout
-      article={article}
-      locale={params.locale}
-      prevArticle={prevArticle}
-      nextArticle={nextArticle}
-    >
-      <ClientSlugHandler localizedSlugs={localizedSlugs} />
-      <BlocksRenderer content={article.content} />
-    </BlogLayout>
+    <>
+      <JsonLd data={jsonLd} />
+      <BlogLayout
+        article={article}
+        locale={params.locale}
+        prevArticle={prevArticle}
+        nextArticle={nextArticle}
+      >
+        <ClientSlugHandler localizedSlugs={localizedSlugs} />
+        <LexicalContent content={article.content} />
+      </BlogLayout>
+    </>
   );
 }

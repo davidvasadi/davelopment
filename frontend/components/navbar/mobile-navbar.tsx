@@ -68,7 +68,7 @@ export function MobileNavbar({
     <>
       <div className={cn(navBgClass, HEADER_H)}>
         <nav className="flex items-center justify-between px-6 h-full">
-          <Logo locale={locale} image={logo?.image} />
+          <Logo locale={locale} image={logo?.image} text={logo?.company} />
           <div className="flex items-center gap-6">
             <LocaleSwitcher currentLocale={locale} />
             <button

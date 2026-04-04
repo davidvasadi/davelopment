@@ -26,23 +26,19 @@ const toAbs = (m?: any): string | undefined => {
     if (!m) return undefined;
     if (typeof m === 'string') return strapiImage(m);
     if (m?.url) return strapiImage(m.url);
-    if (m?.data?.attributes?.url) return strapiImage(m.data.attributes.url);
     return undefined;
 };
 
-const getMime = (m?: any): string | undefined =>
-    m?.mime || m?.data?.attributes?.mime || m?.attributes?.mime;
+const getMime = (m?: any): string | undefined => m?.mime;
 
 const looksLikeVideoUrl = (url?: string) =>
     !!url && /\.(mp4|webm|ogg|ogv|mov|m4v)$/i.test(url);
 
 const extractImageUrls = (field: any): string[] => {
     if (!field) return [];
-    if (Array.isArray(field?.data))
-        return field.data.map((d: any) => d?.attributes?.url || d?.url).filter(Boolean).map((u: string) => strapiImage(u));
     if (Array.isArray(field))
-        return field.map((m: any) => m?.attributes?.url || m?.url).filter(Boolean).map((u: string) => strapiImage(u));
-    const single = field?.attributes?.url || field?.url;
+        return field.map((m: any) => m?.url).filter(Boolean).map((u: string) => strapiImage(u));
+    const single = field?.url;
     return single ? [strapiImage(single)] : [];
 };
 

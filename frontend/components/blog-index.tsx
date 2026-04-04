@@ -32,8 +32,8 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
 }) => {
     const sorted = [...articles].sort(
         (a, b) =>
-            new Date(b.publishedAt ?? '').getTime() -
-            new Date(a.publishedAt ?? '').getTime()
+            new Date(b.publishedAt || b.createdAt || '').getTime() -
+            new Date(a.publishedAt || a.createdAt || '').getTime()
     );
 
     const posts = sorted.map((a) => ({
@@ -42,7 +42,7 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
         title: a.title,
         description: a.description,
         image: a.image ? strapiImage(a.image.url) : '',
-        date: formatDate(a.publishedAt, locale),
+        date: formatDate(a.publishedAt || a.createdAt, locale),
     }));
 
     if (!posts.length) {
@@ -69,6 +69,7 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
     return (
         <section className='max-w-9xl mx-auto px-0 xl:px-20'>
             <main className="w-full pt-24 md:pt-32 pb-20">
+            <Container>
                 <div className="max-w-9xl mx-auto px-2 md:px-8">
 
                     {/* --- Fejléc --- */}
@@ -263,6 +264,7 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                     </div>
 
                 </div>
+        </Container>
             </main>
         </section>
     );

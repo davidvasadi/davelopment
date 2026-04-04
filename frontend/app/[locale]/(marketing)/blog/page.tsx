@@ -2,28 +2,35 @@
 import { type Metadata } from 'next';
 
 import ClientSlugHandler from '../ClientSlugHandler';
-import { generateMetadataObject } from '@/lib/shared/metadata';
+import JsonLd from '@/components/seo/JsonLd';
+import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
+import { webPageSchema, resolveSchema } from '@/lib/shared/structured-data';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import type { Article } from '@/types/types';
 import { BlogIndex } from '@/components/blog-index';
 
-// --- SEO a /blog single type SEO mezőiből ---
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://davelopment.hu').replace(/\/+$/, '');
+
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const params = await props.params;
   const pageData = await fetchContentType(
     'blog-page',
-    {
-      filters: { locale: params.locale },
-      populate: 'seo.metaImage',
-    },
+    { filters: { locale: params.locale } },
     true
   );
 
-  const seo = pageData?.seo;
-  const metadata = generateMetadataObject(seo);
-  return metadata;
+  const altLocale = params.locale === 'hu' ? 'en' : 'hu';
+  return {
+    ...generateMetadataObject(pageData?.seo),
+    alternates: buildAlternates(
+      params.locale,
+      `/${params.locale}/blog`,
+      [{ locale: altLocale, slug: 'blog' }],
+      pageData?.seo?.canonicalURL,
+    ),
+  };
 }
 
 export default async function Blog(props: {
@@ -59,8 +66,18 @@ export default async function Blog(props: {
     { [params.locale]: 'blog' }
   );
 
+  const jsonLd = resolveSchema(
+    webPageSchema({
+      title: blogPage?.seo?.metaTitle || blogPage?.title || 'Blog',
+      description: blogPage?.seo?.metaDescription,
+      url: `${SITE_URL}/${params.locale}/blog`,
+    }),
+    blogPage?.seo?.structuredData
+  );
+
   return (
     <div className="relative overflow-hidden pt-14">
+      <JsonLd data={jsonLd} />
       <ClientSlugHandler localizedSlugs={localizedSlugs} />
       <BlogIndex locale={params.locale} blogPage={blogPage} articles={articles} />
     </div>
