@@ -327,28 +327,18 @@ jobs:
             "sudo chattr -i /home/deploy/.cache"
 
       - name: Deploy on VPS (atomic + rollback)
-        env:
-          DEPLOY_SHA: ${{ github.sha }}
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-          DATABASE_URI: ${{ secrets.DATABASE_URI }}
-          PREVIEW_SECRET: ${{ secrets.PREVIEW_SECRET }}
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
         run: |
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes \
             -o ServerAliveInterval=30 -o ServerAliveCountMax=60 \
-            ${VPS_USER}@${VPS_HOST} \
-            DEPLOY_SHA="${DEPLOY_SHA}" \
-            PAYLOAD_SECRET="${PAYLOAD_SECRET}" \
-            DATABASE_URI="${DATABASE_URI}" \
-            PREVIEW_SECRET="${PREVIEW_SECRET}" \
-            GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID}" \
-            GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET}" \
-            RESEND_API_KEY="${RESEND_API_KEY}" \
-            NOTIFY_EMAIL="${NOTIFY_EMAIL}" \
-            bash -s << 'ENDSSH'
+            ${VPS_USER}@${VPS_HOST} bash -s << 'ENDSSH'
+          DEPLOY_SHA="${{ github.sha }}"
+          PAYLOAD_SECRET="${{ secrets.PAYLOAD_SECRET }}"
+          DATABASE_URI="${{ secrets.DATABASE_URI }}"
+          PREVIEW_SECRET="${{ secrets.PREVIEW_SECRET }}"
+          GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
+          GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}"
+          RESEND_API_KEY="${{ secrets.RESEND_API_KEY }}"
+          NOTIFY_EMAIL="${{ secrets.NOTIFY_EMAIL }}"
           set -Eeuo pipefail
 
           LIVE_DIR="/var/www/davelopment/backend"
