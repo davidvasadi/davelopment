@@ -64,8 +64,8 @@ jobs:
           be="${{ steps.filter.outputs.backend }}"
 
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            [ "${{ github.event.inputs.deploy_frontend }}" = "true" ] && fe="true"
-            [ "${{ github.event.inputs.deploy_backend }}"  = "true" ] && be="true"
+            fe="${{ github.event.inputs.deploy_frontend }}"
+            be="${{ github.event.inputs.deploy_backend }}"
           fi
 
           echo "frontend=$fe" >> "$GITHUB_OUTPUT"
