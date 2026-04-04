@@ -78,7 +78,7 @@ function buildProductSchema(data: Record<string, any>, locale: string): Record<s
 type HookArgs = {
   data: Record<string, any>
   operation: string
-  req: { locale?: string }
+  req: { locale?: string | null }
   collection?: { slug?: string }
 }
 

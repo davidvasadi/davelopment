@@ -54,7 +54,7 @@ function LexicalNode({ node }: { node: any }): React.ReactElement | null {
       );
 
     case 'heading': {
-      const Tag = (node.tag ?? 'h2') as keyof JSX.IntrinsicElements;
+      const Tag = (node.tag ?? 'h2') as React.ElementType;
       return (
         <Tag>
           <LexicalChildren nodes={node.children} />
