@@ -1,6 +1,4 @@
 // components/seo/JsonLd.tsx
-import Script from 'next/script';
-
 type Props = {
   data: string | Record<string, any> | null | undefined;
 };
@@ -13,8 +11,7 @@ export default function JsonLd({ data }: Props) {
   if (!json || json === 'null' || json === '""') return null;
 
   return (
-    <Script
-      id="json-ld"
+    <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: json }}
     />
