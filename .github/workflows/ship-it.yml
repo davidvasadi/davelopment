@@ -246,6 +246,7 @@ jobs:
               'WEBSITE_URL=https://davelopment.hu' \
               'NEXT_PUBLIC_STRAPI_URL=https://davelopment.hu' \
               'NEXT_PUBLIC_API_URL=https://davelopment.hu' \
+              'NEXT_PUBLIC_PAYLOAD_URL=https://davelopment.hu' \
               'PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}' \
               > /var/www/davelopment/frontend/.env"
 
