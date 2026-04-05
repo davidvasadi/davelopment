@@ -203,13 +203,13 @@ export function FormNextToSection({
     setShowAlert(true);
 
     try {
-      const res = await fetch('/api/contact', {
+      const PAYLOAD_URL = (process.env.NEXT_PUBLIC_PAYLOAD_URL ?? 'http://localhost:1337').replace(/\/+$/, '');
+      const res = await fetch(`${PAYLOAD_URL}/api/contacts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
-          phone: formData.phone,
           message: formData.message,
           page: pathname || '/',
           language: lang,

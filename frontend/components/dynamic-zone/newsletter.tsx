@@ -79,9 +79,9 @@ export const Newsletter: React.FC<NewsletterProps> = ({
       });
       const result = await res.json();
       if (!res.ok) {
-        const isUniqueError =
-          (typeof result?.error?.message === 'string' && result.error.message.toLowerCase().includes('unique')) ||
-          (typeof result?.errors?.[0]?.message === 'string' && result.errors[0].message.toLowerCase().includes('unique'));
+        const isUniqueError = [result?.error?.message, result?.errors?.[0]?.message]
+          .filter(Boolean)
+          .some((m: string) => m.toLowerCase().includes('unique') || m.toLowerCase().includes('already using'));
         setSubmitError(isUniqueError ? duplicateError : genericError);
         return;
       }
@@ -94,7 +94,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
     }
   };
 
-  const profileImgUrl = toAbs(profile_image) ?? 'https://davelopment.hu/assets/profile2-CtcR8s0t.jpeg';
+  const profileImgUrl = toAbs(profile_image);
 
   return (
     <section className="w-full py-20">
@@ -114,9 +114,11 @@ export const Newsletter: React.FC<NewsletterProps> = ({
               <span className="text-black font-semibold">{heading_right}</span>
             </h2>
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-full overflow-hidden">
-                <img src={profileImgUrl} alt={profile_name || ''} className="object-cover" />
-              </div>
+              {profileImgUrl && (
+                <div className="w-12 h-12 rounded-full overflow-hidden">
+                  <img src={profileImgUrl} alt={profile_name || ''} className="object-cover" />
+                </div>
+              )}
               <div>
                 <p className="font-semibold text-black">{profile_name}</p>
                 <p className="text-sm text-black/70">{profile_role}</p>

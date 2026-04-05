@@ -75,7 +75,7 @@ export function WhyChooseUsSection({
     cards,
 }: WhyChooseUsProps) {
     const card = hero_card ?? why_choose_us;
-    const heroUrl = toAbs(card?.background) || 'https://davelopment.hu/assets/profile-DMhlnSSY.jpg';
+    const heroUrl = toAbs(card?.background);
     const heroMime = getMime(card?.background);
     const heroIsVideo = !!heroMime?.startsWith('video/');
 
@@ -148,7 +148,7 @@ export function WhyChooseUsSection({
                         viewport={{ once: true, amount: 0.2 }}
                     >
                         <div className="absolute inset-0">
-                            {heroIsVideo ? (
+                            {heroUrl && (heroIsVideo ? (
                                 <video
                                     src={heroUrl}
                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -160,7 +160,7 @@ export function WhyChooseUsSection({
                                     alt="Why choose us hero"
                                     className="w-full h-full object-cover transition-[transform,filter] duration-500 group-hover:blur-sm group-hover:scale-105"
                                 />
-                            )}
+                            ))}
                             <div className="absolute inset-0 bg-gray-900/20 group-hover:bg-black/60 transition-colors duration-500" />
                         </div>
 
