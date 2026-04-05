@@ -25,7 +25,8 @@ export async function GET(req: NextRequest) {
       refresh_token: data.refresh_token,
       expiry_date: Date.now() + (data.expires_in || 3600) * 1000,
     })
-    return NextResponse.redirect(new URL('/admin', req.nextUrl.origin))
+    const base = process.env.NEXT_PUBLIC_SERVER_URL || req.nextUrl.origin
+    return NextResponse.redirect(new URL('/admin', base))
   }
   return NextResponse.json({ error: 'Token exchange failed', details: data }, { status: 400 })
 }

@@ -412,6 +412,11 @@ jobs:
             --network-concurrency 1 \
             --ignore-scripts=false
 
+          log "Rebuilding sharp native module..."
+          npm --cache /tmp/npm-sharp-cache \
+            --prefix "${NEW_DIR}/node_modules/.pnpm/sharp@0.32.6/node_modules/sharp" \
+            run install || true
+
           log "Stopping backend..."
           cd ~
           pm2 stop backend || true
