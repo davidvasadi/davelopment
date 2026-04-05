@@ -4,14 +4,23 @@
   "packageManager": "pnpm@10.18.3",
   "scripts": {
     "dev": "pnpm -r --parallel dev",
-    "build": "pnpm -r --parallel build"
+    "build": "pnpm -r --parallel build",
+    "prepare": "husky"
   },
-"pnpm": {
+  "pnpm": {
     "overrides": {
       "@types/react": "19.1.10",
       "@types/react-dom": "19.1.5",
       "react": "19.1.1",
       "react-dom": "19.1.1"
     }
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0"
+  },
+  "lint-staged": {
+    "frontend/**/*.{ts,tsx}": "pnpm --filter frontend lint",
+    "backend/**/*.{ts,tsx}": "bash -c 'pnpm --filter backend exec tsc --noEmit --skipLibCheck'"
   }
 }

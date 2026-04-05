@@ -113,7 +113,7 @@ export default async function ServicesRoute(props: {
         true
     );
 
-    const pagesWithImages = await Promise.all(
+const pagesWithImages = await Promise.all(
         (pageData?.pages ?? []).map(async (page: any) => {
             const fullPage = await fetchContentType(
                 'pages',

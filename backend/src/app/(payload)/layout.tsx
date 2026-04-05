@@ -5,8 +5,10 @@ import './custom.scss'
 import React from 'react'
 import configPromise from '@payload-config'
 import { importMap } from './admin/importMap.js'
+import { Preloader } from '../../components/Preloader'
 
 export const metadata: Metadata = {
+
   title: '[davelopment]® Admin',
 }
 
@@ -26,6 +28,7 @@ type Args = {
 export default function Layout({ children }: Args) {
   return (
     <RootLayout config={configPromise} importMap={importMap} serverFunction={serverFunction}>
+      <Preloader />
       {children}
     </RootLayout>
   )

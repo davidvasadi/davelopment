@@ -1,5 +1,125 @@
 @use "@payloadcms/ui/scss" as payload;
 
+// ── CSS tokenek ──────────────────────────────────────────────────────────────
+:root {
+  --ease: cubic-bezier(.25,.46,.45,.94);
+  --t: 150ms;
+}
+
+html[data-theme="dark"] {
+  --bg:         #0a0a0a;
+  --surface:    #111111;
+  --surface2:   #171717;
+  --surface3:   #222222;
+  --border:     rgba(255,255,255,0.06);
+  --border-h:   rgba(255,255,255,0.11);
+  --text:       #ededed;
+  --text-sec:   #999999;
+  --muted:      #666666;
+  --faint:      #333333;
+  --hover:      rgba(255,255,255,0.03);
+  --hover2:     rgba(255,255,255,0.055);
+  --ring:       rgba(255,255,255,0.14);
+}
+
+html[data-theme="light"] {
+  --bg:         #fafafa;
+  --surface:    #ffffff;
+  --surface2:   #f5f5f5;
+  --surface3:   #efefef;
+  --border:     rgba(0,0,0,0.08);
+  --border-h:   rgba(0,0,0,0.14);
+  --text:       #111111;
+  --text-sec:   #444444;
+  --muted:      #777777;
+  --faint:      #cccccc;
+  --hover:      rgba(0,0,0,0.025);
+  --hover2:     rgba(0,0,0,0.05);
+  --ring:       rgba(0,0,0,0.10);
+}
+
+// ── Scrollbar ────────────────────────────────────────────────────────────────
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+// ── Preloader ─────────────────────────────────────────────────────────────────
+[data-dave-preloader] {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0a0a;
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+[data-dave-preloader].dave-pre-hide {
+  opacity: 0;
+  transform: scale(1.01);
+  pointer-events: none;
+}
+
+.dave-pre-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+.dave-pre-logo {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  color: #ffffff;
+  line-height: 1;
+  user-select: none;
+}
+
+.dave-pre-reg {
+  font-size: 12px;
+  font-weight: 400;
+  color: #ffffff;
+  opacity: 1;
+  vertical-align: super;
+  letter-spacing: 0;
+}
+
+.dave-pre-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.dave-pre-squares {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.dave-pre-square {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.12);
+  transition: background 120ms ease;
+
+  &.active {
+    background: #ffffff;
+  }
+}
+
+.dave-pre-counter {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.05em;
+}
+
 @layer payload {
   /* Breadcrumb wrapper fills remaining space */
   .app-header__step-nav-wrapper {

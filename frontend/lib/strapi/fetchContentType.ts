@@ -43,7 +43,7 @@ export default async function fetchContentType(
 
   if (locale) q.set('locale', locale);
   if (isDraftMode) q.set('draft', 'true');
-  q.set('depth', '2');
+  q.set('depth', '3');
 
   if (!isGlobal) {
     if (slug) q.set('where[slug][equals]', slug);

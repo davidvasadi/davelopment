@@ -1468,6 +1468,42 @@ export const FormNextToSectionBlock: Block = {
   ],
 }
 
+// ─── MacbookScrollBlock ───────────────────────────────────────────────────────
+
+export const MacbookScrollBlock: Block = {
+  slug: 'macbook-scroll',
+  labels: {
+    singular: 'Mockup szekció',
+    plural: 'Mockup szekciók',
+  },
+  fields: [
+    {
+      name: 'title',
+      type: 'text',
+      label: 'Cím',
+      localized: true,
+    },
+    {
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Képernyő kép (4:3 arány ajánlott, pl. 1600×1200)',
+    },
+    {
+      name: 'video',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Képernyő videó (mp4 – felülírja a képet)',
+    },
+    {
+      name: 'show_gradient',
+      type: 'checkbox',
+      label: 'Gradiens alul',
+      defaultValue: false,
+    },
+  ],
+}
+
 // ─── All blocks array ─────────────────────────────────────────────────────────
 
 export const allBlocks: Block[] = [
@@ -1488,4 +1524,5 @@ export const allBlocks: Block[] = [
   RelatedProductsBlock,
   WhyChooseUsBlock,
   FormNextToSectionBlock,
+  MacbookScrollBlock,
 ]

@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 
 interface Stats {
   ok: boolean
@@ -31,9 +32,8 @@ function delta(curr: number, prev: number) {
 }
 
 const CSS = `
-  @keyframes cw-in { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
   @keyframes cw-spin { to{transform:rotate(360deg)} }
-  .cw-w { animation:cw-in 0.25s ease forwards; display:flex; flex-direction:column; gap:0.75rem; }
+  .cw-w { display:flex; flex-direction:column; gap:0.75rem; }
   .cw-section-label { font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--theme-elevation-500); margin-bottom:0.4rem; font-family:ui-monospace,monospace; }
   .cw-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--theme-elevation-150); border-radius:0.75rem; overflow:hidden; border:1px solid var(--theme-elevation-150); }
   .cw-cell { background:var(--theme-elevation-50); padding:1rem 1.25rem; transition:background 120ms; cursor:default; }
@@ -133,13 +133,16 @@ export function CommunicationsWidget() {
   const convRate = stats.totalLeads > 0 ? Math.round((stats.activeSubs / stats.totalLeads) * 100) : null
   const convColor = convRate !== null ? (convRate >= 30 ? '#22c55e' : convRate >= 10 ? '#f0c742' : '#ef4444') : '#22c55e'
 
+  const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } }
+  const cell = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: 'easeOut' as const } } }
+
   return (
     <>
       <style>{CSS}</style>
-      <div className="cw-w">
+      <motion.div className="cw-w" initial="hidden" animate="show" variants={stagger}>
 
         {/* ── 4 stat cella ── */}
-        <div className="cw-grid">
+        <motion.div className="cw-grid" variants={cell}>
           {/* Érdeklődők */}
           <div className="cw-cell">
             <div className="cw-cell-label">Új érdeklődő (7n)</div>
@@ -176,7 +179,7 @@ export function CommunicationsWidget() {
             <div className="cw-cell-val" style={{ color: convColor }}>{convRate !== null ? `${convRate}%` : '—'}</div>
             <div className="cw-cell-sub">lead → feliratkozó</div>
           </div>
-        </div>
+        </motion.div>
 
         {/* ── Kvóta ── */}
         <div>
@@ -239,7 +242,7 @@ export function CommunicationsWidget() {
           </svg>
         </a>
 
-      </div>
+      </motion.div>
     </>
   )
 }

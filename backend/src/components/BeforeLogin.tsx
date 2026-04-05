@@ -13,7 +13,6 @@ export function BeforeLogin() {
       const wrapper = passwordField.parentElement
       if (!wrapper) return
 
-      // Make wrapper relative so we can position the button inside
       if (getComputedStyle(wrapper).position === 'static') {
         wrapper.style.position = 'relative'
       }
@@ -48,9 +47,35 @@ export function BeforeLogin() {
       wrapper.appendChild(btn)
     }
 
-    // Try immediately, then watch for DOM changes (form renders async)
+    function injectEnterHint() {
+      if (document.querySelector('[data-enter-hint]')) return
+      const submitBtn = document.querySelector<HTMLButtonElement>('button[type="submit"]')
+      if (!submitBtn) return
+
+      submitBtn.style.position = 'relative'
+
+      const hint = document.createElement('span')
+      hint.setAttribute('data-enter-hint', '')
+      hint.style.cssText = `
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
+        opacity: 0.4;
+        pointer-events: none;
+      `
+      hint.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>`
+      submitBtn.appendChild(hint)
+    }
+
     injectToggle()
-    const observer = new MutationObserver(injectToggle)
+    injectEnterHint()
+    const observer = new MutationObserver(() => {
+      injectToggle()
+      injectEnterHint()
+    })
     observer.observe(document.body, { childList: true, subtree: true })
 
     return () => observer.disconnect()
@@ -58,6 +83,7 @@ export function BeforeLogin() {
 
   return null
 }
+
 
 function eyeIcon(open: boolean) {
   if (open) {

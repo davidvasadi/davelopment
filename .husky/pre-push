@@ -1,0 +1,4 @@
+echo "Running TypeScript check..."
+cd frontend && pnpm exec tsc --noEmit && cd ..
+cd backend && pnpm exec tsc --noEmit && cd ..
+echo "✓ TypeScript OK"

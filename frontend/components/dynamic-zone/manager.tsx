@@ -33,6 +33,7 @@ const componentMapping: { [key: string]: any } = {
   'related-articles': dynamic(() => import('./related-articles').then((mod) => mod.RelatedArticles)),
   'newsletter': dynamic(() => import('./newsletter').then((mod) => mod.Newsletter)),
   'products': dynamic(() => import('./projects').then((mod) => mod.Projects)),
+  'macbook-scroll': dynamic(() => import('./macbook-scroll').then((mod) => mod.MacbookScrollSection)),
 };
 
 const DynamicZoneManager: React.FC<Props> = ({ dynamicZone, locale }) => {

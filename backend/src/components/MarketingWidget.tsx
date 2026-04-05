@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 
 interface TrendPoint { date: string; clicks: number; impressions: number; position: number }
 interface GscStats { ok: boolean; totalClicks: number; totalImpressions: number; avgCtr: number; avgPosition: number; clicksDelta: number; impsDelta: number; trend: TrendPoint[] }
@@ -9,11 +10,10 @@ const fmt = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n
 const posColor = (p: number) => p <= 3 ? '#22c55e' : p <= 10 ? '#f0c742' : 'var(--theme-elevation-500)'
 
 const CSS = `
-  @keyframes mw-in   { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
   @keyframes mw-spin { to{transform:rotate(360deg)} }
   @keyframes mw-sk   { to{stroke-dashoffset:0} }
 
-  .mw-w { animation:mw-in .25s ease forwards }
+  .mw-w { display:flex; flex-direction:column; gap:10px; }
 
   .mw-stats { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--theme-elevation-150); border-radius:12px; overflow:hidden; border:1px solid var(--theme-elevation-150) }
   .mw-stat  { background:var(--theme-elevation-50); padding:12px 14px; transition:background 120ms; cursor:default }
@@ -63,10 +63,12 @@ function MiniDualChart({ trend }: { trend: TrendPoint[] }) {
   }
   const cS = makeScale(cVals), iS = makeScale(iVals)
 
-  const path = (vals: number[], s: ReturnType<typeof makeScale>) =>
-    vals.map((v, i) => `${i === 0 ? 'M' : 'L'}${px(i).toFixed(1)},${s.py(v).toFixed(1)}`).join(' ')
+  const linePath = (vals: number[], s: ReturnType<typeof makeScale>) => {
+    return vals.map((v, i) => `${i === 0 ? 'M' : 'L'}${px(i).toFixed(1)},${s.py(v).toFixed(1)}`).join(' ')
+  }
+  const path = linePath
   const area = (vals: number[], s: ReturnType<typeof makeScale>) =>
-    `${path(vals, s)} L${px(n - 1).toFixed(1)},${PAD.top + iH} L${PAD.left},${PAD.top + iH} Z`
+    `${linePath(vals, s)} L${px(n - 1).toFixed(1)},${PAD.top + iH} L${PAD.left},${PAD.top + iH} Z`
 
   const yMx = Math.max(...cVals, 1)
   const yTicks = [0, 0.5, 1].map(t => {
@@ -186,13 +188,16 @@ export function MarketingWidget() {
     { label:'Átl. pozíció',     val:`#${stats.avgPosition}`,       color:'var(--theme-text)', delta:null },
   ]
 
+  const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } }
+  const item = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: 'easeOut' as const } } }
+
   return (
     <>
       <style>{CSS}</style>
-      <div className="mw-w" style={{ display:'flex', flexDirection:'column', gap:10 }}>
+      <motion.div className="mw-w" initial="hidden" animate="show" variants={stagger}>
 
         {/* Stat cards */}
-        <div className="mw-stats">
+        <motion.div className="mw-stats" variants={item}>
           {STATS.map(s => (
             <div key={s.label} className="mw-stat">
               <div className="mw-stat-label">{s.label}</div>
@@ -200,14 +205,14 @@ export function MarketingWidget() {
               {s.delta !== null && <div className="mw-stat-delta"><Delta v={s.delta}/></div>}
             </div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Dual trend chart */}
-        <MiniDualChart trend={stats.trend}/>
+        <motion.div variants={item}><MiniDualChart trend={stats.trend}/></motion.div>
 
         {/* Top queries */}
         {queries.length > 0 && (
-          <div className="mw-queries">
+          <motion.div className="mw-queries" variants={item}>
             <div className="mw-q-head">
               <span style={{ fontSize:'9px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'var(--theme-elevation-400)', fontFamily:'ui-monospace,monospace' }}>Top keresési kifejezések</span>
               <span style={{ fontSize:'9px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'var(--theme-elevation-400)', fontFamily:'ui-monospace,monospace', textAlign:'right', paddingLeft:12 }}>Klikk</span>
@@ -220,7 +225,7 @@ export function MarketingWidget() {
                 <span style={{ fontSize:12, fontWeight:600, color:posColor(q.position), fontFamily:'ui-monospace,monospace', textAlign:'right', paddingLeft:12 }}>#{q.position}</span>
               </div>
             ))}
-          </div>
+          </motion.div>
         )}
 
         {/* Footer link */}
@@ -231,7 +236,7 @@ export function MarketingWidget() {
           Megnyitás <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </a>
 
-      </div>
+      </motion.div>
     </>
   )
 }
