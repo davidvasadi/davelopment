@@ -121,6 +121,9 @@ jobs:
         run: pnpm install --frozen-lockfile=false
 
       - name: Build
+        env:
+          NEXT_PUBLIC_PAYLOAD_URL: https://davelopment.hu
+          NEXT_PUBLIC_API_URL: https://davelopment.hu
         run: pnpm build
 
       - name: Bundle (.next + public, no node_modules)
