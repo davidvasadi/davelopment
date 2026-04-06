@@ -72,13 +72,19 @@ export const Features = ({
   graph_card: any;
   social_media_card: any;
 }) => {
-  const cardCount = [globe_card, ray_card, graph_card, social_media_card].filter(Boolean).length;
+  // Payload group fields always return {} even when empty — check for actual content
+  const hasGlobe = !!globe_card?.heading;
+  const hasRay = !!ray_card?.heading;
+  const hasGraph = !!graph_card?.heading;
+  const hasSocial = !!(social_media_card?.heading || social_media_card?.description);
+
+  const cardCount = [hasGlobe, hasRay, hasGraph, hasSocial].filter(Boolean).length;
   const isExpanded = cardCount === 1;
 
-  const isOnlyGlobe = isExpanded && !!globe_card;
-  const isOnlySeo = isExpanded && !!ray_card;
-  const isOnlyDesign = isExpanded && !!graph_card;
-  const isOnlySystems = isExpanded && !!social_media_card;
+  const isOnlyGlobe = isExpanded && hasGlobe;
+  const isOnlySeo = isExpanded && hasRay;
+  const isOnlyDesign = isExpanded && hasGraph;
+  const isOnlySystems = isExpanded && hasSocial;
 
   return (
     <div className="px-0 md:px-2 md:my-20">
@@ -103,7 +109,7 @@ export const Features = ({
 
         <BentoGrid>
 
-          {globe_card && (
+          {hasGlobe && (
             <Card className={cn(isOnlyGlobe ? 'lg:col-span-2' : 'lg:col-span-2', 'group')}>
               <CardShimmer style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(167,139,250,0.05), transparent 60%)' }} />
               <CardVis height={isOnlyGlobe ? 'h-auto min-h-[480px]' : 'h-[170px]'}>
@@ -117,7 +123,7 @@ export const Features = ({
             </Card>
           )}
 
-          {ray_card && (
+          {hasRay && (
             <Card className={cn(isOnlySeo ? 'lg:col-span-2' : '', 'group')}>
               <CardShimmer style={{ background: 'radial-gradient(ellipse at 50% 30%, rgba(52,211,153,0.05), transparent 60%)' }} />
               <CardVis height={isOnlySeo ? 'h-auto min-h-[480px]' : 'h-[148px]'}>
@@ -131,7 +137,7 @@ export const Features = ({
             </Card>
           )}
 
-          {graph_card && (
+          {hasGraph && (
             <Card className={cn(isOnlyDesign ? 'lg:col-span-2' : '', 'group')}>
               <CardShimmer style={{ background: 'radial-gradient(ellipse at 50% 30%, rgba(251,191,36,0.05), transparent 60%)' }} />
               <CardVis height={isOnlyDesign ? 'h-auto min-h-[480px]' : 'h-[148px]'}>
@@ -145,7 +151,7 @@ export const Features = ({
             </Card>
           )}
 
-          {social_media_card && (
+          {hasSocial && (
             <Card className={cn(isOnlySystems ? 'lg:col-span-2' : 'lg:col-span-2', 'group')}>
               <CardShimmer style={{ background: 'radial-gradient(ellipse at 70% 50%, rgba(251,113,133,0.04), transparent 60%)' }} />
               <CardVis height={isOnlySystems ? 'h-auto min-h-[480px]' : 'h-[160px]'}>
