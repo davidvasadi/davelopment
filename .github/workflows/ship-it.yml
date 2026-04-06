@@ -199,12 +199,13 @@ jobs:
   # ---------------------------------------------------------
   deploy-frontend:
     name: deploy-frontend
-    needs: [changes, frontend-build, secrets-check]
+    needs: [changes, frontend-build, secrets-check, deploy-backend]
     runs-on: ubuntu-latest
     if: >-
       needs.changes.outputs.frontend == 'true' &&
       needs.frontend-build.result == 'success' &&
-      needs.secrets-check.outputs.ssh_ok == 'true'
+      needs.secrets-check.outputs.ssh_ok == 'true' &&
+      (needs.deploy-backend.result == 'success' || needs.deploy-backend.result == 'skipped')
     env:
       REMOTE_PATH: /var/www/davelopment/frontend
     steps:
@@ -400,6 +401,7 @@ jobs:
 
           mkdir -p "${NEW_DIR}/public"
           ln -sfn "$STORAGE_UPLOADS" "${NEW_DIR}/public/uploads"
+          ln -sfn "$STORAGE_UPLOADS" "${NEW_DIR}/media"
 
           export PNPM_HOME="$HOME/.local/share/pnpm"
           export PATH="$PNPM_HOME:$PATH"
@@ -420,6 +422,13 @@ jobs:
           npm --cache /tmp/npm-sharp-cache \
             --prefix "${NEW_DIR}/node_modules/.pnpm/sharp@0.32.6/node_modules/sharp" \
             run install || true
+
+          log "Running database migrations..."
+          cd "$NEW_DIR"
+          NODE_ENV=production pnpm payload migrate || {
+            log "Migration failed — aborting deploy"
+            exit 1
+          }
 
           log "Stopping backend..."
           cd ~
@@ -473,6 +482,8 @@ jobs:
 
           ls -dt /var/www/davelopment/backend.prev_* 2>/dev/null \
             | tail -n +3 | xargs -r rm -rf || true
+          ls -dt /var/www/davelopment/backend.new_* 2>/dev/null \
+            | xargs -r rm -rf || true
 
           log "DEPLOY DONE"
           ENDSSH
