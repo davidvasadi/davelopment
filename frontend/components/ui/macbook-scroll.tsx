@@ -125,7 +125,7 @@ const Lid = ({
           style={{ boxShadow: '0px 2px 0px 2px #171717 inset' }}
           className="absolute inset-0 flex items-center justify-center rounded-lg bg-[#010101]"
         >
-          <span className="text-white text-sm font-semibold tracking-tight font-mono">
+          <span className="text-white text-sm font-semibold tracking-tight">
             [davelopment]<sup style={{ fontSize: '0.6em', verticalAlign: 'super' }}>®</sup>
           </span>
         </div>

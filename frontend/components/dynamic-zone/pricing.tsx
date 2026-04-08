@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
+import { MotionLink } from '@/components/motion-link';
 import { PlusIcon, ChevronDown, ChevronUp } from 'lucide-react';
 import { Heading } from '../elements/heading';
 import { Subheading } from '../elements/subheading';
@@ -356,7 +357,7 @@ export const Pricing = ({
                   </div> */}
 
                   <div className="absolute inset-x-0 bottom-0">
-                    <motion.a
+                    <MotionLink
                       href={ctaHref}
                       target={ctaTarget || undefined}
                       rel={ctaTarget === '_blank' ? 'noopener noreferrer' : undefined}
@@ -375,7 +376,7 @@ export const Pricing = ({
                           <span className="block" aria-hidden="true">{ctaText}</span>
                         </motion.div>
                       </div>
-                    </motion.a>
+                    </MotionLink>
                   </div>
                 </div>
               </motion.div>

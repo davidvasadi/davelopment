@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { PlusIcon, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { strapiImage } from '@/lib/strapi/strapiImage';
+import { MotionLink } from '@/components/motion-link';
 
 // ─── Típusok ───────────────────────────────────────────────────
 type TestimonialUser = {
@@ -200,7 +201,7 @@ const StatCard = ({
           </div>
         </div>
         {ctaText && (
-          <motion.a
+          <MotionLink
             href={ctaUrl || '#'}
             className="block w-full bg-gray-900 text-white text-sm font-medium text-center py-4 px-6 rounded-full overflow-hidden"
             initial="rest"
@@ -219,7 +220,7 @@ const StatCard = ({
                 <span>{ctaText}</span>
               </motion.div>
             </div>
-          </motion.a>
+          </MotionLink>
         )}
       </div>
     </div>

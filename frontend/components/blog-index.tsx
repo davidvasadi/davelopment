@@ -165,7 +165,7 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                         </motion.div>
 
                         {/* 2. és 3. kártya — közös wrapper, h-full, egymás alatt */}
-                        <div className="lg:col-span-2 col-span-1 grid grid-cols-2 gap-1 h-full">
+                        <div className="lg:col-span-2 col-span-1 grid grid-cols-1 lg:grid-cols-2 gap-1 h-full">
                             {[second, third].filter(Boolean).map((post, idx) => (
                                 <motion.div
                                     className="col-span-1 group flex flex-col h-full"
@@ -216,7 +216,7 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                     </div>
 
                     {/* --- TÖBBI POSZT --- */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-1">
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-1">
                         {others.map((post, idx) => (
                             <motion.div
                                 className="group"

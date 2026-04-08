@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useMemo, useRef } from 'react';
-import Link from 'next/link';
+import { Link } from 'next-view-transitions';
+import { MotionLink } from '@/components/motion-link';
 import Image from 'next/image';
 import { motion, useScroll, useTransform, type Variants } from 'framer-motion';
 import { PlusIcon } from 'lucide-react';
@@ -138,7 +139,7 @@ export const Hero = ({
               {safeCTAs.length > 0 && (
                 <div className="flex flex-wrap gap-2 shrink-0">
                   {safeCTAs.map((cta) => (
-                    <motion.a key={cta.id} href={resolveHref(locale, cta.URL)} target={cta.target || '_self'}
+                    <MotionLink key={cta.id} href={resolveHref(locale, cta.URL)} target={cta.target || '_self'}
                       initial="rest" whileHover="hover" animate="rest"
                       className="inline-flex items-center justify-between gap-6 rounded-full bg-black px-3 py-1 text-xs sm:text-sm font-semibold text-white shadow-sm overflow-hidden"
                     >
@@ -149,7 +150,7 @@ export const Hero = ({
                         </motion.div>
                       </div>
                       <span className="h-1.5 w-1.5 rounded-full bg-white shrink-0" />
-                    </motion.a>
+                    </MotionLink>
                   ))}
                 </div>
               )}
@@ -251,7 +252,7 @@ export const Hero = ({
                   {person.org && <div className="text-xs text-gray-400 leading-tight">{person.org}</div>}
                   <div className="text-lg font-bold truncate">{person.name}</div>
                   {talkCTA && (
-                    <motion.a href={resolveHref(locale, talkCTA.URL)} target={talkCTA.target || '_self'}
+                    <MotionLink href={resolveHref(locale, talkCTA.URL)} target={talkCTA.target || '_self'}
                       initial="rest" whileHover="hover" animate="rest"
                       className="mt-1 inline-flex items-center gap-3 self-start rounded-full bg-black px-4 py-2 text-sm font-semibold text-white whitespace-nowrap overflow-hidden"
                     >
@@ -262,7 +263,7 @@ export const Hero = ({
                         </motion.div>
                       </div>
                       <motion.span className="h-1.5 w-1.5 rounded-full bg-white shrink-0" variants={dotVariants} />
-                    </motion.a>
+                    </MotionLink>
                   )}
                 </div>
               </div>

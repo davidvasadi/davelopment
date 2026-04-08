@@ -4,6 +4,8 @@ import { motion, type Variants } from 'framer-motion';
 import Image from 'next/image';
 import { Plus as PlusIcon } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
+import { Link } from 'next-view-transitions';
+import { MotionLink } from '@/components/motion-link';
 
 const toAbs = (m?: any): string | undefined => {
   if (!m) return undefined;
@@ -66,150 +68,176 @@ export const CTA = ({
   const firstImgAlt = firstMedia?.alternativeText ?? heading;
 
   return (
-    <div className="max-w-7xl mx-auto px-6 md:px-8 py-12 md:py-20">
+    <div className="max-w-7xl mx-auto px-2 md:px-4 py-12 md:py-20">
 
       {/* ══════════════ DESKTOP ══════════════ */}
-      <div className="hidden md:flex md:flex-row md:items-stretch gap-16 lg:gap-24">
-
-        {/* Left — staggered children */}
+      <motion.div
+        className="hidden md:flex md:flex-row md:items-stretch group/cta"
+        variants={stagger}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true }}
+      >
+        {/* Left — szöveg + gomb kártya */}
         <motion.div
-          className="flex-1 min-w-0 flex flex-col md:justify-between"
-          variants={stagger}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
+          variants={fadeUp}
+          className="flex-1 min-w-0 flex flex-col justify-between bg-white rounded-2xl group-hover/cta:rounded-r-none mr-1 group-hover/cta:mr-0 transition-all duration-300 p-8 lg:p-10"
         >
-          {badge_label && (
-            <motion.div variants={fadeUp} className="flex items-center gap-3">
-              <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center shrink-0">
-                <PlusIcon className="w-3 h-3 text-white" />
+          <div>
+            {badge_label && (
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center shrink-0 group-hover/cta:rotate-90 transition-transform duration-300">
+                  <PlusIcon className="w-3 h-3 text-white" />
+                </div>
+                <p className="text-sm font-medium text-gray-700">{badge_label}</p>
               </div>
-              <p className="text-sm font-medium text-gray-700">{badge_label}</p>
-            </motion.div>
-          )}
-
-          <motion.div variants={fadeUp} className="max-w-sm md:max-w-lg lg:max-w-2xl lg:-mt-24">
-            <h2 className="font-medium tracking-tight leading-tight">
-              <span className="text-black text-3xl md:text-5xl lg:text-6xl">{heading}</span>
+            )}
+            <h2 className="font-medium tracking-tight leading-tight mb-6">
+              <span className="text-black text-3xl md:text-4xl lg:text-5xl">{heading}</span>
               {heading_highlight && (
-                <> <span className="text-black/60 text-3xl md:text-5xl lg:text-6xl">{heading_highlight}</span></>
+                <> <span className="text-black/50 text-3xl md:text-4xl lg:text-5xl">{heading_highlight}</span></>
               )}
             </h2>
-          </motion.div>
+            {sub_heading && (
+              <p className="text-sm text-gray-400 leading-relaxed mb-6">{sub_heading}</p>
+            )}
+          </div>
 
           {CTAs && CTAs.length > 0 && (
-            <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-4">
-              {CTAs.map((cta, index) => (
-                <motion.a
-                  key={index}
-                  href={`/${locale}${cta.URL ?? ''}`}
-                  target={cta.target ?? '_self'}
-                  rel={cta.target === '_blank' ? 'noopener noreferrer' : undefined}
-                  initial="rest"
-                  whileHover="hover"
-                  animate="rest"
-                  className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-transparent text-gray-900 text-xl font-medium overflow-hidden px-8 py-6"
-                >
-                  <div style={{ overflow: 'hidden', height: 20 }}>
-                    <motion.div className="flex flex-col" style={{ lineHeight: '20px' }} variants={wheelVariants}>
-                      <span className="block">{cta.text}</span>
-                      <span className="block" aria-hidden="true">{cta.text}</span>
-                    </motion.div>
-                  </div>
-                </motion.a>
-              ))}
-            </motion.div>
+            <div className="flex flex-wrap items-center gap-3">
+              {CTAs.map((cta, index) => {
+                const isPrimary = cta.variant === 'primary' || (cta.variant == null && index === 0);
+                if (isPrimary) {
+                  return (
+                    <MotionLink
+                      key={index}
+                      href={`/${locale}${cta.URL ?? ''}`}
+                      target={cta.target ?? '_self'}
+                      rel={cta.target === '_blank' ? 'noopener noreferrer' : undefined}
+                      initial="rest"
+                      whileHover="hover"
+                      animate="rest"
+                      className="inline-flex items-center justify-center rounded-full bg-black text-white text-sm font-medium overflow-hidden px-6 py-3.5"
+                    >
+                      <div style={{ overflow: 'hidden', height: 18 }}>
+                        <motion.div className="flex flex-col" style={{ lineHeight: '18px' }} variants={wheelVariants}>
+                          <span className="block">{cta.text}</span>
+                          <span className="block" aria-hidden="true">{cta.text}</span>
+                        </motion.div>
+                      </div>
+                    </MotionLink>
+                  );
+                }
+                return (
+                  <MotionLink
+                    key={index}
+                    href={`/${locale}${cta.URL ?? ''}`}
+                    target={cta.target ?? '_self'}
+                    rel={cta.target === '_blank' ? 'noopener noreferrer' : undefined}
+                    initial="rest"
+                    whileHover="hover"
+                    animate="rest"
+                    className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-transparent text-gray-900 text-sm font-medium overflow-hidden px-6 py-3.5"
+                  >
+                    <div style={{ overflow: 'hidden', height: 18 }}>
+                      <motion.div className="flex flex-col" style={{ lineHeight: '18px' }} variants={wheelVariants}>
+                        <span className="block">{cta.text}</span>
+                        <span className="block" aria-hidden="true">{cta.text}</span>
+                      </motion.div>
+                    </div>
+                  </MotionLink>
+                );
+              })}
+            </div>
           )}
         </motion.div>
 
-        {/* Right — image slides in from right */}
+        {/* Right — képkártya */}
         {firstImgUrl && (
           <motion.div
-            className="w-full md:w-[300px] lg:w-[360px] flex-shrink-0"
-            initial={{ opacity: 0, x: 24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.65, delay: 0.15, ease: [0.33, 1, 0.68, 1] }}
+            variants={fadeUp}
+            className="relative w-full md:w-[280px] lg:w-[340px] flex-shrink-0 bg-white rounded-2xl group-hover/cta:rounded-l-none transition-all duration-300 p-2 min-h-[360px]"
           >
-            <div className="overflow-hidden rounded-2xl w-full h-full min-h-[300px] aspect-[3/4]">
+            <div className="relative w-full h-full rounded-xl overflow-hidden min-h-[340px]">
               <Image
                 src={firstImgUrl}
                 alt={firstImgAlt}
-                width={firstMedia?.width ?? 480}
-                height={firstMedia?.height ?? 640}
-                className="object-cover w-full h-full"
+                fill
+                className="object-cover"
+                sizes="(min-width: 1024px) 340px, 280px"
               />
             </div>
           </motion.div>
         )}
-      </div>
+      </motion.div>
 
       {/* ══════════════ MOBILE ══════════════ */}
-      <div className="flex flex-col md:hidden">
-
-        {/* Image — fades in + subtle scale */}
+      <motion.div
+        className="flex flex-col md:hidden group/cta-m"
+        variants={stagger}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true }}
+      >
+        {/* Képkártya */}
         {firstImgUrl && (
-          <motion.div
-            className="relative w-full overflow-hidden rounded-2xl"
-            style={{ height: '52vw', minHeight: 200, maxHeight: 300 }}
-            initial={{ opacity: 0, scale: 0.97 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
-          >
-            <Image
-              src={firstImgUrl}
-              alt={firstImgAlt}
-              fill
-              className="object-cover object-center"
-              sizes="100vw"
-              priority
-            />
-          </motion.div>
-        )}
+  <motion.div
+    variants={fadeUp}
+    className="relative w-full bg-white rounded-2xl group-hover/cta-m:rounded-b-none mb-1 group-hover/cta-m:mb-0 transition-all duration-300 p-2"
+    style={{ height: '52vw', minHeight: 210, maxHeight: 320 }}
+  >
+    <div className="relative w-full h-full rounded-xl overflow-hidden">
+      <Image
+        src={firstImgUrl}
+        alt={firstImgAlt}
+        fill
+        className="object-cover object-center"
+        sizes="100vw"
+        priority
+      />
 
-        {/* Content — staggered children */}
+      {/* Badge – a képen belül, absolute */}
+      {badge_label && (
+        <div className="absolute top-3 left-3 flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-sm">
+          <div className="w-4 h-4 bg-black rounded-full flex items-center justify-center shrink-0 group-hover/cta-m:rotate-90 transition-transform duration-300">
+            <PlusIcon className="w-2.5 h-2.5 text-white" />
+          </div>
+          <p className="text-xs font-medium text-gray-700">{badge_label}</p>
+        </div>
+      )}
+    </div>
+  </motion.div>
+)}
+
+        {/* Szöveg + gomb kártya */}
         <motion.div
-          className="flex flex-col gap-5 md:px-6 pt-5 pb-8"
-          variants={stagger}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
+          variants={fadeUp}
+          className="flex flex-col gap-5 bg-white rounded-2xl group-hover/cta-m:rounded-t-none transition-all duration-300 px-6 pt-5 pb-8"
         >
-          {/* Badge */}
-          {badge_label && (
-            <motion.div variants={fadeUp} className="flex items-center gap-2.5">
-              <div className="w-4 h-4 bg-black rounded-full flex items-center justify-center shrink-0">
-                <PlusIcon className="w-2.5 h-2.5 text-white" />
-              </div>
-              <p className="text-xs font-medium text-gray-500">{badge_label}</p>
-            </motion.div>
-          )}
-
           {/* Heading */}
-          <motion.h2 variants={fadeUp} className="font-medium tracking-tight leading-[1.08]">
+          <h2 className="font-medium tracking-tight leading-[1.08]">
             <span className="text-black text-[1.75rem]">{heading}</span>
             {heading_highlight && (
               <> <span className="text-black/45 text-[1.75rem]">{heading_highlight}</span></>
             )}
-          </motion.h2>
+          </h2>
 
           {/* Sub heading */}
           {sub_heading && (
-            <motion.p variants={fadeUp} className="text-sm text-gray-400 leading-relaxed font-light -mt-1">
+            <p className="text-sm text-gray-400 leading-relaxed font-light -mt-1">
               {sub_heading}
-            </motion.p>
+            </p>
           )}
 
-          {/* CTAs — full width stacked, variant aware */}
+          {/* CTAs */}
           {CTAs && CTAs.length > 0 && (
-            <motion.div variants={fadeUp} className="flex flex-col gap-2.5 pt-1">
+            <div className="flex flex-col gap-2.5 pt-1">
               {CTAs.map((cta, index) => {
                 const isPrimary = cta.variant === 'primary' || (cta.variant == null && index === 0);
 
                 if (isPrimary) {
                   return (
-                    <a
+                    <Link
                       key={index}
                       href={`/${locale}${cta.URL ?? ''}`}
                       target={cta.target ?? '_self'}
@@ -217,13 +245,13 @@ export const CTA = ({
                       className="w-full flex items-center justify-center rounded-full bg-black text-white border border-black text-sm font-medium py-3.5 px-6 transition-opacity active:opacity-70"
                     >
                       {cta.text}
-                    </a>
+                    </Link>
                   );
                 }
 
                 // ghost — border only, with wheel animation
                 return (
-                  <motion.a
+                  <MotionLink
                     key={index}
                     href={`/${locale}${cta.URL ?? ''}`}
                     target={cta.target ?? '_self'}
@@ -239,14 +267,14 @@ export const CTA = ({
                         <span className="block" aria-hidden="true">{cta.text}</span>
                       </motion.div>
                     </div>
-                  </motion.a>
+                  </MotionLink>
                 );
               })}
-            </motion.div>
+            </div>
           )}
         </motion.div>
 
-      </div>
+      </motion.div>
 
     </div>
   );

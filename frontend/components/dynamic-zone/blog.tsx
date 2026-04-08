@@ -7,7 +7,6 @@ import { Link } from 'next-view-transitions';
 import { format } from 'date-fns';
 
 import { strapiImage } from '@/lib/strapi/strapiImage';
-import { Container } from '@/components/container';
 
 const toAbs = (m?: any): string | undefined => {
   if (!m) return undefined;

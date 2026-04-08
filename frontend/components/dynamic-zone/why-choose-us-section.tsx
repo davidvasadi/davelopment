@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, useInView, type Variants } from 'framer-motion';
 import { Plus as PlusIcon } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
+import { MotionLink } from '@/components/motion-link';
 
 /* helpers */
 const toAbs = (m?: any): string | undefined => {
@@ -175,7 +176,7 @@ export function WhyChooseUsSection({
                                 </div>
                             )}
                             {!!ctaHref && (
-                                <motion.a
+                                <MotionLink
                                     href={ctaHref}
                                     target={ctaTarget}
                                     rel={ctaTarget === '_blank' ? 'noopener noreferrer' : undefined}
@@ -194,7 +195,7 @@ export function WhyChooseUsSection({
                                         <motion.span className="w-1.5 h-1.5 rounded-full bg-white" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity }} />
                                         <motion.span className="w-1.5 h-1.5 rounded-full bg-white" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0.25 }} />
                                     </span>
-                                </motion.a>
+                                </MotionLink>
                             )}
                         </div>
                     </motion.div>

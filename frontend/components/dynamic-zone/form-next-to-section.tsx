@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, type Variants } from 'framer-motion';
+import { MotionLink } from '@/components/motion-link';
 import {
   CheckCircleIcon,
   XCircleIcon,
@@ -600,7 +601,7 @@ export function FormNextToSection({
                         )}
                         <p className="text-xl font-semibold mb-3">{_person.name}</p>
 
-                        <motion.a
+                        <MotionLink
                           href={buttonHref}
                           target={buttonTarget}
                           rel={buttonTarget === '_blank' ? 'noopener noreferrer' : undefined}
@@ -624,7 +625,7 @@ export function FormNextToSection({
                             className="w-2 h-2 ml-6 bg-white rounded-full"
                             variants={dotVariants}
                           />
-                        </motion.a>
+                        </MotionLink>
                       </div>
                     </div>
                   </motion.div>

@@ -202,6 +202,7 @@ jobs:
     needs: [changes, frontend-build, secrets-check, deploy-backend]
     runs-on: ubuntu-latest
     if: >-
+      always() &&
       needs.changes.outputs.frontend == 'true' &&
       needs.frontend-build.result == 'success' &&
       needs.secrets-check.outputs.ssh_ok == 'true' &&
