@@ -324,20 +324,6 @@ export const FeaturesBlock: Block = {
       ],
     },
     {
-      name: 'feature',
-      type: 'select',
-      label: 'Egyedi feature nézet',
-      admin: {
-        description: 'Ha be van állítva, csak ez az egy kártya jelenik meg teljes nézetben (a dokk gombjai a kártya belső tabjai lesznek). Ha üres, mind a 4 kártya megjelenik váltogatva.',
-      },
-      options: [
-        { label: 'Performance (Lighthouse)', value: 'performance' },
-        { label: 'SEO (Google Search Console)', value: 'seo' },
-        { label: 'Design (Figma / Deploy)', value: 'design' },
-        { label: 'Rendszerek (Infrastruktúra)', value: 'systems' },
-      ],
-    },
-    {
       name: 'social_media_card',
       type: 'group',
       label: 'Közösségi média kártya',
