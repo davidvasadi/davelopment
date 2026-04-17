@@ -378,6 +378,7 @@ jobs:
           log "Writing .env from secrets..."
           printf '%s\n' \
             "NODE_ENV=production" \
+            "PAYLOAD_DB_PUSH=true" \
             "PORT=1337" \
             "NEXT_PUBLIC_SERVER_URL=https://davelopment.hu" \
             "PAYLOAD_PUBLIC_SERVER_URL=https://davelopment.hu" \
