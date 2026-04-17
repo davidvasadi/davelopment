@@ -425,9 +425,9 @@ jobs:
             --prefix "${NEW_DIR}/node_modules/.pnpm/sharp@0.32.6/node_modules/sharp" \
             run install || true
 
-          log "Running database migrations..."
+          log "Running database migrations (with schema push)..."
           cd "$NEW_DIR"
-          NODE_ENV=production pnpm payload migrate || {
+          PAYLOAD_DB_PUSH=true NODE_ENV=production pnpm payload migrate || {
             log "Migration failed — aborting deploy"
             exit 1
           }
