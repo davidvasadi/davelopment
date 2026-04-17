@@ -62,7 +62,7 @@ export default async function fetchContentType(
   const headers = buildHeaders();
   const fetchOpts: RequestInit = {
     method: 'GET',
-    next: { revalidate: isDraftMode ? 0 : 60 },
+    cache: 'no-store',
     headers,
   };
 

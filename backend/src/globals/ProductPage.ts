@@ -1,9 +1,11 @@
 import type { GlobalConfig } from 'payload'
 import { seoField } from '../fields/seo'
 import { allBlocks } from '../blocks/index'
+import { generateStructuredDataHook } from '../hooks/generateStructuredData'
 
 export const ProductPage: GlobalConfig = {
   slug: 'product-page',
+  dbName: 'pp',
   label: 'Projektek oldal',
   admin: {
     group: 'Weboldal',
@@ -11,6 +13,27 @@ export const ProductPage: GlobalConfig = {
   },
   access: {
     read: () => true,
+  },
+  versions: {
+    drafts: true,
+  },
+  hooks: {
+    beforeValidate: [
+      ({ data }) => {
+        if (!data) return data
+        const d = data as any
+        if (Array.isArray(d?.dynamic_zone)) {
+          d.dynamic_zone = d.dynamic_zone.filter(
+            (b: any) => b?.id !== '69c849a8fff6d4d8206b7d0f',
+          )
+        }
+        return d
+      },
+    ],
+    beforeChange: [
+      ({ data, req, global }) =>
+        generateStructuredDataHook({ data, req, global }),
+    ],
   },
   fields: [
     {
@@ -32,7 +55,7 @@ export const ProductPage: GlobalConfig = {
       hasMany: true,
       label: 'Kiemelt projektek',
       admin: {
-        description: 'Válaszd ki a megjelenítendő projekteket. Ha üres, az összes featured projekt megjelenik.',
+        description: 'Válaszd ki a megjelenítendő projekteket és húzd a kívánt sorrendbe. Ha üres, az összes featured projekt megjelenik.',
       },
     },
     seoField(),
@@ -40,7 +63,6 @@ export const ProductPage: GlobalConfig = {
       name: 'dynamic_zone',
       type: 'blocks',
       label: 'Dinamikus zóna',
-      localized: true,
       blocks: allBlocks,
     },
   ],

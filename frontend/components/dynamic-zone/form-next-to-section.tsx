@@ -310,7 +310,7 @@ export function FormNextToSection({
         <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-black/10 to-transparent z-0" />
 
         <div className="relative z-10 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-44">
 
             {/* ── BAL: ŰRLAP ── */}
             <motion.div
@@ -320,7 +320,7 @@ export function FormNextToSection({
               transition={{ duration: 0.8, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              <div className="flex flex-col h-full w-full sm:justify-self-center lg:max-w-md">
+              <div className="flex flex-col h-full w-full sm:justify-self-center lg:max-w-lg">
                 <div className="bg-white backdrop-blur-md rounded-2xl p-8 md:p-10 shadow-lg flex-grow">
 
                   {/* Cím */}

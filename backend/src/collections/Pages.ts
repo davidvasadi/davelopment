@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { seoField } from '../fields/seo'
 import { allBlocks } from '../blocks/index'
+import { generateStructuredDataHook } from '../hooks/generateStructuredData'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -35,6 +36,8 @@ export const Pages: CollectionConfig = {
         }
         return data;
       },
+      ({ data, operation, req, collection }) =>
+        generateStructuredDataHook({ data, operation, req, collection }),
     ],
   },
   fields: [

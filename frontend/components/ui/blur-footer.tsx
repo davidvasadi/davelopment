@@ -36,7 +36,7 @@ export function BlurFooter() {
             ref={blurRef}
             className="fixed bottom-0 left-0 w-full pointer-events-none z-40"
             style={{
-                height: '120px',
+                height: '200px',
                 // Semmi háttérszín — csak tiszta blur
                 background: 'transparent',
                 backdropFilter: 'blur(1px)',

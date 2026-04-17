@@ -30,11 +30,19 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
     blogPage,
     articles,
 }) => {
-    const sorted = [...articles].sort(
-        (a, b) =>
-            new Date(b.publishedAt || b.createdAt || '').getTime() -
-            new Date(a.publishedAt || a.createdAt || '').getTime()
-    );
+    const featuredSlugs: string[] = (blogPage?.featured_articles ?? [])
+        .map((fa: any) => fa?.slug ?? null)
+        .filter(Boolean);
+
+    const sorted: Article[] = featuredSlugs.length > 0
+        ? featuredSlugs
+            .map((slug) => articles.find((a) => a.slug === slug))
+            .filter((a): a is Article => !!a)
+        : [...articles].sort(
+            (a, b) =>
+                new Date(b.publishedAt || b.createdAt || '').getTime() -
+                new Date(a.publishedAt || a.createdAt || '').getTime()
+        );
 
     const posts = sorted.map((a) => ({
         slug: a.slug,

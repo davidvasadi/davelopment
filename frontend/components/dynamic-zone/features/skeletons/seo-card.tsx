@@ -1,219 +1,240 @@
 'use client';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
-import { useEffect, useRef } from 'react';
-
-const serpRows = [
-  { pos: '1', title: 'Webdesign Budapest | [davelopment]®', url: 'davelopment.hu › webdesign-budapest' },
-  { pos: '2', title: 'Next.js Fejlesztő Budapest | [davelopment]®', url: 'davelopment.hu › fejlesztes' },
-  { pos: '3', title: 'Branding & Arculat | [davelopment]®', url: 'davelopment.hu › branding' },
-  { pos: '4', title: 'SEO & Tartalommarketing | [davelopment]®', url: 'davelopment.hu › seo' },
-];
+const ACCENT = '#34a853';
 
 const keywords = [
-  { label: 'webdesign budapest', vol: '2.4k/hó', width: 88 },
-  { label: 'webfejlesztés árak', vol: '1.8k/hó', width: 72 },
-  { label: 'freelancer fejlesztő', vol: '960/hó', width: 48 },
-  { label: 'next.js fejlesztő', vol: '720/hó', width: 36 },
+  { kw: 'Webdesign Budapest',       url: 'davelopment.hu › webdesign-budapest', pos: '#1', change: '+3' },
+  { kw: 'Next.js ügynökség',        url: 'davelopment.hu › nextjs-ugynokseg',   pos: '#2', change: '+1' },
+  { kw: 'Webfejlesztő Budapest',    url: 'davelopment.hu › webfejleszto',       pos: '#3', change: '+7' },
+  { kw: 'Egyedi weboldal készítés', url: 'davelopment.hu › egyedi-weboldal',    pos: '#5', change: '+2' },
 ];
 
-const metrics = [
-  { val: '4.2k', label: 'Organikus forgalom', delta: '↑ 340%' },
-  { val: '14', label: 'Kulcsszó #1 pozíció', delta: '↑ 12 hellyel' },
-  { val: '8.4%', label: 'CTR átlag', delta: '↑ 2.4x' },
+const analytics = [
+  { label: 'Organikus munkamenet', value: '3 812', sub: '+12% előző hónaphoz', pct: 76 },
+  { label: 'Oldalmegtekintés',     value: '9 140', sub: 'átlag 2.4 oldal/látogató',  pct: 88 },
+  { label: 'Visszafordulási arány',value: '34%',   sub: 'Iparági átlag: 52%',       pct: 34 },
+  { label: 'Átl. munkamenet idő',  value: '2m 48s',sub: '+0:22 előző hónaphoz',     pct: 62 },
 ];
 
-const audits = [
-  { text: 'Technikai SEO audit — meta, canonical, structured data' },
-  { text: 'Kulcsszókutatás & tartalomstratégia' },
-  { text: 'Google Search Console integráció & monitoring' },
+const competitors = [
+  { name: 'sajtunk.hu',     kw: 'webdesign',     pos: '#4',  trend: '↓1' },
+  { name: 'webartisan.hu',  kw: 'webfejlesztés', pos: '#7',  trend: '→'  },
+  { name: 'kreativ.hu',     kw: 'ui tervezés',   pos: '#9',  trend: '↓2' },
+  { name: 'digitalpro.hu',  kw: 'seo budapest',  pos: '#12', trend: '↓3' },
 ];
 
-interface Props {
-  expanded?: boolean;
+export const seoTabs = [
+  {
+    key: 'keywords' as const,
+    label: 'Kulcsszavak',
+    icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>,
+  },
+  {
+    key: 'analytics' as const,
+    label: 'Analitika',
+    icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
+  },
+  {
+    key: 'competitors' as const,
+    label: 'Versenytársak',
+    icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  },
+];
+
+type View = 'keywords' | 'analytics' | 'competitors';
+
+function useCount(to: number, delay = 400, duration = 1200) {
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const start = performance.now();
+      const tick = (now: number) => {
+        const p = Math.min((now - start) / duration, 1);
+        setV(Math.round((1 - Math.pow(1 - p, 3)) * to));
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }, delay);
+    return () => clearTimeout(t);
+  }, [to, delay, duration]);
+  return v;
 }
 
-export const SkeletonTwo = ({ expanded = false }: Props) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const hasAnimated = useRef(false);
-  const activeIdxRef = useRef(0);
-  const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const kwRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const metricRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const auditRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const serpIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+interface Props {
+  controlledView?: View;
+  onViewChange?: (v: View) => void;
+}
 
-  // SERP tick — compact és expanded közös
-  function startSerpTick() {
-    if (serpIntervalRef.current) clearInterval(serpIntervalRef.current);
-    const tick = () => {
-      rowRefs.current.forEach((el, i) => {
-        if (!el) return;
-        if (i === activeIdxRef.current) {
-          el.style.borderColor = 'rgba(52,211,153,0.28)';
-          el.style.background = 'rgba(52,211,153,0.05)';
-          el.style.transform = 'translateX(6px)';
-        } else {
-          el.style.borderColor = 'rgba(255,255,255,0.05)';
-          el.style.background = '#111';
-          el.style.transform = 'translateX(0)';
-        }
-      });
-      activeIdxRef.current = (activeIdxRef.current + 1) % serpRows.length;
-    };
-    tick();
-    serpIntervalRef.current = setInterval(tick, 1400);
-  }
+export const SkeletonTwo = ({ controlledView, onViewChange }: Props) => {
+  const clicks = useCount(1240, 500, 1400);
+  const impressions = useCount(48000, 500, 1600);
+  const [internalView, setInternalView] = useState<View>('keywords');
+  const [activeRow, setActiveRow] = useState(0);
 
-  // Compact — mount-on indul
+  const view = controlledView ?? internalView;
+  const setView = (v: View) => {
+    if (onViewChange) onViewChange(v);
+    else setInternalView(v);
+  };
+
+  const rowCount = view === 'keywords' ? keywords.length : view === 'analytics' ? analytics.length : competitors.length;
+
   useEffect(() => {
-    if (expanded) return;
-    const timer = setTimeout(() => startSerpTick(), 400);
-    return () => {
-      clearTimeout(timer);
-      if (serpIntervalRef.current) clearInterval(serpIntervalRef.current);
-    };
-  }, [expanded]);
+    const id = setInterval(() => setActiveRow(r => (r + 1) % rowCount), 1800);
+    return () => clearInterval(id);
+  }, [rowCount]);
 
-  // Expanded — IntersectionObserver
   useEffect(() => {
-    if (!expanded) return;
-    const container = containerRef.current;
-    if (!container) return;
+    if (controlledView !== undefined) return;
+    const views: View[] = ['keywords', 'analytics', 'competitors'];
+    let idx = 0;
+    const id = setInterval(() => {
+      idx = (idx + 1) % views.length;
+      setInternalView(views[idx]);
+      setActiveRow(0);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [controlledView]);
 
-    function runAnimations() {
-      kwRefs.current.forEach(el => { if (el) el.style.width = '0%'; });
-      metricRefs.current.forEach(el => { if (el) el.textContent = '—'; });
-      auditRefs.current.forEach(el => {
-        if (el) { el.style.opacity = '0'; el.style.transform = 'translateY(8px)'; }
-      });
+  useEffect(() => { setActiveRow(0); }, [controlledView]);
 
-      setTimeout(() => {
-        startSerpTick();
-        kwRefs.current.forEach((el, i) => {
-          if (el) setTimeout(() => { el.style.width = keywords[i].width + '%'; }, 500);
-        });
-        metricRefs.current.forEach((el, i) => {
-          if (el) setTimeout(() => { el.textContent = metrics[i].val; }, 700 + i * 150);
-        });
-        auditRefs.current.forEach((el, i) => {
-          if (el) setTimeout(() => {
-            el.style.transition = 'opacity .4s, transform .4s';
-            el.style.opacity = '1';
-            el.style.transform = 'translateY(0)';
-          }, 900 + i * 150);
-        });
-      }, 400);
-    }
+  return (
+    <div className="w-full h-full flex items-center justify-center p-5 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse 55% 45% at 80% 30%, rgba(52,168,83,0.12) 0%, transparent 60%)' }} />
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !hasAnimated.current) {
-          hasAnimated.current = true;
-          runAnimations();
-        }
-      },
-      { threshold: 0.2 }
-    );
-    observer.observe(container);
-    return () => {
-      observer.disconnect();
-      if (serpIntervalRef.current) clearInterval(serpIntervalRef.current);
-    };
-  }, [expanded]);
+      <motion.div
+        initial={{ opacity: 0, y: 22, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full rounded-[18px] overflow-hidden"
+        style={{
+          background: '#1c1c1e',
+          border: '1px solid rgba(255,255,255,0.1)',
+          boxShadow: '0 0 0 0.5px rgba(255,255,255,0.05) inset',
+        }}
+      >
+        <div className="flex items-center gap-3 px-4 h-[52px] border-b border-white/[0.07]">
+          <div className="w-[24px] h-[24px] rounded-[7px] flex items-center justify-center flex-shrink-0"
+            style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2.5" strokeLinecap="round">
+              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
+          </div>
+          <span className="text-[13px] flex-1" style={{ color: 'rgba(255,255,255,0.28)' }}>davelopment.hu · Google Search Console</span>
+          <kbd className="text-[10px] rounded-[5px] px-[7px] py-[2px] font-mono flex-shrink-0"
+            style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.22)', border: '0.5px solid rgba(255,255,255,0.1)' }}>⌘K</kbd>
+        </div>
 
-  if (!expanded) {
-    return (
-      <div className="flex items-center justify-center h-full w-full">
-        <div className="flex flex-col gap-1 w-[190px]">
-          {serpRows.map((row, i) => (
-            <div
-              key={row.pos}
-              ref={el => { rowRefs.current[i] = el; }}
-              className="flex items-center gap-2 px-[10px] py-[6px] rounded-lg border"
-              style={{ borderColor: 'rgba(255,255,255,0.05)', background: '#111', transition: 'all .45s cubic-bezier(.4,0,.2,1)' }}
-            >
-              <span className="text-[10px] font-medium w-3" style={{ color: 'rgba(255,255,255,0.18)' }}>{row.pos}</span>
-              <div className="flex-1 flex flex-col gap-[3px]">
-                <div className="h-[3px] rounded-sm bg-white/[0.08] w-[88%]" />
-                <div className="h-[2px] rounded-sm bg-white/[0.04] w-[52%]" />
-              </div>
+        <div className="flex items-center gap-0 border-b border-white/[0.05]" style={{ background: `${ACCENT}08` }}>
+          {[
+            { label: 'Kattintás / hó',  value: clicks.toLocaleString('hu-HU'),      color: ACCENT },
+            { label: 'Megjelenés / hó', value: impressions.toLocaleString('hu-HU'), color: 'rgba(255,255,255,0.55)' },
+            { label: 'Átlagos pozíció', value: '2.4',                                color: 'rgba(255,255,255,0.55)' },
+          ].map((stat) => (
+            <div key={stat.label} className="flex-1 flex flex-col items-center justify-center py-4 border-r border-white/[0.05] last:border-0">
+              <span className="text-[20px] font-bold tabular-nums leading-none mb-[5px]" style={{ color: stat.color }}>{stat.value}</span>
+              <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.28)' }}>{stat.label}</span>
             </div>
           ))}
         </div>
-      </div>
-    );
-  }
 
-  return (
-    <div ref={containerRef} className="flex flex-col gap-5 p-5 md:p-8 w-full relative">
-      <div className="absolute top-3 right-3 bg-[rgba(52,211,153,0.1)] border border-[rgba(52,211,153,0.25)] rounded-full px-[9px] py-[3px] text-[9px] text-[#34d399] font-medium">
-        Google Search Console
-      </div>
+        <div className="px-4 h-[28px] flex items-center">
+          <span className="text-[10px] font-semibold tracking-[.12em] uppercase" style={{ color: 'rgba(255,255,255,0.22)' }}>
+            {view === 'keywords' ? 'Top kulcsszavak' : view === 'analytics' ? 'Analitika' : 'Versenytársak'}
+          </span>
+        </div>
 
-      <div className="flex flex-col gap-[6px] pt-8">
-        {serpRows.map((row, i) => (
-          <div
-            key={row.pos}
-            ref={el => { rowRefs.current[i] = el; }}
-            className="flex items-center gap-[10px] px-[14px] py-[10px] rounded-[10px] border"
-            style={{ borderColor: 'rgba(255,255,255,0.05)', background: '#111', transition: 'all .45s cubic-bezier(.4,0,.2,1)' }}
-          >
-            <span className="text-[11px] font-medium w-4 flex-shrink-0 text-white/18">{row.pos}</span>
-            <div className="flex-1 flex flex-col gap-[3px] overflow-hidden">
-              <div className="text-[11px] font-medium text-white/70 truncate">{row.title}</div>
-              <div className="text-[9px] text-white/25">{row.url}</div>
-            </div>
-            <span className="text-[9px] font-medium px-[7px] py-[2px] rounded-full opacity-0 bg-[rgba(52,211,153,0.12)] text-[#34d399] border border-[rgba(52,211,153,0.25)] flex-shrink-0">
-              #{row.pos}
-            </span>
+        <AnimatePresence mode="wait">
+          <motion.div key={view} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+            {view === 'keywords' && keywords.map((kw, i) => (
+              <motion.div key={kw.kw} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 * i }}
+                className="flex items-center gap-3 h-[46px] px-4 transition-colors duration-300"
+                style={{ background: i === activeRow ? `${ACCENT}0d` : 'transparent' }}>
+                <div className="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center flex-shrink-0"
+                  style={{ background: i === activeRow ? `${ACCENT}22` : 'rgba(255,255,255,0.05)', border: i === activeRow ? `0.5px solid ${ACCENT}55` : '0.5px solid rgba(255,255,255,0.07)' }}>
+                  {i === 0
+                    ? <svg width="14" height="14" viewBox="0 0 24 24" fill={i === activeRow ? ACCENT : 'rgba(255,255,255,0.25)'}><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={i === activeRow ? ACCENT : 'rgba(255,255,255,0.25)'} strokeWidth="2.5" strokeLinecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                  }
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] font-medium leading-none mb-[4px] truncate" style={{ color: i === activeRow ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.52)' }}>{kw.kw}</div>
+                  <div className="text-[11px] leading-none truncate" style={{ color: 'rgba(255,255,255,0.25)' }}>{kw.url}</div>
+                </div>
+                <span className="text-[11px] font-medium flex-shrink-0 tabular-nums" style={{ color: i === activeRow ? ACCENT : 'rgba(255,255,255,0.22)' }}>↑{kw.change}</span>
+                <span className="text-[12px] font-bold tabular-nums flex-shrink-0" style={{ color: i === activeRow ? ACCENT : 'rgba(255,255,255,0.38)' }}>{kw.pos}</span>
+                {i === activeRow && <kbd className="text-[9px] rounded-[4px] px-[5px] py-[2px] font-mono flex-shrink-0" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>}
+              </motion.div>
+            ))}
+            {view === 'analytics' && analytics.map((a, i) => (
+              <motion.div key={a.label} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 * i }}
+                className="flex items-center gap-3 h-[46px] px-4 transition-colors duration-300"
+                style={{ background: i === activeRow ? `${ACCENT}0d` : 'transparent' }}>
+                <div className="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center flex-shrink-0"
+                  style={{ background: i === activeRow ? `${ACCENT}22` : 'rgba(255,255,255,0.05)', border: i === activeRow ? `0.5px solid ${ACCENT}55` : '0.5px solid rgba(255,255,255,0.07)' }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={i === activeRow ? ACCENT : 'rgba(255,255,255,0.3)'} strokeWidth="2.5" strokeLinecap="round">
+                    <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] font-medium leading-none mb-[4px]" style={{ color: i === activeRow ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.5)' }}>{a.label}</div>
+                  <div className="w-full h-[3px] rounded-full overflow-hidden mt-[6px]" style={{ background: 'rgba(255,255,255,0.07)' }}>
+                    <motion.div className="h-full rounded-full" style={{ background: i === activeRow ? ACCENT : 'rgba(255,255,255,0.2)' }}
+                      initial={{ width: 0 }} animate={{ width: a.pct + '%' }} transition={{ duration: 1.1, delay: 0.3 + i * 0.08 }} />
+                  </div>
+                </div>
+                <div className="flex flex-col items-end flex-shrink-0">
+                  <span className="text-[13px] font-semibold tabular-nums" style={{ color: i === activeRow ? ACCENT : 'rgba(255,255,255,0.35)' }}>{a.value}</span>
+                  <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.22)' }}>{a.sub}</span>
+                </div>
+              </motion.div>
+            ))}
+            {view === 'competitors' && competitors.map((c, i) => (
+              <motion.div key={c.name} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 * i }}
+                className="flex items-center gap-3 h-[46px] px-4 transition-colors duration-300"
+                style={{ background: i === activeRow ? `${ACCENT}0d` : 'transparent' }}>
+                <div className="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center flex-shrink-0 text-[10px] font-bold"
+                  style={{ background: i === activeRow ? `${ACCENT}22` : 'rgba(255,255,255,0.05)', border: i === activeRow ? `0.5px solid ${ACCENT}55` : '0.5px solid rgba(255,255,255,0.07)', color: i === activeRow ? ACCENT : 'rgba(255,255,255,0.3)' }}>{c.pos}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] font-medium leading-none mb-[3px]" style={{ color: i === activeRow ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.5)' }}>{c.name}</div>
+                  <div className="text-[11px] leading-none truncate" style={{ color: 'rgba(255,255,255,0.25)' }}>kulcsszó: {c.kw}</div>
+                </div>
+                <span className="text-[11px] flex-shrink-0" style={{ color: 'rgba(255,255,255,0.28)' }}>{c.trend}</span>
+                <span className="text-[9px] px-[6px] py-[2px] rounded-full font-medium flex-shrink-0"
+                  style={{ background: `${ACCENT}15`, color: ACCENT, border: `0.5px solid ${ACCENT}40` }}>előttünk</span>
+              </motion.div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
+
+        {controlledView === undefined && (
+          <div className="flex items-center justify-center gap-[5px] px-4 py-[8px] border-t border-white/[0.05]">
+            {seoTabs.map(({ key, label, icon }) => (
+              <button key={key} onClick={() => setView(key)}
+                className="flex items-center gap-[5px] rounded-[8px] px-3 py-[5px] text-[10px] font-medium transition-all"
+                style={{
+                  background: view === key ? `${ACCENT}1a` : 'rgba(255,255,255,0.04)',
+                  color: view === key ? ACCENT : 'rgba(255,255,255,0.3)',
+                  border: view === key ? `0.5px solid ${ACCENT}40` : '0.5px solid rgba(255,255,255,0.07)',
+                }}>
+                {icon}{label}
+              </button>
+            ))}
           </div>
-        ))}
-      </div>
+        )}
 
-      <div className="flex flex-col gap-[6px]">
-        {keywords.map((kw, i) => (
-          <div key={kw.label} className="flex items-center gap-[10px]">
-            <span className="text-[10px] text-white/40 w-[140px] flex-shrink-0 truncate">{kw.label}</span>
-            <div className="flex-1 h-[3px] bg-white/[0.06] rounded-full overflow-hidden">
-              <div
-                ref={el => { kwRefs.current[i] = el; }}
-                className="h-full rounded-full bg-[#34d399] w-0"
-                style={{ transition: 'width 1.4s cubic-bezier(.4,0,.2,1)' }}
-              />
-            </div>
-            <span className="text-[10px] text-white/30 w-[44px] text-right flex-shrink-0">{kw.vol}</span>
+        <div className="flex items-center justify-between px-4 h-[34px] border-t border-white/[0.06]"
+          style={{ background: 'rgba(0,0,0,0.25)' }}>
+          <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>SEO Tracker bővítmény</span>
+          <div className="flex items-center gap-[6px]">
+            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.28)' }}>Search Console megnyitása</span>
+            <kbd className="text-[9px] rounded-[4px] px-[5px] py-[1px] font-mono" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>
           </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-3 gap-2 md:gap-[10px]">
-        {metrics.map((m, i) => (
-          <div key={m.label} className="bg-[rgba(52,211,153,0.04)] border border-[rgba(52,211,153,0.12)] rounded-[10px] p-3 md:p-[18px]">
-            <div ref={el => { metricRefs.current[i] = el; }} className="text-[20px] md:text-[28px] font-medium text-white leading-none mb-1">—</div>
-            <div className="text-[9px] md:text-[10px] text-white/30">{m.label}</div>
-            <div className="text-[9px] md:text-[10px] text-[#34d399] font-medium mt-[3px]">{m.delta}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="flex flex-col gap-[6px] md:gap-2">
-        {audits.map((a, i) => (
-          <div
-            key={a.text}
-            ref={el => { auditRefs.current[i] = el; }}
-            className="flex items-center gap-2 md:gap-[10px] bg-white/[0.02] border border-white/[0.04] rounded-[8px] p-[9px] md:p-[10px]"
-            style={{ opacity: 0, transform: 'translateY(8px)' }}
-          >
-            <div className="w-[18px] h-[18px] md:w-[20px] md:h-[20px] rounded-full bg-[rgba(52,211,153,0.12)] flex items-center justify-center flex-shrink-0">
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                <path d="M2 5l2.5 2.5L8 3" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-            <span className="text-[10px] md:text-[11px] text-white/45 flex-1">{a.text}</span>
-            <span className="text-[10px] md:text-[11px] font-medium text-[#34d399] flex-shrink-0">✓</span>
-          </div>
-        ))}
-      </div>
+        </div>
+      </motion.div>
     </div>
   );
 };

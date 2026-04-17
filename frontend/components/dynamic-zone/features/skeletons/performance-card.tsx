@@ -1,272 +1,255 @@
 'use client';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
-import { useEffect, useRef } from 'react';
+const C = 2 * Math.PI * 34;
+const ACCENT = '#60a5fa';
+
+const categories = [
+  { label: 'Sebesség',         sub: 'Oldalbetöltési idő · Next.js SSG',   score: 98  },
+  { label: 'Hozzáférhetőség', sub: 'ARIA · kontraszt · billentyűzet',     score: 100 },
+  { label: 'Bevált módszerek',sub: 'HTTPS · modern API-k · biztonság',    score: 100 },
+  { label: 'SEO pontszám',    sub: 'Meta · strukturált adat · crawlable', score: 100 },
+];
 
 const vitals = [
-  { label: 'FCP', value: '0.8s', width: 92 },
-  { label: 'LCP', value: '1.2s', width: 96 },
-  { label: 'CLS', value: '0.00', width: 100 },
-  { label: 'TTI', value: '1.8s', width: 88 },
-  { label: 'TBT', value: '12ms', width: 95 },
+  { label: 'FCP', full: 'First Contentful Paint',  value: '0.8s',  pct: 92  },
+  { label: 'LCP', full: 'Largest Contentful Paint', value: '1.2s',  pct: 96  },
+  { label: 'CLS', full: 'Cumulative Layout Shift',  value: '0.00',  pct: 100 },
+  { label: 'TTI', full: 'Time to Interactive',      value: '1.4s',  pct: 88  },
+  { label: 'TBT', full: 'Total Blocking Time',      value: '12ms',  pct: 95  },
 ];
 
-const metrics = [
-  { val: '1.2s', label: 'Oldalbetöltés', delta: '↓ 68% gyorsabb' },
-  { val: '18', label: 'HTTP kérések', delta: '↓ 42% kevesebb' },
-  { val: '320kb', label: 'Oldalméret', delta: '↓ 71% kisebb' },
+const optimizations = [
+  { label: 'Képek WebP formátumban',  sub: 'Átlag 68% méretcsökkentés', gain: '+8' },
+  { label: 'CSS bundle tömörítve',    sub: '142 KB → 38 KB · gzip',     gain: '+5' },
+  { label: 'Képek lazy loadingja',    sub: 'Below-the-fold tartalom',    gain: '+4' },
+  { label: 'Service Worker cache',    sub: 'Offline elérés támogatva',   gain: '+3' },
 ];
 
-const compare = [
-  { name: 'Te', score: 98, color: '#a78bfa', barColor: '#a78bfa' },
-  { name: 'Iparági átlag', score: 51, color: 'rgba(255,255,255,0.4)', barColor: 'rgba(255,255,255,0.15)' },
-  { name: 'Versenytárs', score: 63, color: 'rgba(255,255,255,0.4)', barColor: 'rgba(255,255,255,0.15)' },
+export const performanceTabs = [
+  {
+    key: 'categories' as const,
+    label: 'Kategóriák',
+    icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>,
+  },
+  {
+    key: 'vitals' as const,
+    label: 'Web Vitals',
+    icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
+  },
+  {
+    key: 'optimization' as const,
+    label: 'Optimalizáció',
+    icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>,
+  },
 ];
 
-const audits = [
-  { text: 'Képek WebP/AVIF formátumban, lazy loading', gain: '+1.4s' },
-  { text: 'JavaScript code splitting & tree shaking', gain: '+0.8s' },
-  { text: 'CDN cache, statikus fájlok edge-ről', gain: '+0.6s' },
-];
+type View = 'categories' | 'vitals' | 'optimization';
 
-interface Props {
-  expanded?: boolean;
+function useCount(to: number, delay = 300, duration = 1400) {
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const start = performance.now();
+      const tick = (now: number) => {
+        const p = Math.min((now - start) / duration, 1);
+        setV(Math.round((1 - Math.pow(1 - p, 3)) * to));
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }, delay);
+    return () => clearTimeout(t);
+  }, [to, delay, duration]);
+  return v;
 }
 
-export const SkeletonOne = ({ expanded = false }: Props) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const hasAnimated = useRef(false);
-  const arcRef = useRef<SVGCircleElement>(null);
-  const scoreRef = useRef<HTMLSpanElement>(null);
-  const vitalRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const metricRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const compareRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const auditRefs = useRef<(HTMLDivElement | null)[]>([]);
+interface Props {
+  /** If provided, external parent controls the view (single-feature mode) */
+  controlledView?: View;
+  onViewChange?: (v: View) => void;
+}
 
-  // Compact animáció — mindig fut mount-on
+export const SkeletonOne = ({ controlledView, onViewChange }: Props) => {
+  const score = useCount(98, 300, 1600);
+  const offset = C * (1 - score / 100);
+  const [internalView, setInternalView] = useState<View>('categories');
+  const [activeRow, setActiveRow] = useState(0);
+
+  const view = controlledView ?? internalView;
+  const setView = (v: View) => {
+    if (onViewChange) onViewChange(v);
+    else setInternalView(v);
+  };
+
+  const rowCount = view === 'categories' ? categories.length : view === 'vitals' ? vitals.length : optimizations.length;
+
   useEffect(() => {
-    if (expanded) return;
-    const circumference = 220;
-    if (arcRef.current) {
-      arcRef.current.style.strokeDasharray = String(circumference);
-      arcRef.current.style.strokeDashoffset = String(circumference);
-      arcRef.current.style.transition = 'none';
-    }
-    vitalRefs.current.forEach(el => { if (el) el.style.width = '0%'; });
-    if (scoreRef.current) scoreRef.current.textContent = '0';
+    const id = setInterval(() => setActiveRow(r => (r + 1) % rowCount), 1800);
+    return () => clearInterval(id);
+  }, [rowCount]);
 
-    const timer = setTimeout(() => {
-      if (arcRef.current) {
-        arcRef.current.style.transition = 'stroke-dashoffset 2s cubic-bezier(.4,0,.2,1)';
-        arcRef.current.style.strokeDashoffset = String(circumference * 0.02);
-      }
-      let s = 0;
-      const si = setInterval(() => {
-        s = Math.min(s + 2, 98);
-        if (scoreRef.current) scoreRef.current.textContent = String(s);
-        if (s >= 98) clearInterval(si);
-      }, 18);
-      vitalRefs.current.forEach((el, i) => {
-        if (el) setTimeout(() => { el.style.width = vitals[i].width + '%'; }, 500);
-      });
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, [expanded]);
-
-  // Expanded — IntersectionObserver
+  // Auto-cycle views only in uncontrolled (summary) mode
   useEffect(() => {
-    if (!expanded) return;
-    const container = containerRef.current;
-    if (!container) return;
+    if (controlledView !== undefined) return;
+    const views: View[] = ['categories', 'vitals', 'optimization'];
+    let idx = 0;
+    const id = setInterval(() => {
+      idx = (idx + 1) % views.length;
+      setInternalView(views[idx]);
+      setActiveRow(0);
+    }, 5000);
+    return () => clearInterval(id);
+  }, [controlledView]);
 
-    function runAnimations() {
-      const circumference = 314;
-      if (arcRef.current) {
-        arcRef.current.style.strokeDasharray = String(circumference);
-        arcRef.current.style.strokeDashoffset = String(circumference);
-        arcRef.current.style.transition = 'none';
-      }
-      vitalRefs.current.forEach(el => { if (el) el.style.width = '0%'; });
-      if (scoreRef.current) scoreRef.current.textContent = '0';
-      compareRefs.current.forEach(el => { if (el) el.style.width = '0%'; });
-      auditRefs.current.forEach(el => { if (el) { el.style.opacity = '0'; el.style.transform = 'translateY(8px)'; } });
-      metricRefs.current.forEach(el => { if (el) el.textContent = '—'; });
-
-      setTimeout(() => {
-        if (arcRef.current) {
-          arcRef.current.style.transition = 'stroke-dashoffset 2s cubic-bezier(.4,0,.2,1)';
-          arcRef.current.style.strokeDashoffset = String(circumference * 0.02);
-        }
-        let s = 0;
-        const si = setInterval(() => {
-          s = Math.min(s + 2, 98);
-          if (scoreRef.current) scoreRef.current.textContent = String(s);
-          if (s >= 98) clearInterval(si);
-        }, 18);
-        vitalRefs.current.forEach((el, i) => {
-          if (el) setTimeout(() => { el.style.width = vitals[i].width + '%'; }, 500);
-        });
-        metricRefs.current.forEach((el, i) => {
-          if (el) setTimeout(() => { el.textContent = metrics[i].val; }, 700 + i * 150);
-        });
-        compareRefs.current.forEach((el, i) => {
-          if (el) setTimeout(() => { el.style.width = compare[i].score + '%'; }, 600 + i * 150);
-        });
-        auditRefs.current.forEach((el, i) => {
-          if (el) setTimeout(() => {
-            el.style.transition = 'opacity .4s, transform .4s';
-            el.style.opacity = '1';
-            el.style.transform = 'translateY(0)';
-          }, 900 + i * 150);
-        });
-      }, 400);
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !hasAnimated.current) {
-          hasAnimated.current = true;
-          runAnimations();
-        }
-      },
-      { threshold: 0.2 }
-    );
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, [expanded]);
-
-  if (!expanded) {
-    return (
-      <div className="flex items-center justify-center h-full w-full relative">
-        <div className="flex items-center gap-6 px-7">
-          <div className="relative flex-shrink-0">
-            <svg width="88" height="88" viewBox="0 0 88 88" style={{ transform: 'rotate(-90deg)' }}>
-              <circle cx="44" cy="44" r="35" fill="none" stroke="rgba(167,139,250,0.08)" strokeWidth="2.5" />
-              <circle
-                ref={arcRef}
-                cx="44" cy="44" r="35"
-                fill="none" stroke="#a78bfa" strokeWidth="2.5"
-                strokeLinecap="round" strokeDasharray="220" strokeDashoffset="220"
-                style={{ transition: 'stroke-dashoffset 2s cubic-bezier(.4,0,.2,1)' }}
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span ref={scoreRef} className="text-[22px] font-medium text-white leading-none">0</span>
-              <span className="text-[9px] text-white/30 mt-[2px]">/ 100</span>
-            </div>
-          </div>
-          <div className="flex flex-col gap-[10px]">
-            {vitals.map((v, i) => (
-              <div key={v.label} className="flex items-center gap-2">
-                <span className="text-[10px] text-white/25 w-7 flex-shrink-0">{v.label}</span>
-                <div className="w-[52px] h-[2px] bg-white/[0.06] rounded-full overflow-hidden">
-                  <div
-                    ref={el => { vitalRefs.current[i] = el; }}
-                    className="h-full rounded-full bg-[#a78bfa] w-0"
-                    style={{ transition: 'width 1.6s cubic-bezier(.4,0,.2,1)' }}
-                  />
-                </div>
-                <span className="text-[10px] text-white/40 w-7 text-right flex-shrink-0">{v.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="absolute top-3 right-3 bg-[rgba(167,139,250,0.1)] border border-[rgba(167,139,250,0.25)] rounded-full px-[9px] py-[3px] text-[9px] text-[#a78bfa] font-medium">
-          Google PageSpeed
-        </div>
-      </div>
-    );
-  }
+  // Reset row when controlled view changes
+  useEffect(() => { setActiveRow(0); }, [controlledView]);
 
   return (
-    <div ref={containerRef} className="flex flex-col gap-5 p-5 md:p-8 w-full relative">
-      <div className="absolute top-3 right-3 bg-[rgba(167,139,250,0.1)] border border-[rgba(167,139,250,0.25)] rounded-full px-[9px] py-[3px] text-[9px] text-[#a78bfa] font-medium">
-        Google PageSpeed
-      </div>
+    <div className="w-full h-full flex items-center justify-center p-5 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none" />
 
-      <div className="flex items-center gap-6 md:gap-12">
-        <div className="relative flex-shrink-0">
-          <svg width="100" height="100" viewBox="0 0 120 120" className="md:w-[130px] md:h-[130px]" style={{ transform: 'rotate(-90deg)' }}>
-            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(167,139,250,0.08)" strokeWidth="4" />
-            <circle
-              ref={arcRef}
-              cx="60" cy="60" r="50"
-              fill="none" stroke="#a78bfa" strokeWidth="4"
-              strokeLinecap="round" strokeDasharray="314" strokeDashoffset="314"
-              style={{ transition: 'stroke-dashoffset 2s cubic-bezier(.4,0,.2,1)' }}
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span ref={scoreRef} className="text-[32px] md:text-[40px] font-medium text-white leading-none">0</span>
-            <span className="text-[9px] text-white/30 mt-[3px]">/ 100</span>
+      <motion.div
+        initial={{ opacity: 0, y: 22, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full rounded-[18px] overflow-hidden"
+        style={{
+          background: '#1c1c1e',
+          border: '1px solid rgba(255,255,255,0.1)',
+          boxShadow: '0 0 0 0.5px rgba(255,255,255,0.05) inset',
+        }}
+      >
+        {/* Search bar */}
+        <div className="flex items-center gap-3 px-4 h-[52px] border-b border-white/[0.07]">
+          <div className="w-[24px] h-[24px] rounded-[7px] flex items-center justify-center flex-shrink-0"
+            style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="2.5" strokeLinecap="round">
+              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
+          </div>
+          <span className="text-[13px] flex-1" style={{ color: 'rgba(255,255,255,0.28)' }}>davelopment.hu · Lighthouse riport</span>
+          <kbd className="text-[10px] rounded-[5px] px-[7px] py-[2px] font-mono flex-shrink-0"
+            style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.22)', border: '0.5px solid rgba(255,255,255,0.1)' }}>⌘K</kbd>
+        </div>
+
+        {/* Score hero */}
+        <div className="flex items-center gap-5 px-5 py-4 border-b border-white/[0.05]"
+          style={{ background: 'rgba(255,255,255,0.03)' }}>
+          <div className="relative flex-shrink-0" style={{ width: 84, height: 84 }}>
+            <svg width="84" height="84" style={{ transform: 'rotate(-90deg)' }}>
+              <circle cx="42" cy="42" r="34" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5.5" />
+              <motion.circle cx="42" cy="42" r="34" fill="none"
+                stroke={ACCENT} strokeWidth="5.5" strokeLinecap="round"
+                strokeDasharray={C}
+                initial={{ strokeDashoffset: C }}
+                animate={{ strokeDashoffset: offset }}
+                transition={{ duration: 1.6, delay: 0.4, ease: [0.4, 0, 0.2, 1] }} />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-[1px]">
+              <span className="text-[26px] font-bold leading-none tabular-nums" style={{ color: ACCENT }}>{score}</span>
+              <span className="text-[9px]" style={{ color: 'rgba(255,255,255,0.28)' }}>/100</span>
+            </div>
+          </div>
+          <div>
+            <div className="text-[15px] font-semibold mb-[5px] text-white">Kiváló teljesítmény</div>
+            <div className="text-[12px] mb-[8px]" style={{ color: 'rgba(255,255,255,0.32)' }}>Next.js · Vercel Edge · CDN gyorsítótár</div>
+            <div className="flex items-center gap-[6px]">
+              <motion.div animate={{ opacity: [1, 0.3, 1] }} transition={{ repeat: Infinity, duration: 2 }}
+                className="w-[6px] h-[6px] rounded-full" style={{ background: ACCENT }} />
+              <span className="text-[11px] font-medium" style={{ color: 'rgba(255,255,255,0.6)' }}>Mind a 4 kategória kiváló</span>
+            </div>
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col gap-[11px] md:gap-[14px]">
-          {vitals.map((v, i) => (
-            <div key={v.label} className="flex items-center gap-2 md:gap-3">
-              <span className="text-[10px] md:text-[11px] text-white/30 w-7 md:w-8 flex-shrink-0">{v.label}</span>
-              <div className="flex-1 h-[3px] md:h-[4px] bg-white/[0.06] rounded-full overflow-hidden">
-                <div
-                  ref={el => { vitalRefs.current[i] = el; }}
-                  className="h-full rounded-full bg-[#a78bfa] w-0"
-                  style={{ transition: 'width 1.6s cubic-bezier(.4,0,.2,1)' }}
-                />
-              </div>
-              <span className="text-[10px] md:text-[11px] text-white/40 w-8 md:w-9 text-right flex-shrink-0">{v.value}</span>
-              <div className="w-[6px] h-[6px] md:w-[7px] md:h-[7px] rounded-full bg-[#34d399] flex-shrink-0" />
-            </div>
-          ))}
+        {/* Section header */}
+        <div className="px-4 h-[28px] flex items-center">
+          <span className="text-[10px] font-semibold tracking-[.12em] uppercase" style={{ color: 'rgba(255,255,255,0.22)' }}>
+            {view === 'categories' ? 'Lighthouse kategóriák' : view === 'vitals' ? 'Core Web Vitals' : 'Optimalizációk'}
+          </span>
         </div>
-      </div>
 
-      <div className="grid grid-cols-3 gap-2 md:gap-[10px]">
-        {metrics.map((m, i) => (
-          <div key={m.label} className="bg-[rgba(167,139,250,0.04)] border border-[rgba(167,139,250,0.12)] rounded-[10px] p-3 md:p-[18px]">
-            <div ref={el => { metricRefs.current[i] = el; }} className="text-[20px] md:text-[28px] font-medium text-white leading-none mb-1">—</div>
-            <div className="text-[9px] md:text-[10px] text-white/30">{m.label}</div>
-            <div className="text-[9px] md:text-[10px] text-[#34d399] font-medium mt-[3px]">{m.delta}</div>
-          </div>
-        ))}
-      </div>
+        {/* Rows */}
+        <AnimatePresence mode="wait">
+          <motion.div key={view} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+            {view === 'categories' && categories.map((c, i) => (
+              <motion.div key={c.label} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 * i }}
+                className="flex items-center gap-3 h-[44px] px-4 transition-colors duration-300"
+                style={{ background: i === activeRow ? 'rgba(255,255,255,0.04)' : 'transparent' }}>
+                <div className="w-[36px] h-[36px] rounded-[9px] flex items-center justify-center flex-shrink-0 text-[12px] font-bold tabular-nums"
+                  style={{ background: i === activeRow ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.07)', color: i === activeRow ? ACCENT : 'rgba(255,255,255,0.4)' }}>{c.score}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] font-medium leading-none mb-[4px]" style={{ color: i === activeRow ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.5)' }}>{c.label}</div>
+                  <div className="text-[11px] leading-none truncate" style={{ color: 'rgba(255,255,255,0.25)' }}>{c.sub}</div>
+                </div>
+                <div className="w-[56px] h-[3px] rounded-full overflow-hidden flex-shrink-0" style={{ background: 'rgba(255,255,255,0.07)' }}>
+                  <motion.div className="h-full rounded-full" style={{ background: i === activeRow ? ACCENT : 'rgba(255,255,255,0.2)' }}
+                    initial={{ width: 0 }} animate={{ width: c.score + '%' }} transition={{ duration: 1.1, delay: 0.4 + i * 0.08 }} />
+                </div>
+                {i === activeRow && <kbd className="text-[9px] rounded-[4px] px-[5px] py-[2px] font-mono flex-shrink-0" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>}
+              </motion.div>
+            ))}
+            {view === 'vitals' && vitals.map((v, i) => (
+              <motion.div key={v.label} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 * i }}
+                className="flex items-center gap-3 h-[44px] px-4 transition-colors duration-300"
+                style={{ background: i === activeRow ? 'rgba(255,255,255,0.04)' : 'transparent' }}>
+                <div className="w-[36px] h-[36px] rounded-[9px] flex items-center justify-center flex-shrink-0 text-[9px] font-bold"
+                  style={{ background: i === activeRow ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.07)', color: i === activeRow ? ACCENT : 'rgba(255,255,255,0.4)' }}>{v.label}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] font-medium leading-none mb-[4px]" style={{ color: i === activeRow ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.5)' }}>{v.full}</div>
+                  <div className="w-full h-[3px] rounded-full overflow-hidden mt-[6px]" style={{ background: 'rgba(255,255,255,0.07)' }}>
+                    <motion.div className="h-full rounded-full" style={{ background: i === activeRow ? ACCENT : 'rgba(255,255,255,0.2)' }}
+                      initial={{ width: 0 }} animate={{ width: v.pct + '%' }} transition={{ duration: 1.1, delay: 0.3 + i * 0.08 }} />
+                  </div>
+                </div>
+                <span className="text-[13px] font-semibold tabular-nums flex-shrink-0" style={{ color: i === activeRow ? ACCENT : 'rgba(255,255,255,0.35)' }}>{v.value}</span>
+              </motion.div>
+            ))}
+            {view === 'optimization' && optimizations.map((o, i) => (
+              <motion.div key={o.label} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 * i }}
+                className="flex items-center gap-3 h-[44px] px-4 transition-colors duration-300"
+                style={{ background: i === activeRow ? 'rgba(255,255,255,0.04)' : 'transparent' }}>
+                <div className="w-[36px] h-[36px] rounded-[9px] flex items-center justify-center flex-shrink-0"
+                  style={{ background: i === activeRow ? `${ACCENT}22` : 'rgba(255,255,255,0.05)', border: i === activeRow ? `0.5px solid ${ACCENT}55` : '0.5px solid rgba(255,255,255,0.07)' }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={i === activeRow ? ACCENT : 'rgba(255,255,255,0.3)'} strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] font-medium leading-none mb-[4px]" style={{ color: i === activeRow ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.5)' }}>{o.label}</div>
+                  <div className="text-[11px] leading-none truncate" style={{ color: 'rgba(255,255,255,0.25)' }}>{o.sub}</div>
+                </div>
+                <span className="text-[12px] font-bold tabular-nums flex-shrink-0" style={{ color: i === activeRow ? ACCENT : 'rgba(255,255,255,0.3)' }}>{o.gain}</span>
+              </motion.div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
 
-      <div className="grid grid-cols-3 gap-2 md:gap-[10px]">
-        {compare.map((c, i) => (
-          <div key={c.name} className="bg-white/[0.02] border border-white/[0.05] rounded-[10px] p-[10px] md:p-4 flex flex-col gap-[6px] md:gap-2">
-            <div className="flex items-center gap-[5px]">
-              <div className="w-[5px] h-[5px] rounded-full flex-shrink-0" style={{ background: c.barColor }} />
-              <span className="text-[9px] md:text-[10px] text-white/35">{c.name}</span>
-            </div>
-            <div className="text-[24px] md:text-[32px] font-medium leading-none" style={{ color: c.color }}>{c.score}</div>
-            <div className="h-[2px] md:h-[3px] bg-white/[0.06] rounded-full overflow-hidden">
-              <div
-                ref={el => { compareRefs.current[i] = el; }}
-                className="h-full rounded-full w-0"
-                style={{ background: c.barColor, transition: 'width 1.6s cubic-bezier(.4,0,.2,1)' }}
-              />
-            </div>
+        {/* Internal mini tab bar — only in summary (uncontrolled) mode */}
+        {controlledView === undefined && (
+          <div className="flex items-center justify-center gap-[5px] px-4 py-[8px] border-t border-white/[0.05]">
+            {performanceTabs.map(({ key, label, icon }) => (
+              <button key={key} onClick={() => setView(key)}
+                className="flex items-center gap-[5px] rounded-[8px] px-3 py-[5px] text-[10px] font-medium transition-all"
+                style={{
+                  background: view === key ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)',
+                  color: view === key ? ACCENT : 'rgba(255,255,255,0.3)',
+                  border: view === key ? '0.5px solid rgba(255,255,255,0.2)' : '0.5px solid rgba(255,255,255,0.07)',
+                }}>
+                {icon}{label}
+              </button>
+            ))}
           </div>
-        ))}
-      </div>
+        )}
 
-      <div className="flex flex-col gap-[6px] md:gap-2">
-        {audits.map((a, i) => (
-          <div
-            key={a.text}
-            ref={el => { auditRefs.current[i] = el; }}
-            className="flex items-center gap-2 md:gap-[10px] bg-white/[0.02] border border-white/[0.04] rounded-[8px] p-[9px] md:p-[10px]"
-            style={{ opacity: 0, transform: 'translateY(8px)' }}
-          >
-            <div className="w-[18px] h-[18px] md:w-[20px] md:h-[20px] rounded-full bg-[rgba(52,211,153,0.12)] flex items-center justify-center flex-shrink-0">
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                <path d="M2 5l2.5 2.5L8 3" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-            <span className="text-[10px] md:text-[11px] text-white/45 flex-1">{a.text}</span>
-            <span className="text-[10px] md:text-[11px] font-medium text-[#34d399] flex-shrink-0">{a.gain}</span>
+        {/* Action bar */}
+        <div className="flex items-center justify-between px-4 h-[34px] border-t border-white/[0.06]"
+          style={{ background: 'rgba(0,0,0,0.25)' }}>
+          <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>Webteljesítmény bővítmény</span>
+          <div className="flex items-center gap-[6px]">
+            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.28)' }}>Teljes riport megnyitása</span>
+            <kbd className="text-[9px] rounded-[4px] px-[5px] py-[1px] font-mono" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>
           </div>
-        ))}
-      </div>
+        </div>
+      </motion.div>
     </div>
   );
 };

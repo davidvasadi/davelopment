@@ -2,7 +2,7 @@ import { ArrowUpRightIcon, PlusIcon } from 'lucide-react';
 import { Link } from 'next-view-transitions';
 import React from 'react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
-
+import { Container } from '@/components/container';
 type FooterLink = {
   text?: string | null;
   URL?: string | null;
@@ -96,7 +96,7 @@ export const Footer = ({ data, locale }: FooterProps) => {
     <footer className="w-full">
       {/* ========================= ELÉRHETŐSÉG ÉS NAVIGÁCIÓ ========================= */}
       <div className="w-full  py-20">
-        <div className="max-w-9xl mx-auto px-6 md:px-8">
+        <Container>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
             {/* ======== CONTACT OSZLOP (balra) ======== */}
             <div className="md:col-span-4 space-y-4">
@@ -233,12 +233,12 @@ export const Footer = ({ data, locale }: FooterProps) => {
             </div>
 
           </div>
-        </div>
+        </Container>
       </div>
 
       {/* ======================= NAGY LOGÓ ÉS STUDIO FELIRAT ======================= */}
       <div className="w-full pb-20 text-right">
-        <div className="max-w-9xl mx-auto px-6 md:px-8">
+        <Container>
           <h2 className="text-black text-[40px] sm:text-[50px] md:text-7xl lg:text-8xl xl:text-9xl font-semibold leading-[0.9] tracking-tighter">
             [davelopment]®
             {/* <span className=" text-black font-normal rounded-full ">
@@ -246,12 +246,12 @@ export const Footer = ({ data, locale }: FooterProps) => {
             </span> */}
           </h2>
           {/* <p className="mt-2 text-1xl md:text-3xl xl:text-4xl font-bold "></p> */}
-        </div>
+        </Container>
       </div>
 
       {/* ========================== FEKETE ALSÓ SÁV ========================== */}
       <div className="w-full bg-black text-white py-14">
-        <div className="max-w-9xl mx-auto px-6 md:px-8">
+        <Container>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
             {/* ======== BAL: LEÍRÁS + COPYRIGHT ======== */}
             <div className="md:col-span-4 space-y-2">
@@ -320,7 +320,7 @@ export const Footer = ({ data, locale }: FooterProps) => {
               )}
             </div>
           </div>
-        </div>
+        </Container>
       </div>
     </footer>
   );

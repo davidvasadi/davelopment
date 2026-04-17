@@ -13,9 +13,10 @@ export const Card = ({
   return (
     <div
       className={cn(
-        'rounded-[15px] overflow-hidden border cursor-pointer relative transition-all duration-[350ms]',
-        'border-[rgba(255,255,255,0.07)] bg-[#0d0d0d]',
-        'hover:border-[rgba(255,255,255,0.18)] hover:-translate-y-[2px]',
+        'rounded-[15px] overflow-hidden relative transition-all duration-[350ms] cursor-pointer',
+        'border border-[#242424] bg-[#0d0d0d]',
+        'hover:border-[#383838] hover:-translate-y-[2px]',
+        'shadow-[0_1px_0_rgba(255,255,255,0.04)_inset]',
         className
       )}
     >
@@ -27,7 +28,7 @@ export const Card = ({
 export const CardVis = ({
   className,
   children,
-  height = 'h-[170px]',
+  height = 'h-[220px]',
 }: {
   className?: string;
   children: React.ReactNode;
@@ -36,7 +37,8 @@ export const CardVis = ({
   return (
     <div
       className={cn(
-        'flex items-center justify-center bg-[#080808] border-b border-[rgba(255,255,255,0.05)] relative overflow-hidden',
+        'relative overflow-hidden border-b border-[#1e1e1e]',
+        'bg-[#080808]',
         height,
         className
       )}

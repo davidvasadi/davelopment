@@ -7,6 +7,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
 import { webPageSchema, resolveSchema } from '@/lib/shared/structured-data';
 import fetchContentType from '@/lib/strapi/fetchContentType';
+import { localeSegments } from '@/lib/i18n/segments';
 import type { Article } from '@/types/types';
 import { BlogIndex } from '@/components/blog-index';
 
@@ -59,12 +60,9 @@ export default async function Blog(props: {
 
   const articles = (articlesRes?.data ?? []) as Article[];
 
-  const localizedSlugs = blogPage.localizations?.reduce(
-    (acc: Record<string, string>, localization: any) => {
-      acc[localization.locale] = 'blog';
-      return acc;
-    },
-    { [params.locale]: 'blog' }
+  const localizedSlugs = Object.keys(localeSegments).reduce(
+    (acc, loc) => { acc[loc] = 'blog'; return acc; },
+    {} as Record<string, string>
   );
 
   const jsonLd = resolveSchema(

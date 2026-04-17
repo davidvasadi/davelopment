@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { motion, type Variants } from 'framer-motion';
 import { strapiImage } from '@/lib/strapi/strapiImage';
-
+import { Container } from '@/components/container';
 const toAbs = (m?: any): string | undefined => {
   if (!m) return undefined;
   if (typeof m === 'string') return strapiImage(m);
@@ -97,6 +97,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
   const profileImgUrl = toAbs(profile_image);
 
   return (
+    <Container>
     <section className="w-full py-20">
       <div className="max-w-9xl mx-auto px-6 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -189,5 +190,6 @@ export const Newsletter: React.FC<NewsletterProps> = ({
         </div>
       </div>
     </section>
+    </Container>
   );
 };

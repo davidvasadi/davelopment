@@ -324,6 +324,20 @@ export const FeaturesBlock: Block = {
       ],
     },
     {
+      name: 'feature',
+      type: 'select',
+      label: 'Egyedi feature nézet',
+      admin: {
+        description: 'Ha be van állítva, csak ez az egy kártya jelenik meg teljes nézetben (a dokk gombjai a kártya belső tabjai lesznek). Ha üres, mind a 4 kártya megjelenik váltogatva.',
+      },
+      options: [
+        { label: 'Performance (Lighthouse)', value: 'performance' },
+        { label: 'SEO (Google Search Console)', value: 'seo' },
+        { label: 'Design (Figma / Deploy)', value: 'design' },
+        { label: 'Rendszerek (Infrastruktúra)', value: 'systems' },
+      ],
+    },
+    {
       name: 'social_media_card',
       type: 'group',
       label: 'Közösségi média kártya',
@@ -920,50 +934,42 @@ export const NewsletterBlock: Block = {
       name: 'title',
       type: 'text',
       label: 'Cím',
-      localized: true,
     },
     {
       name: 'heading_left',
       type: 'text',
       label: 'Bal oldali főcím',
-      localized: true,
     },
     {
       name: 'heading_right',
       type: 'text',
       label: 'Jobb oldali főcím',
-      localized: true,
     },
     {
       name: 'description',
       type: 'textarea',
       label: 'Leírás',
-      localized: true,
     },
     {
       name: 'source',
       type: 'text',
       label: 'Forrás',
-      localized: true,
     },
     {
       name: 'profile_name',
       type: 'text',
       label: 'Profil név',
-      localized: true,
     },
     {
       name: 'profile_role',
       type: 'text',
       label: 'Profil szerepkör',
-      localized: true,
     },
     {
       name: 'profile_image',
       type: 'upload',
       relationTo: 'media',
       label: 'Profil kép',
-      localized: true,
     },
     {
       name: 'form',
@@ -1484,16 +1490,26 @@ export const MacbookScrollBlock: Block = {
       localized: true,
     },
     {
-      name: 'image',
+      name: 'desktop_media',
       type: 'upload',
       relationTo: 'media',
-      label: 'Képernyő kép (4:3 arány ajánlott, pl. 1600×1200)',
+      label: 'Desktop tartalom — kép min. 1280×800px, videó 16:9 arány (laptop képernyő)',
     },
     {
-      name: 'video',
+      name: 'mobile_media',
       type: 'upload',
       relationTo: 'media',
-      label: 'Képernyő videó (mp4 – felülírja a képet)',
+      label: 'Mobil tartalom — kép min. 390×844px (9:19.5 arány), videó szintén portrait (iPhone frame)',
+    },
+    {
+      name: 'mobile_animation',
+      type: 'select',
+      label: 'Mobil animáció',
+      defaultValue: 'zoom',
+      options: [
+        { label: 'Zoom in', value: 'zoom' },
+        { label: 'Parallax reveal', value: 'parallax' },
+      ],
     },
     {
       name: 'show_gradient',

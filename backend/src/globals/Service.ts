@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload'
 import { seoField } from '../fields/seo'
 import { allBlocks } from '../blocks/index'
+import { generateStructuredDataHook } from '../hooks/generateStructuredData'
 
 export const Service: GlobalConfig = {
   slug: 'service',
@@ -13,6 +14,12 @@ export const Service: GlobalConfig = {
   },
   versions: {
     drafts: true,
+  },
+  hooks: {
+    beforeChange: [
+      ({ data, req, global }) =>
+        generateStructuredDataHook({ data, req, global }),
+    ],
   },
   fields: [
     {
