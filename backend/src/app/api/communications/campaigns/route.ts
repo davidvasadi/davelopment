@@ -16,9 +16,12 @@ export async function GET() {
       id: d.id,
       subject: d.subject,
       language: d.ref_collection || 'all',
-      sentAt: d.createdAt,
+      createdAt: d.createdAt,
+      ref_id: d.ref_id,
       sentCount: parseInt(d.ref_id || '0', 10),
       isTest: d.to === 'test',
+      fullHtml: d.fullHtml || null,
+      recipients: d.recipients ? JSON.parse(d.recipients) : null,
     }))
     return NextResponse.json({ ok: true, data: mapped })
   } catch (e) {
@@ -28,16 +31,19 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { subject, sentCount, isTest, language } = await req.json()
+    const { subject, sentCount, isTest, language, fullHtml, recipients } = await req.json()
     const payload = await getPayload({ config: configPromise })
     await payload.create({
       collection: 'email-logs',
+      overrideAccess: true,
       data: {
         type: 'campaign',
         to: isTest ? 'test' : 'campaign',
         subject,
         ref_collection: isTest ? 'test' : (language || 'all'),
         ref_id: String(sentCount ?? 0),
+        fullHtml: fullHtml || null,
+        recipients: recipients ? JSON.stringify(recipients) : null,
       },
     })
     return NextResponse.json({ ok: true })

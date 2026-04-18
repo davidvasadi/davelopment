@@ -4,7 +4,7 @@ import { useStepNav } from '@payloadcms/ui'
 
 interface Lead { id: string; name?: string; email?: string; message?: string; page?: string; language?: string; state?: string; createdAt: string }
 interface Subscriber { id: string; email: string; name?: string; language?: string; confirmed?: boolean; unsubscribed?: boolean; createdAt: string }
-interface Campaign { id: string; subject?: string; ref_id?: string; sentCount?: number; fullHtml?: string; isTest?: boolean; createdAt: string }
+interface Campaign { id: string; subject?: string; ref_id?: string; sentCount?: number; fullHtml?: string; isTest?: boolean; createdAt: string; recipients?: string[]; language?: string }
 interface Stats { ok: boolean; newLeads: number; totalLeads: number; activeSubs: number; newSubs: number; monthSent: number; prevMonthSent: number; huSubs?: number; enSubs?: number; totalSubs?: number }
 interface MonthPoint { month: string; sent: number }
 interface Toast { type: 'success' | 'error' | 'info'; text: string }
@@ -330,8 +330,44 @@ function SubscriberModal({ sub, onClose, showToast }: { sub: Subscriber; onClose
 
 // ─── Campaign History Modal ───────────────────────────────────────────────────
 
-function CampaignHistoryModal({ campaign, onClose, onLoadSubject }: { campaign: Campaign; onClose: () => void; onLoadSubject: (s: string) => void }) {
+function CampaignHistoryModal({ campaign, onClose, onLoadSubject, onResendsent }: { campaign: Campaign; onClose: () => void; onLoadSubject: (s: string) => void; onResendsent?: (sent: number, newRecipients: string[]) => void }) {
   const [previewTab, setPreviewTab] = useState<'info' | 'preview'>('info')
+  const [showRecipients, setShowRecipients] = useState(false)
+  const [resending, setResending] = useState(false)
+
+  const handleResend = async () => {
+    setResending(true)
+    try {
+      const res = await fetch('/api/communications/resend-campaign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ campaignId: campaign.id }),
+      })
+      const d = await res.json()
+      if (d.ok) {
+        await fetch('/api/communications/campaigns', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subject: `[Újraküldés] ${campaign.subject}`,
+            sentCount: d.sent,
+            fullHtml: campaign.fullHtml,
+            language: campaign.language,
+            recipients: d.recipients,
+          }),
+        })
+        onResendsent?.(d.sent, d.recipients || [])
+        onClose()
+      } else {
+        alert(d.error || 'Hiba történt az újraküldésnél')
+      }
+    } catch (e) {
+      alert('Hiba: ' + String(e))
+    } finally {
+      setResending(false)
+    }
+  }
+
   return (
     <div className="cp-modal-overlay" onClick={onClose}>
       <div className="cp-modal" style={{ maxWidth: 540 }} onClick={e => e.stopPropagation()}>
@@ -362,6 +398,24 @@ function CampaignHistoryModal({ campaign, onClose, onLoadSubject }: { campaign: 
                   <div className="cp-detail-value" style={{ fontFamily: 'ui-monospace,monospace', fontSize: 12 }}>{r.value}</div>
                 </div>
               ))}
+              {campaign.recipients && campaign.recipients.length > 0 && (
+                <div>
+                  <button
+                    onClick={() => setShowRecipients(v => !v)}
+                    className="cp-btn cp-btn-ghost"
+                    style={{ fontSize: 11, padding: '3px 10px', marginTop: 2 }}
+                  >
+                    {showRecipients ? '▲ Bezárás' : `▼ Bővebben — ${campaign.recipients.length} email cím`}
+                  </button>
+                  {showRecipients && (
+                    <div style={{ marginTop: 8, maxHeight: 180, overflowY: 'auto', background: 'var(--theme-elevation-100)', borderRadius: 8, border: '1px solid var(--theme-elevation-200)', padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      {campaign.recipients.map(email => (
+                        <div key={email} style={{ fontSize: 12, fontFamily: 'ui-monospace,monospace', color: 'var(--theme-text)', padding: '1px 0' }}>{email}</div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
           {previewTab === 'preview' && (
@@ -372,7 +426,14 @@ function CampaignHistoryModal({ campaign, onClose, onLoadSubject }: { campaign: 
         </div>
         {previewTab === 'info' && (
           <div className="cp-modal-footer" style={{ justifyContent: 'space-between' }}>
-            <button className="cp-btn cp-btn-ghost" style={{ fontSize: 11, padding: '4px 10px' }} onClick={() => { onLoadSubject(campaign.subject || ''); onClose() }}>Tárgy betöltése</button>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button className="cp-btn cp-btn-ghost" style={{ fontSize: 11, padding: '4px 10px' }} onClick={() => { onLoadSubject(campaign.subject || ''); onClose() }}>Tárgy betöltése</button>
+              {!campaign.isTest && campaign.fullHtml && (
+                <button className="cp-btn cp-btn-ghost" style={{ fontSize: 11, padding: '4px 10px' }} onClick={handleResend} disabled={resending}>
+                  {resending ? '⏳ Küldés...' : '↺ Újraküldés az újaknak'}
+                </button>
+              )}
+            </div>
             <button className="cp-btn cp-btn-ghost" onClick={onClose}>Bezárás</button>
           </div>
         )}
@@ -707,7 +768,7 @@ export function CommunicationsPage() {
           await fetch('/api/communications/campaigns', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ subject: campaignSubject, sentCount: d.sent, fullHtml: finalHtml }),
+            body: JSON.stringify({ subject: campaignSubject, sentCount: d.sent, fullHtml: finalHtml, language: campaignLang, recipients: d.recipients || null }),
           })
           fetch('/api/communications/campaigns').then(r => r.json()).then(c => { if (c.ok) setCampaigns(c.data) })
           if (stats) setStats({ ...stats, monthSent: stats.monthSent + (d.sent || 0) })
@@ -1491,6 +1552,10 @@ export function CommunicationsPage() {
           campaign={selectedCampaign}
           onClose={() => setSelectedCampaign(null)}
           onLoadSubject={s => { setCampaignSubject(s); setTab('Kampányok') }}
+          onResendsent={(sent, _newR) => {
+            showToast('success', `Újraküldés kész: ${sent} új feliratkozónak`)
+            fetch('/api/communications/campaigns').then(r => r.json()).then(c => { if (c.ok) setCampaigns(c.data) })
+          }}
         />
       )}
 

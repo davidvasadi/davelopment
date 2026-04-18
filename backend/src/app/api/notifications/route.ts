@@ -26,10 +26,14 @@ export async function GET(req: NextRequest) {
     }),
     payload.find({
       collection: 'email-logs',
-      limit: 2,
+      limit: 5,
       sort: '-createdAt',
       depth: 0,
-      where: { and: [{ type: { equals: 'campaign' } }, { to: { not_equals: 'test' } }] },
+      where: { and: [
+        { type: { equals: 'campaign' } },
+        { to: { not_equals: 'test' } },
+        { createdAt: { greater_than: since } },
+      ]},
     }),
   ])
 

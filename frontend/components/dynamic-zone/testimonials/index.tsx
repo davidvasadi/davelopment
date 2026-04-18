@@ -480,8 +480,7 @@ export const Testimonials = ({
             )}
             {t.text && (
               <motion.div
-                className="bg-white rounded-2xl border border-gray-100 overflow-hidden"
-                style={{ height: '220px' }}
+                className="bg-white rounded-2xl border border-gray-100"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.25 + i * 0.08 }}

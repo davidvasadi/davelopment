@@ -242,7 +242,8 @@ export function NotificationBell() {
 
   const newCount =
     data.newsletters.filter(n => isNew(n.createdAt)).length +
-    data.contacts.filter(n => isNew(n.createdAt)).length
+    data.contacts.filter(n => isNew(n.createdAt)).length +
+    data.campaigns.filter(n => isNew(n.createdAt)).length
 
   useEffect(() => {
     fetch('/api/notifications').then(r => r.json()).then(d => setData({ campaigns: [], ...d })).catch(() => {})
@@ -265,7 +266,7 @@ export function NotificationBell() {
     setOpen(v => !v)
   }
 
-  const total = data.newsletters.length + data.contacts.length
+  const total = data.newsletters.length + data.contacts.length + data.campaigns.length
 
   return (
     <>

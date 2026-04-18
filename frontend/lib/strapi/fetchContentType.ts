@@ -97,8 +97,9 @@ export default async function fetchContentType(
               depth: '0',
               limit: '1',
             });
+            const { cache: _cache, ...fetchOptsWithoutCache } = fetchOpts
             const r = await fetch(`${API_BASE}/api/${contentType}?${aq}`, {
-              ...fetchOpts,
+              ...fetchOptsWithoutCache,
               next: { revalidate: isDraftMode ? 0 : 300 },
             });
             if (!r.ok) return null;

@@ -17,7 +17,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: 'RESEND_API_KEY nincs beállítva' }, { status: 500 })
     }
 
-    const from = process.env.RESEND_FROM_EMAIL || 'noreply@davelopment.hu'
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'hello@davelopment.hu'
+    const from = `[davelopment]® <${fromEmail}>`
 
     // Test mode: send only to one address
     if (testEmail) {
@@ -74,7 +75,7 @@ export async function POST(req: NextRequest) {
       })
     } catch { /* log failure is non-critical */ }
 
-    return NextResponse.json({ ok: true, sent, total: emails.length, errors: errors.slice(0, 5) })
+    return NextResponse.json({ ok: true, sent, total: emails.length, errors: errors.slice(0, 5), recipients: emails })
   } catch (e) {
     return NextResponse.json({ ok: false, error: String(e) }, { status: 500 })
   }

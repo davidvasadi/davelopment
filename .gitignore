@@ -41,3 +41,4 @@ trash/
 .DS_Store
 vps/
 docs/
+.github/workflows/deploy.md

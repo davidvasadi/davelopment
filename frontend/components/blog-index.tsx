@@ -204,14 +204,14 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                                         </div>
 
                                         <div className="p-6 flex-1 flex flex-col justify-end">
-                                            <p className="text-xs text-gray-400 font-medium transition-all duration-300 mt-3 group-hover:mt-4">
+                                            <p className="text-xs text-gray-400 font-medium transition-transform duration-300 mt-3 translate-y-px group-hover:translate-y-[5px]">
                                                 {post!.date}
                                             </p>
-                                            <h3 className="text-xl text-black font-medium leading-tight transition-all duration-300 mt-6 group-hover:mt-3">
+                                            <h3 className="text-xl text-black font-medium leading-tight transition-transform duration-300 mt-6 group-hover:-translate-y-3">
                                                 {post!.title}
                                             </h3>
                                             {post!.description && (
-                                                <p className="hidden md:block text-sm text-black/60 transition-all duration-300 mt-6 group-hover:mt-5">
+                                                <p className="hidden md:block text-sm text-black/60 transition-transform duration-300 mt-6 group-hover:-translate-y-1">
                                                     {post!.description}
                                                 </p>
                                             )}
@@ -254,14 +254,14 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                                         </div>
                                     </div>
                                     <div className="p-6 flex-1 flex flex-col justify-end">
-                                        <p className="text-xs text-gray-400 font-medium transition-all duration-300 mt-3 group-hover:mt-4">
+                                        <p className="text-xs text-gray-400 font-medium transition-transform duration-300 mt-3 translate-y-px group-hover:translate-y-[5px]">
                                             {post.date}
                                         </p>
-                                        <h3 className="text-xl font-medium leading-tight transition-all duration-300 mt-6 group-hover:mt-3">
+                                        <h3 className="text-xl font-medium leading-tight transition-transform duration-300 mt-6 group-hover:-translate-y-3">
                                             {post.title}
                                         </h3>
                                         {post.description && (
-                                            <p className="text-sm text-black/60 transition-all duration-300 mt-6 group-hover:mt-5">
+                                            <p className="text-sm text-black/60 transition-transform duration-300 mt-6 group-hover:-translate-y-1">
                                                 {post.description}
                                             </p>
                                         )}

@@ -66,8 +66,8 @@ function RowIcon({ type }: { type: string }) {
 
 export default function VisualCard() {
   return (
-    <div className="fixed inset-0 z-[100] bg-[#f5f5f5] overflow-y-auto flex flex-col items-center justify-start">
-      <div className="w-full max-w-sm mx-4 mt-12 mb-8">
+    <div className="fixed inset-0 z-[100] bg-[#f5f5f5] overflow-y-auto flex flex-col items-center justify-start px-4">
+      <div className="w-full max-w-sm mt-12 mb-8">
 
         {/* Egy nagy fehér konténer — overflow-hidden levágja a fejléc felső sarkait */}
         <div className="bg-white rounded-[32px] overflow-hidden shadow-sm">
@@ -107,7 +107,7 @@ export default function VisualCard() {
             {/* Mentés gomb — ugyanolyan stílus */}
             <a
               href="/api/vcard"
-              download="vasadi-david.vcf"
+              download="davelopment.vcf"
               className="flex items-center justify-center gap-2 bg-white rounded-2xl px-4 py-4 border border-black/[0.08] active:scale-[0.98] transition-transform"
             >
               <span className="text-[18px] font-light text-black leading-none">+</span>

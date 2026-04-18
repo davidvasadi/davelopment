@@ -110,7 +110,7 @@ export function WhyChooseUsSection({
     const { lead: subLead, rest: subRest } = splitFirstSentence(sub_heading);
 
     return (
-        <section className="w-full py-16 md:py-28">
+        <section className="w-full py-16 md:py-28 overflow-hidden">
             <div className="max-w-7xl mx-auto px-6 md:px-8 py-4">
 
                 {/* ── BADGE + HEADING — fade up, minden görgetéskor ── */}

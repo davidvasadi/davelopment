@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import { motion, type Variants } from 'framer-motion';
+import { CheckCircleIcon, XCircleIcon, ClockIcon, XIcon } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { Container } from '@/components/container';
 const toAbs = (m?: any): string | undefined => {
@@ -47,6 +48,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showAlert, setShowAlert] = useState(false);
 
   const wheelVariants: Variants = {
     rest: { y: '-50%' },
@@ -64,11 +66,17 @@ export const Newsletter: React.FC<NewsletterProps> = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitting(true);
     setSubmitSuccess(false);
     setSubmitError(null);
-    const nameValue = formData['name'] ?? '';
     const emailValue = formData['email'] ?? '';
+    if (!emailValue.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+      setSubmitError(isHu ? 'Érvényes email cím szükséges.' : 'A valid email address is required.');
+      setShowAlert(true);
+      return;
+    }
+    setSubmitting(true);
+    const nameValue = formData['name'] ?? '';
+    setShowAlert(true);
     try {
       const API_URL = (process.env.NEXT_PUBLIC_PAYLOAD_URL ?? process.env.NEXT_PUBLIC_API_URL ?? '').replace(/\/+$/, '');
       const res = await fetch(`${API_URL}/api/newsletters`, {
@@ -139,7 +147,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
               {title || (isHu ? 'Hírlevél' : 'Newsletter')}
             </h3>
 
-            <form className="space-y-6" onSubmit={handleSubmit}>
+            <form className="space-y-6" onSubmit={handleSubmit} noValidate>
               {textInputs.map((input) => (
                 <div key={input.name} className="space-y-2 text-black">
                   <label htmlFor={input.name} className="block text-sm text-black" />
@@ -150,7 +158,6 @@ export const Newsletter: React.FC<NewsletterProps> = ({
                     className="peer w-full bg-transparent border-none placeholder-gray-500 py-2 focus:outline-none"
                     value={formData[input.name] ?? ''}
                     onChange={handleChange}
-                    required
                   />
                   <div className="relative w-full h-[1px] bg-black/10 overflow-hidden group peer-focus:bg-black/40">
                     <motion.div
@@ -180,8 +187,36 @@ export const Newsletter: React.FC<NewsletterProps> = ({
                 <motion.div className="w-2 h-2 rounded-full bg-white" variants={dotVariants} />
               </motion.button>
 
-              {submitSuccess && <p className="text-green-600">{successMessage}</p>}
-              {submitError && <p className="text-orange-400">{submitError}</p>}
+              {showAlert && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className={`relative mt-2 rounded-xl px-5 py-4 text-sm text-center backdrop-blur-md border ${
+                    submitting ? 'bg-yellow-50 border-yellow-300 text-yellow-800' : ''
+                  } ${submitSuccess ? 'bg-green-50 border-green-300 text-green-800' : ''} ${
+                    submitError ? 'bg-red-50 border-red-300 text-red-800' : ''
+                  }`}
+                >
+                  <button
+                    onClick={() => setShowAlert(false)}
+                    type="button"
+                    className="absolute top-2 right-2 text-black/40 hover:text-black"
+                  >
+                    <XIcon className="w-4 h-4" />
+                  </button>
+                  <div className="flex items-center justify-center space-x-2">
+                    {submitting && <ClockIcon className="w-5 h-5" />}
+                    {submitSuccess && <CheckCircleIcon className="w-5 h-5" />}
+                    {submitError && <XCircleIcon className="w-5 h-5" />}
+                    <span>
+                      {submitting && (isHu ? 'Feliratkozás folyamatban...' : 'Subscribing...')}
+                      {submitSuccess && successMessage}
+                      {submitError && submitError}
+                    </span>
+                  </div>
+                </motion.div>
+              )}
             </form>
 
             <p className="text-sm text-black/60 mt-4">{description}</p>

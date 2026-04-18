@@ -1,6 +1,6 @@
 # Davelopment – Szerver & Deploy dokumentáció
 
-_Utoljára frissítve: 2026-04-05_
+_Utoljára frissítve: 2026-04-18_
 
 ---
 
@@ -56,6 +56,27 @@ A `storage/` mappa deploy-független – sosem törlődik, sosem cserélődik.
 - **User:** `davelopment`
 - **Connection:** `postgresql://davelopment@localhost:5432/davelopment`
 - A `DATABASE_URI` GitHub secret-ként van tárolva
+- **Tulajdonos:** Minden tábla `davelopment` owned (2026-04-18-án lokális dumpból visszatöltve)
+
+### DB szinkronizálás (ha szükséges)
+
+Ha lokálisan szinkronizált a DB és production-ra kell tolni:
+
+```bash
+# Lokálisan:
+pg_dump "postgresql://davelopment:PASS@localhost:5432/davelopment" \
+  --no-owner --no-acl -f /tmp/davelopment_dump.sql
+
+rsync -avz -e "ssh -i ~/.ssh/davelopment_dave" \
+  /tmp/davelopment_dump.sql deploy@46.29.142.31:/tmp/
+
+# Szerveren:
+pm2 stop backend
+PGPASSWORD='PASS' psql -U davelopment -h localhost -d davelopment -c \
+  "DO \$\$ DECLARE r RECORD; BEGIN FOR r IN SELECT tablename FROM pg_tables WHERE schemaname='public' LOOP EXECUTE 'DROP TABLE IF EXISTS public.' || quote_ident(r.tablename) || ' CASCADE'; END LOOP; END \$\$;"
+PGPASSWORD='PASS' psql -U davelopment -h localhost -d davelopment -f /tmp/davelopment_dump.sql
+pm2 restart backend --update-env
+```
 
 ---
 
@@ -110,21 +131,31 @@ changes → secrets-check → frontend-build → deploy-frontend
 ### Backend deploy folyamata (atomikus)
 
 ```
-1. Bundle kicsomagolása /tmp-be
-2. Új release mappa előkészítése (backend.new_<SHA>)
-3. .env írása GitHub secrets-ből
-4. .npmrc írása (allow-build: sharp, esbuild, @parcel/watcher)
-5. Szimlink: uploads → storage/
-6. pnpm install --prod
-7. sharp native binary újraépítése (npm run install)
-8. pm2 stop backend
-9. backend → backend.prev_<TS> (rename)
-10. backend.new_<SHA> → backend (rename)
-11. pm2 restart backend
-12. Smoke test: HTTP 2xx a /api/health endpointon (24 próba, 5mp közönként)
-13. Ha smoke FAIL → rollback (prev visszanevezés + pm2 restart)
-14. Régi prev mappák törlése (max 2 marad)
+1.  Bundle kicsomagolása /tmp-be
+2.  Új release mappa előkészítése (backend.new_<SHA>)
+3.  .env írása GitHub secrets-ből
+4.  .npmrc írása (allow-build: sharp, esbuild, @parcel/watcher)
+5.  Szimlink: uploads → storage/
+6.  pnpm install --prod
+7.  sharp native binary újraépítése (npm run install)
+8.  Schema bootstrap:
+    a) sudo -u postgres tábla ownership fix (ha elérhető)
+    b) yes | PAYLOAD_DB_PUSH=true pnpm payload migrate (auto-accept, non-blocking)
+9.  pm2 stop backend
+10. backend → backend.prev_<TS> (rename)
+11. backend.new_<SHA> → backend (rename)
+12. pm2 restart backend
+13. Smoke test: HTTP 2xx a /api/health endpointon (24 próba, 5mp közönként)
+14. Ha smoke FAIL → rollback (prev visszanevezés + pm2 restart)
+15. Régi prev mappák törlése (max 2 marad)
 ```
+
+### Schema változások kezelése
+
+A workflow automatikusan kezeli a schema változásokat:
+- **Új tábla / mező:** `PAYLOAD_DB_PUSH=true` létrehozza deploy során
+- **Meglévő mező módosítás:** szintén automatikus (minden tábla davelopment owned)
+- **Kézi beavatkozás NEM szükséges** normál fejlesztési változásoknál
 
 ### Rollback
 
@@ -192,6 +223,10 @@ https://davelopment.hu/api/marketing-metrics/gsc-callback  (production)
 ```
 
 A callback után az admin panelre irányít vissza – ehhez a `NEXT_PUBLIC_SERVER_URL` env var kell.
+
+### ProductPage – dbName: 'pp'
+
+A `backend/src/globals/ProductPage.ts` fájlban `dbName: 'pp'` van beállítva, ezért a tábla neve az adatbázisban `pp` (és nem `product_page`). Ez szándékos.
 
 ---
 

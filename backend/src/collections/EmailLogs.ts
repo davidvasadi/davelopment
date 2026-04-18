@@ -28,9 +28,21 @@ export const EmailLogs: CollectionConfig = {
     },
     {
       name: 'to',
-      type: 'email',
+      type: 'text',
       label: 'Címzett',
       required: true,
+    },
+    {
+      name: 'fullHtml',
+      type: 'textarea',
+      label: 'HTML tartalom (kampányokhoz)',
+      admin: { condition: (data) => data.type === 'campaign' },
+    },
+    {
+      name: 'recipients',
+      type: 'textarea',
+      label: 'Címzettek (JSON tömb)',
+      admin: { condition: (data) => data.type === 'campaign' },
     },
     {
       name: 'subject',
