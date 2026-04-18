@@ -378,7 +378,6 @@ jobs:
           log "Writing .env from secrets..."
           printf '%s\n' \
             "NODE_ENV=production" \
-            "PAYLOAD_DB_PUSH=true" \
             "PORT=1337" \
             "NEXT_PUBLIC_SERVER_URL=https://davelopment.hu" \
             "PAYLOAD_PUBLIC_SERVER_URL=https://davelopment.hu" \
@@ -425,9 +424,9 @@ jobs:
             --prefix "${NEW_DIR}/node_modules/.pnpm/sharp@0.32.6/node_modules/sharp" \
             run install || true
 
-          log "Running database migrations (with schema push)..."
+          log "Running database migrations..."
           cd "$NEW_DIR"
-          PAYLOAD_DB_PUSH=true NODE_ENV=production pnpm payload migrate || {
+          NODE_ENV=production pnpm payload migrate || {
             log "Migration failed — aborting deploy"
             exit 1
           }

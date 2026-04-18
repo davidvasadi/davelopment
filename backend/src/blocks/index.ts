@@ -324,6 +324,20 @@ export const FeaturesBlock: Block = {
       ],
     },
     {
+      name: 'feature',
+      type: 'select',
+      label: 'Egyedi feature nézet',
+      admin: {
+        description: 'Ha be van állítva, csak ez az egy kártya jelenik meg teljes nézetben (a dokk gombjai a kártya belső tabjai lesznek). Ha üres, mind a 4 kártya megjelenik váltogatva.',
+      },
+      options: [
+        { label: 'Performance (Lighthouse)', value: 'performance' },
+        { label: 'SEO (Google Search Console)', value: 'seo' },
+        { label: 'Design (Figma / Deploy)', value: 'design' },
+        { label: 'Rendszerek (Infrastruktúra)', value: 'systems' },
+      ],
+    },
+    {
       name: 'social_media_card',
       type: 'group',
       label: 'Közösségi média kártya',
@@ -920,50 +934,42 @@ export const NewsletterBlock: Block = {
       name: 'title',
       type: 'text',
       label: 'Cím',
-      localized: true,
     },
     {
       name: 'heading_left',
       type: 'text',
       label: 'Bal oldali főcím',
-      localized: true,
     },
     {
       name: 'heading_right',
       type: 'text',
       label: 'Jobb oldali főcím',
-      localized: true,
     },
     {
       name: 'description',
       type: 'textarea',
       label: 'Leírás',
-      localized: true,
     },
     {
       name: 'source',
       type: 'text',
       label: 'Forrás',
-      localized: true,
     },
     {
       name: 'profile_name',
       type: 'text',
       label: 'Profil név',
-      localized: true,
     },
     {
       name: 'profile_role',
       type: 'text',
       label: 'Profil szerepkör',
-      localized: true,
     },
     {
       name: 'profile_image',
       type: 'upload',
       relationTo: 'media',
       label: 'Profil kép',
-      localized: true,
     },
     {
       name: 'form',
