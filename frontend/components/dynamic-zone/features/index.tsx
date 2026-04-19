@@ -108,8 +108,9 @@ const MacMenuBar = () => {
       <div className="flex items-center gap-[18px]">
         <span className="text-[12px] font-semibold" style={{ color: 'rgba(255,255,255,0.88)' }}>[davelopment]®</span>
         {['File', 'Edit', 'View', 'Window', 'Help'].map(m => (
-          <span key={m} className="text-[12px]" style={{ color: 'rgba(255,255,255,0.38)' }}>{m}</span>
+          <span key={m} className="hidden md:block text-[12px]" style={{ color: 'rgba(255,255,255,0.38)' }}>{m}</span>
         ))}
+        <span className="md:hidden text-[12px]" style={{ color: 'rgba(255,255,255,0.38)' }}>menu</span>
       </div>
       <div className="flex items-center gap-[14px]">
         <svg width="14" height="10" viewBox="0 0 24 18" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round">
@@ -158,15 +159,13 @@ export const Features = ({
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // ── Single-feature mode state ───────────────────────────────────────────
-  const [singleView, setSingleView] = useState<string | undefined>(undefined);
-
   const isSingle = !!feature;
   const singleCfg = feature ? singleConfigs[feature] : null;
 
-  // Init single view to first tab
-  useEffect(() => {
-    if (singleCfg) setSingleView(singleCfg.dockTabs[0].key);
-  }, [feature]);
+  // Init single view immediately (not in useEffect) to avoid first-render flash
+  const [singleView, setSingleView] = useState<string | undefined>(
+    () => singleCfg?.dockTabs[0]?.key
+  );
 
   // Summary auto-advance
   useEffect(() => {
@@ -210,7 +209,7 @@ export const Features = ({
 
   return (
     <div className="px-0 md:px-2 md:my-20">
-      <div className="relative w-full overflow-hidden rounded-2xl md:rounded-3xl" style={{ background: '#080809' }}>
+      <div className="relative w-full overflow-hidden rounded-none md:rounded-3xl" style={{ background: '#080809' }}>
 
         <GrainCanvas strength="light" opacity={0.45} zIndex={1} />
 
@@ -319,7 +318,7 @@ export const Features = ({
                     }}
                   >
                     {isSingle
-                      // Single mode: dock = internal tabs of that card
+                      // Single mode: dock = feature's own tabs (same style as summary)
                       ? singleCfg!.dockTabs.map((tab) => {
                           const isActive = singleView === tab.key;
                           return (
@@ -342,7 +341,6 @@ export const Features = ({
                                   : 'inset 0 1px 0 rgba(255,255,255,0.04)',
                               }}
                             >
-                              {/* Scale icon to fit 20px like summary mode */}
                               <span style={{ transform: 'scale(1.8)', display: 'flex' }}>{tab.icon}</span>
                             </motion.button>
                           );

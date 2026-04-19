@@ -267,6 +267,7 @@ jobs:
 
           cd /var/www/davelopment/frontend
           pnpm install --frozen-lockfile=false --prefer-offline
+          pnpm rebuild sharp || true
 
           pm2 describe frontend >/dev/null 2>&1 && \
             pm2 restart frontend --update-env || \

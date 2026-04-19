@@ -64,7 +64,7 @@ export const CTA = ({
         {/* Left — szöveg + gomb kártya */}
         <motion.div
           {...fadeUp(0)}
-          className="flex-1 min-w-0 flex flex-col justify-between bg-white rounded-2xl group-hover/cta:rounded-r-none mr-1 group-hover/cta:mr-0 transition-all duration-300 p-8 lg:p-10"
+          className="flex-1 min-w-0 flex flex-col justify-between bg-white rounded-2xl group-hover/cta:rounded-r-none mr-1 group-hover/cta:mr-0 transition-[border-radius,margin-right] duration-300 p-8 lg:p-10"
         >
           <div>
             {badge_label && (
@@ -139,7 +139,7 @@ export const CTA = ({
         {firstImgUrl && (
           <motion.div
             {...fadeUp(0.1)}
-            className="relative w-full md:w-[280px] lg:w-[340px] flex-shrink-0 bg-white rounded-2xl group-hover/cta:rounded-l-none transition-all duration-300 p-2 min-h-[360px]"
+            className="relative w-full md:w-[280px] lg:w-[340px] flex-shrink-0 bg-white rounded-2xl group-hover/cta:rounded-l-none transition-[border-radius] duration-300 p-2 min-h-[360px]"
           >
             <div className="relative w-full h-full rounded-xl overflow-hidden min-h-[340px]">
               <Image
@@ -160,7 +160,7 @@ export const CTA = ({
         {firstImgUrl && (
   <motion.div
     {...fadeUp(0)}
-    className="relative w-full bg-white rounded-2xl group-hover/cta-m:rounded-b-none mb-1 group-hover/cta-m:mb-0 transition-all duration-300 p-2"
+    className="relative w-full bg-white rounded-2xl group-hover/cta-m:rounded-b-none mb-1 group-hover/cta-m:mb-0 transition-[border-radius,margin-bottom] duration-300 p-2"
     style={{ height: '52vw', minHeight: 210, maxHeight: 320 }}
   >
     <div className="relative w-full h-full rounded-xl overflow-hidden">
@@ -189,7 +189,7 @@ export const CTA = ({
         {/* Szöveg + gomb kártya */}
         <motion.div
           {...fadeUp(0.08)}
-          className="flex flex-col gap-5 bg-white rounded-2xl group-hover/cta-m:rounded-t-none transition-all duration-300 px-6 pt-5 pb-8"
+          className="flex flex-col gap-5 bg-white rounded-2xl group-hover/cta-m:rounded-t-none transition-[border-radius] duration-300 px-6 pt-5 pb-8"
         >
           {/* Heading */}
           <h2 className="font-medium tracking-tight leading-[1.08]">
