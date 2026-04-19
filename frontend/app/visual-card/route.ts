@@ -1,33 +1,8 @@
 import fs from 'fs'
 import path from 'path'
-import sharp from 'sharp'
 
 export const dynamic = 'force-dynamic'
 
-// Square crop from top-center — equivalent to object-fit:cover; object-position:top
-async function toBase64TopCrop(filePath: string): Promise<string | null> {
-  try {
-    const abs = path.join(process.cwd(), 'public', filePath)
-    if (!fs.existsSync(abs)) return null
-    const meta = await sharp(abs).metadata()
-    if (!meta.width || !meta.height) return null
-
-    const size = Math.min(meta.width, meta.height)
-    const left = Math.floor((meta.width - size) / 2)
-
-    const buf = await sharp(abs)
-      .extract({ left, top: 0, width: size, height: size })
-      .resize(400, 400)
-      .jpeg({ quality: 85 })
-      .toBuffer()
-
-    return buf.toString('base64')
-  } catch {
-    return null
-  }
-}
-
-// vCard spec: lines max 75 chars, continuation lines start with a single space
 function foldLine(line: string): string {
   if (line.length <= 75) return line
   const chunks: string[] = [line.slice(0, 75)]
@@ -40,7 +15,15 @@ function foldLine(line: string): string {
 }
 
 export async function GET() {
-  const photoB64 = await toBase64TopCrop('dave.jpg')
+  let photoB64: string | null = null
+  try {
+    const abs = path.join(process.cwd(), 'public', 'dave.jpg')
+    if (fs.existsSync(abs)) {
+      photoB64 = fs.readFileSync(abs).toString('base64')
+    }
+  } catch {
+    photoB64 = null
+  }
 
   const lines = [
     'BEGIN:VCARD',
