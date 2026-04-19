@@ -284,6 +284,15 @@ export const Newsletters: CollectionConfig = {
       async ({ doc, operation, req }) => {
         if (operation !== 'create') return
         const { payload } = req
+
+        // E2E teszt cleanup — azonnal töröljük, nem küldünk emailt
+        if (doc.email?.includes('e2e-test@')) {
+          try {
+            await payload.delete({ collection: 'newsletters', id: doc.id, overrideAccess: true })
+          } catch (_) {}
+          return
+        }
+
         const language = (doc.language || 'hu') as 'hu' | 'en'
         const isHu = language !== 'en'
         const name = doc.name || ''
