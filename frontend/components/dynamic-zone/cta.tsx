@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, type Variants } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Plus as PlusIcon } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
@@ -15,28 +15,17 @@ const toAbs = (m?: any): string | undefined => {
 };
 
 // hover wheel animation for ghost buttons
-const wheelVariants: Variants = {
+const wheelVariants = {
   rest: { y: '-50%' },
-  hover: { y: '0%', transition: { duration: 0.3, ease: 'easeInOut' } },
+  hover: { y: '0%', transition: { duration: 0.3, ease: 'easeInOut' as const } },
 };
 
-// shared fade-up child — used inside stagger containers
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, ease: [0.33, 1, 0.68, 1] },
-  },
-};
-
-// stagger container — orchestrates children
-const stagger: Variants = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.11, delayChildren: 0.05 },
-  },
-};
+const fadeUp = (delay = 0, distance = 24) => ({
+  initial: { opacity: 0, y: distance },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.2 },
+  transition: { duration: 0.6, ease: 'easeOut' as const, delay },
+});
 
 type LinkBtn = {
   text?: string | null;
@@ -71,16 +60,10 @@ export const CTA = ({
     <div className="max-w-7xl mx-auto px-2 md:px-4 py-12 md:py-20">
 
       {/* ══════════════ DESKTOP ══════════════ */}
-      <motion.div
-        className="hidden md:flex md:flex-row md:items-stretch group/cta"
-        variants={stagger}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true }}
-      >
+      <div className="hidden md:flex md:flex-row md:items-stretch group/cta">
         {/* Left — szöveg + gomb kártya */}
         <motion.div
-          variants={fadeUp}
+          {...fadeUp(0)}
           className="flex-1 min-w-0 flex flex-col justify-between bg-white rounded-2xl group-hover/cta:rounded-r-none mr-1 group-hover/cta:mr-0 transition-all duration-300 p-8 lg:p-10"
         >
           <div>
@@ -155,7 +138,7 @@ export const CTA = ({
         {/* Right — képkártya */}
         {firstImgUrl && (
           <motion.div
-            variants={fadeUp}
+            {...fadeUp(0.1)}
             className="relative w-full md:w-[280px] lg:w-[340px] flex-shrink-0 bg-white rounded-2xl group-hover/cta:rounded-l-none transition-all duration-300 p-2 min-h-[360px]"
           >
             <div className="relative w-full h-full rounded-xl overflow-hidden min-h-[340px]">
@@ -169,20 +152,14 @@ export const CTA = ({
             </div>
           </motion.div>
         )}
-      </motion.div>
+      </div>
 
       {/* ══════════════ MOBILE ══════════════ */}
-      <motion.div
-        className="flex flex-col md:hidden group/cta-m"
-        variants={stagger}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true }}
-      >
+      <div className="flex flex-col md:hidden group/cta-m">
         {/* Képkártya */}
         {firstImgUrl && (
   <motion.div
-    variants={fadeUp}
+    {...fadeUp(0)}
     className="relative w-full bg-white rounded-2xl group-hover/cta-m:rounded-b-none mb-1 group-hover/cta-m:mb-0 transition-all duration-300 p-2"
     style={{ height: '52vw', minHeight: 210, maxHeight: 320 }}
   >
@@ -211,7 +188,7 @@ export const CTA = ({
 
         {/* Szöveg + gomb kártya */}
         <motion.div
-          variants={fadeUp}
+          {...fadeUp(0.08)}
           className="flex flex-col gap-5 bg-white rounded-2xl group-hover/cta-m:rounded-t-none transition-all duration-300 px-6 pt-5 pb-8"
         >
           {/* Heading */}
@@ -274,7 +251,7 @@ export const CTA = ({
           )}
         </motion.div>
 
-      </motion.div>
+      </div>
 
     </div>
   );

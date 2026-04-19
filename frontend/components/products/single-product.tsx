@@ -5,11 +5,11 @@ import { IconCheck } from '@tabler/icons-react';
 import { motion, type Variants } from 'framer-motion';
 import React, { useState } from 'react';
 
+import { Container } from '@/components/container';
 import { StrapiImage } from '@/components/ui/strapi-image';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { Product } from '@/types/types';
 import { PlusIcon } from 'lucide-react';
-import { Logo } from '@/components/logo';
 
 const fadeUp = (
   delay = 0,
@@ -89,6 +89,7 @@ export const SingleProduct = ({
   ].filter((row) => row.value);
 
   return (
+    <Container>
     <div className="">
 
       {/* FELSŐ HEADING + LEÍRÁS */}
@@ -136,7 +137,13 @@ className="text-6xl md:text-[140px] font-semibold mb-4 text-black max-w-4xl"    
               className="py-8"
               {...fadeUp(0.18, 20)}
             >
-              <Logo image={productLogoImage} locale={locale} />
+              <StrapiImage
+                src={productLogoImage.url}
+                alt={productLogoImage.alt ?? productLogoImage.alternativeText ?? ''}
+                width={300}
+                height={120}
+                className="h-16 w-auto object-contain"
+              />
             </motion.div>
           )}
         </motion.div>
@@ -337,6 +344,7 @@ className="text-6xl md:text-[140px] font-semibold mb-4 text-black max-w-4xl"    
       )}
 
     </div>
+    </Container>
   );
 };
 
