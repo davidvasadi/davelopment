@@ -2,6 +2,7 @@
 const isDev = process.env.NODE_ENV !== 'production';
 
 const nextConfig = {
+  serverExternalPackages: ['sharp'],
   // turbopack: {
   //   root: process.cwd().replace('/next', ''),
   // },
