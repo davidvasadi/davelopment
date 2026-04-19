@@ -136,7 +136,7 @@ export default buildConfig({
   email: process.env.RESEND_API_KEY
     ? resendAdapter({
       defaultFromAddress: 'hello@davelopment.hu',
-      defaultFromName: 'Davelopment',
+      defaultFromName: '[davelopment]®',
       apiKey: process.env.RESEND_API_KEY,
     })
     : undefined,

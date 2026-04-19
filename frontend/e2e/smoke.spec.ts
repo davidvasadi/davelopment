@@ -87,7 +87,7 @@ test('kapcsolat form: megtalálható és beküldhető', async ({ page, request }
   // Megkeressük az első oldalt ahol van form-next-to-section blokk
   const pageWithForm = pages.find((p: any) =>
     (p.dynamic_zone ?? []).some((block: any) =>
-      block.blockType === 'form-next-to-section' || block.blockType === 'FormNextToSection'
+      block.blockType === 'form-section'
     )
   )
 
