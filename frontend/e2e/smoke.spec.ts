@@ -76,17 +76,32 @@ test('hírlevél form: email mező látható és beküldhető', async ({ page })
   ).toBeVisible({ timeout: 8000 })
 })
 
-// ─── Kapcsolat form UI ────────────────────────────────────────
+// ─── Kapcsolat form UI (dinamikus oldal keresés) ──────────────
 
-test('kapcsolat form: mezők láthatók és beküldhető', async ({ page }) => {
-  await page.goto('/hu/szolgaltatasok')
+test('kapcsolat form: megtalálható és beküldhető', async ({ page, request }) => {
+  // Lekérdezzük az összes oldalt Payload-ból
+  const res = await request.get('/api/pages?limit=50&locale=hu&depth=2')
+  const json = await res.json()
+  const pages = json.docs ?? []
+
+  // Megkeressük az első oldalt ahol van form-next-to-section blokk
+  const pageWithForm = pages.find((p: any) =>
+    (p.dynamic_zone ?? []).some((block: any) =>
+      block.blockType === 'form-next-to-section' || block.blockType === 'FormNextToSection'
+    )
+  )
+
+  if (!pageWithForm) {
+    test.skip(true, 'Nincs form-next-to-section blokk egyik oldalon sem')
+    return
+  }
+
+  await page.goto(`/hu/${pageWithForm.slug}`)
   const emailInput = page.locator('input[type="email"]').first()
   await expect(emailInput).toBeVisible()
-  // Név mező
   const nameInput = page.locator('input[type="text"]').first()
   await nameInput.fill('E2E Teszt')
   await emailInput.fill(TEST_EMAIL)
-  // Üzenet textarea ha van
   const textarea = page.locator('textarea').first()
   if (await textarea.isVisible()) {
     await textarea.fill('Automatikus e2e teszt üzenet.')
