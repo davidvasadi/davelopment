@@ -106,7 +106,7 @@ export default function VisualCard() {
 
             {/* Mentés gomb — ugyanolyan stílus */}
             <a
-              href="/vcf"
+              href="/visual-card"
               download="davelopment.vcf"
               className="flex items-center justify-center gap-2 bg-white rounded-2xl px-4 py-4 border border-black/[0.08] active:scale-[0.98] transition-transform"
             >
