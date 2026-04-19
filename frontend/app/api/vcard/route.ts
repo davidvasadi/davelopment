@@ -62,7 +62,7 @@ export async function GET() {
   return new Response(lines.join('\r\n'), {
     headers: {
       'Content-Type': 'text/vcard; charset=utf-8',
-      'Content-Disposition': 'inline; filename="davelopment.vcf"',
+      'Content-Disposition': 'attachment; filename="davelopment.vcf"',
     },
   })
 }
