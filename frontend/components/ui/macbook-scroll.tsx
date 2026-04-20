@@ -33,12 +33,14 @@ const IPhoneFrame = ({
   showGradient,
   title,
   contentY,
+  children,
 }: {
   src?: string;
   videoSrc?: string;
   showGradient?: boolean;
   title?: string | React.ReactNode;
   contentY?: MotionValue<string>;
+  children?: React.ReactNode;
 }) => {
   return (
     <div className="flex flex-col items-center justify-center w-full px-6 py-4 gap-4">
@@ -96,27 +98,33 @@ const IPhoneFrame = ({
           >
             {/* Tartalom — DI alatt kezdődik, home indicator felett végződik */}
             <div className="absolute inset-x-0 overflow-hidden" style={{ top: '62px', bottom: '24px' }}>
-              <motion.div
-                className="absolute inset-x-0 top-0 w-full"
-                style={{ height: contentY ? '170%' : '100%', ...(contentY ? { y: contentY } : {}) }}
-              >
-                {videoSrc ? (
-                  <video
-                    src={videoSrc}
-                    autoPlay muted loop playsInline
-                    className="absolute inset-0 w-full h-full object-cover object-top"
-                  />
-                ) : src ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={src}
-                    alt="mockup"
-                    className="absolute inset-0 w-full h-full object-cover object-top"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-neutral-900 to-black" />
-                )}
-              </motion.div>
+              {children ? (
+                <div className="absolute inset-0 w-full h-full overflow-hidden">
+                  {children}
+                </div>
+              ) : (
+                <motion.div
+                  className="absolute inset-x-0 top-0 w-full"
+                  style={{ height: contentY ? '170%' : '100%', ...(contentY ? { y: contentY } : {}) }}
+                >
+                  {videoSrc ? (
+                    <video
+                      src={videoSrc}
+                      autoPlay muted loop playsInline
+                      className="absolute inset-0 w-full h-full object-cover object-top"
+                    />
+                  ) : src ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={src}
+                      alt="mockup"
+                      className="absolute inset-0 w-full h-full object-cover object-top"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-neutral-900 to-black" />
+                  )}
+                </motion.div>
+              )}
             </div>
 
             {/* Kijelző fény visszaverődés */}
@@ -195,11 +203,11 @@ const IPhoneFrame = ({
                   <rect x="9" y="2" width="3" height="9" rx="0.5" />
                   <rect x="13.5" y="0" width="2.5" height="11" rx="0.5" opacity="0.3" />
                 </svg>
-                {/* WiFi */}
+                {/* WiFi — sweep=0 so arcs bow upward */}
                 <svg width="15" height="11" viewBox="0 0 15 11" fill="white">
-                  <path d="M7.5 8.5a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z" />
-                  <path d="M3.2 5.5a6.1 6.1 0 0 1 8.6 0" strokeWidth="1.3" stroke="white" fill="none" strokeLinecap="round"/>
-                  <path d="M0.5 2.8a10.1 10.1 0 0 1 14 0" strokeWidth="1.3" stroke="white" fill="none" strokeLinecap="round" opacity="0.45"/>
+                  <circle cx="7.5" cy="9.8" r="1.1"/>
+                  <path d="M4.9 7.0a3.7 3.7 0 0 0 5.2 0" fill="none" stroke="white" strokeWidth="1.25" strokeLinecap="round"/>
+                  <path d="M2.2 4.3a8.2 8.2 0 0 0 10.6 0" fill="none" stroke="white" strokeWidth="1.25" strokeLinecap="round" opacity="0.45"/>
                 </svg>
                 {/* Akkumulátor */}
                 <div className="flex items-center gap-[2px]">
@@ -260,6 +268,8 @@ export const MacbookScroll = ({
   mobileAnimation = 'zoom',
   showGradient,
   title,
+  desktopChildren,
+  mobileChildren,
 }: {
   src?: string;
   videoSrc?: string;
@@ -268,6 +278,8 @@ export const MacbookScroll = ({
   mobileAnimation?: 'zoom' | 'parallax';
   showGradient?: boolean;
   title?: string | React.ReactNode;
+  desktopChildren?: React.ReactNode;
+  mobileChildren?: React.ReactNode;
 }) => {
   const desktopRef = useRef<HTMLDivElement>(null);
   const mobileRef  = useRef<HTMLDivElement>(null);
@@ -324,11 +336,15 @@ export const MacbookScroll = ({
               src={activeSrc}
               videoSrc={activeVideoSrc}
               showGradient={showGradient}
-              contentY={mobileContentY}
-            />
+              contentY={mobileChildren ? undefined : mobileContentY}
+            >
+              {mobileChildren}
+            </IPhoneFrame>
           ) : (
             <motion.div style={{ scale: mobileScale, opacity: mobilePhoneOpacity }}>
-              <IPhoneFrame src={activeSrc} videoSrc={activeVideoSrc} showGradient={showGradient} />
+              <IPhoneFrame src={activeSrc} videoSrc={activeVideoSrc} showGradient={showGradient}>
+                {mobileChildren}
+              </IPhoneFrame>
             </motion.div>
           )}
         </div>
@@ -346,7 +362,9 @@ export const MacbookScroll = ({
           {title}
         </motion.h2>
 
-        <Lid src={src} videoSrc={videoSrc} scaleX={scaleX} scaleY={scaleY} rotate={rotate} translate={translate} />
+        <Lid src={src} videoSrc={videoSrc} scaleX={scaleX} scaleY={scaleY} rotate={rotate} translate={translate}>
+          {desktopChildren}
+        </Lid>
 
         <div className="relative -z-10 h-[22rem] w-[32rem] overflow-hidden rounded-2xl bg-[#1e1e20]">
           <div className="relative h-10 w-full">
@@ -372,7 +390,7 @@ export const MacbookScroll = ({
    Desktop sub-komponensek (változatlanok)
 ───────────────────────────────────────────── */
 const Lid = ({
-  scaleX, scaleY, rotate, translate, src, videoSrc,
+  scaleX, scaleY, rotate, translate, src, videoSrc, children,
 }: {
   scaleX: MotionValue<number>;
   scaleY: MotionValue<number>;
@@ -380,6 +398,7 @@ const Lid = ({
   translate: MotionValue<number>;
   src?: string;
   videoSrc?: string;
+  children?: React.ReactNode;
 }) => (
   <div className="relative [perspective:800px]">
     <div
@@ -414,6 +433,8 @@ const Lid = ({
         // eslint-disable-next-line @next/next/no-img-element
         <img src={src} alt="mockup"
           className="absolute inset-0 h-full w-full rounded-lg object-cover object-top" />
+      ) : children ? (
+        <div className="absolute inset-0 rounded-lg overflow-hidden">{children}</div>
       ) : null}
     </motion.div>
   </div>

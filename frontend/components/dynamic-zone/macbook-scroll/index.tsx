@@ -2,6 +2,7 @@
 import { MacbookScroll } from '@/components/ui/macbook-scroll';
 import { GrainCanvas } from '@/components/ui/grain-canvas';
 import { strapiImage } from '@/lib/strapi/strapiImage';
+import { LiveEditDemo } from './LiveEditDemo';
 
 interface MacbookScrollSectionProps {
   title?: string;
@@ -53,6 +54,8 @@ export function MacbookScrollSection({ title, desktop_media, mobile_media, mobil
             mobileVideoSrc={mobileVideoSrc}
             mobileAnimation={mobile_animation}
             showGradient={show_gradient ?? false}
+            desktopChildren={!desktop_media ? <LiveEditDemo /> : undefined}
+            mobileChildren={!mobile_media ? <LiveEditDemo mobile /> : undefined}
           />
         </div>
       </div>
