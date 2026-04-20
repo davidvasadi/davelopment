@@ -120,6 +120,9 @@ importers:
       '@mapbox/rehype-prism':
         specifier: ^0.9.0
         version: 0.9.0
+      '@payloadcms/live-preview-react':
+        specifier: ^3.83.0
+        version: 3.83.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@react-three/drei':
         specifier: ^10.7.6
         version: 10.7.6(@react-three/fiber@9.4.0(@types/react@19.1.10)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(three@0.168.0))(@types/react@19.1.10)(@types/three@0.179.0)(immer@9.0.21)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(three@0.168.0)
@@ -1506,6 +1509,15 @@ packages:
     peerDependencies:
       graphql: ^16.8.1
       payload: 3.80.0
+
+  '@payloadcms/live-preview-react@3.83.0':
+    resolution: {integrity: sha512-gbYtfgoMUKgGngecCP92M/kLKu/qzlCImG2JEuaL85gi852xYQw8CC8oUV/YCXLEAMdr71+UVGyj4lK3rOD9ZQ==}
+    peerDependencies:
+      react: 19.1.1
+      react-dom: 19.1.1
+
+  '@payloadcms/live-preview@3.83.0':
+    resolution: {integrity: sha512-dzGQxUhEZ9SjQ0L3aZkWNsV0o8vHyBOcS3Qk/ULMf8Fuc7jOzKJfvXyjE0vNxWVKNrpuZOekUhXouPOY/XXX1w==}
 
   '@payloadcms/next@3.80.0':
     resolution: {integrity: sha512-JL7Ydi/rm7hoLDzMO6H1mBQdvxJ5Dww26aomMOYMziUr9YzU6w+W5EnJgN3x2vH0myvDr9VUfNTTBNK616G5LQ==}
@@ -6543,6 +6555,14 @@ snapshots:
       tsx: 4.21.0
     transitivePeerDependencies:
       - typescript
+
+  '@payloadcms/live-preview-react@3.83.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+    dependencies:
+      '@payloadcms/live-preview': 3.83.0
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
+
+  '@payloadcms/live-preview@3.83.0': {}
 
   '@payloadcms/next@3.80.0(@types/react@19.1.10)(graphql@16.13.2)(monaco-editor@0.55.1)(next@16.2.1(@opentelemetry/api@1.9.0)(@playwright/test@1.59.1)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.98.0))(payload@3.80.0(graphql@16.13.2)(typescript@5.6.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.6.2)':
     dependencies:

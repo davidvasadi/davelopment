@@ -11,6 +11,13 @@ export const Articles: CollectionConfig = {
     group: 'Tartalom',
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'categories', 'createdAt'],
+    livePreview: {
+      url: ({ data, locale }: any) => {
+        const base = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/+$/, '')
+        const loc = locale?.code || 'hu'
+        return `${base}/${loc}/blog/${data?.slug}`
+      },
+    },
   },
   access: {
     read: () => true,

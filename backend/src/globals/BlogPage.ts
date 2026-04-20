@@ -9,6 +9,12 @@ export const BlogPage: GlobalConfig = {
   admin: {
     group: 'Weboldal',
     description: 'A blog oldal beállításai (cím, SEO, dinamikus zóna)',
+    livePreview: {
+      url: ({ locale }: any) => {
+        const base = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/+$/, '')
+        return `${base}/${locale?.code || 'hu'}/blog`
+      },
+    },
   },
   access: {
     read: () => true,

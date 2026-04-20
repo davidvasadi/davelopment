@@ -10,6 +10,13 @@ export const ProductPage: GlobalConfig = {
   admin: {
     group: 'Weboldal',
     description: 'A projektek oldal beállításai (cím, SEO, dinamikus zóna)',
+    livePreview: {
+      url: ({ locale }: any) => {
+        const base = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/+$/, '')
+        const loc = locale?.code || 'hu'
+        return `${base}/${loc}/${loc === 'hu' ? 'projektek' : 'products'}`
+      },
+    },
   },
   access: {
     read: () => true,

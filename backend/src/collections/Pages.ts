@@ -9,6 +9,17 @@ export const Pages: CollectionConfig = {
     group: 'Tartalom',
     useAsTitle: 'label',
     defaultColumns: ['label', 'slug', 'createdAt'],
+    livePreview: {
+      url: ({ data, locale }: any) => {
+        const base = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/+$/, '')
+        const loc = locale?.code || 'hu'
+        const slug = data?.slug
+        if (slug === 'homepage') return `${base}/${loc}`
+        const serviceSlugs = ['branding-arculat', 'ux-ui-design-fejlesztes', 'digitalis-rendszerek', 'seo-tartalommarketing']
+        if (serviceSlugs.includes(slug)) return `${base}/${loc}/${loc === 'hu' ? 'szolgaltatasok' : 'services'}/${slug}`
+        return `${base}/${loc}/${slug}`
+      },
+    },
   },
   access: {
     read: () => true,

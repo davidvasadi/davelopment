@@ -34,6 +34,16 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
+  livePreview: {
+    collections: ['pages', 'articles', 'products'],
+    globals: ['global', 'service', 'blog-page', 'product-page'],
+    breakpoints: [
+      { label: 'Mobil',   name: 'mobile',  width: 390,  height: 844 },
+      { label: 'Tablet',  name: 'tablet',  width: 768,  height: 1024 },
+      { label: 'Desktop', name: 'desktop', width: 1440, height: 900 },
+    ],
+  },
+
   admin: {
     user: Users.slug,
     importMap: {
