@@ -125,7 +125,7 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI,
     },
-    push: process.env.NODE_ENV !== 'production' || process.env.PAYLOAD_DB_PUSH === 'true',
+    push: true,
   }),
 
   // @ts-ignore - sharp type mismatch between versions

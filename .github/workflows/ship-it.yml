@@ -435,7 +435,6 @@ jobs:
             "RESEND_API_KEY=${RESEND_API_KEY}" \
             "RESEND_FROM_EMAIL=hello@davelopment.hu" \
             "NOTIFY_EMAIL=${NOTIFY_EMAIL}" \
-            "PAYLOAD_DB_PUSH=true" \
             > "${NEW_DIR}/.env"
 
           printf '%s\n' \
@@ -469,24 +468,6 @@ jobs:
           npm --cache /tmp/npm-sharp-cache \
             --prefix "${NEW_DIR}/node_modules/.pnpm/sharp@0.32.6/node_modules/sharp" \
             run install || true
-
-          # ── Schema bootstrap ──────────────────────────────────────────────
-          # 1) Fix postgres table ownership so Drizzle can ALTER them
-          log "Schema bootstrap: checking postgres sudo access..."
-          if sudo -n -u postgres psql -d davelopment -c "SELECT 1" 2>/dev/null; then
-            log "Postgres sudo available — transferring table ownership to davelopment..."
-            sudo -u postgres psql -d davelopment -c "DO \$\$ DECLARE tbl text; BEGIN FOR tbl IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tableowner = 'postgres' LOOP EXECUTE 'ALTER TABLE public.' || quote_ident(tbl) || ' OWNER TO davelopment'; END LOOP; END \$\$;"
-            log "Ownership transfer done"
-          else
-            log "No postgres sudo access — skipping ownership fix (new tables will still be created)"
-          fi
-
-          # 2) Schema push + migrate (auto-accept dev-mode prompt, non-blocking)
-          log "Running schema push + migrations..."
-          cd "$NEW_DIR"
-          yes | PAYLOAD_DB_PUSH=true NODE_ENV=production pnpm payload migrate 2>&1 || {
-            log "Migration/push finished with warnings (continuing deploy)"
-          }
 
           log "Stopping backend..."
           cd ~
