@@ -1,3 +1,4 @@
+import { hu } from '@payloadcms/translations/languages/hu'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { resendAdapter } from '@payloadcms/email-resend'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
@@ -9,6 +10,10 @@ import sharp from 'sharp'
 
 // Collections
 import { Articles } from './collections/Articles'
+import { Clients } from './collections/Clients'
+import { Invoices } from './collections/Invoices'
+import { Jobs } from './collections/Jobs'
+import { Subscriptions } from './collections/Subscriptions'
 import { BlogPage } from './globals/BlogPage'
 import { Categories } from './collections/Categories'
 import { Contacts } from './collections/Contacts'
@@ -94,6 +99,11 @@ export default buildConfig({
     Contacts,
     Newsletters,
     EmailLogs,
+    // Üzlet
+    Clients,
+    Jobs,
+    Subscriptions,
+    Invoices,
   ],
 
   globals: [
@@ -121,9 +131,10 @@ export default buildConfig({
   // @ts-ignore - sharp type mismatch between versions
   sharp,
 
-  // i18n for admin UI (hu support via @payloadcms/translations)
+  // i18n for admin UI
   i18n: {
-    fallbackLanguage: 'en',
+    supportedLanguages: { hu },
+    fallbackLanguage: 'hu',
   },
 
   // Content localization

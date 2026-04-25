@@ -41,8 +41,8 @@ const CSS = `
   .cw-cell-val { font-size:2rem; font-weight:700; letter-spacing:-0.04em; font-family:ui-monospace,monospace; line-height:1; }
   .cw-cell-label { font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--theme-elevation-500); margin-bottom:0.3rem; font-family:ui-monospace,monospace; }
   .cw-cell-sub { font-size:0.75rem; margin-top:0.25rem; font-family:ui-monospace,monospace; color:var(--theme-elevation-400); }
-  .cw-delta-pos { font-size:0.75rem; color:#22c55e; }
-  .cw-delta-neg { font-size:0.75rem; color:#ef4444; }
+  .cw-delta-pos { font-size:0.75rem; color:var(--bw-success, #22c55e); }
+  .cw-delta-neg { font-size:0.75rem; color:var(--bw-danger, #ef4444); }
   .cw-delta-neu { font-size:0.75rem; color:var(--theme-elevation-400); }
   .cw-track { height:4px; background:var(--theme-elevation-150); border-radius:999px; overflow:hidden; }
   .cw-fill { height:100%; border-radius:999px; transition:width .8s cubic-bezier(.25,.46,.45,.94); }
@@ -72,7 +72,7 @@ function MonthlyBars({ data }: { data: MonthPoint[] }) {
           const isLast = i === data.length - 1
           return (
             <div key={d.month} className={`cw-bar${isLast ? ' active' : ''}`}
-              style={{ height: `${h}px`, background: isLast ? '#22c55e' : 'var(--theme-elevation-200)', ...(isLast ? { boxShadow: '0 0 8px rgba(34,197,94,.3)' } : {}) }}>
+              style={{ height: `${h}px`, background: isLast ? 'var(--bw-success, #22c55e)' : 'var(--theme-elevation-200)', ...(isLast ? { boxShadow: '0 0 8px rgba(34,197,94,.3)' } : {}) }}>
               <div className="cw-bar-tip">{d.month.slice(5)}: {fmt(d.sent)}</div>
             </div>
           )
@@ -122,16 +122,16 @@ export function CommunicationsWidget() {
   )
 
   if (error || !stats) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 80, color: '#ef4444', fontSize: '0.8rem' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 80, color: 'var(--bw-danger, #ef4444)', fontSize: '0.8rem' }}>
       Nem sikerült betölteni
     </div>
   )
 
-  const quotaColor = pct(stats.monthSent, QUOTA) >= 90 ? '#ef4444' : pct(stats.monthSent, QUOTA) >= 70 ? '#f0c742' : '#22c55e'
+  const quotaColor = pct(stats.monthSent, QUOTA) >= 90 ? 'var(--bw-danger, #ef4444)' : pct(stats.monthSent, QUOTA) >= 70 ? 'var(--bw-yellow, #f0c742)' : 'var(--bw-success, #22c55e)'
   const sentDelta = delta(stats.monthSent, stats.prevMonthSent)
   const subsDelta = delta(stats.activeSubs, stats.prevMonthSubs ?? 0)
   const convRate = stats.totalLeads > 0 ? Math.round((stats.activeSubs / stats.totalLeads) * 100) : null
-  const convColor = convRate !== null ? (convRate >= 30 ? '#22c55e' : convRate >= 10 ? '#f0c742' : '#ef4444') : '#22c55e'
+  const convColor = convRate !== null ? (convRate >= 30 ? 'var(--bw-success, #22c55e)' : convRate >= 10 ? 'var(--bw-yellow, #f0c742)' : 'var(--bw-danger, #ef4444)') : 'var(--bw-success, #22c55e)'
 
   const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } }
   const cell = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: 'easeOut' as const } } }
@@ -146,30 +146,30 @@ export function CommunicationsWidget() {
           {/* Érdeklődők */}
           <div className="cw-cell">
             <div className="cw-cell-label">Új érdeklődő (7n)</div>
-            <div className="cw-cell-val" style={{ color: stats.newLeads > 0 ? '#f0c742' : 'var(--theme-text)' }}>
+            <div className="cw-cell-val" style={{ color: stats.newLeads > 0 ? 'var(--bw-yellow, #f0c742)' : 'var(--theme-text)' }}>
               {stats.newLeads}
-              {stats.newLeads > 0 && <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#f0c742', boxShadow: '0 0 5px #f0c742', marginLeft: 6, verticalAlign: 'middle', marginBottom: 3 }} />}
+              {stats.newLeads > 0 && <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: 'var(--bw-yellow, #f0c742)', boxShadow: '0 0 5px #f0c742', marginLeft: 6, verticalAlign: 'middle', marginBottom: 3 }} />}
             </div>
             <div className="cw-cell-sub">összes: {stats.totalLeads}</div>
             {stats.lastLeadName && (
-              <div className="cw-cell-sub" style={{ color: '#f0c742' }}>↳ {stats.lastLeadName}{stats.lastLeadAgo ? `, ${stats.lastLeadAgo}` : ''}</div>
+              <div className="cw-cell-sub" style={{ color: 'var(--bw-yellow, #f0c742)' }}>↳ {stats.lastLeadName}{stats.lastLeadAgo ? `, ${stats.lastLeadAgo}` : ''}</div>
             )}
           </div>
 
           {/* Feliratkozók */}
           <div className="cw-cell">
             <div className="cw-cell-label">Aktív feliratkozó</div>
-            <div className="cw-cell-val" style={{ color: '#22c55e' }}>{fmt(stats.activeSubs)}</div>
+            <div className="cw-cell-val" style={{ color: 'var(--bw-success, #22c55e)' }}>{fmt(stats.activeSubs)}</div>
             <div className="cw-cell-sub"><DeltaBadge v={subsDelta} /></div>
             {stats.newSubs > 0 && (
-              <div className="cw-cell-sub" style={{ color: '#22c55e' }}>+{stats.newSubs} új (7n)</div>
+              <div className="cw-cell-sub" style={{ color: 'var(--bw-success, #22c55e)' }}>+{stats.newSubs} új (7n)</div>
             )}
           </div>
 
           {/* Email / hó */}
           <div className="cw-cell">
             <div className="cw-cell-label">Email / hó</div>
-            <div className="cw-cell-val" style={{ color: '#7c6af7' }}>{fmt(stats.monthSent)}</div>
+            <div className="cw-cell-val" style={{ color: 'var(--bw-purple, #7c6af7)' }}>{fmt(stats.monthSent)}</div>
             <div className="cw-cell-sub"><DeltaBadge v={sentDelta} /></div>
           </div>
 
@@ -195,7 +195,7 @@ export function CommunicationsWidget() {
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.3rem' }}>
             <span style={{ fontSize: '0.7rem', color: 'var(--theme-elevation-400)', fontFamily: 'ui-monospace,monospace' }}>{pct(stats.monthSent, QUOTA)}% felhasználva</span>
-            <span style={{ fontSize: '0.7rem', fontFamily: 'ui-monospace,monospace', color: (QUOTA - stats.monthSent) < 300 ? '#ef4444' : 'var(--theme-elevation-400)' }}>{fmt(QUOTA - stats.monthSent)} maradt</span>
+            <span style={{ fontSize: '0.7rem', fontFamily: 'ui-monospace,monospace', color: (QUOTA - stats.monthSent) < 300 ? 'var(--bw-danger, #ef4444)' : 'var(--theme-elevation-400)' }}>{fmt(QUOTA - stats.monthSent)} maradt</span>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.6rem' }}>
@@ -217,7 +217,7 @@ export function CommunicationsWidget() {
           <div>
             <div className="cw-section-label">Legutóbbi kampány</div>
             <div className="cw-campaign-row">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c6af7" strokeWidth="1.8" style={{ flexShrink: 0 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--bw-purple, #7c6af7)" strokeWidth="1.8" style={{ flexShrink: 0 }}>
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                 <polyline points="22,6 12,13 2,6"/>
               </svg>

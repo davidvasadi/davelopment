@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { RootLayout, handleServerFunctions } from '@payloadcms/next/layouts'
+// @ts-ignore — CSS subpath nem szerepel a csomag típusaiban, de futáskor helyes
 import '@payloadcms/next/css'
 import './custom.scss'
 import React from 'react'

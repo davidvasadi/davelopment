@@ -169,6 +169,7 @@ export function ServicesPage({ pages, locale }: ServicesPageProps) {
                                             backgroundPosition: 'center',
                                             transform: isOpen ? 'scale(1)' : 'scale(1.06)',
                                             transition: 'transform 0.5s ease',
+                                            willChange: 'transform',
                                         }}
                                     />
                                 </div>
@@ -184,7 +185,6 @@ export function ServicesPage({ pages, locale }: ServicesPageProps) {
                                     flexDirection: 'column',
                                     justifyContent: 'center',
                                     marginTop: isOpen ? '0' : '-64px',
-                                    transition: 'padding 0.45s cubic-bezier(.4,0,.2,1), margin-top 0.45s cubic-bezier(.4,0,.2,1)',
                                 }}
                             >
                                 <span
@@ -200,10 +200,7 @@ export function ServicesPage({ pages, locale }: ServicesPageProps) {
                                 </span>
                                 <span
                                     className="block font-bold tracking-tight leading-tight text-black"
-                                    style={{
-                                        fontSize: isOpen ? '22px' : '16px',
-                                        transition: 'font-size 0.35s cubic-bezier(.4,0,.2,1)',
-                                    }}
+                                    style={{ fontSize: isOpen ? '22px' : '16px' }}
                                 >
                                     {page.label ?? page.slug}
                                 </span>

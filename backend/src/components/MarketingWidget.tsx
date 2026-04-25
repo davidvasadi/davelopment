@@ -7,7 +7,7 @@ interface GscStats { ok: boolean; totalClicks: number; totalImpressions: number;
 interface QueryRow { query: string; clicks: number; impressions: number; position: number }
 
 const fmt = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
-const posColor = (p: number) => p <= 3 ? '#22c55e' : p <= 10 ? '#f0c742' : 'var(--theme-elevation-500)'
+const posColor = (p: number) => p <= 3 ? 'var(--bw-success, #22c55e)' : p <= 10 ? 'var(--bw-yellow, #f0c742)' : 'var(--theme-elevation-500)'
 
 const CSS = `
   @keyframes mw-spin { to{transform:rotate(360deg)} }
@@ -35,7 +35,7 @@ function Delta({ v, inv }: { v: number; inv?: boolean }) {
   const pos = inv ? v < 0 : v > 0
   if (v === 0) return <span style={{ color:'var(--theme-elevation-300)' }}>—</span>
   return (
-    <span style={{ color: pos ? '#22c55e' : '#ef4444', background: pos ? 'rgba(34,197,94,.08)' : 'rgba(239,68,68,.08)', padding:'1px 6px', borderRadius:20 }}>
+    <span style={{ color: pos ? 'var(--bw-success, #22c55e)' : 'var(--bw-danger, #ef4444)', background: pos ? 'rgba(34,197,94,.08)' : 'rgba(239,68,68,.08)', padding:'1px 6px', borderRadius:20 }}>
       {pos ? '↑' : '↓'} {Math.abs(v)}%
     </span>
   )
@@ -84,10 +84,10 @@ function MiniDualChart({ trend }: { trend: TrendPoint[] }) {
     <div className="mw-chart-wrap">
       <div style={{ padding:'8px 10px 4px', display:'flex', gap:12, fontSize:10, fontFamily:'ui-monospace,monospace', color:'var(--theme-elevation-400)' }}>
         <span style={{ display:'flex', alignItems:'center', gap:5 }}>
-          <span style={{ width:10, height:2, background:'#3dffa0', borderRadius:99, display:'inline-block' }}/>Kattintás
+          <span style={{ width:10, height:2, background:'var(--bw-green, #3dffa0)', borderRadius:99, display:'inline-block' }}/>Kattintás
         </span>
         <span style={{ display:'flex', alignItems:'center', gap:5 }}>
-          <span style={{ width:10, height:2, background:'#7c6af7', borderRadius:99, display:'inline-block' }}/>Megjelenés
+          <span style={{ width:10, height:2, background:'var(--bw-purple, #7c6af7)', borderRadius:99, display:'inline-block' }}/>Megjelenés
         </span>
       </div>
       <div style={{ position:'relative', padding:'0 4px 2px' }}>
@@ -102,10 +102,10 @@ function MiniDualChart({ trend }: { trend: TrendPoint[] }) {
           onMouseLeave={() => setTt(null)}>
           <defs>
             <linearGradient id="mwgc" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3dffa0" stopOpacity=".14"/><stop offset="100%" stopColor="#3dffa0" stopOpacity="0"/>
+              <stop offset="0%" stopColor={'var(--bw-green, #3dffa0)'} stopOpacity=".14"/><stop offset="100%" stopColor={'var(--bw-green, #3dffa0)'} stopOpacity="0"/>
             </linearGradient>
             <linearGradient id="mwgi" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#7c6af7" stopOpacity=".12"/><stop offset="100%" stopColor="#7c6af7" stopOpacity="0"/>
+              <stop offset="0%" stopColor={'var(--bw-purple, #7c6af7)'} stopOpacity=".12"/><stop offset="100%" stopColor={'var(--bw-purple, #7c6af7)'} stopOpacity="0"/>
             </linearGradient>
             <clipPath id="mwclip"><rect x={PAD.left} y={PAD.top - 2} width={iW} height={iH + 4}/></clipPath>
           </defs>
@@ -119,14 +119,14 @@ function MiniDualChart({ trend }: { trend: TrendPoint[] }) {
 
           <path d={area(iVals, iS)} fill="url(#mwgi)" clipPath="url(#mwclip)"/>
           <path d={area(cVals, cS)} fill="url(#mwgc)" clipPath="url(#mwclip)"/>
-          <path d={path(iVals, iS)} fill="none" stroke="#7c6af7" strokeWidth="1.2" strokeLinejoin="round" clipPath="url(#mwclip)" strokeDasharray="10000" strokeDashoffset="10000" style={{ animation:'mw-sk .9s ease forwards' }}/>
-          <path d={path(cVals, cS)} fill="none" stroke="#3dffa0" strokeWidth="1.5" strokeLinejoin="round" clipPath="url(#mwclip)" strokeDasharray="10000" strokeDashoffset="10000" style={{ animation:'mw-sk .9s ease forwards' }}/>
+          <path d={path(iVals, iS)} fill="none" stroke={'var(--bw-purple, #7c6af7)'} strokeWidth="1.2" strokeLinejoin="round" clipPath="url(#mwclip)" strokeDasharray="10000" strokeDashoffset="10000" style={{ animation:'mw-sk .9s ease forwards' }}/>
+          <path d={path(cVals, cS)} fill="none" stroke={'var(--bw-green, #3dffa0)'} strokeWidth="1.5" strokeLinejoin="round" clipPath="url(#mwclip)" strokeDasharray="10000" strokeDashoffset="10000" style={{ animation:'mw-sk .9s ease forwards' }}/>
 
           {tt !== null && (
             <>
               <line x1={px(tt)} y1={PAD.top} x2={px(tt)} y2={PAD.top + iH} stroke="var(--theme-elevation-300)" strokeWidth=".75" strokeDasharray="2 3"/>
-              <circle cx={px(tt)} cy={cS.py(cVals[tt])} r="3.5" fill="#3dffa0" stroke="var(--theme-elevation-50)" strokeWidth="1.5"/>
-              <circle cx={px(tt)} cy={iS.py(iVals[tt])} r="3.5" fill="#7c6af7" stroke="var(--theme-elevation-50)" strokeWidth="1.5"/>
+              <circle cx={px(tt)} cy={cS.py(cVals[tt])} r="3.5" fill={'var(--bw-green, #3dffa0)'} stroke="var(--theme-elevation-50)" strokeWidth="1.5"/>
+              <circle cx={px(tt)} cy={iS.py(iVals[tt])} r="3.5" fill={'var(--bw-purple, #7c6af7)'} stroke="var(--theme-elevation-50)" strokeWidth="1.5"/>
             </>
           )}
           {xLabels.map(({ i, d, a }) => (
@@ -137,8 +137,8 @@ function MiniDualChart({ trend }: { trend: TrendPoint[] }) {
         {tt !== null && trend[tt] && (
           <div style={{ position:'absolute', top:6, left:`${Math.min(Math.max((tt / (n - 1)) * 100, 8), 68)}%`, transform:'translateX(-50%)', background:'var(--theme-elevation-100)', border:'1px solid var(--theme-elevation-200)', borderRadius:6, padding:'4px 8px', fontSize:10, fontFamily:'ui-monospace,monospace', pointerEvents:'none', whiteSpace:'nowrap', zIndex:10, boxShadow:'0 2px 8px rgba(0,0,0,.12)' }}>
             <div style={{ color:'var(--theme-elevation-500)', marginBottom:2 }}>{new Date(trend[tt].date).toLocaleDateString('hu-HU', { month:'short', day:'numeric' })}</div>
-            <div style={{ color:'#3dffa0', fontWeight:700 }}>{fmt(trend[tt].clicks)} klikk</div>
-            <div style={{ color:'#7c6af7' }}>{fmt(trend[tt].impressions)} megj.</div>
+            <div style={{ color:'var(--bw-green, #3dffa0)', fontWeight:700 }}>{fmt(trend[tt].clicks)} klikk</div>
+            <div style={{ color:'var(--bw-purple, #7c6af7)' }}>{fmt(trend[tt].impressions)} megj.</div>
           </div>
         )}
       </div>
@@ -182,9 +182,9 @@ export function MarketingWidget() {
   )
 
   const STATS = [
-    { label:'Kattintás (31n)',  val:fmt(stats.totalClicks),        color:'#3dffa0', delta:stats.clicksDelta },
-    { label:'Megjelenés (31n)', val:fmt(stats.totalImpressions),   color:'#7c6af7', delta:stats.impsDelta },
-    { label:'Átl. CTR',         val:`${stats.avgCtr}%`,            color:'#f0c742', delta:null },
+    { label:'Kattintás (31n)',  val:fmt(stats.totalClicks),        color:'var(--bw-green, #3dffa0)', delta:stats.clicksDelta },
+    { label:'Megjelenés (31n)', val:fmt(stats.totalImpressions),   color:'var(--bw-purple, #7c6af7)', delta:stats.impsDelta },
+    { label:'Átl. CTR',         val:`${stats.avgCtr}%`,            color:'var(--bw-yellow, #f0c742)', delta:null },
     { label:'Átl. pozíció',     val:`#${stats.avgPosition}`,       color:'var(--theme-text)', delta:null },
   ]
 
@@ -221,7 +221,7 @@ export function MarketingWidget() {
             {queries.map((q, i) => (
               <div key={i} className="mw-q-row">
                 <span style={{ fontSize:12, color:'var(--theme-text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', paddingRight:8 }}>{q.query}</span>
-                <span style={{ fontSize:12, fontWeight:600, color:'#3dffa0', fontFamily:'ui-monospace,monospace', textAlign:'right', paddingLeft:12 }}>{q.clicks}</span>
+                <span style={{ fontSize:12, fontWeight:600, color:'var(--bw-green, #3dffa0)', fontFamily:'ui-monospace,monospace', textAlign:'right', paddingLeft:12 }}>{q.clicks}</span>
                 <span style={{ fontSize:12, fontWeight:600, color:posColor(q.position), fontFamily:'ui-monospace,monospace', textAlign:'right', paddingLeft:12 }}>#{q.position}</span>
               </div>
             ))}

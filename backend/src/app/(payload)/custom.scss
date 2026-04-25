@@ -36,6 +36,15 @@ html[data-theme="light"] {
   --hover:      rgba(0,0,0,0.025);
   --hover2:     rgba(0,0,0,0.05);
   --ring:       rgba(0,0,0,0.10);
+
+  // Widget accent colors — light módra optimalizálva (dark módban fallback értékek aktívak)
+  --bw-green:   #059669;
+  --bw-purple:  #7c3aed;
+  --bw-blue:    #2563eb;
+  --bw-yellow:  #d97706;
+  --bw-success: #16a34a;
+  --bw-danger:  #dc2626;
+
 }
 
 // ── Scrollbar ────────────────────────────────────────────────────────────────
