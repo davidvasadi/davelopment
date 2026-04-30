@@ -71,9 +71,9 @@ function ContactModal({ contact, onClose }: { contact: ContactDoc; onClose: () =
               </div>
               <a
                 href={`mailto:${contact.email}`}
-                style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 600, color: '#3b82f6', textDecoration: 'none', padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(59,130,246,0.3)', background: 'rgba(59,130,246,0.07)', fontFamily: 'var(--font-body)', whiteSpace: 'nowrap' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(59,130,246,0.15)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(59,130,246,0.07)' }}
+                style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 600, color: '#0067eb', textDecoration: 'none', padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(0,103,235,0.3)', background: 'rgba(0,103,235,0.07)', fontFamily: 'var(--font-body)', whiteSpace: 'nowrap' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,103,235,0.15)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,103,235,0.07)' }}
               >
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>
                 Válasz
@@ -177,7 +177,7 @@ function ContactRow({ item, isNew, onOpenModal }: { item: ContactDoc; isNew: boo
       onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = isNew ? 'var(--theme-elevation-50)' : 'transparent'}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ width: 6, height: 6, borderRadius: '50%', background: isNew ? '#3b82f6' : 'var(--theme-elevation-300)', flexShrink: 0 }} />
+        <span style={{ width: 6, height: 6, borderRadius: '50%', background: isNew ? '#0067eb' : 'var(--theme-elevation-300)', flexShrink: 0 }} />
         <button
           onClick={() => onOpenModal(item)}
           style={{ fontSize: 12, color: 'var(--theme-text)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: isNew ? 600 : 400, fontFamily: 'var(--font-body)', padding: 0 }}
@@ -190,9 +190,9 @@ function ContactRow({ item, isNew, onOpenModal }: { item: ContactDoc; isNew: boo
               href={`mailto:${item.email}`}
               title="Válasz"
               onClick={e => e.stopPropagation()}
-              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 18, borderRadius: 4, color: '#3b82f6', background: 'rgba(59,130,246,0.12)', border: 'none', textDecoration: 'none' }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(59,130,246,0.25)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(59,130,246,0.12)' }}
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 18, borderRadius: 4, color: '#0067eb', background: 'rgba(0,103,235,0.12)', border: 'none', textDecoration: 'none' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,103,235,0.25)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,103,235,0.12)' }}
             >
               <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>
             </a>
@@ -320,7 +320,7 @@ export function NotificationBell() {
               )}
 
               {data.contacts.length > 0 && (
-                <Section label="Kapcsolatfelvételek" color="#3b82f6">
+                <Section label="Kapcsolatfelvételek" color="#0067eb">
                   {data.contacts.map(item => (
                     <ContactRow key={item.id} item={item} isNew={isNew(item.createdAt)} onOpenModal={c => { setModal(c); setOpen(false) }} />
                   ))}

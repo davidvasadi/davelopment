@@ -3,11 +3,56 @@ import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@payloadcms/ui'
 import { motion, AnimatePresence } from 'framer-motion'
 
+type Theme = 'dark' | 'light' | 'auto'
+
+function useTheme() {
+  const [theme, setTheme] = useState<Theme>('dark')
+  useEffect(() => {
+    const saved = (localStorage.getItem('payload-theme') as Theme) || 'dark'
+    setTheme(saved)
+  }, [])
+  function applyTheme(t: Theme) {
+    setTheme(t)
+    localStorage.setItem('payload-theme', t)
+    const resolved = t === 'auto'
+      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : t
+    document.documentElement.setAttribute('data-theme', resolved)
+  }
+  return { theme, applyTheme }
+}
+
+const SunIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+    <line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+  </svg>
+)
+const MoonIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+  </svg>
+)
+const MonitorIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+  </svg>
+)
+
+const THEMES: { value: Theme; Icon: () => React.ReactElement; label: string }[] = [
+  { value: 'light', Icon: SunIcon,     label: 'Világos'  },
+  { value: 'dark',  Icon: MoonIcon,    label: 'Sötét'    },
+  { value: 'auto',  Icon: MonitorIcon, label: 'Rendszer' },
+]
+
 export function Avatar() {
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const { theme, applyTheme } = useTheme()
 
   useEffect(() => setMounted(true), [])
 
@@ -85,6 +130,39 @@ export function Avatar() {
               )}
               <div style={{ fontSize: 11, color: 'var(--theme-elevation-500)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {user?.email as string}
+              </div>
+            </div>
+
+            {/* ── Témaváltó ── */}
+            <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--theme-elevation-150)' }}>
+              <div style={{ display: 'flex', background: 'var(--theme-elevation-100)', borderRadius: 8, padding: 3 }}>
+                {THEMES.map(({ value, Icon }) => {
+                  const active = theme === value
+                  return (
+                    <button key={value} onClick={() => applyTheme(value)} title={value} style={{
+                      flex: 1, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      padding: '6px 4px', border: 'none', borderRadius: 6, cursor: 'pointer',
+                      background: 'transparent',
+                      color: active ? 'var(--theme-text)' : 'var(--theme-elevation-400)',
+                      transition: 'color 200ms',
+                      zIndex: 1,
+                    }}>
+                      {active && (
+                        <motion.div
+                          layoutId="theme-pill"
+                          style={{
+                            position: 'absolute', inset: 0, borderRadius: 6,
+                            background: 'var(--theme-elevation-0)',
+                            boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
+                            zIndex: -1,
+                          }}
+                          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                        />
+                      )}
+                      <Icon />
+                    </button>
+                  )
+                })}
               </div>
             </div>
 

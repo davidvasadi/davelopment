@@ -84,21 +84,22 @@ export default async function BeforeDashboard() {
           .db-two-col { grid-template-columns: 1fr; }
         }
         .db-quick-link {
-          font-size: 11px;
+          font-size: 12px;
           font-weight: 600;
-          font-family: ui-monospace, monospace;
-          color: var(--theme-elevation-500);
+          font-family: var(--font-body);
+          color: var(--theme-elevation-50);
           text-decoration: none;
-          padding: 4px 10px;
-          border: 1px solid var(--theme-elevation-200);
-          border-radius: 6px;
-          background: var(--theme-elevation-100);
-          transition: background 120ms, color 120ms;
+          padding: 5px 14px;
+          border-radius: 7px;
+          background: var(--theme-elevation-900);
+          transition: opacity 120ms;
           white-space: nowrap;
+          border: none;
+          display: inline-flex;
+          align-items: center;
         }
         .db-quick-link:hover {
-          background: var(--theme-elevation-150);
-          color: var(--theme-text);
+          opacity: 0.75;
         }
         @media (max-width: 500px) {
           .db-quick-link { display: none; }
@@ -120,8 +121,8 @@ export default async function BeforeDashboard() {
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '0.75rem', gap: '0.5rem' }}>
             <SectionLabel>Üzlet</SectionLabel>
             <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-              <a href="/admin/collections/jobs/create" className="db-quick-link">+ Új megbízás</a>
-              <a href="/admin/collections/invoices/create" className="db-quick-link">+ Új számla</a>
+              <a href="/admin/collections/jobs/create" className="db-quick-link">+ Megbízás</a>
+              <a href="/admin/collections/invoices/create" className="db-quick-link">+ Számla</a>
             </div>
           </div>
           <BusinessWidget

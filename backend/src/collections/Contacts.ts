@@ -72,6 +72,31 @@ export const Contacts: CollectionConfig = {
             },
           })
         } catch (_) {}
+
+        // ── 4. Lead létrehozása Clients-ben (ha még nem létezik) ───────────────
+        try {
+          const existing = await payload.find({
+            collection: 'clients',
+            where: { email: { equals: doc.email } },
+            limit: 1,
+            overrideAccess: true,
+          })
+          if (existing.totalDocs === 0) {
+            await payload.create({
+              collection: 'clients',
+              overrideAccess: true,
+              data: {
+                name: doc.name || doc.email,
+                email: doc.email,
+                status: 'lead',
+                source: 'website',
+                notes: doc.message || '',
+              },
+            })
+          }
+        } catch (err) {
+          payload.logger.error({ err }, 'Contacts: failed to create lead in clients')
+        }
       },
     ],
   },

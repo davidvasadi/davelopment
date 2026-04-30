@@ -54,6 +54,9 @@ const CSS = `
   .cw-campaign-row { display:flex; align-items:center; gap:0.75rem; padding:0.75rem 1rem; background:var(--theme-elevation-100); border-radius:0.5rem; border:1px solid var(--theme-elevation-150); }
   .cw-link { font-size:13px; color:var(--theme-elevation-500); text-decoration:none; display:inline-flex; align-items:center; gap:4px; transition:color 120ms; font-weight:500; font-family:var(--font-body); }
   .cw-link:hover { color:var(--theme-text); }
+  .cw-card { background:var(--theme-elevation-50); border:1px solid var(--theme-elevation-150); border-radius:0.75rem; padding:1rem 1.25rem; }
+  .bw-btn { font-size:13px; padding:6px 16px; border-radius:7px; background:var(--theme-elevation-900); color:var(--theme-elevation-50); text-decoration:none; font-weight:600; font-family:var(--font-body); display:inline-flex; align-items:center; gap:5px; transition:opacity 120ms; border:none; cursor:pointer; align-self:flex-start; }
+  .bw-btn:hover { opacity:0.75; }
 `
 
 function DeltaBadge({ v }: { v: number | null }) {
@@ -182,7 +185,7 @@ export function CommunicationsWidget() {
         </motion.div>
 
         {/* ── Kvóta ── */}
-        <div>
+        <div className="cw-card">
           <div className="cw-section-label">Email kvóta</div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.4rem' }}>
             <span style={{ fontSize: '0.8rem', color: 'var(--theme-elevation-500)' }}>Havi</span>
@@ -197,20 +200,20 @@ export function CommunicationsWidget() {
             <span style={{ fontSize: '0.7rem', color: 'var(--theme-elevation-400)', fontFamily: 'ui-monospace,monospace' }}>{pct(stats.monthSent, QUOTA)}% felhasználva</span>
             <span style={{ fontSize: '0.7rem', fontFamily: 'ui-monospace,monospace', color: (QUOTA - stats.monthSent) < 300 ? 'var(--bw-danger, #ef4444)' : 'var(--theme-elevation-400)' }}>{fmt(QUOTA - stats.monthSent)} maradt</span>
           </div>
-
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.6rem' }}>
             <span style={{ fontSize: '0.8rem', color: 'var(--theme-elevation-500)' }}>Napi limit</span>
             <span style={{ fontSize: '0.8rem', fontFamily: 'ui-monospace,monospace', color: 'var(--theme-elevation-500)', fontWeight: 700 }}>{DAILY} email / nap</span>
           </div>
+
+          {monthly.length > 1 && (
+            <>
+              <div style={{ height: 1, background: 'var(--theme-elevation-150)', margin: '0.75rem 0' }} />
+              <div className="cw-section-label">Küldések / hó</div>
+              <MonthlyBars data={monthly} />
+            </>
+          )}
         </div>
 
-        {/* ── Havi bar chart ── */}
-        {monthly.length > 1 && (
-          <div>
-            <div className="cw-section-label">Küldések / hó</div>
-            <MonthlyBars data={monthly} />
-          </div>
-        )}
 
         {/* ── Utolsó kampány ── */}
         {stats.lastCampaignSubject && (
@@ -235,9 +238,9 @@ export function CommunicationsWidget() {
         )}
 
         {/* ── Link ── */}
-        <a href="/admin/communications" className="cw-link">
+        <a href="/admin/communications" className="bw-btn">
           Megnyitás
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="9 18 15 12 9 6"/>
           </svg>
         </a>

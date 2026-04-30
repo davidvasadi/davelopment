@@ -469,6 +469,13 @@ jobs:
             --prefix "${NEW_DIR}/node_modules/.pnpm/sharp@0.32.6/node_modules/sharp" \
             run install || true
 
+          log "Auto-generating migrations..."
+          cd "$NEW_DIR"
+          timeout 30 bash -c 'printf "n\n%.0s" {1..50} | pnpm payload migrate:create --name "auto_$(date +%Y%m%d_%H%M%S)"' 2>&1 || true
+
+          log "Running migrations..."
+          pnpm payload migrate 2>&1 || true
+
           log "Stopping backend..."
           cd ~
           pm2 stop backend || true

@@ -20,10 +20,22 @@ html[data-theme="dark"] {
   --hover:      rgba(255,255,255,0.03);
   --hover2:     rgba(255,255,255,0.055);
   --ring:       rgba(255,255,255,0.14);
+
+  --bw-green:        #22c55e;
+  --bw-purple:       #7c3aed;
+  --bw-blue:         #0067eb;
+  --bw-yellow:       #d97706;
+  --bw-success:      #22c55e;
+  --bw-danger:       #dc2626;
+  --bw-chart-green:  #3dffa0;
 }
 
 html[data-theme="light"] {
-  --bg:         #fafafa;
+  // Payload elevation override: gray background, white cards
+  --theme-elevation-0:  #fafafa;
+  --theme-elevation-50: #ffffff;
+
+  --bg:         #f5f5f5;
   --surface:    #ffffff;
   --surface2:   #f5f5f5;
   --surface3:   #efefef;
@@ -37,13 +49,13 @@ html[data-theme="light"] {
   --hover2:     rgba(0,0,0,0.05);
   --ring:       rgba(0,0,0,0.10);
 
-  // Widget accent colors — light módra optimalizálva (dark módban fallback értékek aktívak)
-  --bw-green:   #059669;
-  --bw-purple:  #7c3aed;
-  --bw-blue:    #2563eb;
-  --bw-yellow:  #d97706;
-  --bw-success: #16a34a;
-  --bw-danger:  #dc2626;
+  --bw-green:        #059669;
+  --bw-purple:       #7c3aed;
+  --bw-blue:         #0067eb;
+  --bw-yellow:       #d97706;
+  --bw-success:      #16a34a;
+  --bw-danger:       #dc2626;
+  --bw-chart-green:  #10b981;
 
 }
 
@@ -52,6 +64,7 @@ html[data-theme="light"] {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
 
 // ── Preloader ─────────────────────────────────────────────────────────────────
 [data-dave-preloader] {
@@ -128,6 +141,37 @@ html[data-theme="light"] {
   color: rgba(255,255,255,0.4);
   letter-spacing: 0.05em;
 }
+
+// ── Mobile nav close button (fix-pozicionált, mindig viewport-ban) ───────────
+.mobile-nav-close {
+  display: none; // desktop: rejtve
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 54px;
+  height: 54px;
+  z-index: 99999;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--theme-text);
+}
+
+@media (max-width: 768px) {
+  .mobile-nav-close--open {
+    display: flex;
+  }
+  // Minden gyorsbillentyű hint elrejtése
+  .nav-kbd,
+  .nav-kbd-hints,
+  .nav-search-kbd {
+    display: none !important;
+  }
+}
+
 
 @layer payload {
   /* Breadcrumb wrapper fills remaining space */

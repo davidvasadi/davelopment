@@ -15,6 +15,22 @@ export const Invoices: CollectionConfig = {
     delete: ({ req }) => !!req.user,
   },
   hooks: {
+    afterChange: [
+      async ({ doc, req }) => {
+        const subId = typeof doc.subscription === 'object' ? doc.subscription?.id : doc.subscription
+        if (!subId) return
+        try {
+          await req.payload.update({
+            collection: 'subscriptions',
+            id: subId,
+            overrideAccess: true,
+            data: { last_invoiced: doc.issue_date || new Date().toISOString() },
+          })
+        } catch (err) {
+          req.payload.logger.error({ err }, 'Invoices: failed to update subscription last_invoiced')
+        }
+      },
+    ],
     beforeChange: [
       ({ data }) => {
         const items: any[] = data.items || []

@@ -3,6 +3,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useNav } from '@payloadcms/ui'
 
 // ─── Nav struktúra ────────────────────────────────────────────────────────────
 
@@ -188,7 +189,6 @@ const s = {
     display: 'flex',
     flexDirection: 'column' as const,
     height: '100%',
-    overflow: 'hidden',
   },
   top: {
     padding: '60px 8px 8px',
@@ -205,12 +205,12 @@ const s = {
     margin: '6px 8px',
   },
   groupLabel: {
-    fontSize: '10px',
+    fontSize: '11px',
     fontWeight: 700,
     textTransform: 'uppercase' as const,
-    letterSpacing: '0.08em',
+    letterSpacing: '0.07em',
     color: 'var(--muted)',
-    padding: '10px 10px 4px',
+    padding: '14px 12px 5px',
     fontFamily: 'ui-monospace, monospace',
   },
 }
@@ -300,7 +300,7 @@ function SearchModal({ onClose }: { onClose: () => void }) {
           }
         </div>
 
-        <div style={{ display: 'flex', gap: 12, padding: '7px 14px', borderTop: '1px solid var(--border)', color: 'var(--muted)', fontSize: 11 }}>
+        <div className="nav-kbd-hints" style={{ display: 'flex', gap: 12, padding: '7px 14px', borderTop: '1px solid var(--border)', color: 'var(--muted)', fontSize: 11 }}>
           <span><Kbd>↑</Kbd> <Kbd>↓</Kbd> navigálás</span>
           <span><Kbd>↵</Kbd> megnyitás</span>
           <span><Kbd>esc</Kbd> bezárás</span>
@@ -312,10 +312,10 @@ function SearchModal({ onClose }: { onClose: () => void }) {
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd style={{
+    <kbd className="nav-kbd" style={{
       display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
       padding: '1px 5px', borderRadius: 4,
-      border: '1px solid var(--border-h)', background: 'var(--surface2)',
+      border: '1px solid var(--border-h)', background: 'var(--surface)',
       fontSize: 11, fontFamily: 'ui-monospace, monospace', color: 'var(--muted)', lineHeight: 1.5,
     }}>{children}</kbd>
   )
@@ -325,13 +325,19 @@ function Kbd({ children }: { children: React.ReactNode }) {
 
 function NavItem({ href, label, icon, exact, shortcut }: { href: string; label: string; icon: React.ReactNode; exact?: boolean; shortcut?: string }) {
   const pathname = usePathname()
+  const { setNavOpen } = useNav()
   const isActive = exact ? pathname === href : pathname.startsWith(href)
 
+  function handleClick() {
+    // Mobilon bezárjuk a slidert navigációnál, desktopon nem
+    if (window.innerWidth <= 768) setNavOpen(false)
+  }
+
   return (
-    <Link href={href} style={{
-      display: 'flex', alignItems: 'center', gap: '9px',
-      padding: '6px 10px', borderRadius: '6px', textDecoration: 'none',
-      fontSize: '13px', fontWeight: isActive ? 600 : 400,
+    <Link href={href} onClick={handleClick} style={{
+      display: 'flex', alignItems: 'center', gap: '11px',
+      padding: '6px 12px', borderRadius: '8px', textDecoration: 'none',
+      fontSize: '14px', fontWeight: isActive ? 600 : 500,
       color: isActive ? 'var(--text)' : 'var(--text-sec)',
       background: isActive ? 'var(--hover2)' : 'transparent',
       transition: 'background 100ms, color 100ms',
@@ -340,10 +346,10 @@ function NavItem({ href, label, icon, exact, shortcut }: { href: string; label: 
       onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'var(--hover)' }}
       onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
     >
-      <span style={{ opacity: isActive ? 1 : 0.5, flexShrink: 0, display: 'flex' }}>{icon}</span>
+      <span style={{ opacity: isActive ? 1 : 0.65, flexShrink: 0, display: 'flex' }}>{icon}</span>
       <span style={{ flex: 1 }}>{label}</span>
       {shortcut && (
-        <span style={{ display: 'flex', gap: 2 }}>
+        <span className="nav-kbd-hints" style={{ display: 'flex', gap: 2 }}>
           {shortcut.split(' ').map((k, i) => <Kbd key={i}>{k}</Kbd>)}
         </span>
       )}
@@ -364,7 +370,6 @@ const navItem = {
 
 export function Nav() {
   const [searchOpen, setSearchOpen] = useState(false)
-
   const router = useRouter()
 
   useEffect(() => {
@@ -378,13 +383,13 @@ export function Nav() {
 
   return (
     <div style={s.nav}>
-      {/* Search gomb a nav tetején */}
+      {/* Search gomb */}
       <motion.div style={s.top} variants={navItem} initial="hidden" animate="show">
         <button onClick={() => setSearchOpen(true)} style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          width: '100%', padding: '7px 10px', borderRadius: 6,
-          border: '1px solid var(--border)', background: 'transparent',
-          color: 'var(--muted)', fontSize: 12, cursor: 'pointer',
+          width: '100%', padding: '8px 12px', borderRadius: 8,
+          border: '1px solid var(--border-h)', background: 'var(--surface)',
+          color: 'var(--muted)', fontSize: 13, cursor: 'pointer',
           fontFamily: 'var(--font-body)', gap: 6,
         }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -393,7 +398,7 @@ export function Nav() {
             </svg>
             Keresés
           </span>
-          <span style={{ display: 'flex', gap: 2 }}>
+          <span className="nav-search-kbd" style={{ display: 'flex', gap: 2 }}>
             <Kbd>⌘</Kbd><Kbd>F</Kbd>
           </span>
         </button>

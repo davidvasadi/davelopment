@@ -14,6 +14,8 @@ const CSS = `
   @keyframes mw-sk   { to{stroke-dashoffset:0} }
 
   .mw-w { display:flex; flex-direction:column; gap:10px; }
+  .bw-btn { font-size:13px; padding:6px 16px; border-radius:7px; background:var(--theme-elevation-900); color:var(--theme-elevation-50); text-decoration:none; font-weight:600; font-family:var(--font-body); display:inline-flex; align-items:center; gap:5px; transition:opacity 120ms; border:none; cursor:pointer; align-self:flex-start; }
+  .bw-btn:hover { opacity:0.75; }
 
   .mw-stats { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--theme-elevation-150); border-radius:12px; overflow:hidden; border:1px solid var(--theme-elevation-150) }
   .mw-stat  { background:var(--theme-elevation-50); padding:12px 14px; transition:background 120ms; cursor:default }
@@ -22,9 +24,9 @@ const CSS = `
   .mw-stat-val   { font-size:1.6rem; font-weight:700; letter-spacing:-0.04em; font-family:ui-monospace,monospace; line-height:1 }
   .mw-stat-delta { margin-top:4px; font-size:.7rem }
 
-  .mw-chart-wrap { background:var(--theme-elevation-50); border:1px solid var(--theme-elevation-150); border-radius:12px; overflow:hidden }
+  .mw-chart-wrap { background:var(--theme-elevation-50); border:1px solid var(--theme-elevation-150); border-radius:12px; overflow:hidden; }
 
-  .mw-queries { background:var(--theme-elevation-50); border:1px solid var(--theme-elevation-150); border-radius:12px; overflow:hidden }
+  .mw-queries { background:transparent; border:none; border-top:1px solid var(--theme-elevation-150) !important; border-radius:0; overflow:hidden }
   .mw-q-head  { display:grid; grid-template-columns:1fr auto auto; gap:0; padding:6px 14px; border-bottom:1px solid var(--theme-elevation-150) }
   .mw-q-row   { display:grid; grid-template-columns:1fr auto auto; gap:0; padding:7px 14px; border-bottom:1px solid var(--theme-elevation-100); transition:background 100ms; cursor:default }
   .mw-q-row:last-child { border-bottom:none }
@@ -207,33 +209,31 @@ export function MarketingWidget() {
           ))}
         </motion.div>
 
-        {/* Dual trend chart */}
-        <motion.div variants={item}><MiniDualChart trend={stats.trend}/></motion.div>
-
-        {/* Top queries */}
-        {queries.length > 0 && (
-          <motion.div className="mw-queries" variants={item}>
-            <div className="mw-q-head">
-              <span style={{ fontSize:'9px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'var(--theme-elevation-400)', fontFamily:'ui-monospace,monospace' }}>Top keresési kifejezések</span>
-              <span style={{ fontSize:'9px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'var(--theme-elevation-400)', fontFamily:'ui-monospace,monospace', textAlign:'right', paddingLeft:12 }}>Klikk</span>
-              <span style={{ fontSize:'9px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'var(--theme-elevation-400)', fontFamily:'ui-monospace,monospace', textAlign:'right', paddingLeft:12 }}>Poz.</span>
-            </div>
-            {queries.map((q, i) => (
-              <div key={i} className="mw-q-row">
-                <span style={{ fontSize:12, color:'var(--theme-text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', paddingRight:8 }}>{q.query}</span>
-                <span style={{ fontSize:12, fontWeight:600, color:'var(--bw-green, #3dffa0)', fontFamily:'ui-monospace,monospace', textAlign:'right', paddingLeft:12 }}>{q.clicks}</span>
-                <span style={{ fontSize:12, fontWeight:600, color:posColor(q.position), fontFamily:'ui-monospace,monospace', textAlign:'right', paddingLeft:12 }}>#{q.position}</span>
+        {/* Dual trend chart + queries in one card */}
+        <motion.div className="mw-chart-wrap" variants={item}>
+          <MiniDualChart trend={stats.trend}/>
+          {queries.length > 0 && (
+            <div className="mw-queries">
+              <div className="mw-q-head">
+                <span style={{ fontSize:'9px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'var(--theme-elevation-400)', fontFamily:'ui-monospace,monospace' }}>Top keresési kifejezések</span>
+                <span style={{ fontSize:'9px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'var(--theme-elevation-400)', fontFamily:'ui-monospace,monospace', textAlign:'right', paddingLeft:12 }}>Klikk</span>
+                <span style={{ fontSize:'9px', fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'var(--theme-elevation-400)', fontFamily:'ui-monospace,monospace', textAlign:'right', paddingLeft:12 }}>Poz.</span>
               </div>
-            ))}
-          </motion.div>
-        )}
+              {queries.map((q, i) => (
+                <div key={i} className="mw-q-row">
+                  <span style={{ fontSize:12, color:'var(--theme-text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', paddingRight:8 }}>{q.query}</span>
+                  <span style={{ fontSize:12, fontWeight:600, color:'var(--bw-green, #3dffa0)', fontFamily:'ui-monospace,monospace', textAlign:'right', paddingLeft:12 }}>{q.clicks}</span>
+                  <span style={{ fontSize:12, fontWeight:600, color:posColor(q.position), fontFamily:'ui-monospace,monospace', textAlign:'right', paddingLeft:12 }}>#{q.position}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
 
         {/* Footer link */}
-        <a href="/admin/marketing"
-          style={{ fontSize:13, color:'var(--theme-elevation-500)', textDecoration:'none', display:'inline-flex', alignItems:'center', gap:4, transition:'color 120ms', fontWeight:500, fontFamily:'var(--font-body)' }}
-          onMouseEnter={e => (e.currentTarget.style.color = 'var(--theme-text)')}
-          onMouseLeave={e => (e.currentTarget.style.color = 'var(--theme-elevation-500)')}>
-          Megnyitás <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        <a href="/admin/marketing" className="bw-btn">
+          Megnyitás
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </a>
 
       </motion.div>

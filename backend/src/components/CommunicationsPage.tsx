@@ -40,9 +40,9 @@ const CSS = `
   .cp-textarea { padding:10px 12px; border-radius:8px; border:1px solid var(--theme-elevation-200); background:var(--theme-elevation-100); color:var(--theme-text); font-size:12px; outline:none; resize:vertical; line-height:1.6; font-family:ui-monospace,monospace; min-height:220px; box-sizing:border-box }
   .cp-textarea:focus { border-color:var(--theme-elevation-400) }
   .cp-btn { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; border:none; transition:all .14s; font-family:inherit }
-  .cp-btn-primary { background:#6366f1; color:#fff }
-  .cp-btn-primary:hover { background:#4f46e5 }
-  .cp-btn-primary:disabled { background:var(--theme-elevation-200); color:var(--theme-elevation-400); cursor:not-allowed }
+  .cp-btn-primary { background:var(--theme-elevation-900); color:var(--theme-elevation-50) }
+  .cp-btn-primary:hover { opacity:0.75; background:var(--theme-elevation-900) }
+  .cp-btn-primary:disabled { opacity:0.4; background:var(--theme-elevation-900); cursor:not-allowed }
   .cp-btn-success { background:#22c55e; color:#fff }
   .cp-btn-success:hover { background:#16a34a }
   .cp-btn-success:disabled { background:var(--theme-elevation-200); color:var(--theme-elevation-400); cursor:not-allowed }
@@ -57,16 +57,16 @@ const CSS = `
   .cp-toast { position:fixed; bottom:24px; right:24px; z-index:9999; padding:10px 16px; border-radius:10px; font-size:13px; font-weight:500; display:flex; align-items:center; gap:8px; animation:cp-in .2s ease }
   .cp-toast-success { background:#22c55e; color:#fff }
   .cp-toast-error { background:#ef4444; color:#fff }
-  .cp-toast-info { background:#6366f1; color:#fff }
+  .cp-toast-info { background:#0067eb; color:#fff }
   .cp-select { padding:5px 8px; border-radius:7px; border:1px solid var(--theme-elevation-200); background:var(--theme-elevation-100); color:var(--theme-text); font-size:11px; outline:none; cursor:pointer; font-family:inherit }
   .cp-badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600; font-family:ui-monospace,monospace }
   .cp-badge-new { background:rgba(245,158,11,.1); color:#f59e0b; border:1px solid rgba(245,158,11,.2) }
-  .cp-badge-in_progress { background:rgba(99,102,241,.1); color:#6366f1; border:1px solid rgba(99,102,241,.2) }
+  .cp-badge-in_progress { background:rgba(0,103,235,.1); color:#0067eb; border:1px solid rgba(0,103,235,.2) }
   .cp-badge-done { background:rgba(34,197,94,.1); color:#22c55e; border:1px solid rgba(34,197,94,.2) }
   .cp-badge-active { background:rgba(34,197,94,.1); color:#22c55e; border:1px solid rgba(34,197,94,.2) }
   .cp-badge-unsub { background:rgba(239,68,68,.08); color:#ef4444; border:1px solid rgba(239,68,68,.2) }
-  .cp-badge-hu { background:rgba(37,99,235,.1); color:#7C6AF7; border:1px solid rgba(37,99,235,.2) }
-  .cp-badge-en { background:rgba(220,38,38,.1); color:#7C6AF7; border:1px solid rgba(220,38,38,.2) }
+  .cp-badge-hu { background:var(--theme-elevation-150); color:var(--theme-elevation-600); border:1px solid var(--theme-elevation-200) }
+  .cp-badge-en { background:var(--theme-elevation-150); color:var(--theme-elevation-600); border:1px solid var(--theme-elevation-200) }
   .cp-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:999; display:flex; align-items:center; justify-content:center; padding:20px }
   .cp-modal { background:var(--theme-elevation-50); border:1px solid var(--theme-elevation-200); border-radius:14px; width:100%; max-width:520px; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.3) }
   .cp-modal-header { display:flex; align-items:center; justify-content:space-between; padding:18px 22px 14px; border-bottom:1px solid var(--theme-elevation-150) }
@@ -77,6 +77,10 @@ const CSS = `
   .cp-detail-label { width:100px; flex-shrink:0; font-size:12px; color:var(--theme-elevation-500); padding-top:2px }
   .cp-detail-value { font-size:13px; color:var(--theme-text); line-height:1.5; flex:1 }
   .cp-msg-box { background:var(--theme-elevation-100); border:1px solid var(--theme-elevation-200); border-radius:8px; padding:10px 12px; font-size:13px; color:var(--theme-text); line-height:1.6; white-space:pre-wrap; margin-top:6px }
+  .cp-checkbox { width:15px; height:15px; border-radius:4px; border:1.5px solid var(--theme-elevation-300); appearance:none; -webkit-appearance:none; cursor:pointer; background:var(--theme-elevation-0,var(--theme-bg)); transition:all .12s; flex-shrink:0; position:relative; display:inline-block; vertical-align:middle; }
+  .cp-checkbox:checked { background:var(--theme-text); border-color:var(--theme-text); }
+  .cp-checkbox:checked::after { content:''; position:absolute; left:3px; top:0px; width:5px; height:8px; border:2px solid var(--theme-elevation-0,#fff); border-top:none; border-left:none; transform:rotate(45deg); }
+  .cp-checkbox:hover:not(:checked) { border-color:var(--theme-elevation-500); }
   .cp-info-row { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; background:var(--theme-elevation-100); border-radius:7px; border:1px solid var(--theme-elevation-150); margin-bottom:6px }
   .cp-info-key { font-size:12px; color:var(--theme-elevation-400) }
   .cp-info-val { font-size:12px; color:var(--theme-text); font-weight:500; font-family:ui-monospace,monospace }
@@ -94,11 +98,13 @@ const CSS = `
   .cp-sidebar-card-header { padding:12px 16px; border-bottom:1px solid var(--theme-elevation-150); display:flex; align-items:center; gap:10px }
   .cp-sidebar-icon { width:28px; height:28px; border-radius:7px; display:flex; align-items:center; justify-content:center; flex-shrink:0 }
   .cp-sidebar-card-body { padding:14px 16px; display:flex; flex-direction:column; gap:10px }
-  .cp-tab-btn { padding:6px 14px; border-radius:8px; border:none; cursor:pointer; font-size:13px; font-weight:600; transition:all .15s; position:relative; white-space:nowrap }
+  .cp-tab-btn { padding:5px 12px; border-radius:8px; border:1px solid var(--theme-elevation-150); cursor:pointer; font-size:12px; font-weight:500; background:var(--theme-elevation-50); color:var(--theme-elevation-500); transition:all .12s; position:relative; white-space:nowrap; font-family:var(--font-body) }
+  .cp-tab-btn:hover { border-color:var(--theme-elevation-300); color:var(--theme-text) }
+  .cp-tab-btn.active { background:var(--theme-text); border-color:var(--theme-text); color:var(--theme-bg) }
   .cp-reply-btn { opacity:0; transition:opacity .12s }
   .cp-lead-row:hover .cp-reply-btn { opacity:1 }
   .cp-page { padding:var(--gutter-h) }
-  .cp-tab-bar { display:flex; gap:2px; margin-bottom:1.5rem; background:var(--theme-elevation-100); padding:3px; border-radius:12px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none }
+  .cp-tab-bar { display:flex; gap:6px; margin-bottom:1.5rem; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none }
   .cp-tab-bar::-webkit-scrollbar { display:none }
   .cp-stat-grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px }
   .cp-settings-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px }
@@ -233,7 +239,7 @@ function LeadModal({ lead, onClose, onUpdate }: { lead: Lead; onClose: () => voi
           <div className="cp-detail-row">
             <div className="cp-detail-label">Email</div>
             <div className="cp-detail-value">
-              <a href={`mailto:${lead.email}`} style={{ color: '#6366f1' }}>{lead.email}</a>
+              <a href={`mailto:${lead.email}`} style={{ color: '#0067eb' }}>{lead.email}</a>
             </div>
           </div>
           {lead.language && (
@@ -287,7 +293,7 @@ function SubscriberModal({ sub, onClose, showToast }: { sub: Subscriber; onClose
           <div className="cp-detail-row">
             <div className="cp-detail-label">Email</div>
             <div className="cp-detail-value">
-              <a href={`mailto:${sub.email}`} style={{ color: '#6366f1', fontFamily: 'ui-monospace,monospace', fontSize: 12 }}>{sub.email}</a>
+              <a href={`mailto:${sub.email}`} style={{ color: '#0067eb', fontFamily: 'ui-monospace,monospace', fontSize: 12 }}>{sub.email}</a>
             </div>
           </div>
           <div className="cp-detail-row">
@@ -560,6 +566,8 @@ export function CommunicationsPage() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [deleteLeadConfirm, setDeleteLeadConfirm] = useState<string | null>(null)
   const [deleteAllLeadsConfirm, setDeleteAllLeadsConfirm] = useState(false)
+  const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([])
+  const [bulkDeleteLeadsConfirm, setBulkDeleteLeadsConfirm] = useState(false)
 
   // Subscribers
   const [subs, setSubs] = useState<Subscriber[]>([])
@@ -570,6 +578,10 @@ export function CommunicationsPage() {
   const [subsLoading, setSubsLoading] = useState(false)
   const [subsSearch, setSubsSearch] = useState('')
   const [selectedSub, setSelectedSub] = useState<Subscriber | null>(null)
+  const [selectedSubIds, setSelectedSubIds] = useState<string[]>([])
+  const [bulkDeleteSubsConfirm, setBulkDeleteSubsConfirm] = useState(false)
+  const [recentLeads, setRecentLeads] = useState<Lead[]>([])
+  const [recentSubs, setRecentSubs] = useState<Subscriber[]>([])
 
   // Campaigns
   const [campaignSubject, setCampaignSubject] = useState('')
@@ -603,9 +615,13 @@ export function CommunicationsPage() {
     Promise.all([
       fetch('/api/communications/stats').then(r => r.json()),
       fetch('/api/communications/monthly-stats').then(r => r.json()),
-    ]).then(([s, m]) => {
+      fetch('/api/communications/recent-leads').then(r => r.json()),
+      fetch('/api/communications/subscribers?page=1&pageSize=5').then(r => r.json()),
+    ]).then(([s, m, rl, rs]) => {
       if (s.ok) setStats(s)
       if (Array.isArray(m.data)) setMonthly(m.data)
+      if (rl.ok && Array.isArray(rl.docs)) setRecentLeads(rl.docs)
+      if (rs.ok && Array.isArray(rs.data)) setRecentSubs(rs.data)
     }).finally(() => setStatsLoading(false))
   }, [])
 
@@ -671,6 +687,26 @@ export function CommunicationsPage() {
       setLeadsTotal(0)
       showToast('success', 'Összes lead törölve')
     }
+  }
+
+  const bulkDeleteLeads = async () => {
+    setBulkDeleteLeadsConfirm(false)
+    const ids = [...selectedLeadIds]
+    await Promise.all(ids.map(id => fetch(`/api/communications/leads/${id}`, { method: 'DELETE' })))
+    setLeads(prev => prev.filter(l => !ids.includes(l.id)))
+    setLeadsTotal(p => p - ids.length)
+    setSelectedLeadIds([])
+    showToast('success', `${ids.length} érdeklődő törölve`)
+  }
+
+  const bulkDeleteSubs = async () => {
+    setBulkDeleteSubsConfirm(false)
+    const ids = [...selectedSubIds]
+    await Promise.all(ids.map(id => fetch(`/api/communications/subscribers/${id}`, { method: 'DELETE' })))
+    setSubs(prev => prev.filter(s => !ids.includes(s.id)))
+    setSubsTotal(p => p - ids.length)
+    setSelectedSubIds([])
+    showToast('success', `${ids.length} feliratkozó törölve`)
   }
 
   // Insert at cursor (for textarea-based HTML editor)
@@ -853,14 +889,8 @@ export function CommunicationsPage() {
           {TABS.map(t => (
             <button
               key={t}
-              className="cp-tab-btn"
+              className={`cp-tab-btn${tab === t ? ' active' : ''}`}
               onClick={() => setTab(t)}
-              style={{
-                background: tab === t ? 'var(--theme-elevation-0, #fff)' : 'transparent',
-                color: tab === t ? 'var(--theme-text)' : 'var(--theme-elevation-500)',
-                boxShadow: tab === t ? '0 1px 4px rgba(0,0,0,.08)' : 'none',
-                border: tab === t ? '1px solid var(--theme-elevation-200)' : '1px solid transparent',
-              }}
             >
               {t}
             </button>
@@ -929,21 +959,66 @@ export function CommunicationsPage() {
                 )
               })()}
 
+              {/* ── Legutóbbi érdeklődők ── */}
+              {recentLeads.length > 0 && (
+                <div className="cp-card" style={{ overflow: 'hidden' }}>
+                  <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid var(--theme-elevation-150)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--theme-elevation-400)', fontFamily: 'ui-monospace,monospace' }}>Legutóbbi érdeklődők</span>
+                    <button className="cp-btn cp-btn-ghost" style={{ fontSize: 10, padding: '2px 8px' }} onClick={() => setTab('Érdeklődők')}>Összes →</button>
+                  </div>
+                  <table className="cp-table">
+                    <tbody>
+                      {recentLeads.slice(0, 5).map(l => (
+                        <tr key={l.id} style={{ cursor: 'pointer' }} onClick={() => setSelectedLead(l)}>
+                          <td style={{ fontWeight: 500, maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.name || '—'}</td>
+                          <td style={{ fontFamily: 'ui-monospace,monospace', fontSize: 11, color: '#0067eb', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.email}</td>
+                          <td><span className={`cp-badge cp-badge-${l.state || 'new'}`}>{l.state === 'new' ? 'Új' : l.state === 'in_progress' ? 'Folyamat' : 'Kész'}</span></td>
+                          <td style={{ fontSize: 11, color: 'var(--theme-elevation-400)', fontFamily: 'ui-monospace,monospace', whiteSpace: 'nowrap' }}>{ago(l.createdAt)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* ── Legutóbbi feliratkozók ── */}
+              {recentSubs.length > 0 && (
+                <div className="cp-card" style={{ overflow: 'hidden' }}>
+                  <div style={{ padding: '10px 14px 8px', borderBottom: '1px solid var(--theme-elevation-150)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--theme-elevation-400)', fontFamily: 'ui-monospace,monospace' }}>Legutóbbi feliratkozók</span>
+                    <button className="cp-btn cp-btn-ghost" style={{ fontSize: 10, padding: '2px 8px' }} onClick={() => setTab('Feliratkozók')}>Összes →</button>
+                  </div>
+                  <table className="cp-table">
+                    <tbody>
+                      {recentSubs.slice(0, 5).map(s => (
+                        <tr key={s.id} style={{ cursor: 'pointer' }} onClick={() => setSelectedSub(s)}>
+                          <td style={{ fontFamily: 'ui-monospace,monospace', fontSize: 11, color: '#0067eb', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.email}</td>
+                          <td><span className={`cp-badge cp-badge-${s.language || 'hu'}`}>{(s.language || 'hu').toUpperCase()}</span></td>
+                          <td style={{ fontSize: 11, color: 'var(--theme-elevation-400)', fontFamily: 'ui-monospace,monospace', whiteSpace: 'nowrap' }}>{ago(s.createdAt)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
               {/* ── HU/EN breakdown ── */}
               {(stats.huSubs != null || stats.enSubs != null) && (
-                <div className="cp-card" style={{ padding: '12px 16px' }}>
-                  <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--theme-elevation-400)', fontFamily: 'ui-monospace,monospace', marginBottom: 10 }}>Feliratkozók nyelv szerint</div>
-                  <div className="cp-hu-en">
+                <div className="cp-card" style={{ padding: '14px 16px' }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: 'var(--theme-elevation-400)', fontFamily: 'ui-monospace,monospace', marginBottom: 12 }}>Feliratkozók nyelv szerint</div>
+                  <div style={{ display: 'flex', gap: 8 }}>
                     {([['hu', stats.huSubs], ['en', stats.enSubs]] as [string, number | undefined][]).map(([lang, count]) => count != null && (
-                      <div key={lang} style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+                      <div key={lang} style={{ flex: 1, background: 'var(--theme-elevation-100)', borderRadius: 10, padding: '12px 14px' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
                           <span className={`cp-badge cp-badge-${lang}`}>{lang.toUpperCase()}</span>
-                          <span style={{ fontFamily: 'ui-monospace,monospace', fontSize: 13, fontWeight: 700 }}>{count}</span>
+                          <span style={{ fontSize: 26, fontWeight: 700, fontFamily: 'ui-monospace,monospace', letterSpacing: '-0.04em', lineHeight: 1 }}>{count}</span>
                         </div>
-                        <div style={{ height: 3, background: 'var(--theme-elevation-150)', borderRadius: 999, overflow: 'hidden' }}>
+                        <div style={{ height: 2, background: 'var(--theme-elevation-200)', borderRadius: 999, overflow: 'hidden' }}>
                           <div style={{ height: '100%', width: `${stats.activeSubs ? Math.round((count / stats.activeSubs) * 100) : 0}%`, background: '#7c6af7', borderRadius: 999, transition: 'width .8s' }} />
                         </div>
-                        <div style={{ fontSize: 9, color: 'var(--theme-elevation-400)', marginTop: 3, fontFamily: 'ui-monospace,monospace' }}>{stats.activeSubs ? Math.round((count / stats.activeSubs) * 100) : 0}% az aktívakból</div>
+                        <div style={{ fontSize: 9, color: 'var(--theme-elevation-400)', marginTop: 5, fontFamily: 'ui-monospace,monospace' }}>
+                          {stats.activeSubs ? Math.round((count / stats.activeSubs) * 100) : 0}% az aktívakból
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -986,6 +1061,11 @@ export function CommunicationsPage() {
                 onChange={e => setLeadsSearch(e.target.value)}
                 style={{ flex: '1 1 160px', minWidth: 0 }}
               />
+              {selectedLeadIds.length > 0 && (
+                <button className="cp-btn cp-btn-danger" onClick={() => setBulkDeleteLeadsConfirm(true)} style={{ fontSize: 11, padding: '4px 10px', flexShrink: 0 }}>
+                  Kijelöltek törlése ({selectedLeadIds.length})
+                </button>
+              )}
               <button className="cp-btn cp-btn-danger" onClick={() => setDeleteAllLeadsConfirm(true)} style={{ fontSize: 11, padding: '4px 10px', flexShrink: 0 }}>Összes törlése</button>
             </div>
             {leadsLoading
@@ -1004,6 +1084,13 @@ export function CommunicationsPage() {
                   <table className="cp-table cp-leads-table">
                       <thead>
                         <tr>
+                          <th style={{ width: 36, paddingRight: 0 }}>
+                            <input type="checkbox"
+                              className="cp-checkbox"
+                              checked={filteredLeads.length > 0 && selectedLeadIds.length === filteredLeads.length}
+                              onChange={e => setSelectedLeadIds(e.target.checked ? filteredLeads.map(l => l.id) : [])}
+                            />
+                          </th>
                           <th>Név</th>
                           <th>Email</th>
                           <th>Üzenet</th>
@@ -1016,9 +1103,16 @@ export function CommunicationsPage() {
                       </thead>
                       <tbody>
                         {filteredLeads.map(l => (
-                          <tr key={l.id} className="cp-lead-row" style={{ cursor: 'pointer' }} onClick={() => setSelectedLead(l)}>
+                          <tr key={l.id} className="cp-lead-row" style={{ cursor: 'pointer', background: selectedLeadIds.includes(l.id) ? 'var(--theme-elevation-100)' : undefined }} onClick={() => setSelectedLead(l)}>
+                            <td style={{ paddingRight: 0 }} onClick={e => e.stopPropagation()}>
+                              <input type="checkbox"
+                                className="cp-checkbox"
+                                checked={selectedLeadIds.includes(l.id)}
+                                onChange={e => setSelectedLeadIds(prev => e.target.checked ? [...prev, l.id] : prev.filter(id => id !== l.id))}
+                              />
+                            </td>
                             <td style={{ fontWeight: 500 }}>{l.name || '—'}</td>
-                            <td style={{ fontFamily: 'ui-monospace,monospace', fontSize: 11, color: '#6366f1' }}>{l.email}</td>
+                            <td style={{ fontFamily: 'ui-monospace,monospace', fontSize: 11, color: '#0067eb' }}>{l.email}</td>
                             <td style={{ maxWidth: 160 }}>
                               <div style={{ fontSize: 11, color: 'var(--theme-elevation-500)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.message || '—'}</div>
                             </td>
@@ -1081,7 +1175,12 @@ export function CommunicationsPage() {
                 onChange={e => setSubsSearch(e.target.value)}
                 style={{ flex: '1 1 160px', minWidth: 0 }}
               />
-              <a href="/admin/collections/newsletters" style={{ marginLeft: 'auto', fontSize: 11, color: '#6366f1', textDecoration: 'none', fontWeight: 600, flexShrink: 0 }}>Szerkesztés →</a>
+              {selectedSubIds.length > 0 && (
+                <button className="cp-btn cp-btn-danger" onClick={() => setBulkDeleteSubsConfirm(true)} style={{ fontSize: 11, padding: '4px 10px', flexShrink: 0 }}>
+                  Kijelöltek törlése ({selectedSubIds.length})
+                </button>
+              )}
+              <a href="/admin/collections/newsletters" style={{ marginLeft: 'auto', fontSize: 11, color: '#0067eb', textDecoration: 'none', fontWeight: 600, flexShrink: 0 }}>Szerkesztés →</a>
             </div>
             {subsLoading
               ? <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 120, gap: 8, color: 'var(--theme-elevation-400)', fontSize: 13 }}><Spinner /> Betöltés...</div>
@@ -1101,6 +1200,13 @@ export function CommunicationsPage() {
                   <table className="cp-table cp-subs-table">
                       <thead>
                         <tr>
+                          <th style={{ width: 36, paddingRight: 0 }}>
+                            <input type="checkbox"
+                              className="cp-checkbox"
+                              checked={filteredSubs.length > 0 && selectedSubIds.length === filteredSubs.length}
+                              onChange={e => setSelectedSubIds(e.target.checked ? filteredSubs.map(s => s.id) : [])}
+                            />
+                          </th>
                           <th>Email</th>
                           <th>Név</th>
                           <th>Státusz</th>
@@ -1111,8 +1217,15 @@ export function CommunicationsPage() {
                       </thead>
                       <tbody>
                         {filteredSubs.map(s => (
-                          <tr key={s.id} onClick={() => setSelectedSub(s)} style={{ cursor: 'pointer' }}>
-                            <td style={{ fontFamily: 'ui-monospace,monospace', fontSize: 12, color: '#6366f1' }}>{s.email}</td>
+                          <tr key={s.id} onClick={() => setSelectedSub(s)} style={{ cursor: 'pointer', background: selectedSubIds.includes(s.id) ? 'var(--theme-elevation-100)' : undefined }}>
+                            <td style={{ paddingRight: 0 }} onClick={e => e.stopPropagation()}>
+                              <input type="checkbox"
+                                className="cp-checkbox"
+                                checked={selectedSubIds.includes(s.id)}
+                                onChange={e => setSelectedSubIds(prev => e.target.checked ? [...prev, s.id] : prev.filter(id => id !== s.id))}
+                              />
+                            </td>
+                            <td style={{ fontFamily: 'ui-monospace,monospace', fontSize: 12, color: '#0067eb' }}>{s.email}</td>
                             <td style={{ fontWeight: 500 }}>{s.name || '—'}</td>
                             <td>
                               {s.unsubscribed
@@ -1267,7 +1380,7 @@ export function CommunicationsPage() {
                         onFocus={e => { e.currentTarget.style.borderColor = 'var(--theme-elevation-400)' }}
                         onBlur={e => { e.currentTarget.style.borderColor = 'var(--theme-elevation-200)' }}
                       />
-                      <style>{`[contenteditable]:empty:before{content:attr(data-placeholder);color:var(--theme-elevation-300);pointer-events:none;}[contenteditable] h1{font-size:22px;font-weight:700;color:var(--theme-text);margin:16px 0 10px;}[contenteditable] h2{font-size:18px;font-weight:600;color:var(--theme-text);margin:12px 0 8px;}[contenteditable] p{margin:0 0 10px;}[contenteditable] ul,[contenteditable] ol{margin:0 0 10px;padding-left:22px;}[contenteditable] hr{border:none;border-top:1px solid var(--theme-elevation-200);margin:18px 0;}[contenteditable] a{color:#6366f1;}`}</style>
+                      <style>{`[contenteditable]:empty:before{content:attr(data-placeholder);color:var(--theme-elevation-300);pointer-events:none;}[contenteditable] h1{font-size:22px;font-weight:700;color:var(--theme-text);margin:16px 0 10px;}[contenteditable] h2{font-size:18px;font-weight:600;color:var(--theme-text);margin:12px 0 8px;}[contenteditable] p{margin:0 0 10px;}[contenteditable] ul,[contenteditable] ol{margin:0 0 10px;padding-left:22px;}[contenteditable] hr{border:none;border-top:1px solid var(--theme-elevation-200);margin:18px 0;}[contenteditable] a{color:#0067eb;}`}</style>
                     </div>
                   )}
 
@@ -1335,7 +1448,7 @@ export function CommunicationsPage() {
               {/* Kinek megy? */}
               <div className="cp-sidebar-card">
                 <div className="cp-sidebar-card-header">
-                  <div className="cp-sidebar-icon" style={{ background: 'rgba(99,102,241,.1)', color: '#6366f1' }}>
+                  <div className="cp-sidebar-icon" style={{ background: 'rgba(0,103,235,.1)', color: '#0067eb' }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                   </div>
                   <div>
@@ -1498,7 +1611,7 @@ export function CommunicationsPage() {
             {/* Quota card */}
             <div className="cp-card cp-quota-span" style={{ gridColumn: '1 / -1' }}>
               <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--theme-elevation-150)', display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(99,102,241,.1)', color: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(0,103,235,.1)', color: '#0067eb', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
                 </div>
                 <div>
@@ -1510,12 +1623,12 @@ export function CommunicationsPage() {
                 <div style={{ padding: '14px 16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
                     <span style={{ fontSize: 12, color: 'var(--theme-elevation-500)' }}>Havi felhasználás</span>
-                    <span style={{ fontSize: 18, fontWeight: 700, fontFamily: 'ui-monospace,monospace', color: (stats.monthSent / QUOTA) >= .9 ? '#ef4444' : (stats.monthSent / QUOTA) >= .7 ? '#f59e0b' : '#6366f1' }}>
+                    <span style={{ fontSize: 18, fontWeight: 700, fontFamily: 'ui-monospace,monospace', color: (stats.monthSent / QUOTA) >= .9 ? '#ef4444' : (stats.monthSent / QUOTA) >= .7 ? '#f59e0b' : '#0067eb' }}>
                       {stats.monthSent} <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--theme-elevation-400)' }}>/ {QUOTA}</span>
                     </span>
                   </div>
                   <div style={{ height: 6, background: 'var(--theme-elevation-150)', borderRadius: 3, overflow: 'hidden', marginBottom: 6 }}>
-                    <div style={{ height: '100%', width: `${Math.min((stats.monthSent / QUOTA) * 100, 100)}%`, background: (stats.monthSent / QUOTA) >= .9 ? '#ef4444' : (stats.monthSent / QUOTA) >= .7 ? '#f59e0b' : '#6366f1', borderRadius: 3, transition: 'width .8s' }} />
+                    <div style={{ height: '100%', width: `${Math.min((stats.monthSent / QUOTA) * 100, 100)}%`, background: (stats.monthSent / QUOTA) >= .9 ? '#ef4444' : (stats.monthSent / QUOTA) >= .7 ? '#f59e0b' : '#0067eb', borderRadius: 3, transition: 'width .8s' }} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ fontSize: 11, color: 'var(--theme-elevation-400)', fontFamily: 'ui-monospace,monospace' }}>{Math.round((stats.monthSent / QUOTA) * 100)}% felhasználva</span>
@@ -1578,6 +1691,28 @@ export function CommunicationsPage() {
           danger
           onConfirm={deleteAllLeads}
           onCancel={() => setDeleteAllLeadsConfirm(false)}
+        />
+      )}
+
+      {bulkDeleteLeadsConfirm && (
+        <ConfirmDialog
+          title="Kijelölt érdeklődők törlése"
+          message={`Biztosan törlöd a kijelölt ${selectedLeadIds.length} érdeklődőt? Ez a művelet nem vonható vissza.`}
+          confirmLabel="Igen, törlöm"
+          danger
+          onConfirm={bulkDeleteLeads}
+          onCancel={() => setBulkDeleteLeadsConfirm(false)}
+        />
+      )}
+
+      {bulkDeleteSubsConfirm && (
+        <ConfirmDialog
+          title="Kijelölt feliratkozók törlése"
+          message={`Biztosan törlöd a kijelölt ${selectedSubIds.length} feliratkozót? Ez a művelet nem vonható vissza.`}
+          confirmLabel="Igen, törlöm"
+          danger
+          onConfirm={bulkDeleteSubs}
+          onCancel={() => setBulkDeleteSubsConfirm(false)}
         />
       )}
 

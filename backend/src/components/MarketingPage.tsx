@@ -19,12 +19,12 @@ const PSI_TTL = 60 * 60 * 1000
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const fmt = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
-const scoreColor = (s: number) => s >= 80 ? '#22c55e' : s >= 50 ? '#f0c742' : '#ef4444'
-const posColor = (p: number) => p <= 3 ? '#22c55e' : p <= 10 ? '#f0c742' : 'var(--theme-elevation-500)'
+const scoreColor = (s: number) => s >= 80 ? 'var(--bw-green)' : s >= 50 ? '#f0c742' : '#ef4444'
+const posColor = (p: number) => p <= 3 ? 'var(--bw-green)' : p <= 10 ? '#f0c742' : 'var(--theme-elevation-500)'
 const cwvColor = {
-  lcp: (ms: number) => ms <= 2500 ? '#22c55e' : ms <= 4000 ? '#f0c742' : '#ef4444',
-  cls: (v: number) => v <= 0.1 ? '#22c55e' : v <= 0.25 ? '#f0c742' : '#ef4444',
-  inp: (ms: number) => ms <= 200 ? '#22c55e' : ms <= 500 ? '#f0c742' : '#ef4444',
+  lcp: (ms: number) => ms <= 2500 ? 'var(--bw-green)' : ms <= 4000 ? '#f0c742' : '#ef4444',
+  cls: (v: number) => v <= 0.1 ? 'var(--bw-green)' : v <= 0.25 ? '#f0c742' : '#ef4444',
+  inp: (ms: number) => ms <= 200 ? 'var(--bw-green)' : ms <= 500 ? '#f0c742' : '#ef4444',
 }
 
 function loadPsiCache(): Record<string, PageSpeedData> {
@@ -66,7 +66,8 @@ const CSS = `
   .mp-card { background:var(--theme-elevation-50); border:1px solid var(--theme-elevation-150); border-radius:12px; overflow:hidden }
   .mp-card-pad { padding:14px 16px }
 
-  .mp-tab-bar { display:flex; gap:2px; background:var(--theme-elevation-100); padding:3px; border-radius:12px; width:fit-content; margin-bottom:1.5rem }
+  .mp-tab-bar { display:flex; gap:2px; background:var(--theme-elevation-100); padding:3px; border-radius:12px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; margin-bottom:1.5rem }
+  .mp-tab-bar::-webkit-scrollbar { display:none }
   .mp-tab { padding:6px 16px; border-radius:9px; border:none; cursor:pointer; font-size:13px; font-weight:500; background:transparent; color:var(--theme-elevation-500); transition:all .15s; font-family:var(--font-body) }
   .mp-tab.active { background:var(--theme-elevation-0); color:var(--theme-text); font-weight:600; box-shadow:0 1px 4px rgba(0,0,0,.12) }
 
@@ -125,9 +126,17 @@ const CSS = `
 
   @media (max-width:768px) {
     .mp-audit-grid { grid-template-columns:1fr }
-    .mp-audit-row { flex-direction:column; align-items:flex-start }
+    .mp-audit-row { flex-direction:column; align-items:stretch; padding:12px 14px; gap:10px }
+    .mp-audit-row > div { flex:none !important; width:100% }
+    .mp-gsc-block { margin-left:0 !important; border-top:1px solid var(--theme-elevation-150); padding-top:10px }
+    .mp-audit-row > button { align-self:flex-end; margin-top:2px }
+    .mp-audit-card { padding:14px }
     .mp-table th:nth-child(3),.mp-table td:nth-child(3),.mp-table th:nth-child(4),.mp-table td:nth-child(4) { display:none }
     .mp-drawer { width:100vw }
+    .mp-meta-grid { grid-template-columns:1fr !important }
+    .mp-seo-result-hd { flex-wrap:wrap !important }
+    .mp-toolbar { flex-direction:column !important; align-items:flex-start !important }
+    .mp-tab { padding:6px 12px !important; font-size:12px !important; white-space:nowrap }
   }
 `
 
@@ -160,7 +169,7 @@ function ScoreBar({ score }: { score: number }) {
 
 function IssuePills({ issues }: { issues: string[] }) {
   if (issues.length === 0)
-    return <span style={{ fontSize:11, color:'#22c55e', display:'flex', alignItems:'center', gap:4 }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>Rendben</span>
+    return <span style={{ fontSize:11, color:'var(--bw-green)', display:'flex', alignItems:'center', gap:4 }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>Rendben</span>
   return (
     <div style={{ display:'flex', flexWrap:'wrap', gap:3 }}>
       {issues.map((issue, i) => (
@@ -203,8 +212,8 @@ function CwvRow({ psi, loading }: { psi: PageSpeedData | null; loading: boolean 
 function ChangeBadge({ value, invert = false }: { value: number | null; invert?: boolean }) {
   if (value === null) return null
   const pos = invert ? value < 0 : value > 0
-  const c = value === 0 ? 'var(--theme-elevation-400)' : pos ? '#22c55e' : '#ef4444'
-  return <span style={{ fontSize:11, fontWeight:500, color:c, padding:'2px 7px', borderRadius:20, background:value === 0 ? 'transparent' : pos ? 'rgba(34,197,94,.08)' : 'rgba(239,68,68,.08)' }}>{value > 0 ? '+' : ''}{value}%</span>
+  const c = value === 0 ? 'var(--theme-elevation-400)' : pos ? 'var(--bw-green)' : '#ef4444'
+  return <span style={{ fontSize:11, fontWeight:500, color:c, padding:'2px 7px', borderRadius:20, background:value === 0 ? 'transparent' : pos ? 'rgba(5,150,105,.08)' : 'rgba(239,68,68,.08)' }}>{value > 0 ? '+' : ''}{value}%</span>
 }
 
 function InfoTip({ text }: { text: string }) {
@@ -251,7 +260,7 @@ function DualChart({ trend }: { trend: TrendPoint[] }) {
     <div className="mp-card">
       <div style={{ padding:'12px 14px 0', display:'flex', gap:6 }}>
         {TABS.map(t => (
-          <button key={t.k} onClick={() => setMetric(t.k)} style={{ padding:'4px 12px', borderRadius:999, fontSize:12, fontFamily:'ui-monospace,monospace', fontWeight:600, cursor:'pointer', border:'1px solid', borderColor:metric === t.k ? (t.k === 'clicks' ? '#3dffa0' : t.k === 'impressions' ? '#7c6af7' : 'var(--theme-elevation-300)') : 'var(--theme-elevation-200)', background:metric === t.k ? (t.k === 'clicks' ? 'rgba(61,255,160,.12)' : t.k === 'impressions' ? 'rgba(124,106,247,.12)' : 'var(--theme-elevation-100)') : 'transparent', color:metric === t.k ? (t.k === 'clicks' ? '#3dffa0' : t.k === 'impressions' ? '#7c6af7' : 'var(--theme-text)') : 'var(--theme-elevation-500)' }}>
+          <button key={t.k} onClick={() => setMetric(t.k)} style={{ padding:'4px 12px', borderRadius:999, fontSize:12, fontFamily:'ui-monospace,monospace', fontWeight:600, cursor:'pointer', border:'1px solid', borderColor:metric === t.k ? (t.k === 'clicks' ? 'var(--bw-chart-green)' : t.k === 'impressions' ? '#7c6af7' : 'var(--theme-elevation-300)') : 'var(--theme-elevation-200)', background:metric === t.k ? (t.k === 'clicks' ? 'rgba(61,255,160,.12)' : t.k === 'impressions' ? 'rgba(124,106,247,.12)' : 'var(--theme-elevation-100)') : 'transparent', color:metric === t.k ? (t.k === 'clicks' ? 'var(--bw-chart-green)' : t.k === 'impressions' ? '#7c6af7' : 'var(--theme-text)') : 'var(--theme-elevation-500)' }}>
             {t.l}
           </button>
         ))}
@@ -261,7 +270,7 @@ function DualChart({ trend }: { trend: TrendPoint[] }) {
           onMouseMove={e => { const r = e.currentTarget.getBoundingClientRect(); const mx = (e.clientX - r.left) * (W / r.width); let ni = 0, nd = Infinity; for (let i = 0; i < n; i++) { const dd = Math.abs(px(i) - mx); if (dd < nd) { nd = dd; ni = i } }; setTt(ni) }}
           onMouseLeave={() => setTt(null)}>
           <defs>
-            <linearGradient id="mpgc" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3dffa0" stopOpacity=".15"/><stop offset="85%" stopColor="#3dffa0" stopOpacity="0"/></linearGradient>
+            <linearGradient id="mpgc" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style={{ stopColor: 'var(--bw-chart-green)' }} stopOpacity=".15"/><stop offset="85%" style={{ stopColor: 'var(--bw-chart-green)' }} stopOpacity="0"/></linearGradient>
             <linearGradient id="mpgi" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#7c6af7" stopOpacity=".15"/><stop offset="85%" stopColor="#7c6af7" stopOpacity="0"/></linearGradient>
             <clipPath id="mpclip"><rect x={PAD.left} y={PAD.top - 2} width={iW} height={iH + 4}/></clipPath>
           </defs>
@@ -274,11 +283,11 @@ function DualChart({ trend }: { trend: TrendPoint[] }) {
           {showI && <path d={area(iVals, iS)} fill="url(#mpgi)" clipPath="url(#mpclip)"/>}
           {showC && <path d={area(cVals, cS)} fill="url(#mpgc)" clipPath="url(#mpclip)"/>}
           {showI && <path d={path(iVals, iS)} fill="none" stroke="#7c6af7" strokeWidth="1.25" strokeLinejoin="round" clipPath="url(#mpclip)" strokeDasharray="10000" strokeDashoffset="10000" style={{ animation:'mp-sk .9s ease forwards' }}/>}
-          {showC && <path d={path(cVals, cS)} fill="none" stroke="#3dffa0" strokeWidth="1.5" strokeLinejoin="round" clipPath="url(#mpclip)" strokeDasharray="10000" strokeDashoffset="10000" style={{ animation:'mp-sk .9s ease forwards' }}/>}
+          {showC && <path d={path(cVals, cS)} fill="none" strokeWidth="1.5" strokeLinejoin="round" clipPath="url(#mpclip)" strokeDasharray="10000" strokeDashoffset="10000" style={{ animation:'mp-sk .9s ease forwards', stroke:'var(--bw-chart-green)' }}/>}
           {tt !== null && (
             <>
               <line x1={px(tt)} y1={PAD.top} x2={px(tt)} y2={PAD.top + iH} stroke="var(--theme-elevation-300)" strokeWidth=".75" strokeDasharray="2 3"/>
-              {showC && <circle cx={px(tt)} cy={cS.py(cVals[tt])} r="4" fill="#3dffa0" stroke="var(--theme-elevation-50)" strokeWidth="2"/>}
+              {showC && <circle cx={px(tt)} cy={cS.py(cVals[tt])} r="4" stroke="var(--theme-elevation-50)" strokeWidth="2" style={{ fill:'var(--bw-chart-green)' }}/>}
               {showI && <circle cx={px(tt)} cy={iS.py(iVals[tt])} r="4" fill="#7c6af7" stroke="var(--theme-elevation-50)" strokeWidth="2"/>}
             </>
           )}
@@ -287,14 +296,14 @@ function DualChart({ trend }: { trend: TrendPoint[] }) {
         {tt !== null && trend[tt] && (
           <div style={{ position:'absolute', top:8, left:`${Math.min(Math.max((tt / (n - 1)) * 100, 8), 68)}%`, transform:'translateX(-50%)', background:'var(--theme-elevation-100)', border:'1px solid var(--theme-elevation-200)', borderRadius:6, padding:'4px 8px', fontSize:11, fontFamily:'ui-monospace,monospace', pointerEvents:'none', whiteSpace:'nowrap', zIndex:10 }}>
             <div style={{ color:'var(--theme-elevation-500)', marginBottom:2 }}>{new Date(trend[tt].date).toLocaleDateString('hu-HU', { month:'short', day:'numeric' })}</div>
-            {showC && <div style={{ color:'#3dffa0', fontWeight:700 }}>{fmt(trend[tt].clicks)} klikk</div>}
+            {showC && <div style={{ color:'var(--bw-chart-green)', fontWeight:700 }}>{fmt(trend[tt].clicks)} klikk</div>}
             {showI && <div style={{ color:'#7c6af7' }}>{fmt(trend[tt].impressions)} megj.</div>}
           </div>
         )}
       </div>
       {metric === 'dual' && (
         <div style={{ display:'flex', gap:16, padding:'0 14px 12px', fontSize:11, fontFamily:'ui-monospace,monospace' }}>
-          <span style={{ display:'flex', alignItems:'center', gap:5 }}><span style={{ width:10, height:2, background:'#3dffa0', borderRadius:99, display:'inline-block' }}/><span style={{ color:'var(--theme-elevation-500)' }}>Kattintás</span></span>
+          <span style={{ display:'flex', alignItems:'center', gap:5 }}><span style={{ width:10, height:2, background:'var(--bw-chart-green)', borderRadius:99, display:'inline-block' }}/><span style={{ color:'var(--theme-elevation-500)' }}>Kattintás</span></span>
           <span style={{ display:'flex', alignItems:'center', gap:5 }}><span style={{ width:10, height:2, background:'#7c6af7', borderRadius:99, display:'inline-block' }}/><span style={{ color:'var(--theme-elevation-500)' }}>Megjelenés</span></span>
         </div>
       )}
@@ -314,7 +323,7 @@ function AuditRow({ item, gsc, psi, psiLoading, psiEnabled, gscConnected, onQuer
       <div style={{ flex:'2 1 160px', minWidth:0 }}>
         <div style={{ display:'flex', alignItems:'center', gap:5, marginBottom:3, flexWrap:'wrap' }}>
           <span style={{ fontSize:10, color:'var(--theme-elevation-500)', background:'var(--theme-elevation-150)', border:'1px solid var(--theme-elevation-200)', padding:'1px 6px', borderRadius:5, fontFamily:'ui-monospace,monospace', flexShrink:0 }}>{item.type}</span>
-          {item.score === 100 && <span style={{ fontSize:10, color:'#22c55e', background:'rgba(34,197,94,.06)', border:'1px solid rgba(34,197,94,.15)', padding:'1px 7px', borderRadius:20, flexShrink:0 }}>✓ Teljes</span>}
+          {item.score === 100 && <span style={{ fontSize:10, color:'var(--bw-green)', background:'rgba(5,150,105,.06)', border:'1px solid rgba(5,150,105,.15)', padding:'1px 7px', borderRadius:20, flexShrink:0 }}>✓ Teljes</span>}
         </div>
         <div style={{ fontSize:13.5, fontWeight:600, color:'var(--theme-text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{item.label}</div>
         <div style={{ fontSize:10.5, color:'var(--theme-elevation-400)', fontFamily:'ui-monospace,monospace', marginTop:2, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{item.slug || '/'}</div>
@@ -338,7 +347,7 @@ function AuditRow({ item, gsc, psi, psiLoading, psiEnabled, gscConnected, onQuer
       )}
 
       {gscConnected && (
-        <div style={{ marginLeft:'auto', flexShrink:0 }}>
+        <div className="mp-gsc-block" style={{ marginLeft:'auto', flexShrink:0 }}>
           <div style={{ fontSize:10, color:'var(--theme-elevation-400)', marginBottom:6, fontWeight:500, letterSpacing:'.05em', textTransform:'uppercase' }}>Search Console</div>
           {!gsc ? (
             <div style={{ display:'flex', gap:16 }}>
@@ -346,7 +355,7 @@ function AuditRow({ item, gsc, psi, psiLoading, psiEnabled, gscConnected, onQuer
             </div>
           ) : (
             <div style={{ display:'flex', gap:16 }}>
-              <div style={{ textAlign:'right' }}><div style={{ fontSize:13, fontWeight:600, color:'#3dffa0', fontVariantNumeric:'tabular-nums' }}>{fmt(gsc.clicks)}</div><div style={{ fontSize:10, color:'var(--theme-elevation-400)' }}>klikk</div></div>
+              <div style={{ textAlign:'right' }}><div style={{ fontSize:13, fontWeight:600, color:'var(--bw-chart-green)', fontVariantNumeric:'tabular-nums' }}>{fmt(gsc.clicks)}</div><div style={{ fontSize:10, color:'var(--theme-elevation-400)' }}>klikk</div></div>
               <div style={{ textAlign:'right' }}><div style={{ fontSize:13, color:'var(--theme-elevation-500)', fontVariantNumeric:'tabular-nums' }}>{fmt(gsc.impressions)}</div><div style={{ fontSize:10, color:'var(--theme-elevation-400)', display:'flex', alignItems:'center', justifyContent:'flex-end' }}>megj.<InfoTip text="Hányszor jelent meg az oldal a Google találatokban."/></div></div>
               <button onClick={() => onQueryClick(item.slug)} style={{ textAlign:'right', background:'none', border:'none', cursor:'pointer', padding:0 }}>
                 <div style={{ fontSize:13, fontWeight:600, color:posColor(gsc.position), fontVariantNumeric:'tabular-nums', textDecoration:'underline dotted', textUnderlineOffset:2 }}>#{gsc.position}</div>
@@ -379,7 +388,7 @@ function AuditCard({ item, gsc, psi, psiLoading, psiEnabled, gscConnected, onQue
         <div style={{ minWidth:0, flex:1 }}>
           <div style={{ display:'flex', alignItems:'center', gap:5, marginBottom:5, flexWrap:'wrap' }}>
             <span style={{ fontSize:10, color:'var(--theme-elevation-500)', background:'var(--theme-elevation-150)', border:'1px solid var(--theme-elevation-200)', padding:'1px 6px', borderRadius:4, fontFamily:'ui-monospace,monospace', flexShrink:0 }}>{item.type}</span>
-            {item.score === 100 && <span style={{ fontSize:10, color:'#22c55e', background:'rgba(34,197,94,.06)', border:'1px solid rgba(34,197,94,.15)', padding:'1px 7px', borderRadius:20 }}>✓</span>}
+            {item.score === 100 && <span style={{ fontSize:10, color:'var(--bw-green)', background:'rgba(5,150,105,.06)', border:'1px solid rgba(5,150,105,.15)', padding:'1px 7px', borderRadius:20 }}>✓</span>}
           </div>
           <div style={{ fontSize:13.5, fontWeight:600, color:'var(--theme-text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{item.label}</div>
           <div style={{ fontSize:10.5, color:'var(--theme-elevation-400)', fontFamily:'ui-monospace,monospace', marginTop:2, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{item.slug || '/'}</div>
@@ -404,7 +413,7 @@ function AuditCard({ item, gsc, psi, psiLoading, psiEnabled, gscConnected, onQue
         <div style={{ borderTop:'1px solid var(--theme-elevation-150)', paddingTop:12, display:'flex', flexDirection:'column', gap:8 }}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
             <span style={{ fontSize:10, color:'var(--theme-elevation-400)' }}>Klikk</span>
-            <span style={{ fontSize:12, fontWeight:600, color:'#3dffa0', fontVariantNumeric:'tabular-nums' }}>{fmt(gsc.clicks)}</span>
+            <span style={{ fontSize:12, fontWeight:600, color:'var(--bw-chart-green)', fontVariantNumeric:'tabular-nums' }}>{fmt(gsc.clicks)}</span>
           </div>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
             <span style={{ fontSize:10, color:'var(--theme-elevation-400)', display:'flex', alignItems:'center' }}>Megjelenés<InfoTip text="Hányszor jelent meg a Google találatokban."/></span>
@@ -490,7 +499,7 @@ function QueryDrawer({ slug, onClose }: { slug: string; onClose: () => void }) {
                   onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background='var(--theme-elevation-50)'}
                   onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background='transparent'}>
                   <div style={{ padding:'9px 16px', fontSize:12, color:'var(--theme-text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{q.query}</div>
-                  <div style={{ padding:'9px 12px', fontSize:12, fontWeight:600, color:'#3dffa0', fontFamily:'ui-monospace,monospace', textAlign:'right' }}>{q.clicks}</div>
+                  <div style={{ padding:'9px 12px', fontSize:12, fontWeight:600, color:'var(--bw-chart-green)', fontFamily:'ui-monospace,monospace', textAlign:'right' }}>{q.clicks}</div>
                   <div style={{ padding:'9px 12px', fontSize:12, color:'var(--theme-elevation-500)', fontFamily:'ui-monospace,monospace', textAlign:'right' }}>{fmt(q.impressions)}</div>
                   <div style={{ padding:'9px 12px', fontSize:12, fontWeight:600, color:posColor(q.position as number), fontFamily:'ui-monospace,monospace', textAlign:'right' }}>#{q.position}</div>
                 </div>
@@ -540,12 +549,12 @@ function SeoAnalyzer() {
       </div>
       <div style={{ display:'flex', gap:8 }}>
         <input value={url} onChange={e => setUrl(e.target.value)} onKeyDown={e => e.key === 'Enter' && analyze(url)} placeholder={`${SITE}/hu/...`} style={{ flex:1, padding:'8px 12px', borderRadius:8, border:'1px solid var(--theme-elevation-200)', background:'var(--theme-elevation-50)', color:'var(--theme-text)', fontSize:13, fontFamily:'ui-monospace,monospace', outline:'none' }}/>
-        <button onClick={() => analyze(url)} disabled={loading || !url} style={{ padding:'8px 18px', borderRadius:8, background:'#6366f1', color:'#fff', border:'none', fontWeight:600, fontSize:13, cursor:'pointer', opacity: loading || !url ? 0.5 : 1 }}>{loading ? '…' : 'Elemzés'}</button>
+        <button onClick={() => analyze(url)} disabled={loading || !url} style={{ padding:'8px 18px', borderRadius:8, background:'#0067eb', color:'#fff', border:'none', fontWeight:600, fontSize:13, cursor:'pointer', opacity: loading || !url ? 0.5 : 1 }}>{loading ? '…' : 'Elemzés'}</button>
       </div>
       {err && <div style={{ padding:'10px 14px', borderRadius:8, background:'rgba(239,68,68,.08)', border:'1px solid rgba(239,68,68,.2)', color:'#ef4444', fontSize:13 }}>{err}</div>}
       {result && (
         <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-          <div className="mp-card" style={{ display:'flex', alignItems:'center', gap:16, padding:'14px 16px' }}>
+          <div className="mp-card mp-seo-result-hd" style={{ display:'flex', alignItems:'center', gap:16, padding:'14px 16px' }}>
             <ScoreRingLg score={result.score}/>
             <div style={{ flex:1, minWidth:0 }}>
               <div style={{ fontSize:15, fontWeight:700, color:'var(--theme-text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{result.title || '(nincs title)'}</div>
@@ -553,7 +562,7 @@ function SeoAnalyzer() {
             </div>
             <div style={{ display:'flex', gap:5, flexWrap:'wrap', justifyContent:'flex-end' }}>
               {[{ label:`hreflang ${result.hreflang.length > 0 ? '✓' : '✗'}`, ok: result.hreflang.length > 0 }, { label:`canonical ${result.canonical ? '✓' : '✗'}`, ok:!!result.canonical }, { label:`JSON-LD ${result.structuredData.length}`, ok: result.structuredData.length > 0 }].map(b => (
-                <span key={b.label} style={{ fontSize:10, padding:'2px 8px', borderRadius:999, background:b.ok ? 'rgba(34,197,94,.1)' : 'rgba(239,68,68,.1)', color:b.ok ? '#22c55e' : '#ef4444', fontFamily:'ui-monospace,monospace', fontWeight:600 }}>{b.label}</span>
+                <span key={b.label} style={{ fontSize:10, padding:'2px 8px', borderRadius:999, background:b.ok ? 'rgba(5,150,105,.1)' : 'rgba(239,68,68,.1)', color:b.ok ? 'var(--bw-green)' : '#ef4444', fontFamily:'ui-monospace,monospace', fontWeight:600 }}>{b.label}</span>
               ))}
             </div>
           </div>
@@ -565,7 +574,7 @@ function SeoAnalyzer() {
               </div>
             </div>
           )}
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+          <div className="mp-meta-grid" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
             {[
               { label:'Title', val:result.title, len:result.title?.length, min:30, max:60 },
               { label:'Description', val:(result as any).description, len:(result as any).description?.length, min:70, max:160 },
@@ -577,7 +586,7 @@ function SeoAnalyzer() {
               <div key={f.label} className="mp-card" style={{ padding:'10px 12px' }}>
                 <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
                   <span style={{ fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color:'var(--theme-elevation-500)', fontFamily:'ui-monospace,monospace' }}>{f.label}</span>
-                  {f.len !== undefined && <span style={{ fontSize:9, padding:'1px 6px', borderRadius:999, fontFamily:'ui-monospace,monospace', fontWeight:600, background: f.len < (f.min || 0) ? 'rgba(245,158,11,.1)' : f.len > (f.max || 999) ? 'rgba(239,68,68,.1)' : 'rgba(34,197,94,.1)', color: f.len < (f.min || 0) ? '#f59e0b' : f.len > (f.max || 999) ? '#ef4444' : '#22c55e' }}>{f.len} kar.</span>}
+                  {f.len !== undefined && <span style={{ fontSize:9, padding:'1px 6px', borderRadius:999, fontFamily:'ui-monospace,monospace', fontWeight:600, background: f.len < (f.min || 0) ? 'rgba(245,158,11,.1)' : f.len > (f.max || 999) ? 'rgba(239,68,68,.1)' : 'rgba(5,150,105,.1)', color: f.len < (f.min || 0) ? '#f59e0b' : f.len > (f.max || 999) ? '#ef4444' : 'var(--bw-green)' }}>{f.len} kar.</span>}
                 </div>
                 <div style={{ fontSize:12, color:f.val ? 'var(--theme-text)' : 'var(--theme-elevation-300)', fontFamily:(f as any).mono ? 'ui-monospace,monospace' : undefined, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{f.val || '—'}</div>
               </div>
@@ -598,7 +607,7 @@ function SeoAnalyzer() {
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-const TABS = ['SEO Audit', 'Analytics', 'URL Ellenőrzés'] as const
+const TABS = ['Analytics', 'SEO Audit', 'URL Ellenőrzés'] as const
 type Tab = typeof TABS[number]
 
 const AUDIT_FILTERS = ['Összes', 'Problémák', 'Cikk', 'Termék', 'Oldal'] as const
@@ -608,7 +617,7 @@ export function MarketingPage() {
   const { setStepNav } = useStepNav()
   useEffect(() => { setStepNav([{ label: 'Marketing & SEO' }]) }, [setStepNav])
 
-  const [tab, setTab] = useState<Tab>('SEO Audit')
+  const [tab, setTab] = useState<Tab>('Analytics')
 
   // Analytics state
   const [stats, setStats] = useState<Stats | null>(null)
@@ -723,7 +732,7 @@ export function MarketingPage() {
             <p style={{ margin:'4px 0 0', fontSize:'var(--base-body-size)', color:'var(--theme-elevation-500)' }}>Google Search Console · Tartalomaudit · Core Web Vitals</p>
           </div>
           {!statsLoading && (noAuth
-            ? <a href="/api/marketing-metrics/gsc-auth" style={{ padding:'8px 16px', borderRadius:8, background:'#6366f1', color:'#fff', textDecoration:'none', fontWeight:600, fontSize:13 }}>GSC csatlakoztatása</a>
+            ? <a href="/api/marketing-metrics/gsc-auth" style={{ padding:'8px 16px', borderRadius:8, background:'#0067eb', color:'#fff', textDecoration:'none', fontWeight:600, fontSize:13 }}>GSC csatlakoztatása</a>
             : <form action="/api/marketing-metrics/gsc-disconnect" method="POST"><button type="submit" style={{ padding:'6px 14px', borderRadius:8, background:'var(--theme-elevation-100)', color:'var(--theme-elevation-500)', border:'1px solid var(--theme-elevation-200)', cursor:'pointer', fontSize:12, fontFamily:'var(--font-body)' }}>Lecsatlakozás</button></form>
           )}
         </div>
@@ -737,14 +746,14 @@ export function MarketingPage() {
         {tab === 'SEO Audit' && (
           <div className="mp-w">
             {/* Toolbar */}
-            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:'1rem', flexWrap:'wrap' }}>
+            <div className="mp-toolbar" style={{ display:'flex', alignItems:'center', gap:8, marginBottom:'1rem', flexWrap:'wrap' }}>
               <div style={{ display:'flex', gap:5, flexWrap:'wrap', flex:1 }}>
                 {AUDIT_FILTERS.map(f => <button key={f} className={`mp-chip${auditFilter === f ? ' active' : ''}`} onClick={() => setAuditFilter(f)}>{f}{f !== 'Összes' && f !== 'Problémák' ? '' : ''}</button>)}
               </div>
               <div style={{ display:'flex', alignItems:'center', gap:6 }}>
                 <button
                   onClick={() => setPsiEnabled(v => !v)}
-                  style={{ padding:'5px 12px', borderRadius:8, fontSize:12, fontWeight:500, cursor:'pointer', border:'1px solid', borderColor:psiEnabled ? '#22c55e' : 'var(--theme-elevation-200)', background:psiEnabled ? 'rgba(34,197,94,.08)' : 'transparent', color:psiEnabled ? '#22c55e' : 'var(--theme-elevation-500)', fontFamily:'var(--font-body)', transition:'all .15s', display:'flex', alignItems:'center', gap:5 }}>
+                  style={{ padding:'5px 12px', borderRadius:8, fontSize:12, fontWeight:500, cursor:'pointer', border:'1px solid', borderColor:psiEnabled ? 'var(--bw-green)' : 'var(--theme-elevation-200)', background:psiEnabled ? 'rgba(5,150,105,.08)' : 'transparent', color:psiEnabled ? 'var(--bw-green)' : 'var(--theme-elevation-500)', fontFamily:'var(--font-body)', transition:'all .15s', display:'flex', alignItems:'center', gap:5 }}>
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                   Core Web Vitals {psiEnabled ? 'BE' : 'KI'}
                 </button>
@@ -776,7 +785,7 @@ export function MarketingPage() {
             )}
 
             {!gscConnected && !noAuth && (
-              <div style={{ marginTop:16, padding:'10px 14px', borderRadius:8, background:'rgba(99,102,241,.06)', border:'1px solid rgba(99,102,241,.2)', fontSize:12, color:'var(--theme-elevation-500)', display:'flex', alignItems:'center', gap:8 }}>
+              <div style={{ marginTop:16, padding:'10px 14px', borderRadius:8, background:'rgba(0,103,235,.06)', border:'1px solid rgba(0,103,235,.2)', fontSize:12, color:'var(--theme-elevation-500)', display:'flex', alignItems:'center', gap:8 }}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7c6af7" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 GSC nincs csatlakoztatva — a keresési adatok nem jelennek meg az auditban.
                 <a href="/api/marketing-metrics/gsc-auth" style={{ color:'#7c6af7', fontWeight:600, textDecoration:'none' }}>Csatlakoztatás →</a>
@@ -793,14 +802,14 @@ export function MarketingPage() {
             ) : noAuth ? (
               <div className="mp-card" style={{ padding:'3rem', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', gap:12 }}>
                 <p style={{ color:'var(--theme-elevation-500)', fontSize:14, margin:0 }}>A Google Search Console nincs csatlakoztatva.</p>
-                <a href="/api/marketing-metrics/gsc-auth" style={{ padding:'10px 24px', borderRadius:8, background:'#6366f1', color:'#fff', textDecoration:'none', fontWeight:600, fontSize:14 }}>GSC csatlakoztatása</a>
+                <a href="/api/marketing-metrics/gsc-auth" style={{ padding:'10px 24px', borderRadius:8, background:'#0067eb', color:'#fff', textDecoration:'none', fontWeight:600, fontSize:14 }}>GSC csatlakoztatása</a>
               </div>
             ) : stats ? (
               <>
                 {/* 4 stat cards */}
                 <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))', gap:10 }}>
                   {[
-                    { label:'Kattintás (31n)', value:fmt(stats.totalClicks), delta:stats.clicksDelta, color:'#3dffa0' },
+                    { label:'Kattintás (31n)', value:fmt(stats.totalClicks), delta:stats.clicksDelta, color:'var(--bw-chart-green)' },
                     { label:'Megjelenés (31n)', value:fmt(stats.totalImpressions), delta:stats.impsDelta, color:'#7c6af7' },
                     { label:'Átl. CTR', value:`${stats.avgCtr}%`, color:'#f0c742' },
                     { label:'Átl. pozíció', value:`#${stats.avgPosition}`, color:'var(--theme-text)' },
@@ -825,7 +834,7 @@ export function MarketingPage() {
                       {stats.topPages.map((p, i) => (
                         <tr key={i}>
                           <td style={{ fontFamily:'ui-monospace,monospace', fontSize:12, maxWidth:380, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.slug}</td>
-                          <td style={{ textAlign:'right', fontFamily:'ui-monospace,monospace', color:'#3dffa0', fontWeight:600 }}>{p.clicks}</td>
+                          <td style={{ textAlign:'right', fontFamily:'ui-monospace,monospace', color:'var(--bw-chart-green)', fontWeight:600 }}>{p.clicks}</td>
                           <td style={{ textAlign:'right', fontFamily:'ui-monospace,monospace', color:'var(--theme-elevation-500)' }}>{fmt(p.impressions)}</td>
                           <td style={{ textAlign:'right', fontFamily:'ui-monospace,monospace', color:posColor(p.position) }}>#{p.position}</td>
                         </tr>
@@ -847,7 +856,7 @@ export function MarketingPage() {
                         {topQueries.slice(0, 10).map((q, i) => (
                           <tr key={i}>
                             <td style={{ fontSize:12 }}>{q.query}</td>
-                            <td style={{ textAlign:'right', fontFamily:'ui-monospace,monospace', color:'#3dffa0', fontWeight:600 }}>{q.clicks}</td>
+                            <td style={{ textAlign:'right', fontFamily:'ui-monospace,monospace', color:'var(--bw-chart-green)', fontWeight:600 }}>{q.clicks}</td>
                             <td style={{ textAlign:'right', fontFamily:'ui-monospace,monospace', color:'var(--theme-elevation-500)' }}>{fmt(q.impressions)}</td>
                             <td style={{ textAlign:'right', fontFamily:'ui-monospace,monospace', color:posColor(q.position) }}>#{q.position}</td>
                           </tr>
