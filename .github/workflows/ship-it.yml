@@ -471,10 +471,10 @@ jobs:
 
           log "Auto-generating migrations..."
           cd "$NEW_DIR"
-          timeout 30 bash -c 'printf "n\n%.0s" {1..50} | pnpm payload migrate:create --name "auto_$(date +%Y%m%d_%H%M%S)"' 2>&1 || true
+          timeout 60 bash -c 'printf "\n%.0s" {1..100} | pnpm payload migrate:create --name "auto_$(date +%Y%m%d_%H%M%S)"' 2>&1 || true
 
           log "Running migrations..."
-          pnpm payload migrate 2>&1 || true
+          echo "y" | pnpm payload migrate 2>&1 || true
 
           log "Stopping backend..."
           cd ~
