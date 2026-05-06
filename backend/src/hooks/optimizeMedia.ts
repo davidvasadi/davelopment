@@ -154,13 +154,13 @@ async function optimizeImage(filePath: string, mimeType: string, logger: any): P
 
   const tmpPath = filePath + '.__opt'
   try {
-    let pipeline = sharp(filePath)
+    let pipeline = sharp(filePath).resize({ width: 1920, withoutEnlargement: true })
     if (mimeType === 'image/jpeg' || mimeType === 'image/jpg')
-      pipeline = pipeline.jpeg({ quality: 82, progressive: true, mozjpeg: true })
+      pipeline = pipeline.jpeg({ quality: 80, progressive: true, mozjpeg: true })
     else if (mimeType === 'image/png')
-      pipeline = pipeline.png({ compressionLevel: 9 })
+      pipeline = pipeline.png({ compressionLevel: 9, quality: 80 })
     else if (mimeType === 'image/webp')
-      pipeline = pipeline.webp({ quality: 82 })
+      pipeline = pipeline.webp({ quality: 80 })
     else return null
 
     await pipeline.toFile(tmpPath)
