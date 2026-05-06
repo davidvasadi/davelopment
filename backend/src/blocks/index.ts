@@ -1066,7 +1066,6 @@ export const ProductsBlock: Block = {
       name: 'projects',
       type: 'array',
       label: 'Projektek',
-      localized: true,
       fields: [
         {
           name: 'product',

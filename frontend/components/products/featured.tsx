@@ -68,8 +68,7 @@ export const Featured = ({ products, locale }: { products: Product[]; locale: st
       });
   }, [products, search, activeCategory]);
 
-  const featuredOnly = filtered.filter((p: any) => p?.is_featured || p?.featured);
-  const listForGrid = featuredOnly.length ? featuredOnly : filtered;
+  const listForGrid = filtered;
 
   const pairs: Product[][] = [];
   for (let i = 0; i < listForGrid.length; i += 2) {
