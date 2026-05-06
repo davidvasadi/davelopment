@@ -114,7 +114,8 @@ export const Pricing = ({
     return [...primary, ...extra];
   }, [activePlan]);
 
-  const ctaText = activePlan?.CTA?.text || 'Get in touch';
+  const isHu = locale?.toLowerCase().startsWith('hu');
+  const ctaText = activePlan?.CTA?.text || (isHu ? 'Kapcsolatfelvétel' : 'Get in touch');
   const ctaHref = activePlan?.CTA?.URL || '#';
   const ctaTarget = activePlan?.CTA?.target || '_self';
 
@@ -127,9 +128,13 @@ export const Pricing = ({
     const pool = plans.filter((p) => (p?.plan_type || '') === t);
     const preferred = pool.find((p) => p?.featured) || pool[0];
     const dynamicName = preferred?.name?.trim();
+    const fallbacks: Record<string, { hu: string; en: string }> = {
+      project: { hu: 'Projekt', en: 'Per project' },
+      monthly: { hu: 'Havi', en: 'Monthly' },
+    };
     return (
       dynamicName ||
-      ({ project: 'Per project', monthly: 'Monthly' }[t] as string) ||
+      (fallbacks[t] ? (isHu ? fallbacks[t].hu : fallbacks[t].en) : '') ||
       (t ? t.charAt(0).toUpperCase() + t.slice(1) : '')
     );
   };

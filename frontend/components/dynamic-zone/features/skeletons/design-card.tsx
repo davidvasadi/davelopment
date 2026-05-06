@@ -4,47 +4,67 @@ import { useEffect, useState } from 'react';
 
 const ACCENT = '#a78bfa';
 
-const components = [
+const componentsHU = [
   { title: 'Hero szekció',   sub: 'Frissítve 2 perce · v3.1',         status: 'Élő',        sc: '#34d399', editor: 'D', bg: '#fbbf24' },
   { title: 'Navigáció',      sub: 'Átnézés alatt · Kliens szerkeszti', status: 'Átnézés',    sc: '#60a5fa', editor: 'K', bg: '#a78bfa' },
   { title: 'Árlista tábla',  sub: 'Jóváhagyva · v1 · Kész',           status: 'Jóváhagyva', sc: '#34d399', editor: 'D', bg: '#fbbf24' },
   { title: 'CTA gomb',       sub: 'Visszajelzés várva · Kliens',       status: 'Függőben',   sc: '#f0c742', editor: 'K', bg: '#a78bfa' },
 ];
+const componentsEN = [
+  { title: 'Hero section',   sub: 'Updated 2 min ago · v3.1',          status: 'Live',      sc: '#34d399', editor: 'D', bg: '#fbbf24' },
+  { title: 'Navigation',     sub: 'Under review · Client editing',      status: 'Review',    sc: '#60a5fa', editor: 'K', bg: '#a78bfa' },
+  { title: 'Pricing table',  sub: 'Approved · v1 · Done',              status: 'Approved',  sc: '#34d399', editor: 'D', bg: '#fbbf24' },
+  { title: 'CTA button',     sub: 'Awaiting feedback · Client',         status: 'Pending',   sc: '#f0c742', editor: 'K', bg: '#a78bfa' },
+];
 
-const assets = [
+const assetsHU = [
   { name: 'Logo variációk',    sub: 'SVG · 4 variáns · v2',      size: '48 KB',  type: 'SVG'  },
   { name: 'Ikon rendszer',     sub: '120 ikon · outline stílus',  size: '210 KB', type: 'SVG'  },
   { name: 'Tipográfia készlet',sub: 'Inter + Space Grotesk',      size: '12 MB',  type: 'TTF'  },
   { name: 'Illusztrációk',     sub: 'Lottie · 6 animáció',       size: '380 KB', type: 'JSON' },
 ];
-
-const deploys = [
-  { version: 'v3.1.2', env: 'Production', branch: 'main',    time: '2p'    },
-  { version: 'v3.1.1', env: 'Staging',    branch: 'staging', time: '1ó'    },
-  { version: 'v3.1.0', env: 'Production', branch: 'main',    time: '3ó'    },
-  { version: 'v3.0.9', env: 'Production', branch: 'main',    time: '2 nap' },
+const assetsEN = [
+  { name: 'Logo variations',   sub: 'SVG · 4 variants · v2',     size: '48 KB',  type: 'SVG'  },
+  { name: 'Icon system',       sub: '120 icons · outline style',  size: '210 KB', type: 'SVG'  },
+  { name: 'Typography kit',    sub: 'Inter + Space Grotesk',      size: '12 MB',  type: 'TTF'  },
+  { name: 'Illustrations',     sub: 'Lottie · 6 animations',     size: '380 KB', type: 'JSON' },
 ];
 
-const activity = [
+const deploys = [
+  { version: 'v3.1.2', env: 'Production', branch: 'main',    time: '2m'  },
+  { version: 'v3.1.1', env: 'Staging',    branch: 'staging', time: '1h'  },
+  { version: 'v3.1.0', env: 'Production', branch: 'main',    time: '3h'  },
+  { version: 'v3.0.9', env: 'Production', branch: 'main',    time: '2d'  },
+];
+
+const activityHU = [
   { msg: 'Dávid pusolta: "Hero szekció" v3.1', time: '2p',  color: '#fbbf24' },
   { msg: 'Kliens jóváhagyta: "Árlista tábla"', time: '14p', color: '#a78bfa' },
   { msg: 'Deploy → production sikeres',         time: '1ó',  color: '#34d399' },
+];
+const activityEN = [
+  { msg: 'David pushed: "Hero section" v3.1', time: '2m',  color: '#fbbf24' },
+  { msg: 'Client approved: "Pricing table"',  time: '14m', color: '#a78bfa' },
+  { msg: 'Deploy → production successful',    time: '1h',  color: '#34d399' },
 ];
 
 export const designTabs = [
   {
     key: 'components' as const,
     label: 'Komponensek',
+    labelEN: 'Components',
     icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>,
   },
   {
     key: 'assets' as const,
     label: 'Eszközök',
+    labelEN: 'Assets',
     icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>,
   },
   {
     key: 'deploy' as const,
     label: 'Deploy',
+    labelEN: 'Deploy',
     icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>,
   },
 ];
@@ -54,9 +74,11 @@ type View = 'components' | 'assets' | 'deploy';
 interface Props {
   controlledView?: View;
   onViewChange?: (v: View) => void;
+  locale?: string;
 }
 
-export const SkeletonThree = ({ controlledView, onViewChange }: Props) => {
+export const SkeletonThree = ({ controlledView, onViewChange, locale }: Props) => {
+  const isEN = locale === 'en';
   const [internalView, setInternalView] = useState<View>('components');
   const [activeRow, setActiveRow] = useState(0);
   const [tick, setTick] = useState(0);
@@ -66,6 +88,10 @@ export const SkeletonThree = ({ controlledView, onViewChange }: Props) => {
     if (onViewChange) onViewChange(v);
     else setInternalView(v);
   };
+
+  const components = isEN ? componentsEN : componentsHU;
+  const assets = isEN ? assetsEN : assetsHU;
+  const activity = isEN ? activityEN : activityHU;
 
   const rowCount = view === 'components' ? components.length : view === 'assets' ? assets.length : deploys.length;
 
@@ -85,6 +111,12 @@ export const SkeletonThree = ({ controlledView, onViewChange }: Props) => {
   }, [controlledView]);
 
   useEffect(() => { setActiveRow(0); }, [controlledView]);
+
+  const sectionLabel = view === 'components'
+    ? (isEN ? 'Components' : 'Komponensek')
+    : view === 'assets'
+      ? (isEN ? 'Assets' : 'Eszközök')
+      : 'Deploy history';
 
   return (
     <div className="w-full h-full flex items-center justify-center p-5 relative overflow-hidden">
@@ -108,7 +140,9 @@ export const SkeletonThree = ({ controlledView, onViewChange }: Props) => {
               <path d="M0 28.5A9.5 9.5 0 0 1 9.5 19H19V38H9.5A9.5 9.5 0 0 1 0 28.5z" fill="#a259ff"/>
             </svg>
           </div>
-          <span className="text-[13px] flex-1" style={{ color: 'rgba(255,255,255,0.28)' }}>davelopment-design / komponensek</span>
+          <span className="text-[13px] flex-1" style={{ color: 'rgba(255,255,255,0.28)' }}>
+            {isEN ? 'davelopment-design / components' : 'davelopment-design / komponensek'}
+          </span>
           <div className="flex items-center gap-[6px]">
             <div className="flex items-center -space-x-[6px]">
               <motion.div animate={{ boxShadow: tick ? '0 0 10px rgba(251,191,36,0.7)' : '0 0 6px rgba(251,191,36,0.4)' }}
@@ -123,7 +157,9 @@ export const SkeletonThree = ({ controlledView, onViewChange }: Props) => {
         </div>
 
         <div className="border-b border-white/[0.05] px-4 py-3" style={{ background: `${ACCENT}06` }}>
-          <div className="text-[10px] font-semibold tracking-[.12em] uppercase mb-[8px]" style={{ color: 'rgba(255,255,255,0.22)' }}>Élő aktivitás</div>
+          <div className="text-[10px] font-semibold tracking-[.12em] uppercase mb-[8px]" style={{ color: 'rgba(255,255,255,0.22)' }}>
+            {isEN ? 'Live activity' : 'Élő aktivitás'}
+          </div>
           {activity.map((a, i) => (
             <motion.div key={a.msg} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.12 }}
               className="flex items-center gap-[8px] mb-[6px] last:mb-0">
@@ -136,7 +172,7 @@ export const SkeletonThree = ({ controlledView, onViewChange }: Props) => {
 
         <div className="px-4 h-[28px] flex items-center">
           <span className="text-[10px] font-semibold tracking-[.12em] uppercase" style={{ color: 'rgba(255,255,255,0.22)' }}>
-            {view === 'components' ? 'Komponensek' : view === 'assets' ? 'Eszközök' : 'Deploy history'}
+            {sectionLabel}
           </span>
         </div>
 
@@ -196,11 +232,11 @@ export const SkeletonThree = ({ controlledView, onViewChange }: Props) => {
 
         {controlledView === undefined && (
           <div className="flex items-center justify-center gap-[5px] px-4 py-[8px] border-t border-white/[0.05]">
-            {designTabs.map(({ key, label, icon }) => (
+            {designTabs.map(({ key, label, labelEN, icon }) => (
               <button key={key} onClick={() => setView(key)}
                 className="flex items-center gap-[5px] rounded-[8px] px-3 py-[5px] text-[10px] font-medium transition-all"
                 style={{ background: view === key ? `${ACCENT}1a` : 'rgba(255,255,255,0.04)', color: view === key ? ACCENT : 'rgba(255,255,255,0.3)', border: view === key ? `0.5px solid ${ACCENT}40` : '0.5px solid rgba(255,255,255,0.07)' }}>
-                {icon}{label}
+                {icon}{isEN ? labelEN : label}
               </button>
             ))}
           </div>
@@ -209,11 +245,15 @@ export const SkeletonThree = ({ controlledView, onViewChange }: Props) => {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }}
           className="flex items-center justify-between px-4 h-[34px] border-t border-white/[0.06]"
           style={{ background: 'rgba(0,0,0,0.25)' }}>
-          <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>Figma bővítmény</span>
+          <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>
+            {isEN ? 'Figma plugin' : 'Figma bővítmény'}
+          </span>
           <div className="flex items-center gap-[6px]">
             <motion.div animate={{ opacity: [1, 0.3, 1] }} transition={{ repeat: Infinity, duration: 2 }}
               className="w-[5px] h-[5px] rounded-full flex-shrink-0" style={{ background: '#fbbf24', boxShadow: '0 0 5px #fbbf24' }} />
-            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.28)' }}>Megnyitás Figmában</span>
+            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.28)' }}>
+              {isEN ? 'Open in Figma' : 'Megnyitás Figmában'}
+            </span>
             <kbd className="text-[9px] rounded-[4px] px-[5px] py-[1px] font-mono" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>
           </div>
         </motion.div>

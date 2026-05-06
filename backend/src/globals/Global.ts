@@ -105,6 +105,7 @@ export const Global: GlobalConfig = {
           name: 'description',
           type: 'text',
           label: 'Leírás',
+          localized: true,
         },
         {
           name: 'copyright',
@@ -125,22 +126,26 @@ export const Global: GlobalConfig = {
           name: 'navigation_title',
           type: 'text',
           label: 'Navigáció cím',
+          localized: true,
         },
         {
           name: 'social_title',
           type: 'text',
           label: 'Közösségi média cím',
+          localized: true,
         },
         {
           name: 'internal_links',
           type: 'array',
           label: 'Belső linkek',
+          localized: true,
           fields: navLinkFields,
         },
         {
           name: 'policy_links',
           type: 'array',
           label: 'Adatvédelmi linkek',
+          localized: true,
           fields: navLinkFields,
         },
         {

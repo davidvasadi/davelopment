@@ -45,7 +45,7 @@ const summaryTabs = [
   {
     key: 'systems',
     color: '#f59e0b',
-    label: 'Rendszerek',
+    label: 'Systems',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
         <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
@@ -76,7 +76,7 @@ const singleConfigs = {
   },
   systems: {
     color: '#f59e0b',
-    label: 'Rendszerek',
+    label: 'Systems',
     dockTabs: systemsTabs,
     accent: '#f59e0b',
   },
@@ -138,6 +138,7 @@ export const Features = ({
   heading,
   sub_heading,
   feature,
+  locale,
   globe_card: _g,
   ray_card: _r,
   graph_card: _gr,
@@ -147,6 +148,7 @@ export const Features = ({
   sub_heading?: string;
   /** If set, shows only that one card; dock becomes its internal views */
   feature?: SingleFeature;
+  locale?: string;
   globe_card?: any;
   ray_card?: any;
   graph_card?: any;
@@ -185,26 +187,30 @@ export const Features = ({
 
   const activeSummaryTab = summaryTabs[activeIdx];
   const activeColor = isSingle ? singleCfg!.color : activeSummaryTab.color;
-  const activeLabel = isSingle ? (singleCfg!.dockTabs.find(t => t.key === singleView)?.label ?? singleCfg!.label) : activeSummaryTab.label;
+  const isEN = locale === 'en';
+  const activeTab = isSingle ? singleCfg!.dockTabs.find(t => t.key === singleView) : null;
+  const activeLabel = isSingle
+    ? ((isEN ? (activeTab as any)?.labelEN : activeTab?.label) ?? singleCfg!.label)
+    : activeSummaryTab.label;
 
   // Render the skeleton for single mode
   const renderSingleSkeleton = () => {
     if (!feature) return null;
     const v = singleView as any;
     switch (feature) {
-      case 'performance': return <SkeletonOne controlledView={v} onViewChange={setSingleView as any} />;
-      case 'seo':         return <SkeletonTwo controlledView={v} onViewChange={setSingleView as any} />;
-      case 'design':      return <SkeletonThree controlledView={v} onViewChange={setSingleView as any} />;
-      case 'systems':     return <SkeletonFour controlledView={v} onViewChange={setSingleView as any} />;
+      case 'performance': return <SkeletonOne controlledView={v} onViewChange={setSingleView as any} locale={locale} />;
+      case 'seo':         return <SkeletonTwo controlledView={v} onViewChange={setSingleView as any} locale={locale} />;
+      case 'design':      return <SkeletonThree controlledView={v} onViewChange={setSingleView as any} locale={locale} />;
+      case 'systems':     return <SkeletonFour controlledView={v} onViewChange={setSingleView as any} locale={locale} />;
     }
   };
 
   // Summary skeletons (no controlled view — self-managed)
   const summarySkeletons: Record<string, React.ReactNode> = {
-    performance: <SkeletonOne />,
-    seo:         <SkeletonTwo />,
-    design:      <SkeletonThree />,
-    systems:     <SkeletonFour />,
+    performance: <SkeletonOne locale={locale} />,
+    seo:         <SkeletonTwo locale={locale} />,
+    design:      <SkeletonThree locale={locale} />,
+    systems:     <SkeletonFour locale={locale} />,
   };
 
   return (

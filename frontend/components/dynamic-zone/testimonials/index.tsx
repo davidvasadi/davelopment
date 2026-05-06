@@ -419,7 +419,7 @@ export const Testimonials = ({
       {/* ── DESKTOP GRID ── */}
       <div className="max-w-7xl mx-auto px-4 hidden lg:flex lg:flex-col lg:gap-1">
         {rows.map((row, rowIdx) => (
-          <div key={rowIdx} className="flex gap-1" style={{ height: '520px' }}>
+          <div key={rowIdx} className="flex gap-1" style={{ height: '680px' }}>
             {/* StatCard — első sor bal oldal */}
             {rowIdx === 0 ? (
               <motion.div

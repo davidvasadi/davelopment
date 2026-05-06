@@ -1,12 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 
-const HEADLINE_FROM = 'Tervezés, fejlesztés, vevőszerzés.'
-const HEADLINE_TO   = 'Web · Márka · Stratégia.'
-const CTA_FROM      = 'Kapcsolatfelvétel →'
-const CTA_TO        = 'Kezdjük el →'
-
-// ── custom.scss dark theme tokens ─────────────────────────────
+// ── dark theme tokens ──────────────────────────────────────────
 const BG       = '#0a0a0a'
 const SURFACE  = '#111111'
 const SURFACE2 = '#171717'
@@ -17,67 +12,78 @@ const TEXT_SEC = '#999'
 const MUTED    = '#666'
 const HOVER2   = 'rgba(255,255,255,0.055)'
 
-// ── Admin brand colors (from actual ContentSummary / MarketingWidget) ─
-const GREEN_A  = '#3dffa0'   // Cikk, Kattintás
-const PURPLE_A = '#7c6af7'   // Projekt, Megjelenés
-const YELLOW_A = '#f0c742'   // Oldal, CTR
-const BLUE_A   = '#60a5fa'   // Média
-const GREEN    = '#22c55e'   // success / save
+// ── brand colors ───────────────────────────────────────────────
+const GREEN_A  = '#3dffa0'
+const PURPLE_A = '#7c6af7'
+const YELLOW_A = '#f0c742'
+const BLUE_A   = '#60a5fa'
+const GREEN    = '#22c55e'
 
-// ── Content summary data ──────────────────────────────────────
+// ── locale-aware data ──────────────────────────────────────────
+const HEADLINES = {
+  from: { hu: 'Tervezés, fejlesztés, vevőszerzés.', en: 'Design, development, growth.' },
+  to:   { hu: 'Web · Márka · Stratégia.',           en: 'Web · Brand · Strategy.'       },
+}
+const CTAS = {
+  from: { hu: 'Kapcsolatfelvétel →', en: 'Get in touch →' },
+  to:   { hu: 'Kezdjük el →',       en: "Let's start →"  },
+}
+
 const C_ITEMS = [
-  { label: 'Cikk',    v0: '12', v1: '13', color: GREEN_A  },
-  { label: 'Projekt', v0: '8',  v1: '8',  color: PURPLE_A },
-  { label: 'Oldal',   v0: '5',  v1: '6',  color: YELLOW_A },
-  { label: 'Média',   v0: '84', v1: '87', color: BLUE_A   },
+  { hu: 'Cikk',    en: 'Article', v0: '12', v1: '13', color: GREEN_A  },
+  { hu: 'Projekt', en: 'Project', v0: '8',  v1: '8',  color: PURPLE_A },
+  { hu: 'Oldal',   en: 'Page',   v0: '5',  v1: '6',  color: YELLOW_A },
+  { hu: 'Média',   en: 'Media',  v0: '84', v1: '87', color: BLUE_A   },
 ]
 
-// ── Marketing (GSC-style) stats ───────────────────────────────
 const M_STATS = [
-  { label: 'Kattintás (31n)',   v0: '1.4k',  v1: '1.6k',  color: GREEN_A  },
-  { label: 'Megjelenés (31n)',  v0: '18.2k', v1: '19.1k', color: PURPLE_A },
-  { label: 'Átl. CTR',          v0: '7.8%',  v1: '8.1%',  color: YELLOW_A },
-  { label: 'Átl. pozíció',      v0: '#3.2',  v1: '#3.1',  color: TEXT     },
+  { hu: 'Kattintás (31n)',  en: 'Clicks (31d)',      v0: '1.4k',  v1: '1.6k',  color: GREEN_A  },
+  { hu: 'Megjelenés (31n)', en: 'Impressions (31d)', v0: '18.2k', v1: '19.1k', color: PURPLE_A },
+  { hu: 'Átl. CTR',         en: 'Avg. CTR',          v0: '7.8%',  v1: '8.1%',  color: YELLOW_A },
+  { hu: 'Átl. pozíció',     en: 'Avg. position',     v0: '#3.2',  v1: '#3.1',  color: TEXT     },
 ]
 
-// ── Area chart pre-computed ───────────────────────────────────
+const DAYS_HU = ['H','K','Sz','Cs','P','Sz','V']
+const DAYS_EN = ['M','T','W','T','F','S','S']
+
+// ── area chart pre-computed ────────────────────────────────────
 const BARS = [31, 58, 44, 71, 63, 49, 88]
-const DAYS = ['H','K','Sz','Cs','P','Sz','V']
 const AW = 100, AH = 40
 const maxBar = Math.max(...BARS)
 const mainPts  = BARS.map((v,i) => [(i/(BARS.length-1))*AW, AH-(v/maxBar)*(AH*0.82)-2] as [number,number])
 const mainLine = mainPts.map((p,i) => `${i===0?'M':'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ')
 const mainArea = mainLine + ` L${AW},${AH} L0,${AH} Z`
-// "clicks" line — slightly compressed vertically (appears above the main line)
 const clickPts  = BARS.map((v,i) => [(i/(BARS.length-1))*AW, (AH-(v/maxBar)*(AH*0.82)-2)*0.82+3] as [number,number])
 const clickLine = clickPts.map((p,i) => `${i===0?'M':'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ')
 const clickArea = clickLine + ` L${AW},${AH} L0,${AH} Z`
 
-// ── Nav structure (matches actual Nav.tsx) ────────────────────
+// ── nav structure ──────────────────────────────────────────────
 type NavItem = { label: string; active: 'dash' | 'edit' | 'never'; d: string }
 type NavSection = { type: 'group'; group?: string; items: NavItem[] } | { type: 'divider' }
 
-const NAV_SECTIONS: NavSection[] = [
-  { type: 'group', items: [
-    { label: 'Dashboard',    active: 'dash',  d: 'M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z' },
-  ]},
-  { type: 'group', group: 'Analytics', items: [
-    { label: 'Marketing',    active: 'never', d: 'M22 7 13.5 15.5 8.5 10.5 2 17M16 7h6v6' },
-    { label: 'Kommunikáció', active: 'never', d: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6' },
-  ]},
-  { type: 'divider' },
-  { type: 'group', group: 'Tartalom', items: [
-    { label: 'Cikkek',       active: 'never', d: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8' },
-    { label: 'Projektek',    active: 'never', d: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' },
-    { label: 'Oldalak',      active: 'edit',  d: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6' },
-    { label: 'Média',        active: 'never', d: 'M4 3h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM21 15l-5-5L5 21' },
-  ]},
-]
+function getNavSections(isEn: boolean): NavSection[] {
+  return [
+    { type: 'group', items: [
+      { label: 'Dashboard', active: 'dash', d: 'M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z' },
+    ]},
+    { type: 'group', group: 'Analytics', items: [
+      { label: 'Marketing',                               active: 'never', d: 'M22 7 13.5 15.5 8.5 10.5 2 17M16 7h6v6' },
+      { label: isEn ? 'Communications' : 'Kommunikáció', active: 'never', d: 'M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6' },
+    ]},
+    { type: 'divider' },
+    { type: 'group', group: isEn ? 'Content' : 'Tartalom', items: [
+      { label: isEn ? 'Articles' : 'Cikkek',   active: 'never', d: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8' },
+      { label: isEn ? 'Projects' : 'Projektek', active: 'never', d: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' },
+      { label: isEn ? 'Pages' : 'Oldalak',     active: 'edit',  d: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6' },
+      { label: isEn ? 'Media' : 'Média',       active: 'never', d: 'M4 3h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM21 15l-5-5L5 21' },
+    ]},
+  ]
+}
 
 type Scene = 'dashboard' | 'editor'
 type Phase = 'dash-idle'|'dash-live'|'dash-click'|'edit-idle'|'edit-typing-h'|'edit-saving-h'|'edit-pause'|'edit-typing-c'|'edit-saving-c'|'edit-done'
 
-// ── Mini icon ─────────────────────────────────────────────────
+// ── mini icon ──────────────────────────────────────────────────
 function Ico({ d, sz = 10, color = TEXT_SEC, opacity = 0.5 }: { d: string; sz?: number; color?: string; opacity?: number }) {
   return (
     <svg width={sz} height={sz} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.75"
@@ -87,19 +93,17 @@ function Ico({ d, sz = 10, color = TEXT_SEC, opacity = 0.5 }: { d: string; sz?: 
   )
 }
 
-// ── Left nav sidebar ─────────────────────────────────────────
-// activeKey: 'dash' = Dashboard active, 'edit' = Oldalak active
-function NavSidebar({ activeKey }: { activeKey: 'dash' | 'edit' }) {
+// ── left nav sidebar ───────────────────────────────────────────
+function NavSidebar({ activeKey, navSections, searchLabel }: { activeKey: 'dash' | 'edit'; navSections: NavSection[]; searchLabel: string }) {
   return (
     <div style={{ width: '92px', height: '100%', background: BG, borderRight: `1px solid ${BORDER}`, display: 'flex', flexDirection: 'column', flexShrink: 0, overflow: 'hidden' }}>
-      {/* Search button — matches Nav.tsx */}
       <div style={{ padding: '9px 6px 6px', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 7px', borderRadius: '5px', border: `1px solid ${BORDER}` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke={MUTED} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <span style={{ color: MUTED, fontSize: '5px' }}>Keresés</span>
+            <span style={{ color: MUTED, fontSize: '5px' }}>{searchLabel}</span>
           </div>
           <div style={{ display: 'flex', gap: '1px' }}>
             {['⌘','F'].map(k => (
@@ -108,9 +112,8 @@ function NavSidebar({ activeKey }: { activeKey: 'dash' | 'edit' }) {
           </div>
         </div>
       </div>
-      {/* Nav items */}
       <div style={{ flex: 1, overflow: 'hidden', padding: '0 4px 8px' }}>
-        {NAV_SECTIONS.map((section, si) => {
+        {navSections.map((section, si) => {
           if (section.type === 'divider') {
             return <div key={si} style={{ height: '1px', background: BORDER, margin: '4px 6px' }} />
           }
@@ -140,7 +143,29 @@ function NavSidebar({ activeKey }: { activeKey: 'dash' | 'edit' }) {
   )
 }
 
-export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
+export function LiveEditDemo({ mobile = false, locale }: { mobile?: boolean; locale?: string }) {
+  const isEn = locale === 'en'
+  const HEADLINE_FROM   = isEn ? HEADLINES.from.en : HEADLINES.from.hu
+  const HEADLINE_TO     = isEn ? HEADLINES.to.en   : HEADLINES.to.hu
+  const CTA_FROM        = isEn ? CTAS.from.en       : CTAS.from.hu
+  const CTA_TO          = isEn ? CTAS.to.en         : CTAS.to.hu
+  const DAYS            = isEn ? DAYS_EN : DAYS_HU
+  const navSections     = getNavSections(isEn)
+  const searchLabel     = isEn ? 'Search' : 'Keresés'
+  const navLinks        = isEn ? ['Blog','Works','Pricing'] : ['Blog','Munkák','Árak']
+  const heroStats       = isEn
+    ? [{v:'40+',l:'projects'},{v:'98%',l:'satisfied'},{v:'5★',l:'rating'}]
+    : [{v:'40+',l:'projekt'},{v:'98%',l:'elégedett'},{v:'5★',l:'értékelés'}]
+  const contentLabel    = isEn ? 'Content'   : 'Tartalom'
+  const pagesLabel      = isEn ? 'Pages'     : 'Oldalak'
+  const homepageLabel   = isEn ? 'Homepage'  : 'Főoldal'
+  const heroCimLabel    = isEn ? 'Hero title' : 'Hero cím'
+  const ctaFeliratLabel = isEn ? 'CTA label' : 'CTA felirat'
+  const saveLabel       = isEn ? 'Save'      : 'Mentés'
+  const savedLabel      = isEn ? 'Saved ✓'   : 'Mentve ✓'
+  const clicksLabel     = isEn ? 'Clicks'    : 'Kattintás'
+  const impressLabel    = isEn ? 'Impressions' : 'Megjelenés'
+
   const rootRef  = useRef<HTMLDivElement>(null)
   const [ready,   setReady]   = useState(false)
   const [scene,   setScene]   = useState<Scene>('dashboard')
@@ -190,11 +215,7 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
       t(() => { setPhase('dash-live'); setCharts(true) },                          600)
       t(() => { setCVals(['13','8','5','85']); setMVals(['1.5k','18.7k','7.9%','#3.2']) }, 1200)
       t(() => { setCVals(C_ITEMS.map(x=>x.v1)); setMVals(M_STATS.map(x=>x.v1)) }, 2400)
-
-      // "user clicks" Oldalak in the nav after a long visible pause
       t(() => setPhase('dash-click'),                                               5500)
-
-      // flash cut → editor
       t(() => cut(
         () => { setScene('editor'); setPhase('edit-idle') },
         () => t(() => {
@@ -230,7 +251,7 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
     <div style={{ position: 'absolute', inset: 0, zIndex: 50, background: BG, pointerEvents: 'none', opacity: flash ? 1 : 0, transition: 'opacity 0.1s' }} />
   )
 
-  // ── Website preview (aurora hero) ─────────────────────────────
+  // ── website preview ────────────────────────────────────────────
   const wsEl = (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#04040a', position: 'relative' }}>
       <div style={{ position: 'absolute', top: '-15%', left: '-10%', width: '55%', height: '70%', borderRadius: '50%', background: 'radial-gradient(circle,rgba(59,130,246,0.22) 0%,transparent 70%)', filter: 'blur(18px)', zIndex: 0, pointerEvents: 'none' }} />
@@ -241,7 +262,7 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: sz('6px 14px','8px 16px'), borderBottom: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
         <span style={{ color: '#fff', fontWeight: 700, letterSpacing: '-0.02em', fontSize: sz('7px','10px') }}>[davelopment]®</span>
         <div style={{ display: 'flex', gap: sz('9px','13px') }}>
-          {['Blog','Munkák','Árak'].map(l => <span key={l} style={{ color: 'rgba(255,255,255,0.3)', fontSize: sz('5.5px','7px') }}>{l}</span>)}
+          {navLinks.map(l => <span key={l} style={{ color: 'rgba(255,255,255,0.3)', fontSize: sz('5.5px','7px') }}>{l}</span>)}
         </div>
       </div>
       {/* hero */}
@@ -260,7 +281,7 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
           <div style={{ width: sz('4px','5px'), height: sz('4px','5px'), borderRadius: '50%', background: '#000', flexShrink: 0 }} />
         </div>
         <div style={{ display: 'flex', gap: sz('12px','18px'), flexShrink: 0 }}>
-          {[{v:'40+',l:'projekt'},{v:'98%',l:'elégedett'},{v:'5★',l:'értékelés'}].map(item => (
+          {heroStats.map(item => (
             <div key={item.l} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <span style={{ color: 'rgba(255,255,255,0.85)', fontWeight: 700, fontSize: sz('7px','9px') }}>{item.v}</span>
               <span style={{ color: 'rgba(255,255,255,0.22)', fontSize: sz('4.5px','6px') }}>{item.l}</span>
@@ -271,11 +292,9 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
     </div>
   )
 
-  // ── Dashboard main content ─────────────────────────────────────
-  // Matches BeforeDashboard → ContentSummary + MarketingWidget layout
+  // ── dashboard main content ─────────────────────────────────────
   const dashContentEl = (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-      {/* Page header — breadcrumb + bell + avatar */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px 7px', flexShrink: 0, borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span style={{ color: TEXT, fontWeight: 700, fontSize: '7px', letterSpacing: '-0.01em' }}>[davelopment]®</span>
@@ -283,7 +302,6 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
           <span style={{ color: TEXT_SEC, fontSize: '5.5px' }}>Dashboard</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
-          {/* Bell icon with red dot — matches NotificationBell */}
           <div style={{ width: '16px', height: '16px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', flexShrink: 0 }}>
             <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={TEXT_SEC} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.6 }}>
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -291,64 +309,53 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
             </svg>
             <span style={{ position: 'absolute', top: '2px', right: '2px', width: '4px', height: '4px', borderRadius: '50%', background: '#ef4444', border: `1px solid ${BG}` }} />
           </div>
-          {/* Avatar */}
           <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: SURFACE2, border: `1px solid ${BORDER_H}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <span style={{ color: TEXT, fontWeight: 700, fontSize: '5px' }}>D</span>
           </div>
         </div>
       </div>
 
-      {/* Scrollable body */}
       <div style={{ flex: 1, overflow: 'hidden', padding: '9px 12px', display: 'flex', flexDirection: 'column', gap: '7px', minHeight: 0 }}>
-
-        {/* ── Tartalom section ── */}
+        {/* Content section */}
         <div style={{ flexShrink: 0 }}>
-          {/* Section label (matches BeforeDashboard h2 style, scaled down) */}
           <div style={{ marginBottom: '5px' }}>
-            <span style={{ fontSize: '8px', fontWeight: 500, color: TEXT, letterSpacing: '-0.01em' }}>Tartalom</span>
+            <span style={{ fontSize: '8px', fontWeight: 500, color: TEXT, letterSpacing: '-0.01em' }}>{contentLabel}</span>
           </div>
-          {/* ContentSummary: 4-col grid — stagger fade+slide (matches motion.a variants in ContentSummary.tsx) */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '4px' }}>
             {C_ITEMS.map((item, i) => (
-              <div key={item.label} style={{ display: 'flex', flexDirection: 'column', gap: '2px', background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: '6px', padding: '6px 8px', opacity: charts ? 1 : 0, transform: charts ? 'none' : 'translateY(6px)', transition: `opacity 0.3s ease ${0.07*i}s, transform 0.3s ease ${0.07*i}s` }}>
-                <span style={{ fontSize: '3.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: TEXT_SEC, fontFamily: 'ui-monospace,monospace' }}>{item.label}</span>
+              <div key={item.en} style={{ display: 'flex', flexDirection: 'column', gap: '2px', background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: '6px', padding: '6px 8px', opacity: charts ? 1 : 0, transform: charts ? 'none' : 'translateY(6px)', transition: `opacity 0.3s ease ${0.07*i}s, transform 0.3s ease ${0.07*i}s` }}>
+                <span style={{ fontSize: '3.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: TEXT_SEC, fontFamily: 'ui-monospace,monospace' }}>{isEn ? item.en : item.hu}</span>
                 <span style={{ fontSize: '14px', fontWeight: 700, lineHeight: 1, color: item.color, fontFamily: 'ui-monospace,monospace', transition: 'all 0.35s ease' }}>{cVals[i]}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Divider (matches BeforeDashboard Divider) */}
         <div style={{ height: '1px', background: BORDER, flexShrink: 0 }} />
 
-        {/* ── Marketing & SEO section ── */}
+        {/* Marketing & SEO section */}
         <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', gap: '5px', overflow: 'hidden' }}>
           <div style={{ flexShrink: 0 }}>
             <span style={{ fontSize: '8px', fontWeight: 500, color: TEXT, letterSpacing: '-0.01em' }}>Marketing & SEO</span>
           </div>
-
-          {/* mw-stats: 2×2 grid — stagger slide (matches MarketingWidget stagger) */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: BORDER, borderRadius: '8px', overflow: 'hidden', border: `1px solid ${BORDER}`, flexShrink: 0 }}>
             {M_STATS.map((st, i) => (
-              <div key={st.label} style={{ background: SURFACE, padding: '6px 8px', opacity: charts ? 1 : 0, transform: charts ? 'none' : 'translateY(5px)', transition: `opacity 0.28s ease ${0.08*(i+4)}s, transform 0.28s ease ${0.08*(i+4)}s` }}>
-                <div style={{ fontSize: '3.8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: TEXT_SEC, marginBottom: '3px', fontFamily: 'ui-monospace,monospace' }}>{st.label}</div>
+              <div key={st.en} style={{ background: SURFACE, padding: '6px 8px', opacity: charts ? 1 : 0, transform: charts ? 'none' : 'translateY(5px)', transition: `opacity 0.28s ease ${0.08*(i+4)}s, transform 0.28s ease ${0.08*(i+4)}s` }}>
+                <div style={{ fontSize: '3.8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: TEXT_SEC, marginBottom: '3px', fontFamily: 'ui-monospace,monospace' }}>{isEn ? st.en : st.hu}</div>
                 <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '-0.03em', fontFamily: 'ui-monospace,monospace', lineHeight: 1, color: st.color, transition: 'all 0.35s ease' }}>{mVals[i]}</div>
               </div>
             ))}
           </div>
 
-          {/* Dual area chart (matches MiniDualChart style: green=clicks, purple=impressions) */}
           <div style={{ flex: 1, minHeight: 0, background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: '8px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            {/* Legend */}
             <div style={{ padding: '4px 7px 2px', display: 'flex', gap: '9px', flexShrink: 0 }}>
-              {[{ label: 'Kattintás', color: GREEN_A }, { label: 'Megjelenés', color: PURPLE_A }].map(l => (
+              {[{ label: clicksLabel, color: GREEN_A }, { label: impressLabel, color: PURPLE_A }].map(l => (
                 <span key={l.label} style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '4px', fontFamily: 'ui-monospace,monospace', color: TEXT_SEC }}>
                   <span style={{ width: '8px', height: '1.5px', background: l.color, borderRadius: '99px', display: 'inline-block' }} />
                   {l.label}
                 </span>
               ))}
             </div>
-            {/* SVG */}
             <svg width="100%" height="100%" viewBox={`0 0 ${AW} ${AH}`} preserveAspectRatio="none" style={{ flex: 1, display: 'block', minHeight: 0 }}>
               <defs>
                 <linearGradient id="lgC" x1="0" y1="0" x2="0" y2="1">
@@ -359,39 +366,34 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
                 </linearGradient>
               </defs>
               {[0.25, 0.5, 0.75].map(y => <line key={y} x1="0" y1={AH*y} x2={AW} y2={AH*y} stroke={BORDER} strokeWidth="0.5"/>)}
-              {/* Impressions (purple, behind) — fill fades, line draws left→right */}
               <path d={mainArea}  fill="url(#lgI)" style={{ opacity: charts ? 1 : 0, transition: 'opacity 0.9s ease 0.5s' }}/>
               <path d={mainLine}  fill="none" stroke={PURPLE_A} strokeWidth="0.5" strokeLinejoin="round"
                 strokeDasharray="500" strokeDashoffset={charts ? 0 : 500}
                 style={{ transition: 'stroke-dashoffset 0.9s ease 0.5s' }}/>
-              {/* Clicks (green, in front) — draws slightly earlier */}
               <path d={clickArea} fill="url(#lgC)" style={{ opacity: charts ? 1 : 0, transition: 'opacity 0.9s ease 0.3s' }}/>
               <path d={clickLine} fill="none" stroke={GREEN_A} strokeWidth="0.6" strokeLinejoin="round"
                 strokeDasharray="500" strokeDashoffset={charts ? 0 : 500}
                 style={{ transition: 'stroke-dashoffset 0.9s ease 0.3s' }}/>
             </svg>
-            {/* X axis */}
             <div style={{ display: 'flex', padding: '1px 4px 3px', flexShrink: 0 }}>
               {DAYS.map((d,i) => <span key={i} style={{ flex: 1, textAlign: 'center', color: MUTED, fontSize: '3px', fontFamily: 'ui-monospace,monospace' }}>{d}</span>)}
             </div>
           </div>
         </div>
-
       </div>
     </div>
   )
 
-  // ── Editor fields (right of sidebar) ─────────────────────────
+  // ── editor fields ──────────────────────────────────────────────
   const editorFieldsEl = (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px 7px', flexShrink: 0, borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span style={{ color: TEXT, fontWeight: 700, fontSize: '7px', letterSpacing: '-0.01em' }}>[davelopment]®</span>
           <span style={{ color: MUTED, fontSize: '5.5px' }}>/</span>
-          <span style={{ color: TEXT_SEC, fontSize: '5.5px' }}>Oldalak</span>
+          <span style={{ color: TEXT_SEC, fontSize: '5.5px' }}>{pagesLabel}</span>
           <span style={{ color: MUTED, fontSize: '5.5px' }}>/</span>
-          <span style={{ color: TEXT_SEC, fontWeight: 500, fontSize: '5.5px' }}>Főoldal</span>
+          <span style={{ color: TEXT_SEC, fontWeight: 500, fontSize: '5.5px' }}>{homepageLabel}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
           <div style={{ width: '16px', height: '16px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', flexShrink: 0 }}>
@@ -406,7 +408,6 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
           </div>
         </div>
       </div>
-      {/* Fields */}
       <div style={{ flex: 1, overflow: 'hidden', padding: '9px 12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
         {(['headline','cta'] as const).map(f => {
           const isH = f === 'headline', act = field === f, val = isH ? inputH : inputC
@@ -414,7 +415,7 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
           return (
             <div key={f} style={{ marginBottom: isH ? '2px' : '0' }}>
               <div style={{ fontSize: '4.5px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: '3px', color: act ? TEXT_SEC : MUTED, fontFamily: 'ui-monospace,monospace', transition: 'color 0.2s' }}>
-                {isH ? 'Hero cím' : 'CTA felirat'}
+                {isH ? heroCimLabel : ctaFeliratLabel}
               </div>
               <div style={{ padding: '5px 8px', borderRadius: '5px', background: SURFACE, border: `1px solid ${act ? BORDER_H : BORDER}`, boxShadow: act ? `0 0 0 2px rgba(255,255,255,0.04)` : 'none', minHeight: isH ? '22px' : undefined, transition: 'all 0.2s' }}>
                 <span className={isH ? 'break-words' : ''} style={{ color: TEXT, fontSize: sz('7px','7.5px'), lineHeight: 1.35 }}>
@@ -426,31 +427,27 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
         })}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'auto', paddingTop: '6px', flexShrink: 0 }}>
           <div style={{ padding: '2.5px 10px', borderRadius: '5px', fontSize: '6.5px', fontWeight: 600, background: saveFx ? GREEN : SURFACE2, color: saveFx ? '#000' : TEXT_SEC, border: `1px solid ${saveFx ? GREEN : BORDER}`, boxShadow: saveFx ? `0 0 8px ${GREEN}44` : 'none', transform: saveFx ? 'scale(0.97)' : 'scale(1)', transition: 'all 0.15s' }}>
-            {saveFx ? 'Mentve ✓' : 'Mentés'}
+            {saveFx ? savedLabel : saveLabel}
           </div>
         </div>
       </div>
     </div>
   )
 
-  // ── Mobile nav drawer (slides in when dash-click phase) ───────
+  // ── mobile nav drawer ──────────────────────────────────────────
   const navDrawerOpen = isDash && phase === 'dash-click'
   const mobileNavDrawer = (
     <>
-      {/* dimmer */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 8, background: 'rgba(0,0,0,0.45)', opacity: navDrawerOpen ? 1 : 0, transition: 'opacity 0.22s ease', pointerEvents: 'none' }} />
-      {/* drawer panel */}
       <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '82%', zIndex: 9, background: BG, borderRight: `1px solid ${BORDER_H}`, display: 'flex', flexDirection: 'column', transform: navDrawerOpen ? 'translateX(0)' : 'translateX(-100%)', transition: 'transform 0.25s cubic-bezier(0.33,1,0.68,1)' }}>
-        {/* drawer header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px 6px', borderBottom: `1px solid ${BORDER}`, flexShrink: 0 }}>
           <span style={{ color: TEXT, fontWeight: 700, fontSize: '8px', letterSpacing: '-0.01em' }}>[davelopment]®</span>
           <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: SURFACE2, border: `1px solid ${BORDER_H}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ color: TEXT, fontWeight: 700, fontSize: '4.5px' }}>D</span>
           </div>
         </div>
-        {/* nav items — same as NavSidebar but full labels for mobile */}
         <div style={{ flex: 1, overflow: 'hidden', padding: '4px 6px 8px' }}>
-          {NAV_SECTIONS.map((section, si) => {
+          {navSections.map((section, si) => {
             if (section.type === 'divider') return <div key={si} style={{ height: '1px', background: BORDER, margin: '3px 4px' }} />
             return (
               <div key={si}>
@@ -474,14 +471,11 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
     </>
   )
 
-  // ── Mobile dashboard ──────────────────────────────────────────
-  // Same structure as desktop: Tartalom section + divider + Marketing section
+  // ── mobile dashboard ───────────────────────────────────────────
   const mobileDashEl = (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: BG, overflow: 'hidden', position: 'relative' }}>
-      {/* header — matches desktop header exactly */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 11px 6px', flexShrink: 0, borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          {/* hamburger / grid nav trigger */}
           <div style={{ width: '14px', height: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2.5px', marginRight: '3px' }}>
             {[0,1,2].map(i => <div key={i} style={{ width: '10px', height: '1px', background: TEXT_SEC, borderRadius: '1px', opacity: 0.5 }} />)}
           </div>
@@ -503,43 +497,35 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
         </div>
       </div>
 
-      {/* scrollable body */}
       <div style={{ flex: 1, overflow: 'hidden', padding: '7px 11px', display: 'flex', flexDirection: 'column', gap: '6px', minHeight: 0 }}>
-
-        {/* Tartalom section */}
         <div style={{ flexShrink: 0 }}>
-          <span style={{ fontSize: '7.5px', fontWeight: 500, color: TEXT, display: 'block', marginBottom: '4px' }}>Tartalom</span>
+          <span style={{ fontSize: '7.5px', fontWeight: 500, color: TEXT, display: 'block', marginBottom: '4px' }}>{contentLabel}</span>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '3px' }}>
             {C_ITEMS.map((item, i) => (
-              <div key={item.label} style={{ display: 'flex', flexDirection: 'column', gap: '2px', background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: '5px', padding: '5px 6px', opacity: charts ? 1 : 0, transform: charts ? 'none' : 'translateY(5px)', transition: `opacity 0.3s ease ${0.07*i}s, transform 0.3s ease ${0.07*i}s` }}>
-                <span style={{ fontSize: '3px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: TEXT_SEC, fontFamily: 'ui-monospace,monospace' }}>{item.label}</span>
+              <div key={item.en} style={{ display: 'flex', flexDirection: 'column', gap: '2px', background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: '5px', padding: '5px 6px', opacity: charts ? 1 : 0, transform: charts ? 'none' : 'translateY(5px)', transition: `opacity 0.3s ease ${0.07*i}s, transform 0.3s ease ${0.07*i}s` }}>
+                <span style={{ fontSize: '3px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: TEXT_SEC, fontFamily: 'ui-monospace,monospace' }}>{isEn ? item.en : item.hu}</span>
                 <span style={{ fontSize: '12px', fontWeight: 700, lineHeight: 1, color: item.color, fontFamily: 'ui-monospace,monospace', transition: 'all 0.35s' }}>{cVals[i]}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Divider */}
         <div style={{ height: '1px', background: BORDER, flexShrink: 0 }} />
 
-        {/* Marketing & SEO section */}
         <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', gap: '5px', overflow: 'hidden' }}>
           <span style={{ fontSize: '7.5px', fontWeight: 500, color: TEXT, flexShrink: 0 }}>Marketing & SEO</span>
-
-          {/* 2×2 stats grid — stagger animation */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: BORDER, borderRadius: '7px', overflow: 'hidden', border: `1px solid ${BORDER}`, flexShrink: 0 }}>
             {M_STATS.map((st, i) => (
-              <div key={st.label} style={{ background: SURFACE, padding: '5px 7px', opacity: charts ? 1 : 0, transform: charts ? 'none' : 'translateY(5px)', transition: `opacity 0.28s ease ${0.08*(i+4)}s, transform 0.28s ease ${0.08*(i+4)}s` }}>
-                <div style={{ fontSize: '3.5px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: TEXT_SEC, marginBottom: '2px', fontFamily: 'ui-monospace,monospace' }}>{st.label}</div>
+              <div key={st.en} style={{ background: SURFACE, padding: '5px 7px', opacity: charts ? 1 : 0, transform: charts ? 'none' : 'translateY(5px)', transition: `opacity 0.28s ease ${0.08*(i+4)}s, transform 0.28s ease ${0.08*(i+4)}s` }}>
+                <div style={{ fontSize: '3.5px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: TEXT_SEC, marginBottom: '2px', fontFamily: 'ui-monospace,monospace' }}>{isEn ? st.en : st.hu}</div>
                 <div style={{ fontSize: '10px', fontWeight: 700, fontFamily: 'ui-monospace,monospace', color: st.color, lineHeight: 1, transition: 'all 0.35s' }}>{mVals[i]}</div>
               </div>
             ))}
           </div>
 
-          {/* chart — strokeDashoffset draw animation (same as desktop) */}
           <div style={{ flex: 1, minHeight: 0, background: SURFACE, border: `1px solid ${BORDER}`, borderRadius: '7px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '3px 6px 2px', display: 'flex', gap: '8px', flexShrink: 0 }}>
-              {[{ label: 'Kattintás', color: GREEN_A }, { label: 'Megjelenés', color: PURPLE_A }].map(l => (
+              {[{ label: clicksLabel, color: GREEN_A }, { label: impressLabel, color: PURPLE_A }].map(l => (
                 <span key={l.label} style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '3.5px', fontFamily: 'ui-monospace,monospace', color: TEXT_SEC }}>
                   <span style={{ width: '7px', height: '1.5px', background: l.color, borderRadius: '99px', display: 'inline-block' }} />
                   {l.label}
@@ -572,22 +558,20 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
         </div>
       </div>
 
-      {/* nav drawer slides in from left when Oldalak is "tapped" */}
       {mobileNavDrawer}
     </div>
   )
 
-  // ── Mobile editor ─────────────────────────────────────────────
+  // ── mobile editor ──────────────────────────────────────────────
   const mobileEditorEl = (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: BG, overflow: 'hidden' }}>
-      {/* header — same style as desktop editor header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 11px 6px', flexShrink: 0, borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span style={{ color: TEXT, fontWeight: 700, fontSize: '7.5px', letterSpacing: '-0.01em' }}>[davelopment]®</span>
           <span style={{ color: MUTED, fontSize: '5px' }}>/</span>
-          <span style={{ color: TEXT_SEC, fontSize: '5px' }}>Oldalak</span>
+          <span style={{ color: TEXT_SEC, fontSize: '5px' }}>{pagesLabel}</span>
           <span style={{ color: MUTED, fontSize: '5px' }}>/</span>
-          <span style={{ color: TEXT_SEC, fontWeight: 500, fontSize: '5px' }}>Főoldal</span>
+          <span style={{ color: TEXT_SEC, fontWeight: 500, fontSize: '5px' }}>{homepageLabel}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0 }}>
           <div style={{ width: '14px', height: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
@@ -602,7 +586,6 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
           </div>
         </div>
       </div>
-      {/* Fields */}
       <div style={{ flexShrink: 0, padding: '7px 11px', display: 'flex', flexDirection: 'column', gap: '5px', borderBottom: `1px solid ${BORDER}`, height: '42%' }}>
         {(['headline','cta'] as const).map(f => {
           const isH = f === 'headline', act = field === f, val = isH ? inputH : inputC
@@ -610,7 +593,7 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
           return (
             <div key={f}>
               <div style={{ fontSize: '4px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700, marginBottom: '2px', color: act ? TEXT_SEC : MUTED, fontFamily: 'ui-monospace,monospace' }}>
-                {isH ? 'Hero cím' : 'CTA felirat'}
+                {isH ? heroCimLabel : ctaFeliratLabel}
               </div>
               <div style={{ padding: '4px 7px', borderRadius: '4px', background: SURFACE, border: `1px solid ${act ? BORDER_H : BORDER}`, minHeight: isH ? '16px' : undefined, transition: 'border-color 0.2s' }}>
                 <span className={isH ? 'break-words' : ''} style={{ color: TEXT, fontSize: '7px', lineHeight: 1.3 }}>
@@ -622,16 +605,15 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
         })}
         <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '2px' }}>
           <div style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '6px', fontWeight: 600, background: saveFx ? GREEN : SURFACE2, color: saveFx ? '#000' : TEXT_SEC, border: `1px solid ${saveFx ? GREEN : BORDER}`, transition: 'all 0.15s' }}>
-            {saveFx ? 'Mentve ✓' : 'Mentés'}
+            {saveFx ? savedLabel : saveLabel}
           </div>
         </div>
       </div>
-      {/* website preview below */}
       <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>{wsEl}</div>
     </div>
   )
 
-  // ── Mobile render ─────────────────────────────────────────────
+  // ── mobile render ──────────────────────────────────────────────
   if (mobile) {
     return (
       <div ref={rootRef} style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden', background: BG }}>
@@ -641,15 +623,11 @@ export function LiveEditDemo({ mobile = false }: { mobile?: boolean }) {
     )
   }
 
-  // ── Desktop render ────────────────────────────────────────────
-  // Sidebar is ALWAYS rendered at the same position — only the content area changes.
-  // This eliminates any layout shift on scene switch.
+  // ── desktop render ─────────────────────────────────────────────
   return (
     <div ref={rootRef} style={{ width: '100%', height: '100%', overflow: 'hidden', background: BG, position: 'relative', display: 'flex' }}>
       {flashEl}
-      {/* Sidebar — same component in both scenes, only activeKey changes */}
-      <NavSidebar activeKey={isDash ? 'dash' : 'edit'} />
-      {/* Content area */}
+      <NavSidebar activeKey={isDash ? 'dash' : 'edit'} navSections={navSections} searchLabel={searchLabel} />
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minWidth: 0 }}>
         {isDash
           ? dashContentEl

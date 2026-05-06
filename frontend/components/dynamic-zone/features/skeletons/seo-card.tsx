@@ -4,18 +4,30 @@ import { useEffect, useState } from 'react';
 
 const ACCENT = '#34a853';
 
-const keywords = [
+const keywordsHU = [
   { kw: 'Webdesign Budapest',       url: 'davelopment.hu › webdesign-budapest', pos: '#1', change: '+3' },
   { kw: 'Next.js ügynökség',        url: 'davelopment.hu › nextjs-ugynokseg',   pos: '#2', change: '+1' },
   { kw: 'Webfejlesztő Budapest',    url: 'davelopment.hu › webfejleszto',       pos: '#3', change: '+7' },
   { kw: 'Egyedi weboldal készítés', url: 'davelopment.hu › egyedi-weboldal',    pos: '#5', change: '+2' },
 ];
+const keywordsEN = [
+  { kw: 'Web Design Budapest',        url: 'davelopment.hu › web-design-budapest', pos: '#1', change: '+3' },
+  { kw: 'Next.js agency',             url: 'davelopment.hu › nextjs-agency',        pos: '#2', change: '+1' },
+  { kw: 'Web Developer Budapest',     url: 'davelopment.hu › web-developer',        pos: '#3', change: '+7' },
+  { kw: 'Custom website development', url: 'davelopment.hu › custom-website',       pos: '#5', change: '+2' },
+];
 
-const analytics = [
+const analyticsHU = [
   { label: 'Organikus munkamenet', value: '3 812', sub: '+12% előző hónaphoz', pct: 76 },
   { label: 'Oldalmegtekintés',     value: '9 140', sub: 'átlag 2.4 oldal/látogató',  pct: 88 },
   { label: 'Visszafordulási arány',value: '34%',   sub: 'Iparági átlag: 52%',       pct: 34 },
   { label: 'Átl. munkamenet idő',  value: '2m 48s',sub: '+0:22 előző hónaphoz',     pct: 62 },
+];
+const analyticsEN = [
+  { label: 'Organic sessions',   value: '3,812', sub: '+12% vs previous month',    pct: 76 },
+  { label: 'Page views',         value: '9,140', sub: 'avg 2.4 pages/visitor',     pct: 88 },
+  { label: 'Bounce rate',        value: '34%',   sub: 'Industry avg: 52%',         pct: 34 },
+  { label: 'Avg. session time',  value: '2m 48s',sub: '+0:22 vs previous month',   pct: 62 },
 ];
 
 const competitors = [
@@ -29,16 +41,19 @@ export const seoTabs = [
   {
     key: 'keywords' as const,
     label: 'Kulcsszavak',
+    labelEN: 'Keywords',
     icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>,
   },
   {
     key: 'analytics' as const,
     label: 'Analitika',
+    labelEN: 'Analytics',
     icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
   },
   {
     key: 'competitors' as const,
     label: 'Versenytársak',
+    labelEN: 'Competitors',
     icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
   },
 ];
@@ -65,9 +80,11 @@ function useCount(to: number, delay = 400, duration = 1200) {
 interface Props {
   controlledView?: View;
   onViewChange?: (v: View) => void;
+  locale?: string;
 }
 
-export const SkeletonTwo = ({ controlledView, onViewChange }: Props) => {
+export const SkeletonTwo = ({ controlledView, onViewChange, locale }: Props) => {
+  const isEN = locale === 'en';
   const clicks = useCount(1240, 500, 1400);
   const impressions = useCount(48000, 500, 1600);
   const [internalView, setInternalView] = useState<View>('keywords');
@@ -78,6 +95,9 @@ export const SkeletonTwo = ({ controlledView, onViewChange }: Props) => {
     if (onViewChange) onViewChange(v);
     else setInternalView(v);
   };
+
+  const keywords = isEN ? keywordsEN : keywordsHU;
+  const analytics = isEN ? analyticsEN : analyticsHU;
 
   const rowCount = view === 'keywords' ? keywords.length : view === 'analytics' ? analytics.length : competitors.length;
 
@@ -99,6 +119,12 @@ export const SkeletonTwo = ({ controlledView, onViewChange }: Props) => {
   }, [controlledView]);
 
   useEffect(() => { setActiveRow(0); }, [controlledView]);
+
+  const sectionLabel = view === 'keywords'
+    ? (isEN ? 'Top keywords' : 'Top kulcsszavak')
+    : view === 'analytics'
+      ? (isEN ? 'Analytics' : 'Analitika')
+      : (isEN ? 'Competitors' : 'Versenytársak');
 
   return (
     <div className="w-full h-full flex items-center justify-center p-5 relative overflow-hidden">
@@ -123,16 +149,18 @@ export const SkeletonTwo = ({ controlledView, onViewChange }: Props) => {
               <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
             </svg>
           </div>
-          <span className="text-[13px] flex-1" style={{ color: 'rgba(255,255,255,0.28)' }}>davelopment.hu · Google Search Console</span>
+          <span className="text-[13px] flex-1" style={{ color: 'rgba(255,255,255,0.28)' }}>
+            davelopment.hu · Google Search Console
+          </span>
           <kbd className="text-[10px] rounded-[5px] px-[7px] py-[2px] font-mono flex-shrink-0"
             style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.22)', border: '0.5px solid rgba(255,255,255,0.1)' }}>⌘K</kbd>
         </div>
 
         <div className="flex items-center gap-0 border-b border-white/[0.05]" style={{ background: `${ACCENT}08` }}>
           {[
-            { label: 'Kattintás / hó',  value: clicks.toLocaleString('hu-HU'),      color: ACCENT },
-            { label: 'Megjelenés / hó', value: impressions.toLocaleString('hu-HU'), color: 'rgba(255,255,255,0.55)' },
-            { label: 'Átlagos pozíció', value: '2.4',                                color: 'rgba(255,255,255,0.55)' },
+            { label: isEN ? 'Clicks / month'     : 'Kattintás / hó',  value: clicks.toLocaleString(isEN ? 'en-US' : 'hu-HU'),      color: ACCENT },
+            { label: isEN ? 'Impressions / month': 'Megjelenés / hó', value: impressions.toLocaleString(isEN ? 'en-US' : 'hu-HU'), color: 'rgba(255,255,255,0.55)' },
+            { label: isEN ? 'Avg. position'       : 'Átlagos pozíció', value: '2.4',                                                color: 'rgba(255,255,255,0.55)' },
           ].map((stat) => (
             <div key={stat.label} className="flex-1 flex flex-col items-center justify-center py-4 border-r border-white/[0.05] last:border-0">
               <span className="text-[20px] font-bold tabular-nums leading-none mb-[5px]" style={{ color: stat.color }}>{stat.value}</span>
@@ -143,7 +171,7 @@ export const SkeletonTwo = ({ controlledView, onViewChange }: Props) => {
 
         <div className="px-4 h-[28px] flex items-center">
           <span className="text-[10px] font-semibold tracking-[.12em] uppercase" style={{ color: 'rgba(255,255,255,0.22)' }}>
-            {view === 'keywords' ? 'Top kulcsszavak' : view === 'analytics' ? 'Analitika' : 'Versenytársak'}
+            {sectionLabel}
           </span>
         </div>
 
@@ -200,11 +228,15 @@ export const SkeletonTwo = ({ controlledView, onViewChange }: Props) => {
                   style={{ background: i === activeRow ? `${ACCENT}22` : 'rgba(255,255,255,0.05)', border: i === activeRow ? `0.5px solid ${ACCENT}55` : '0.5px solid rgba(255,255,255,0.07)', color: i === activeRow ? ACCENT : 'rgba(255,255,255,0.3)' }}>{c.pos}</div>
                 <div className="flex-1 min-w-0">
                   <div className="text-[13px] font-medium leading-none mb-[3px]" style={{ color: i === activeRow ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.5)' }}>{c.name}</div>
-                  <div className="text-[11px] leading-none truncate" style={{ color: 'rgba(255,255,255,0.25)' }}>kulcsszó: {c.kw}</div>
+                  <div className="text-[11px] leading-none truncate" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                    {isEN ? 'keyword' : 'kulcsszó'}: {c.kw}
+                  </div>
                 </div>
                 <span className="text-[11px] flex-shrink-0" style={{ color: 'rgba(255,255,255,0.28)' }}>{c.trend}</span>
                 <span className="text-[9px] px-[6px] py-[2px] rounded-full font-medium flex-shrink-0"
-                  style={{ background: `${ACCENT}15`, color: ACCENT, border: `0.5px solid ${ACCENT}40` }}>előttünk</span>
+                  style={{ background: `${ACCENT}15`, color: ACCENT, border: `0.5px solid ${ACCENT}40` }}>
+                  {isEN ? 'ahead' : 'előttünk'}
+                </span>
               </motion.div>
             ))}
           </motion.div>
@@ -212,7 +244,7 @@ export const SkeletonTwo = ({ controlledView, onViewChange }: Props) => {
 
         {controlledView === undefined && (
           <div className="flex items-center justify-center gap-[5px] px-4 py-[8px] border-t border-white/[0.05]">
-            {seoTabs.map(({ key, label, icon }) => (
+            {seoTabs.map(({ key, label, labelEN, icon }) => (
               <button key={key} onClick={() => setView(key)}
                 className="flex items-center gap-[5px] rounded-[8px] px-3 py-[5px] text-[10px] font-medium transition-all"
                 style={{
@@ -220,7 +252,7 @@ export const SkeletonTwo = ({ controlledView, onViewChange }: Props) => {
                   color: view === key ? ACCENT : 'rgba(255,255,255,0.3)',
                   border: view === key ? `0.5px solid ${ACCENT}40` : '0.5px solid rgba(255,255,255,0.07)',
                 }}>
-                {icon}{label}
+                {icon}{isEN ? labelEN : label}
               </button>
             ))}
           </div>
@@ -228,9 +260,13 @@ export const SkeletonTwo = ({ controlledView, onViewChange }: Props) => {
 
         <div className="flex items-center justify-between px-4 h-[34px] border-t border-white/[0.06]"
           style={{ background: 'rgba(0,0,0,0.25)' }}>
-          <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>SEO Tracker bővítmény</span>
+          <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>
+            {isEN ? 'SEO Tracker plugin' : 'SEO Tracker bővítmény'}
+          </span>
           <div className="flex items-center gap-[6px]">
-            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.28)' }}>Search Console megnyitása</span>
+            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.28)' }}>
+              {isEN ? 'Open Search Console' : 'Search Console megnyitása'}
+            </span>
             <kbd className="text-[9px] rounded-[4px] px-[5px] py-[1px] font-mono" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>
           </div>
         </div>

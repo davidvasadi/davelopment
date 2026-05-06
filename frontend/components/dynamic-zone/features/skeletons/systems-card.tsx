@@ -4,50 +4,79 @@ import { useEffect, useState } from 'react';
 
 const ACCENT = '#f59e0b';
 
-const services = [
+const servicesHU = [
   { name: 'API szerver',    sub: 'Válasz 12ms · 99.9% uptime 30 nap',  latency: '12ms' },
   { name: 'Payload CMS',   sub: 'Utolsó deploy 2 órája · 100% uptime', latency: '28ms' },
   { name: 'PostgreSQL',    sub: '3ms átlag query · 0 lassú lekérdezés', latency: '3ms'  },
   { name: 'Email szerviz', sub: '247 elküldve ma · sor üres',           latency: '—'    },
   { name: 'CDN / Eszközök',sub: 'Globálisan cache-elve · 0 hiba',      latency: '<1ms' },
 ];
+const servicesEN = [
+  { name: 'API server',    sub: 'Response 12ms · 99.9% uptime 30 days', latency: '12ms' },
+  { name: 'Payload CMS',   sub: 'Last deploy 2 hours ago · 100% uptime',latency: '28ms' },
+  { name: 'PostgreSQL',    sub: '3ms avg query · 0 slow queries',        latency: '3ms'  },
+  { name: 'Email service', sub: '247 sent today · queue empty',          latency: '—'    },
+  { name: 'CDN / Assets',  sub: 'Globally cached · 0 errors',           latency: '<1ms' },
+];
 
-const logs = [
+const logsHU = [
   { msg: 'Deploy sikeres → production',        time: '4p',  level: 'ok'   },
   { msg: 'PostgreSQL backup befejezve',         time: '12p', level: 'ok'   },
   { msg: 'SSL tanúsítvány megújítva · 89 nap', time: '1ó',  level: 'info' },
   { msg: 'CDN cache kiürítve · 2.1 MB',        time: '2ó',  level: 'info' },
 ];
+const logsEN = [
+  { msg: 'Deploy successful → production',     time: '4m',  level: 'ok'   },
+  { msg: 'PostgreSQL backup complete',          time: '12m', level: 'ok'   },
+  { msg: 'SSL certificate renewed · 89 days',  time: '1h',  level: 'info' },
+  { msg: 'CDN cache purged · 2.1 MB',          time: '2h',  level: 'info' },
+];
 
-const metrics = [
+const metricsHU = [
   { label: 'CPU kihasználtság',  value: '12%',           pct: 12 },
   { label: 'Memória (RAM)',       value: '2.4 GB / 8 GB', pct: 30 },
   { label: 'Tárhelyfoglalás',    value: '18 GB / 50 GB', pct: 36 },
   { label: 'Hálózati átvitel',   value: '42 MB/s',       pct: 21 },
 ];
+const metricsEN = [
+  { label: 'CPU usage',          value: '12%',           pct: 12 },
+  { label: 'Memory (RAM)',        value: '2.4 GB / 8 GB', pct: 30 },
+  { label: 'Storage usage',      value: '18 GB / 50 GB', pct: 36 },
+  { label: 'Network transfer',   value: '42 MB/s',       pct: 21 },
+];
 
-const serviceIcons: Record<string, (active: boolean) => React.ReactNode> = {
+const serviceIconsHU: Record<string, (active: boolean) => React.ReactNode> = {
   'API szerver':    (a) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={a ? ACCENT : 'rgba(255,255,255,0.28)'} strokeWidth="2.5" strokeLinecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>,
   'Payload CMS':   (a) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={a ? ACCENT : 'rgba(255,255,255,0.28)'} strokeWidth="2.5" strokeLinecap="round"><path d="M4 4l6 16 3-8 8-3L4 4z"/></svg>,
   'PostgreSQL':    (a) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={a ? ACCENT : 'rgba(255,255,255,0.28)'} strokeWidth="2.5" strokeLinecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>,
   'Email szerviz': (a) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={a ? ACCENT : 'rgba(255,255,255,0.28)'} strokeWidth="2.5" strokeLinecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 8 10-8"/></svg>,
   'CDN / Eszközök':(a) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={a ? ACCENT : 'rgba(255,255,255,0.28)'} strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
 };
+const serviceIconsEN: Record<string, (active: boolean) => React.ReactNode> = {
+  'API server':    (a) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={a ? ACCENT : 'rgba(255,255,255,0.28)'} strokeWidth="2.5" strokeLinecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>,
+  'Payload CMS':   (a) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={a ? ACCENT : 'rgba(255,255,255,0.28)'} strokeWidth="2.5" strokeLinecap="round"><path d="M4 4l6 16 3-8 8-3L4 4z"/></svg>,
+  'PostgreSQL':    (a) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={a ? ACCENT : 'rgba(255,255,255,0.28)'} strokeWidth="2.5" strokeLinecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>,
+  'Email service': (a) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={a ? ACCENT : 'rgba(255,255,255,0.28)'} strokeWidth="2.5" strokeLinecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 8 10-8"/></svg>,
+  'CDN / Assets':  (a) => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={a ? ACCENT : 'rgba(255,255,255,0.28)'} strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>,
+};
 
 export const systemsTabs = [
   {
     key: 'services' as const,
     label: 'Szervizek',
+    labelEN: 'Services',
     icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>,
   },
   {
     key: 'logs' as const,
     label: 'Napló',
+    labelEN: 'Logs',
     icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,
   },
   {
     key: 'metrics' as const,
     label: 'Metrikák',
+    labelEN: 'Metrics',
     icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
   },
 ];
@@ -74,9 +103,11 @@ function useCount(to: number, delay = 400, duration = 1200) {
 interface Props {
   controlledView?: View;
   onViewChange?: (v: View) => void;
+  locale?: string;
 }
 
-export const SkeletonFour = ({ controlledView, onViewChange }: Props) => {
+export const SkeletonFour = ({ controlledView, onViewChange, locale }: Props) => {
+  const isEN = locale === 'en';
   const uptime = useCount(999, 600, 1400);
   const sent = useCount(247, 500, 1300);
   const visitors = useCount(1840, 550, 1500);
@@ -88,6 +119,11 @@ export const SkeletonFour = ({ controlledView, onViewChange }: Props) => {
     if (onViewChange) onViewChange(v);
     else setInternalView(v);
   };
+
+  const services = isEN ? servicesEN : servicesHU;
+  const logs = isEN ? logsEN : logsHU;
+  const metrics = isEN ? metricsEN : metricsHU;
+  const serviceIcons = isEN ? serviceIconsEN : serviceIconsHU;
 
   const rowCount = view === 'services' ? services.length : view === 'logs' ? logs.length : metrics.length;
 
@@ -105,6 +141,12 @@ export const SkeletonFour = ({ controlledView, onViewChange }: Props) => {
   }, [controlledView]);
 
   useEffect(() => { setActiveRow(0); }, [controlledView]);
+
+  const sectionLabel = view === 'services'
+    ? (isEN ? 'Services' : 'Szolgáltatások')
+    : view === 'logs'
+      ? (isEN ? 'Event log' : 'Eseménynapló')
+      : (isEN ? 'System metrics' : 'Rendszer metrikák');
 
   return (
     <div className="w-full h-full flex items-center justify-center p-5 relative overflow-hidden">
@@ -125,19 +167,23 @@ export const SkeletonFour = ({ controlledView, onViewChange }: Props) => {
               <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
             </svg>
           </div>
-          <span className="text-[13px] flex-1" style={{ color: 'rgba(255,255,255,0.28)' }}>Infrastruktúra · Státusz monitor</span>
+          <span className="text-[13px] flex-1" style={{ color: 'rgba(255,255,255,0.28)' }}>
+            {isEN ? 'Infrastructure · Status monitor' : 'Infrastruktúra · Státusz monitor'}
+          </span>
           <div className="flex items-center gap-[6px]">
             <motion.div animate={{ opacity: [1, 0.3, 1] }} transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
               className="w-[6px] h-[6px] rounded-full" style={{ background: ACCENT, boxShadow: `0 0 7px ${ACCENT}` }} />
-            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>élő</span>
+            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>
+              {isEN ? 'live' : 'élő'}
+            </span>
           </div>
         </div>
 
         <div className="flex items-center border-b border-white/[0.05]" style={{ background: `${ACCENT}06` }}>
           {[
-            { label: 'Uptime / 30 nap', value: (uptime / 10).toFixed(1) + '%', color: ACCENT },
-            { label: 'Email elküldve',   value: sent.toString(),                 color: 'rgba(255,255,255,0.55)' },
-            { label: 'Látogató / nap',   value: visitors.toLocaleString('hu-HU'),color: 'rgba(255,255,255,0.55)' },
+            { label: isEN ? 'Uptime / 30 days' : 'Uptime / 30 nap', value: (uptime / 10).toFixed(1) + '%', color: ACCENT },
+            { label: isEN ? 'Emails sent'      : 'Email elküldve',   value: sent.toString(),                color: 'rgba(255,255,255,0.55)' },
+            { label: isEN ? 'Visitors / day'   : 'Látogató / nap',   value: visitors.toLocaleString(isEN ? 'en-US' : 'hu-HU'), color: 'rgba(255,255,255,0.55)' },
           ].map((stat) => (
             <div key={stat.label} className="flex-1 flex flex-col items-center justify-center py-4 border-r border-white/[0.05] last:border-0">
               <span className="text-[20px] font-bold tabular-nums leading-none mb-[5px]" style={{ color: stat.color }}>{stat.value}</span>
@@ -148,7 +194,7 @@ export const SkeletonFour = ({ controlledView, onViewChange }: Props) => {
 
         <div className="px-4 h-[28px] flex items-center">
           <span className="text-[10px] font-semibold tracking-[.12em] uppercase" style={{ color: 'rgba(255,255,255,0.22)' }}>
-            {view === 'services' ? 'Szolgáltatások' : view === 'logs' ? 'Eseménynapló' : 'Rendszer metrikák'}
+            {sectionLabel}
           </span>
         </div>
 
@@ -217,11 +263,11 @@ export const SkeletonFour = ({ controlledView, onViewChange }: Props) => {
 
         {controlledView === undefined && (
           <div className="flex items-center justify-center gap-[5px] px-4 py-[8px] border-t border-white/[0.05]">
-            {systemsTabs.map(({ key, label, icon }) => (
+            {systemsTabs.map(({ key, label, labelEN, icon }) => (
               <button key={key} onClick={() => setView(key)}
                 className="flex items-center gap-[5px] rounded-[8px] px-3 py-[5px] text-[10px] font-medium transition-all"
                 style={{ background: view === key ? `${ACCENT}1a` : 'rgba(255,255,255,0.04)', color: view === key ? ACCENT : 'rgba(255,255,255,0.3)', border: view === key ? `0.5px solid ${ACCENT}40` : '0.5px solid rgba(255,255,255,0.07)' }}>
-                {icon}{label}
+                {icon}{isEN ? labelEN : label}
               </button>
             ))}
           </div>
@@ -230,10 +276,14 @@ export const SkeletonFour = ({ controlledView, onViewChange }: Props) => {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}
           className="flex items-center justify-between px-4 h-[34px] border-t border-white/[0.06]"
           style={{ background: 'rgba(0,0,0,0.25)' }}>
-          <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>Rendszer monitor bővítmény</span>
+          <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>
+            {isEN ? 'System monitor plugin' : 'Rendszer monitor bővítmény'}
+          </span>
           <div className="flex items-center gap-[6px]">
             <div className="w-[5px] h-[5px] rounded-full" style={{ background: ACCENT, boxShadow: `0 0 5px ${ACCENT}` }} />
-            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.28)' }}>Minden rendszer működik ✓</span>
+            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.28)' }}>
+              {isEN ? 'All systems operational ✓' : 'Minden rendszer működik ✓'}
+            </span>
             <kbd className="text-[9px] rounded-[4px] px-[5px] py-[1px] font-mono" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>
           </div>
         </motion.div>

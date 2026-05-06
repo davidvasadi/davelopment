@@ -14,10 +14,15 @@ type CookiePreferences = {
 
 const COOKIE_KEY = 'davelopment_cookie_consent';
 
-const CATEGORIES = [
-  { key: 'necessary' as const,  label: 'Szükséges',  desc: 'Mindig aktív',               locked: true  },
-  { key: 'analytics' as const,  label: 'Analitika',  desc: 'Látogatói statisztikák',      locked: false },
-  { key: 'marketing' as const,  label: 'Marketing',  desc: 'Személyre szabott tartalom',  locked: false },
+const CATEGORIES_HU = [
+  { key: 'necessary' as const, label: 'Szükséges', desc: 'Mindig aktív',               locked: true  },
+  { key: 'analytics' as const, label: 'Analitika', desc: 'Látogatói statisztikák',      locked: false },
+  { key: 'marketing' as const, label: 'Marketing', desc: 'Személyre szabott tartalom',  locked: false },
+];
+const CATEGORIES_EN = [
+  { key: 'necessary' as const, label: 'Necessary', desc: 'Always active',        locked: true  },
+  { key: 'analytics' as const, label: 'Analytics', desc: 'Visitor statistics',   locked: false },
+  { key: 'marketing' as const, label: 'Marketing', desc: 'Personalised content', locked: false },
 ];
 
 const wheelVariants: Variants = {
@@ -38,7 +43,9 @@ export const CookieConsent = () => {
 
   const params = useParams();
   const locale = (params?.locale as string | undefined) ?? 'hu';
-  const privacyHref = `/${locale}/adatkezeles`;
+  const isEn = locale === 'en';
+  const CATEGORIES = isEn ? CATEGORIES_EN : CATEGORIES_HU;
+  const privacyHref = isEn ? `/${locale}/privacy-policy` : `/${locale}/adatkezeles`;
 
   useEffect(() => {
     if (!localStorage.getItem(COOKIE_KEY)) setTimeout(() => setIsOpen(true), 1200);
@@ -77,7 +84,7 @@ export const CookieConsent = () => {
                     <span className="text-black font-bold leading-none" style={{ fontSize: 8 }}>+</span>
                   </div>
                   <span className="text-[10px] font-medium tracking-widest uppercase text-white/40">
-                    Adatvédelem
+                    {isEn ? 'Privacy' : 'Adatvédelem'}
                   </span>
                 </div>
                 <button
@@ -90,16 +97,16 @@ export const CookieConsent = () => {
 
               {/* Heading */}
               <p className="text-xl font-semibold tracking-tight leading-tight mb-1">
-                Sütiket használunk.
+                {isEn ? 'We use cookies.' : 'Sütiket használunk.'}
               </p>
               <p className="text-xs text-white/40 leading-relaxed mb-4">
-                A szükséges sütik mindig aktívak.{' '}
+                {isEn ? 'Necessary cookies are always active.' : 'A szükséges sütik mindig aktívak.'}{' '}
                 <Link
                   href={privacyHref}
                   onClick={() => setIsOpen(false)}
                   className="text-white/50 hover:text-white underline underline-offset-2 transition-colors"
                 >
-                  Adatkezelési tájékoztató
+                  {isEn ? 'Privacy policy' : 'Adatkezelési tájékoztató'}
                 </Link>
               </p>
 
@@ -147,7 +154,7 @@ export const CookieConsent = () => {
                   onClick={() => setShowDetails(v => !v)}
                   className="text-[10px] tracking-widest uppercase text-white/25 hover:text-white/50 transition-colors mr-auto"
                 >
-                  {showDetails ? 'Kevesebb' : 'Beállítások'}
+                  {showDetails ? (isEn ? 'Less' : 'Kevesebb') : (isEn ? 'Settings' : 'Beállítások')}
                 </button>
 
                 {showDetails ? (
@@ -158,8 +165,8 @@ export const CookieConsent = () => {
                   >
                     <div className="overflow-hidden" style={{ height: '1rem' }}>
                       <motion.div className="flex flex-col" style={{ lineHeight: '1rem' }} variants={wheelVariants}>
-                        <span className="block">Mentés</span>
-                        <span className="block" aria-hidden>Mentés</span>
+                        <span className="block">{isEn ? 'Save' : 'Mentés'}</span>
+                        <span className="block" aria-hidden>{isEn ? 'Save' : 'Mentés'}</span>
                       </motion.div>
                     </div>
                     <motion.span className="h-1.5 w-1.5 rounded-full bg-black flex-shrink-0" variants={dotVariants} />
@@ -173,8 +180,8 @@ export const CookieConsent = () => {
                     >
                       <div className="overflow-hidden" style={{ height: '1rem' }}>
                         <motion.div className="flex flex-col" style={{ lineHeight: '1rem' }} variants={wheelVariants}>
-                          <span className="block">Elfogad mindet</span>
-                          <span className="block" aria-hidden>Elfogad mindet</span>
+                          <span className="block">{isEn ? 'Accept all' : 'Elfogad mindet'}</span>
+                          <span className="block" aria-hidden>{isEn ? 'Accept all' : 'Elfogad mindet'}</span>
                         </motion.div>
                       </div>
                       <motion.span className="h-1.5 w-1.5 rounded-full bg-black flex-shrink-0" variants={dotVariants} />

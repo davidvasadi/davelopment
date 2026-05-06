@@ -5,11 +5,17 @@ import { useEffect, useState } from 'react';
 const C = 2 * Math.PI * 34;
 const ACCENT = '#60a5fa';
 
-const categories = [
+const categoriesHU = [
   { label: 'Sebesség',         sub: 'Oldalbetöltési idő · Next.js SSG',   score: 98  },
   { label: 'Hozzáférhetőség', sub: 'ARIA · kontraszt · billentyűzet',     score: 100 },
   { label: 'Bevált módszerek',sub: 'HTTPS · modern API-k · biztonság',    score: 100 },
   { label: 'SEO pontszám',    sub: 'Meta · strukturált adat · crawlable', score: 100 },
+];
+const categoriesEN = [
+  { label: 'Speed',          sub: 'Page load time · Next.js SSG',    score: 98  },
+  { label: 'Accessibility',  sub: 'ARIA · contrast · keyboard',      score: 100 },
+  { label: 'Best Practices', sub: 'HTTPS · modern APIs · security',  score: 100 },
+  { label: 'SEO Score',      sub: 'Meta · structured data · crawlable', score: 100 },
 ];
 
 const vitals = [
@@ -20,27 +26,36 @@ const vitals = [
   { label: 'TBT', full: 'Total Blocking Time',      value: '12ms',  pct: 95  },
 ];
 
-const optimizations = [
+const optimizationsHU = [
   { label: 'Képek WebP formátumban',  sub: 'Átlag 68% méretcsökkentés', gain: '+8' },
   { label: 'CSS bundle tömörítve',    sub: '142 KB → 38 KB · gzip',     gain: '+5' },
   { label: 'Képek lazy loadingja',    sub: 'Below-the-fold tartalom',    gain: '+4' },
   { label: 'Service Worker cache',    sub: 'Offline elérés támogatva',   gain: '+3' },
+];
+const optimizationsEN = [
+  { label: 'Images in WebP format',  sub: 'Avg 68% size reduction',     gain: '+8' },
+  { label: 'CSS bundle compressed',  sub: '142 KB → 38 KB · gzip',      gain: '+5' },
+  { label: 'Lazy loading images',    sub: 'Below-the-fold content',      gain: '+4' },
+  { label: 'Service Worker cache',   sub: 'Offline access supported',    gain: '+3' },
 ];
 
 export const performanceTabs = [
   {
     key: 'categories' as const,
     label: 'Kategóriák',
+    labelEN: 'Categories',
     icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>,
   },
   {
     key: 'vitals' as const,
     label: 'Web Vitals',
+    labelEN: 'Web Vitals',
     icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
   },
   {
     key: 'optimization' as const,
     label: 'Optimalizáció',
+    labelEN: 'Optimization',
     icon: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>,
   },
 ];
@@ -65,12 +80,13 @@ function useCount(to: number, delay = 300, duration = 1400) {
 }
 
 interface Props {
-  /** If provided, external parent controls the view (single-feature mode) */
   controlledView?: View;
   onViewChange?: (v: View) => void;
+  locale?: string;
 }
 
-export const SkeletonOne = ({ controlledView, onViewChange }: Props) => {
+export const SkeletonOne = ({ controlledView, onViewChange, locale }: Props) => {
+  const isEN = locale === 'en';
   const score = useCount(98, 300, 1600);
   const offset = C * (1 - score / 100);
   const [internalView, setInternalView] = useState<View>('categories');
@@ -82,6 +98,9 @@ export const SkeletonOne = ({ controlledView, onViewChange }: Props) => {
     else setInternalView(v);
   };
 
+  const categories = isEN ? categoriesEN : categoriesHU;
+  const optimizations = isEN ? optimizationsEN : optimizationsHU;
+
   const rowCount = view === 'categories' ? categories.length : view === 'vitals' ? vitals.length : optimizations.length;
 
   useEffect(() => {
@@ -89,7 +108,6 @@ export const SkeletonOne = ({ controlledView, onViewChange }: Props) => {
     return () => clearInterval(id);
   }, [rowCount]);
 
-  // Auto-cycle views only in uncontrolled (summary) mode
   useEffect(() => {
     if (controlledView !== undefined) return;
     const views: View[] = ['categories', 'vitals', 'optimization'];
@@ -102,8 +120,13 @@ export const SkeletonOne = ({ controlledView, onViewChange }: Props) => {
     return () => clearInterval(id);
   }, [controlledView]);
 
-  // Reset row when controlled view changes
   useEffect(() => { setActiveRow(0); }, [controlledView]);
+
+  const sectionLabel = view === 'categories'
+    ? (isEN ? 'Lighthouse categories' : 'Lighthouse kategóriák')
+    : view === 'vitals'
+      ? 'Core Web Vitals'
+      : (isEN ? 'Optimizations' : 'Optimalizációk');
 
   return (
     <div className="w-full h-full flex items-center justify-center p-5 relative overflow-hidden">
@@ -120,7 +143,6 @@ export const SkeletonOne = ({ controlledView, onViewChange }: Props) => {
           boxShadow: '0 0 0 0.5px rgba(255,255,255,0.05) inset',
         }}
       >
-        {/* Search bar */}
         <div className="flex items-center gap-3 px-4 h-[52px] border-b border-white/[0.07]">
           <div className="w-[24px] h-[24px] rounded-[7px] flex items-center justify-center flex-shrink-0"
             style={{ background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.1)' }}>
@@ -128,12 +150,13 @@ export const SkeletonOne = ({ controlledView, onViewChange }: Props) => {
               <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
             </svg>
           </div>
-          <span className="text-[13px] flex-1" style={{ color: 'rgba(255,255,255,0.28)' }}>davelopment.hu · Lighthouse riport</span>
+          <span className="text-[13px] flex-1" style={{ color: 'rgba(255,255,255,0.28)' }}>
+            {isEN ? 'davelopment.hu · Lighthouse report' : 'davelopment.hu · Lighthouse riport'}
+          </span>
           <kbd className="text-[10px] rounded-[5px] px-[7px] py-[2px] font-mono flex-shrink-0"
             style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.22)', border: '0.5px solid rgba(255,255,255,0.1)' }}>⌘K</kbd>
         </div>
 
-        {/* Score hero */}
         <div className="flex items-center gap-5 px-5 py-4 border-b border-white/[0.05]"
           style={{ background: 'rgba(255,255,255,0.03)' }}>
           <div className="relative flex-shrink-0" style={{ width: 84, height: 84 }}>
@@ -152,24 +175,28 @@ export const SkeletonOne = ({ controlledView, onViewChange }: Props) => {
             </div>
           </div>
           <div>
-            <div className="text-[15px] font-semibold mb-[5px] text-white">Kiváló teljesítmény</div>
-            <div className="text-[12px] mb-[8px]" style={{ color: 'rgba(255,255,255,0.32)' }}>Next.js · Vercel Edge · CDN gyorsítótár</div>
+            <div className="text-[15px] font-semibold mb-[5px] text-white">
+              {isEN ? 'Excellent performance' : 'Kiváló teljesítmény'}
+            </div>
+            <div className="text-[12px] mb-[8px]" style={{ color: 'rgba(255,255,255,0.32)' }}>
+              {isEN ? 'Next.js · Vercel Edge · CDN cache' : 'Next.js · Vercel Edge · CDN gyorsítótár'}
+            </div>
             <div className="flex items-center gap-[6px]">
               <motion.div animate={{ opacity: [1, 0.3, 1] }} transition={{ repeat: Infinity, duration: 2 }}
                 className="w-[6px] h-[6px] rounded-full" style={{ background: ACCENT }} />
-              <span className="text-[11px] font-medium" style={{ color: 'rgba(255,255,255,0.6)' }}>Mind a 4 kategória kiváló</span>
+              <span className="text-[11px] font-medium" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                {isEN ? 'All 4 categories excellent' : 'Mind a 4 kategória kiváló'}
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Section header */}
         <div className="px-4 h-[28px] flex items-center">
           <span className="text-[10px] font-semibold tracking-[.12em] uppercase" style={{ color: 'rgba(255,255,255,0.22)' }}>
-            {view === 'categories' ? 'Lighthouse kategóriák' : view === 'vitals' ? 'Core Web Vitals' : 'Optimalizációk'}
+            {sectionLabel}
           </span>
         </div>
 
-        {/* Rows */}
         <AnimatePresence mode="wait">
           <motion.div key={view} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             {view === 'categories' && categories.map((c, i) => (
@@ -223,10 +250,9 @@ export const SkeletonOne = ({ controlledView, onViewChange }: Props) => {
           </motion.div>
         </AnimatePresence>
 
-        {/* Internal mini tab bar — only in summary (uncontrolled) mode */}
         {controlledView === undefined && (
           <div className="flex items-center justify-center gap-[5px] px-4 py-[8px] border-t border-white/[0.05]">
-            {performanceTabs.map(({ key, label, icon }) => (
+            {performanceTabs.map(({ key, label, labelEN, icon }) => (
               <button key={key} onClick={() => setView(key)}
                 className="flex items-center gap-[5px] rounded-[8px] px-3 py-[5px] text-[10px] font-medium transition-all"
                 style={{
@@ -234,18 +260,21 @@ export const SkeletonOne = ({ controlledView, onViewChange }: Props) => {
                   color: view === key ? ACCENT : 'rgba(255,255,255,0.3)',
                   border: view === key ? '0.5px solid rgba(255,255,255,0.2)' : '0.5px solid rgba(255,255,255,0.07)',
                 }}>
-                {icon}{label}
+                {icon}{isEN ? labelEN : label}
               </button>
             ))}
           </div>
         )}
 
-        {/* Action bar */}
         <div className="flex items-center justify-between px-4 h-[34px] border-t border-white/[0.06]"
           style={{ background: 'rgba(0,0,0,0.25)' }}>
-          <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>Webteljesítmény bővítmény</span>
+          <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.2)' }}>
+            {isEN ? 'Web Performance plugin' : 'Webteljesítmény bővítmény'}
+          </span>
           <div className="flex items-center gap-[6px]">
-            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.28)' }}>Teljes riport megnyitása</span>
+            <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.28)' }}>
+              {isEN ? 'Open full report' : 'Teljes riport megnyitása'}
+            </span>
             <kbd className="text-[9px] rounded-[4px] px-[5px] py-[1px] font-mono" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>
           </div>
         </div>

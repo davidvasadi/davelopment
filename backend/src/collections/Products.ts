@@ -190,6 +190,7 @@ export const Products: CollectionConfig = {
       name: 'dynamic_zone',
       type: 'blocks',
       label: 'Dinamikus zóna',
+      admin: { initCollapsed: true },
       blocks: [
         RelatedProductsBlock,
         CTABlock,

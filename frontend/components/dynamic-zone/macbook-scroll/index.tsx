@@ -10,6 +10,7 @@ interface MacbookScrollSectionProps {
   mobile_media?: any;
   mobile_animation?: 'zoom' | 'parallax';
   show_gradient?: boolean;
+  locale?: string;
 }
 
 function resolveMedia(m: any): string | undefined {
@@ -24,7 +25,7 @@ function isVideo(m: any): boolean {
   return m?.mimeType?.startsWith('video') ?? m?.mime?.startsWith('video') ?? false;
 }
 
-export function MacbookScrollSection({ title, desktop_media, mobile_media, mobile_animation = 'zoom', show_gradient }: MacbookScrollSectionProps) {
+export function MacbookScrollSection({ title, desktop_media, mobile_media, mobile_animation = 'zoom', show_gradient, locale }: MacbookScrollSectionProps) {
   const desktopUrl = resolveMedia(desktop_media);
   const mobileUrl = resolveMedia(mobile_media);
   const src = !isVideo(desktop_media) ? desktopUrl : undefined;
@@ -34,7 +35,7 @@ export function MacbookScrollSection({ title, desktop_media, mobile_media, mobil
 
   return (
     <div className="px-0 md:px-2">
-      <div className="relative w-full overflow-clip rounded-3xl bg-[#080809]">
+      <div className="relative w-full overflow-hidden rounded-none md:rounded-3xl bg-[#080809]">
         {/* Grain */}
         <GrainCanvas strength="light" opacity={0.45} zIndex={1} />
         {/* Radial glow folt — mint a pricing */}
@@ -54,8 +55,8 @@ export function MacbookScrollSection({ title, desktop_media, mobile_media, mobil
             mobileVideoSrc={mobileVideoSrc}
             mobileAnimation={mobile_animation}
             showGradient={show_gradient ?? false}
-            desktopChildren={!desktop_media ? <LiveEditDemo /> : undefined}
-            mobileChildren={!mobile_media ? <LiveEditDemo mobile /> : undefined}
+            desktopChildren={!desktop_media ? <LiveEditDemo locale={locale} /> : undefined}
+            mobileChildren={!mobile_media ? <LiveEditDemo mobile locale={locale} /> : undefined}
           />
         </div>
       </div>

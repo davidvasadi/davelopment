@@ -76,6 +76,7 @@ export const Pages: CollectionConfig = {
       type: 'blocks',
       label: 'Dinamikus zóna',
       localized: true,
+      admin: { initCollapsed: true },
       blocks: allBlocks,
     },
   ],

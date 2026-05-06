@@ -70,6 +70,7 @@ export const ProductPage: GlobalConfig = {
       name: 'dynamic_zone',
       type: 'blocks',
       label: 'Dinamikus zóna',
+      admin: { initCollapsed: true },
       blocks: allBlocks,
     },
   ],

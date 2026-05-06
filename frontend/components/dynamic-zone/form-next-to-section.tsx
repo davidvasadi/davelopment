@@ -250,7 +250,7 @@ export function FormNextToSection({
   // ── Person card adatok ──
   const personImgUrl        = toAbs(_person?.image);
   const buttonCfg           = _person?.button || null;
-  const buttonLabel         = buttonCfg?.text || 'Kérdezz közvetlenül';
+  const buttonLabel         = buttonCfg?.text || (lang === 'hu' ? 'Kérdezz közvetlenül' : 'Ask directly');
   const rawHrefFromButton   = buttonCfg?.URL?.trim() || '';
   const rawEmail            = (_person?.email || '').trim();
   const buttonHref = (() => {
@@ -426,8 +426,8 @@ export function FormNextToSection({
                       ) : (
                         <motion.div className="overflow-hidden h-6">
                           <motion.div className="flex flex-col" variants={wheelVariants}>
-                            <span>{submitInput?.name ?? 'Üzenet küldése'}</span>
-                            <span>{submitInput?.name ?? 'Üzenet küldése'}</span>
+                            <span>{submitInput?.name ?? (lang === 'hu' ? 'Üzenet küldése' : 'Send message')}</span>
+                            <span>{submitInput?.name ?? (lang === 'hu' ? 'Üzenet küldése' : 'Send message')}</span>
                           </motion.div>
                         </motion.div>
                       )}
@@ -499,7 +499,9 @@ export function FormNextToSection({
                       </p>
                     ) : (
                       <p className="text-xs text-black/60 text-center">
-                        Az űrlap elküldésével elfogadod az ÁSZF-et és az Adatkezelési tájékoztatót.
+                        {lang === 'hu'
+                          ? 'Az űrlap elküldésével elfogadod az ÁSZF-et és az Adatkezelési tájékoztatót.'
+                          : 'By submitting this form you agree to our Terms of Service and Privacy Policy.'}
                       </p>
                     )}
                   </form>
@@ -528,7 +530,7 @@ export function FormNextToSection({
                   transition={{ duration: 0.6, delay: 0.3 }}
                   viewport={{ once: true }}
                 >
-                  {section?.heading ?? 'Beszéljünk a projektedről'}
+                  {section?.heading ?? (lang === 'hu' ? 'Beszéljünk a projektedről' : "Let's talk about your project")}
                 </motion.h2>
 
                 <motion.div

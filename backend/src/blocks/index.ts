@@ -162,14 +162,12 @@ export const HeroBlock: Block = {
       type: 'upload',
       relationTo: 'media',
       label: 'Videó',
-      localized: true,
     },
     {
       name: 'video_poster',
       type: 'upload',
       relationTo: 'media',
       label: 'Videó borítókép',
-      localized: true,
     },
     {
       name: 'services',
@@ -525,7 +523,6 @@ export const CTABlock: Block = {
       relationTo: 'media',
       label: 'Kép',
       hasMany: true,
-      localized: true,
     },
   ],
 }
@@ -634,14 +631,12 @@ export const PricingBlock: Block = {
       type: 'upload',
       relationTo: 'media',
       label: 'Profil kép',
-      localized: true,
     },
     {
       name: 'background',
       type: 'upload',
       relationTo: 'media',
       label: 'Háttér',
-      localized: true,
     },
     {
       name: 'plans',
@@ -685,7 +680,6 @@ export const HowItWorksBlock: Block = {
       type: 'upload',
       relationTo: 'media',
       label: 'Videó',
-      localized: true,
     },
     {
       name: 'steps',
@@ -758,7 +752,6 @@ export const ServicesBlock: Block = {
       type: 'upload',
       relationTo: 'media',
       label: 'Háttér',
-      localized: true,
     },
     {
       name: 'elements_service_item',
@@ -908,7 +901,6 @@ export const BlogBlock: Block = {
       type: 'upload',
       relationTo: 'media',
       label: 'Kiemelt kép',
-      localized: true,
     },
     buttonField('button', 'Gomb'),
     {
@@ -1305,7 +1297,6 @@ export const FormNextToSectionBlock: Block = {
       type: 'upload',
       relationTo: 'media',
       label: 'Videó',
-      localized: true,
     },
     {
       name: 'form',

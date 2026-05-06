@@ -72,7 +72,7 @@ export function MobileNavbar({
           <div className="flex items-center gap-6">
             <LocaleSwitcher currentLocale={locale} />
             <button
-              aria-label={open ? 'Menü bezárása' : 'Menü megnyitása'}
+              aria-label={open ? (locale === 'hu' ? 'Menü bezárása' : 'Close menu') : (locale === 'hu' ? 'Menü megnyitása' : 'Open menu')}
               aria-expanded={open}
               onClick={() => setOpen(v => !v)}
               className="relative w-16 h-16 overflow-hidden"

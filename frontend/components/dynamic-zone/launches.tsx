@@ -13,11 +13,14 @@ export const Launches = ({
   heading,
   sub_heading,
   launches,
+  locale,
 }: {
   heading: string;
   sub_heading?: string;
   launches: Section[];
+  locale?: string;
 }) => {
+  const tocLabel = locale === 'en' ? 'Table of Contents' : 'Tartalomjegyzék';
   const [activeIdx, setActiveIdx] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
@@ -82,7 +85,7 @@ export const Launches = ({
           className="hidden lg:block w-64 xl:w-72 shrink-0 self-start sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto border-r border-black/10 py-10 px-6"
         >
           <p className="text-[9px] tracking-[0.2em] uppercase text-black/25 mb-5 px-2">
-            Tartalomjegyzék
+            {tocLabel}
           </p>
           <nav>
             {launches.map((section, idx) => (
@@ -125,7 +128,7 @@ export const Launches = ({
                 {String(activeIdx + 1).padStart(2, '0')}
               </span>
               <span className="text-sm font-medium text-black truncate">
-                {launches[activeIdx]?.title ?? 'Tartalomjegyzék'}
+                {launches[activeIdx]?.title ?? tocLabel}
               </span>
             </div>
             <span className={cn(
@@ -195,7 +198,7 @@ export const Launches = ({
           ))}
 
           <div className="mt-8 pt-8 border-t border-black/8">
-            <p className="text-xs text-black/25">[davelopment]® — Minden jog fenntartva.</p>
+            <p className="text-xs text-black/25">[davelopment]® — {locale === 'en' ? 'All rights reserved.' : 'Minden jog fenntartva.'}</p>
           </div>
         </main>
 

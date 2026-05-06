@@ -9,6 +9,7 @@ export const buttonField = (name = 'button', label = 'Gomb'): Field => ({
       name: 'text',
       type: 'text',
       label: 'Szöveg',
+      localized: true,
     },
     {
       name: 'URL',

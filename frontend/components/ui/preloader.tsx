@@ -99,23 +99,25 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
   const [curtain, setCurtain] = useState<'hidden' | 'in' | 'out'>('hidden');
   const [contentVisible, setContentVisible] = useState(true);
   const isFirst = useRef(true);
+  const animating = useRef(false);
 
   useEffect(() => {
     if (isFirst.current) {
       isFirst.current = false;
       return;
     }
+    animating.current = true;
     setContentVisible(false);
     setCurtain('in');
     const t1 = setTimeout(() => { setCurrent(children); }, 550);
     const t2 = setTimeout(() => { setCurtain('out'); }, 600);
     const t3 = setTimeout(() => { setContentVisible(true); }, 1200);
-    const t4 = setTimeout(() => { setCurtain('hidden'); }, 1700);
+    const t4 = setTimeout(() => { setCurtain('hidden'); animating.current = false; }, 1700);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
   }, [pathname]);
 
   useEffect(() => {
-    if (curtain === 'hidden') setCurrent(children);
+    if (curtain === 'hidden' && !animating.current) setCurrent(children);
   }, [children, curtain]);
 
   return (

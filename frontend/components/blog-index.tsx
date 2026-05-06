@@ -60,7 +60,7 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                     <h1 className="text-4xl md:text-6xl font-bold text-black mb-8">
                         {blogPage?.heading ?? 'Blog'}
                     </h1>
-                    <p className="text-neutral-600">Még nincs publikált blog cikk.</p>
+                    <p className="text-neutral-600">{locale === 'hu' ? 'Még nincs publikált blog cikk.' : 'No published blog posts yet.'}</p>
                 </div>
             </section>
         );

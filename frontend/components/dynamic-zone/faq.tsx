@@ -12,10 +12,12 @@ export const FAQ = ({
   heading,
   sub_heading,
   faqs,
+  locale,
 }: {
   heading: string;
   sub_heading: string;
   faqs: FAQItem[];
+  locale?: string;
 }) => {
   const [expandedId, setExpandedId] = useState<number>(0);
 
@@ -69,7 +71,7 @@ export const FAQ = ({
                 </motion.div>
               ))
             ) : (
-              <div className="text-gray-500">Nincs megjeleníthető kérdés.</div>
+              <div className="text-gray-500">{locale === 'en' ? 'No questions available.' : 'Nincs megjeleníthető kérdés.'}</div>
             )}
           </div>
 

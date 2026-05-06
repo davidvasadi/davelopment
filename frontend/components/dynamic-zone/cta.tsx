@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { useEffect, useRef } from 'react';
 import { Plus as PlusIcon } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { Link } from 'next-view-transitions';
@@ -13,6 +14,49 @@ const toAbs = (m?: any): string | undefined => {
   if (m?.url) return strapiImage(m.url);
   return undefined;
 };
+
+const isVideo = (m?: any): boolean =>
+  !!(m?.mimeType?.startsWith('video') || m?.mime?.startsWith('video'));
+
+function MediaBlock({ media, url, alt, sizes }: { media: any; url: string; alt: string; sizes: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (!videoRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) videoRef.current?.play();
+        else videoRef.current?.pause();
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(videoRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  if (isVideo(media)) {
+    return (
+      <video
+        ref={videoRef}
+        src={url}
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+    );
+  }
+
+  return (
+    <Image
+      src={url}
+      alt={alt}
+      fill
+      className="object-cover"
+      sizes={sizes}
+    />
+  );
+}
 
 // hover wheel animation for ghost buttons
 const wheelVariants = {
@@ -142,11 +186,10 @@ export const CTA = ({
             className="relative w-full md:w-[280px] lg:w-[340px] flex-shrink-0 bg-white rounded-2xl group-hover/cta:rounded-l-none transition-[border-radius] duration-300 p-2 min-h-[360px]"
           >
             <div className="relative w-full h-full rounded-xl overflow-hidden min-h-[340px]">
-              <Image
-                src={firstImgUrl}
+              <MediaBlock
+                media={firstMedia}
+                url={firstImgUrl}
                 alt={firstImgAlt}
-                fill
-                className="object-cover"
                 sizes="(min-width: 1024px) 340px, 280px"
               />
             </div>
@@ -164,13 +207,11 @@ export const CTA = ({
     style={{ height: '52vw', minHeight: 210, maxHeight: 320 }}
   >
     <div className="relative w-full h-full rounded-xl overflow-hidden">
-      <Image
-        src={firstImgUrl}
+      <MediaBlock
+        media={firstMedia}
+        url={firstImgUrl}
         alt={firstImgAlt}
-        fill
-        className="object-cover object-center"
         sizes="100vw"
-        priority
       />
 
       {/* Badge – a képen belül, absolute */}

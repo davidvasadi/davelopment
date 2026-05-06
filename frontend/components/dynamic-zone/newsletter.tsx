@@ -29,6 +29,30 @@ type NewsletterProps = {
   locale: string;
 };
 
+// Maps known HU text → EN equivalent
+const HU_TO_EN: Record<string, string> = {
+  // form inputs
+  'Név*': 'Name*',
+  'Név': 'Name',
+  'Email*': 'Email*',
+  'E-mail*': 'Email*',
+  'Feliratkozás': 'Subscribe',
+  // newsletter block fields
+  'Hírlevél': 'Newsletter',
+  'Vasadi Dávid': 'David Vasadi',
+  'Legyen szó új weboldalról, erősebb brandről vagy mérhető eredményekről,': 'Whether you need a new website, stronger brand or measurable results,',
+  'itt vagyunk, hogy segítsünk.': 'we are here to help you.',
+  'Iratkozz fel hírlevelünkre, és legyél az első, aki értesül a legújabb web- és digitális trendekről.': 'Subscribe to our newsletter and be the first to hear about the latest web and digital trends.',
+};
+
+function resolveText(raw: string | null | undefined, isHu: boolean): string {
+  if (!raw) return '';
+  if (isHu) return raw;
+  return HU_TO_EN[raw] ?? raw;
+}
+// alias for form inputs (same function)
+const resolvePlaceholder = resolveText;
+
 export const Newsletter: React.FC<NewsletterProps> = ({
   heading_left, heading_right, title, description,
   profile_name, profile_role, profile_image, source, form, locale,
@@ -37,7 +61,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
   const inputs = form?.inputs ?? [];
   const textInputs = inputs.filter((i) => ['text', 'email'].includes(i.type));
   const buttonInput = inputs.find((i) => !['text', 'email'].includes(i.type));
-  const buttonLabel = buttonInput?.placeholder || (isHu ? 'Feliratkozás' : 'Subscribe');
+  const buttonLabel = resolvePlaceholder(buttonInput?.placeholder, isHu) || (isHu ? 'Feliratkozás' : 'Subscribe');
   const buttonSending = isHu ? 'Küldés...' : 'Sending...';
   const successMessage = isHu ? 'Sikeres feliratkozás!' : 'You have successfully subscribed.';
   const duplicateError = isHu ? 'Ezzel az email címmel már regisztráltál.' : 'You are already subscribed with this email.';
@@ -119,8 +143,8 @@ export const Newsletter: React.FC<NewsletterProps> = ({
             transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
           >
             <h2 className="text-2xl md:text-3xl font-medium text-black indent-20 max-w-xl">
-              <span className="text-black/60">{heading_left}</span>{' '}
-              <span className="text-black font-semibold">{heading_right}</span>
+              <span className="text-black/60">{resolveText(heading_left, isHu)}</span>{' '}
+              <span className="text-black font-semibold">{resolveText(heading_right, isHu)}</span>
             </h2>
             <div className="flex items-center space-x-4">
               {profileImgUrl && (
@@ -129,7 +153,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
                 </div>
               )}
               <div>
-                <p className="font-semibold text-black">{profile_name}</p>
+                <p className="font-semibold text-black">{resolveText(profile_name, isHu)}</p>
                 <p className="text-sm text-black/70">{profile_role}</p>
               </div>
             </div>
@@ -144,7 +168,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
             transition={{ duration: 0.6, delay: 0.1, ease: [0.33, 1, 0.68, 1] }}
           >
             <h3 className="text-2xl font-semibold text-black">
-              {title || (isHu ? 'Hírlevél' : 'Newsletter')}
+              {resolveText(title, isHu) || (isHu ? 'Hírlevél' : 'Newsletter')}
             </h3>
 
             <form className="space-y-6" onSubmit={handleSubmit} noValidate>
@@ -154,7 +178,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
                   <input
                     id={input.name}
                     type={input.type === 'email' ? 'email' : 'text'}
-                    placeholder={input.placeholder || ''}
+                    placeholder={resolvePlaceholder(input.placeholder, isHu)}
                     className="peer w-full bg-transparent border-none placeholder-gray-500 py-2 focus:outline-none"
                     value={formData[input.name] ?? ''}
                     onChange={handleChange}
@@ -219,7 +243,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
               )}
             </form>
 
-            <p className="text-sm text-black/60 mt-4">{description}</p>
+            <p className="text-sm text-black/60 mt-4">{resolveText(description, isHu)}</p>
           </motion.div>
 
         </div>
