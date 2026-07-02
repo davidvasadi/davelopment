@@ -199,20 +199,28 @@ export function FormNextToSection({
     e.preventDefault();
     if (!validate()) return;
 
+    // Honeypot — if the hidden field is filled, it's a bot. Pretend success, don't send.
+    if (formData.website.trim() !== '') {
+      setShowAlert(true);
+      setSubmitSuccess(true);
+      setFormData({ name: '', email: '', phone: '', message: '', website: '' });
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitSuccess(false);
     setSubmitError(null);
     setShowAlert(true);
 
     try {
-      const res = await fetch('/api/contact', {
+      const PAYLOAD_URL = (process.env.NEXT_PUBLIC_PAYLOAD_URL ?? 'http://localhost:1337').replace(/\/+$/, '');
+      const res = await fetch(`${PAYLOAD_URL}/api/contacts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
           message: formData.message,
-          website: formData.website, // honeypot — real users leave this empty
           page: pathname || '/',
           language: lang,
         }),
