@@ -5,14 +5,7 @@ import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
-
-type CookiePreferences = {
-  necessary: boolean;
-  analytics: boolean;
-  marketing: boolean;
-};
-
-const COOKIE_KEY = 'davelopment_cookie_consent';
+import { applyConsent, COOKIE_KEY, type CookiePreferences } from '@/lib/consent';
 
 const CATEGORIES_HU = [
   { key: 'necessary' as const, label: 'Szükséges', desc: 'Mindig aktív',               locked: true  },
@@ -53,6 +46,7 @@ export const CookieConsent = () => {
 
   const save = (p: CookiePreferences) => {
     localStorage.setItem(COOKIE_KEY, JSON.stringify({ ...p, timestamp: Date.now() }));
+    applyConsent(p);
     setIsOpen(false);
   };
 

@@ -125,6 +125,7 @@ jobs:
           NEXT_PUBLIC_PAYLOAD_URL: https://davelopment.hu
           NEXT_PUBLIC_API_URL: https://davelopment.hu
           NEXT_PUBLIC_SERVER_URL: https://davelopment.hu
+          NEXT_PUBLIC_GA_ID: G-MXYSTX2XXK
         run: pnpm build
 
       - name: Bundle (.next + public, no node_modules)
@@ -254,6 +255,7 @@ jobs:
               'NEXT_PUBLIC_API_URL=https://davelopment.hu' \
               'NEXT_PUBLIC_PAYLOAD_URL=https://davelopment.hu' \
               'NEXT_PUBLIC_SERVER_URL=https://davelopment.hu' \
+              'NEXT_PUBLIC_GA_ID=G-MXYSTX2XXK' \
               'PREVIEW_SECRET=${{ secrets.PREVIEW_SECRET }}' \
               > /var/www/davelopment/frontend/.env"
 
