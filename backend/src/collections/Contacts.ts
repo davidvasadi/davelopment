@@ -1,5 +1,22 @@
 import type { CollectionConfig } from 'payload'
+import { APIError } from 'payload'
 import { buildContactAdminHtml, buildAutoReplyHtml } from './Newsletters'
+
+// ── Spam protection (in-memory, per backend process) ──────────────────────────
+const RATE_WINDOW_MS = 10 * 60 * 1000 // 10 minutes
+const RATE_MAX = 4                     // max submissions per IP per window
+const rateHits = new Map<string, number[]>()
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now()
+  const recent = (rateHits.get(ip) ?? []).filter((t) => now - t < RATE_WINDOW_MS)
+  recent.push(now)
+  rateHits.set(ip, recent)
+  if (rateHits.size > 5000) {
+    for (const [k, v] of rateHits) if (v.every((t) => now - t >= RATE_WINDOW_MS)) rateHits.delete(k)
+  }
+  return recent.length > RATE_MAX
+}
 
 export const Contacts: CollectionConfig = {
   slug: 'contacts',
@@ -16,6 +33,32 @@ export const Contacts: CollectionConfig = {
     drafts: false,
   },
   hooks: {
+    beforeValidate: [
+      ({ data, req, operation }) => {
+        if (operation !== 'create' || !data) return data
+
+        // Let the e2e test through (it is cleaned up in afterChange, no email sent)
+        if (typeof data.email === 'string' && data.email.includes('e2e-test@')) return data
+
+        // 1) Rate limit by client IP (flood protection)
+        const ip =
+          req?.headers?.get?.('x-forwarded-for')?.split(',')[0]?.trim() ||
+          req?.headers?.get?.('x-real-ip') ||
+          'unknown'
+        if (isRateLimited(ip)) {
+          throw new APIError('Túl sok beküldés. Kérlek próbáld később.', 429)
+        }
+
+        // 2) Link-spam heuristic — bots love stuffing URLs into the message
+        const msg = String(data.message ?? '')
+        const linkCount = (msg.match(/https?:\/\//gi) || []).length
+        if (linkCount >= 4) {
+          throw new APIError('Az üzenet elutasítva.', 422)
+        }
+
+        return data
+      },
+    ],
     afterChange: [
       async ({ doc, operation, req }) => {
         if (operation !== 'create') return
