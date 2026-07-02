@@ -28,7 +28,7 @@ permissions:
   contents: read
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   VPS_HOST: ${{ secrets.VPS_HOST }}
   VPS_PORT: ${{ secrets.VPS_PORT }}
   VPS_USER: ${{ secrets.VPS_USER }}
@@ -264,6 +264,10 @@ jobs:
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes \
             ${VPS_USER}@${VPS_HOST} <<'EOF'
           set -e
+          # Projekt-saját nvm Node 22 (a globális Node 20 EOL; a schedulio is így fut)
+          export NVM_DIR="/var/www/davelopment/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+          nvm use 22 >/dev/null 2>&1 || nvm use default >/dev/null 2>&1
           export PNPM_HOME="$HOME/.local/share/pnpm"
           export PATH="$PNPM_HOME:$PATH"
           corepack enable || true
@@ -451,6 +455,10 @@ jobs:
           ln -sfn "$STORAGE_UPLOADS" "${NEW_DIR}/public/uploads"
           ln -sfn "$STORAGE_UPLOADS" "${NEW_DIR}/media"
 
+          # Projekt-saját nvm Node 22 (a globális Node 20 EOL; a schedulio is így fut)
+          export NVM_DIR="/var/www/davelopment/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+          nvm use 22 >/dev/null 2>&1 || nvm use default >/dev/null 2>&1
           export PNPM_HOME="$HOME/.local/share/pnpm"
           export PATH="$PNPM_HOME:$PATH"
           corepack enable || true
