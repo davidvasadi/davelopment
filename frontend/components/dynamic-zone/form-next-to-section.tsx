@@ -155,7 +155,7 @@ export function FormNextToSection({
           success: 'Thank you! I will get back to you soon.',
         };
 
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '', website: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [isSubmitting, setIsSubmitting]   = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError]     = useState<string | null>(null);
@@ -199,14 +199,6 @@ export function FormNextToSection({
     e.preventDefault();
     if (!validate()) return;
 
-    // Honeypot — if the hidden field is filled, it's a bot. Pretend success, don't send.
-    if (formData.website.trim() !== '') {
-      setShowAlert(true);
-      setSubmitSuccess(true);
-      setFormData({ name: '', email: '', phone: '', message: '', website: '' });
-      return;
-    }
-
     setIsSubmitting(true);
     setSubmitSuccess(false);
     setSubmitError(null);
@@ -239,7 +231,7 @@ export function FormNextToSection({
       setSubmitSuccess(true);
       // GA4 conversion — main lead signal (only fires with analytics consent)
       try { sendGAEvent('event', 'generate_lead', { form: 'contact', page: pathname || '/' }); } catch {}
-      setFormData({ name: '', email: '', phone: '', message: '', website: '' });
+      setFormData({ name: '', email: '', phone: '', message: '' });
     } catch (err) {
       console.error('Beküldési hiba (hálózat):', err);
       setSubmitError(messages.networkError);
@@ -344,18 +336,6 @@ export function FormNextToSection({
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-6">
-
-                    {/* Honeypot — screen-reader/visually hidden, bots fill it, humans don't */}
-                    <input
-                      type="text"
-                      name="website"
-                      value={formData.website}
-                      onChange={handleChange}
-                      tabIndex={-1}
-                      autoComplete="off"
-                      aria-hidden="true"
-                      style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }}
-                    />
 
                     {/* NÉV */}
                     {nameInput && (
