@@ -115,7 +115,7 @@ jobs:
       - name: Enable pnpm
         run: |
           corepack enable
-          corepack prepare pnpm@latest --activate
+          corepack prepare pnpm@10.18.3 --activate
 
       - name: Install
         run: pnpm install --frozen-lockfile=false
@@ -162,7 +162,7 @@ jobs:
       - name: Enable pnpm
         run: |
           corepack enable
-          corepack prepare pnpm@latest --activate
+          corepack prepare pnpm@10.18.3 --activate
 
       - name: Install
         working-directory: backend
@@ -267,7 +267,7 @@ jobs:
           export PNPM_HOME="$HOME/.local/share/pnpm"
           export PATH="$PNPM_HOME:$PATH"
           corepack enable || true
-          corepack prepare pnpm@latest --activate || true
+          corepack prepare pnpm@10.18.3 --activate || true
 
           cd /var/www/davelopment/frontend
           pnpm install --frozen-lockfile=false --prefer-offline
@@ -324,7 +324,7 @@ jobs:
       - name: Enable pnpm
         run: |
           corepack enable
-          corepack prepare pnpm@latest --activate
+          corepack prepare pnpm@10.18.3 --activate
 
       - name: Install deps
         run: pnpm install --frozen-lockfile=false
@@ -454,7 +454,7 @@ jobs:
           export PNPM_HOME="$HOME/.local/share/pnpm"
           export PATH="$PNPM_HOME:$PATH"
           corepack enable || true
-          corepack prepare pnpm@latest --activate || true
+          corepack prepare pnpm@10.18.3 --activate || true
 
           log "Ensuring ffmpeg is installed..."
           if ! command -v ffmpeg &>/dev/null; then
