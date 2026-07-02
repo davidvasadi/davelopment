@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, type Variants } from 'framer-motion';
+import { sendGAEvent } from '@next/third-parties/google';
 import { MotionLink } from '@/components/motion-link';
 import {
   CheckCircleIcon,
@@ -154,7 +155,7 @@ export function FormNextToSection({
           success: 'Thank you! I will get back to you soon.',
         };
 
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '', website: '' });
   const [isSubmitting, setIsSubmitting]   = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError]     = useState<string | null>(null);
@@ -204,14 +205,14 @@ export function FormNextToSection({
     setShowAlert(true);
 
     try {
-      const PAYLOAD_URL = (process.env.NEXT_PUBLIC_PAYLOAD_URL ?? 'http://localhost:1337').replace(/\/+$/, '');
-      const res = await fetch(`${PAYLOAD_URL}/api/contacts`, {
+      const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
           message: formData.message,
+          website: formData.website, // honeypot — real users leave this empty
           page: pathname || '/',
           language: lang,
         }),
@@ -228,7 +229,9 @@ export function FormNextToSection({
       }
 
       setSubmitSuccess(true);
-      setFormData({ name: '', email: '', phone: '', message: '' });
+      // GA4 conversion — main lead signal (only fires with analytics consent)
+      try { sendGAEvent('event', 'generate_lead', { form: 'contact', page: pathname || '/' }); } catch {}
+      setFormData({ name: '', email: '', phone: '', message: '', website: '' });
     } catch (err) {
       console.error('Beküldési hiba (hálózat):', err);
       setSubmitError(messages.networkError);
@@ -333,6 +336,18 @@ export function FormNextToSection({
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-6">
+
+                    {/* Honeypot — screen-reader/visually hidden, bots fill it, humans don't */}
+                    <input
+                      type="text"
+                      name="website"
+                      value={formData.website}
+                      onChange={handleChange}
+                      tabIndex={-1}
+                      autoComplete="off"
+                      aria-hidden="true"
+                      style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }}
+                    />
 
                     {/* NÉV */}
                     {nameInput && (
