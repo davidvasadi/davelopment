@@ -1,5 +1,6 @@
 import React from 'react'
 import type { Metadata } from 'next'
+import SaveContactButton from './SaveContactButton'
 
 export const metadata: Metadata = {
   title: 'Vasadi Dávid — [davelopment]®',
@@ -15,14 +16,17 @@ const CONTACT = {
   phoneDisplay: '(36)303628377',
   website: 'davelopment.hu',
   websiteUrl: 'https://davelopment.hu',
+  instagram: 'davelopment_official',
+  instagramUrl: 'https://instagram.com/davelopment_official',
   photo: '/dave.jpg',
 }
 
 const rows = [
-  { label: 'Név',      value: CONTACT.name,        href: null,                      icon: 'photo' },
-  { label: 'Email',    value: CONTACT.email,        href: `mailto:${CONTACT.email}`, icon: 'email' },
-  { label: 'Telefon',  value: CONTACT.phoneDisplay, href: `tel:${CONTACT.phone}`,    icon: 'phone' },
-  { label: 'Weboldal', value: CONTACT.website,      href: CONTACT.websiteUrl,        icon: 'globe' },
+  { label: 'Név',       value: CONTACT.name,          href: null,                       icon: 'photo' },
+  { label: 'Weboldal',  value: CONTACT.website,        href: CONTACT.websiteUrl,         icon: 'globe' },
+  { label: 'Telefon',   value: CONTACT.phoneDisplay,   href: `tel:${CONTACT.phone}`,     icon: 'phone' },
+  { label: 'Email',     value: CONTACT.email,          href: `mailto:${CONTACT.email}`,  icon: 'email' },
+  { label: 'Instagram', value: `@${CONTACT.instagram}`, href: CONTACT.instagramUrl,      icon: 'instagram' },
 ]
 
 function RowIcon({ type }: { type: string }) {
@@ -53,6 +57,13 @@ function RowIcon({ type }: { type: string }) {
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10" />
         <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+      </svg>
+    ),
+    instagram: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="2" width="20" height="20" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
       </svg>
     ),
   }
@@ -104,14 +115,15 @@ export default function VisualCard() {
               )
             })}
 
-            {/* Mentés gomb — ugyanolyan stílus */}
-            <a
-              href="/visual-card"
-              className="flex items-center justify-center gap-2 bg-white rounded-2xl px-4 py-4 border border-black/[0.08] active:scale-[0.98] transition-transform"
-            >
-              <span className="text-[18px] font-light text-black leading-none">+</span>
-              <span className="text-[15px] font-semibold text-black">Mentés a névjegykártyába</span>
-            </a>
+            {/* Mentés gomb — Androidon Contacts insert intent, iOS-en letöltés */}
+            <SaveContactButton
+              name={CONTACT.name}
+              phone={CONTACT.phone}
+              email={CONTACT.email}
+              org="[davelopment]®"
+              title="Alapító"
+              website={CONTACT.websiteUrl}
+            />
 
           </div>
         </div>
