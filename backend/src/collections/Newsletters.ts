@@ -201,9 +201,9 @@ function buildAutoReplyHtml(o: {
     <tr><td style="padding:0 0 12px;">
       <table cellpadding="0" cellspacing="0" border="0"><tr>
         <td valign="top" style="width:26px;">
-          <span style="display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:${ACCENT};color:#fff;font-size:11px;font-weight:700;font-family:${F};">${n}</span>
+          <span class="dm-badge" style="display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:${ACCENT};color:#fff;font-size:11px;font-weight:700;font-family:${F};">${n}</span>
         </td>
-        <td style="font-size:13px;color:#374151;line-height:1.6;padding-left:10px;">${txt}</td>
+        <td class="dm-muted" style="font-size:13px;color:#374151;line-height:1.6;padding-left:10px;">${txt}</td>
       </tr></table>
     </td></tr>`
 
@@ -358,6 +358,7 @@ function buildAutoReplyHtml(o: {
       .dm-muted{color:#98989d!important;}
       .dm-card{background:#1c1c1e!important;}
       .dm-divider{background:#2c2c2e!important;}
+      .dm-badge{background:#f5f5f7!important;color:#000000!important;}
       .dm-btn{background:#ffffff!important;color:#000000!important;}
       .dm-link{color:#f5f5f7!important;}
       .dm-divider-top{border-top-color:#2c2c2e!important;}
@@ -391,7 +392,7 @@ function buildAutoReplyHtml(o: {
           </table>
         </td></tr>
 
-        <tr><td style="padding:4px 0 34px;"><div style="height:1px;line-height:1px;background:#ececec;">&nbsp;</div></td></tr>
+        <tr><td style="padding:4px 0 34px;"><div class="dm-divider" style="height:1px;line-height:1px;background:#ececec;">&nbsp;</div></td></tr>
 
         <!-- Projects + Services -->
         <tr><td>${projectSection(t.projectsTitle, projects)}</td></tr>
