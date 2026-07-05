@@ -10,6 +10,7 @@ import './globals.css';
 import { SlugProvider } from './context/SlugContext';
 import { Preview } from '@/components/preview';
 import { CookieConsent } from '@/components/toast';
+import { ConversionTracker } from '@/components/ga/ConversionTracker';
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
@@ -60,6 +61,7 @@ export default function RootLayout({
         <CookieConsent />
         <SlugProvider>{children}</SlugProvider>
         {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
+        {GA_ID && <ConversionTracker />}
       </body>
     </html>
   );

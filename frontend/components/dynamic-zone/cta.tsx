@@ -25,7 +25,7 @@ function MediaBlock({ media, url, alt, sizes }: { media: any; url: string; alt: 
     if (!videoRef.current) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) videoRef.current?.play();
+        if (entry.isIntersecting) videoRef.current?.play().catch(() => {});
         else videoRef.current?.pause();
       },
       { threshold: 0.3 }
@@ -144,6 +144,7 @@ export const CTA = ({
                       initial="rest"
                       whileHover="hover"
                       animate="rest"
+                      data-cta={cta.text}
                       className="inline-flex items-center justify-center rounded-full bg-black text-white text-sm font-medium overflow-hidden px-6 py-3.5"
                     >
                       <div style={{ overflow: 'hidden', height: 18 }}>
@@ -164,6 +165,7 @@ export const CTA = ({
                     initial="rest"
                     whileHover="hover"
                     animate="rest"
+                    data-cta={cta.text}
                     className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-transparent text-gray-900 text-sm font-medium overflow-hidden px-6 py-3.5"
                   >
                     <div style={{ overflow: 'hidden', height: 18 }}>

@@ -30,7 +30,8 @@ export const applyConsent = (prefs: CookiePreferences) => {
 
 declare global {
   interface Window {
-    dataLayer?: unknown[];
+    // Match @next/third-parties' global augmentation to avoid a type conflict
+    dataLayer?: Object[];
     gtag?: (...args: unknown[]) => void;
   }
 }

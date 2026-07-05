@@ -155,7 +155,7 @@ export function FormNextToSection({
           success: 'Thank you! I will get back to you soon.',
         };
 
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '', projectType: '', budget: '', timeline: '', source: '' });
   const [isSubmitting, setIsSubmitting]   = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError]     = useState<string | null>(null);
@@ -171,6 +171,76 @@ export function FormNextToSection({
   const phoneInput   = inputs.find(i => fieldRole(i) === 'phone');
   const messageInput = inputs.find(i => fieldRole(i) === 'message');
   const submitInput  = inputs.find(i => fieldRole(i) === 'submit');
+  const SHOW_MESSAGE = false as boolean; // üzenet mező ideiglenes elrejtése (typecheck-biztos kapcsoló)
+
+  // Business direction — keep values in sync with backend Contacts `projectType` options
+  const projectTypeLabel = lang === 'hu' ? 'Miben segíthetünk?' : 'How can we help?';
+  const projectTypePlaceholder = lang === 'hu' ? 'Válassz egy irányt (opcionális)' : 'Pick a direction (optional)';
+  const PROJECT_TYPES: { value: string; label: string }[] = lang === 'hu'
+    ? [
+        { value: 'website', label: 'Weboldal' },
+        { value: 'design',  label: 'UX/UI Design' },
+        { value: 'seo',     label: 'SEO' },
+        { value: 'ads',     label: 'Google Ads / Marketing' },
+        { value: 'system',  label: 'Egyedi rendszer / SaaS' },
+        { value: 'other',   label: 'Egyéb / még nem tudom' },
+      ]
+    : [
+        { value: 'website', label: 'Website' },
+        { value: 'design',  label: 'UX/UI Design' },
+        { value: 'seo',     label: 'SEO' },
+        { value: 'ads',     label: 'Google Ads / Marketing' },
+        { value: 'system',  label: 'Custom system / SaaS' },
+        { value: 'other',   label: 'Other / not sure yet' },
+      ];
+
+  const isHuForm = lang === 'hu';
+  const budgetLabel   = isHuForm ? 'Költségkeret' : 'Budget';
+  const timelineLabel = isHuForm ? 'Határidő' : 'Timeline';
+  const sourceLabel   = isHuForm ? 'Honnan találtál ránk?' : 'How did you find us?';
+  const pickPlaceholder = isHuForm ? 'Válassz (opcionális)' : 'Pick one (optional)';
+
+  const BUDGETS = isHuForm
+    ? [
+        { value: 'lt500',      label: '< 500 000 Ft' },
+        { value: '500-1500',   label: '500e – 1,5M Ft' },
+        { value: '1500-5000',  label: '1,5M – 5M Ft' },
+        { value: 'gt5000',     label: '5M Ft felett' },
+        { value: 'unknown',    label: 'Még nem tudom' },
+      ]
+    : [
+        { value: 'lt500',      label: 'Under 500k HUF' },
+        { value: '500-1500',   label: '500k – 1.5M HUF' },
+        { value: '1500-5000',  label: '1.5M – 5M HUF' },
+        { value: 'gt5000',     label: 'Over 5M HUF' },
+        { value: 'unknown',    label: 'Not sure yet' },
+      ];
+  const TIMELINES = isHuForm
+    ? [
+        { value: 'urgent',     label: 'Sürgős' },
+        { value: '1month',     label: '1 hónapon belül' },
+        { value: '1-3months',  label: '1–3 hónap' },
+        { value: 'exploring',  label: 'Csak tájékozódom' },
+      ]
+    : [
+        { value: 'urgent',     label: 'Urgent' },
+        { value: '1month',     label: 'Within 1 month' },
+        { value: '1-3months',  label: '1–3 months' },
+        { value: 'exploring',  label: 'Just exploring' },
+      ];
+  const SOURCES = isHuForm
+    ? [
+        { value: 'google',     label: 'Google' },
+        { value: 'instagram',  label: 'Instagram' },
+        { value: 'referral',   label: 'Ajánlás' },
+        { value: 'other',      label: 'Egyéb' },
+      ]
+    : [
+        { value: 'google',     label: 'Google' },
+        { value: 'instagram',  label: 'Instagram' },
+        { value: 'referral',   label: 'Referral' },
+        { value: 'other',      label: 'Other' },
+      ];
 
   // ── Validáció ──
   const validate = () => {
@@ -185,12 +255,12 @@ export function FormNextToSection({
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       setEmailError(messages.emailInvalid); valid = false;
     }
-    if (!formData.message.trim()) { setMessageError(messages.messageRequired); valid = false; }
+    if (SHOW_MESSAGE && !formData.message.trim()) { setMessageError(messages.messageRequired); valid = false; }
 
     return valid;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -213,6 +283,10 @@ export function FormNextToSection({
           name: formData.name,
           email: formData.email,
           message: formData.message,
+          projectType: formData.projectType || undefined,
+          budget: formData.budget || undefined,
+          timeline: formData.timeline || undefined,
+          source: formData.source || undefined,
           page: pathname || '/',
           language: lang,
         }),
@@ -231,7 +305,7 @@ export function FormNextToSection({
       setSubmitSuccess(true);
       // GA4 conversion — main lead signal (only fires with analytics consent)
       try { sendGAEvent('event', 'generate_lead', { form: 'contact', page: pathname || '/' }); } catch {}
-      setFormData({ name: '', email: '', phone: '', message: '' });
+      setFormData({ name: '', email: '', phone: '', message: '', projectType: '', budget: '', timeline: '', source: '' });
     } catch (err) {
       console.error('Beküldési hiba (hálózat):', err);
       setSubmitError(messages.networkError);
@@ -385,7 +459,7 @@ export function FormNextToSection({
                     )}
 
                     {/* ÜZENET */}
-                    {messageInput && (
+                    {SHOW_MESSAGE && messageInput && (
                       <div>
                         <p className="text-xs font-medium text-black/80 mb-1">{messageInput.name}</p>
                         <textarea
@@ -393,12 +467,82 @@ export function FormNextToSection({
                           value={formData.message}
                           onChange={handleChange}
                           rows={4}
+                          maxLength={1000}
                           placeholder={messageInput.placeholder ?? messageInput.name}
                           className={inputCls(!!messageError)}
                         />
-                        {messageError && <p className="text-sm text-red-600 mt-1">{messageError}</p>}
+                        <div className="flex items-center justify-between mt-1">
+                          {messageError
+                            ? <p className="text-sm text-red-600">{messageError}</p>
+                            : <span />}
+                          <span className="text-[11px] text-black/30 tabular-nums">{formData.message.length}/1000</span>
+                        </div>
                       </div>
                     )}
+
+                    {/* ÜZLETI IRÁNY (opcionális) */}
+                    <div>
+                      <p className="text-xs font-medium text-black/80 mb-1">{projectTypeLabel}</p>
+                      <select
+                        name="projectType"
+                        value={formData.projectType}
+                        onChange={handleChange}
+                        className={`${inputCls(false)} appearance-none bg-white cursor-pointer ${!formData.projectType ? 'text-black/40' : ''}`}
+                      >
+                        <option value="">{projectTypePlaceholder}</option>
+                        {PROJECT_TYPES.map(pt => (
+                          <option key={pt.value} value={pt.value} className="text-black">{pt.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* KÖLTSÉGKERET + HATÁRIDŐ (opcionális) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs font-medium text-black/80 mb-1">{budgetLabel}</p>
+                        <select
+                          name="budget"
+                          value={formData.budget}
+                          onChange={handleChange}
+                          className={`${inputCls(false)} appearance-none bg-white cursor-pointer ${!formData.budget ? 'text-black/40' : ''}`}
+                        >
+                          <option value="">{pickPlaceholder}</option>
+                          {BUDGETS.map(o => (
+                            <option key={o.value} value={o.value} className="text-black">{o.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-black/80 mb-1">{timelineLabel}</p>
+                        <select
+                          name="timeline"
+                          value={formData.timeline}
+                          onChange={handleChange}
+                          className={`${inputCls(false)} appearance-none bg-white cursor-pointer ${!formData.timeline ? 'text-black/40' : ''}`}
+                        >
+                          <option value="">{pickPlaceholder}</option>
+                          {TIMELINES.map(o => (
+                            <option key={o.value} value={o.value} className="text-black">{o.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* HONNAN TALÁLTÁL RÁNK (opcionális) */}
+                    <div>
+                      <p className="text-xs font-medium text-black/80 mb-1">{sourceLabel}</p>
+                      <select
+                        name="source"
+                        value={formData.source}
+                        onChange={handleChange}
+                        className={`${inputCls(false)} appearance-none bg-white cursor-pointer ${!formData.source ? 'text-black/40' : ''}`}
+                      >
+                        <option value="">{pickPlaceholder}</option>
+                        {SOURCES.map(o => (
+                          <option key={o.value} value={o.value} className="text-black">{o.label}</option>
+                        ))}
+                      </select>
+                    </div>
 
                     {/* ISMERETLEN TÍPUSÚ MEZŐK — generikusan renderelve */}
                     {inputs
@@ -550,7 +694,7 @@ export function FormNextToSection({
                   <div className="w-full h-px bg-white/10 my-8" />
 
                   {hasBenefits && (
-                    <div className="space-y-6 md:space-y-0 md:flex md:space-x-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
                       {benefits!.map((benefit, index) => (
                         <motion.div
                           key={`benefit-${index}`}

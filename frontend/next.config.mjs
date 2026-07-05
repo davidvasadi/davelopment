@@ -37,20 +37,23 @@ const nextConfig = {
   // CSP is tuned to allow Google Analytics / Ads (Consent Mode) and CMS images,
   // while blocking clickjacking, MIME-sniffing and protocol downgrade.
   async headers() {
-    const csp = [
+    // Dev needs the local Payload API + HMR websocket; prod is same-origin.
+    const devConnect = isDev ? ' http://localhost:1337 http://localhost:3000 ws://localhost:3000' : '';
+    const cspParts = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com https://*.google-analytics.com https://*.googleadservices.com https://*.google.com https://*.doubleclick.net",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.googleadservices.com https://*.doubleclick.net https://davelopment.hu",
+      `connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.googleadservices.com https://*.doubleclick.net https://davelopment.hu${devConnect}`,
       "frame-src 'self' https://*.doubleclick.net https://*.google.com",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
       "frame-ancestors 'self'",
-      "upgrade-insecure-requests",
-    ].join('; ');
+    ];
+    if (!isDev) cspParts.push('upgrade-insecure-requests');
+    const csp = cspParts.join('; ');
 
     return [
       {

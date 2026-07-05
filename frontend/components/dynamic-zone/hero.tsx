@@ -141,6 +141,7 @@ export const Hero = ({
                   {safeCTAs.map((cta) => (
                     <MotionLink key={cta.id} href={resolveHref(locale, cta.URL)} target={cta.target || '_self'}
                       initial="rest" whileHover="hover" animate="rest"
+                      data-cta={`hero:${cta.text}`}
                       className="inline-flex items-center justify-between gap-6 rounded-full bg-black px-3 py-1 text-xs sm:text-sm font-semibold text-white shadow-sm overflow-hidden"
                     >
                       <div className="overflow-hidden" style={{ height: '1.25rem' }}>
@@ -254,6 +255,7 @@ export const Hero = ({
                   {talkCTA && (
                     <MotionLink href={resolveHref(locale, talkCTA.URL)} target={talkCTA.target || '_self'}
                       initial="rest" whileHover="hover" animate="rest"
+                      data-cta={`hero:${talkCTA.text}`}
                       className="mt-1 inline-flex items-center gap-3 self-start rounded-full bg-black px-4 py-2 text-sm font-semibold text-white whitespace-nowrap overflow-hidden"
                     >
                       <div className="overflow-hidden" style={{ height: '1.25rem' }}>
