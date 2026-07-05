@@ -77,7 +77,10 @@ export default async function NewsletterPage(props: {
         ? 'A feliratkozáshoz nyisd meg a linket az e-mailünkből, vagy írj a hello@davelopment.hu címre.'
         : 'Open the link from our email to subscribe, or email hello@davelopment.hu.',
     },
-  }[result];
+    // Email clients often PREFETCH the link (subscribing before the user clicks), so a real
+    // click then hits the unique constraint. From the user's view they are subscribed either
+    // way + get the discount — always show the success page, never a confusing "already" text.
+  }[result === 'already' ? 'ok' : result];
 
   const F = "Geist,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 

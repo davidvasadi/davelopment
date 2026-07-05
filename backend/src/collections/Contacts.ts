@@ -132,7 +132,9 @@ export const Contacts: CollectionConfig = {
 
         // ── 2. Auto-reply a küldőnek (CMS-ből fetch-elt projektek + szolgáltatások) ─
         try {
-          const SITE = (process.env.NEXT_PUBLIC_SERVER_URL || 'https://davelopment.hu').replace(/\/+$/, '')
+          // Frontend public URL (davelopment.hu) — NOT NEXT_PUBLIC_SERVER_URL, which is the backend (localhost:1337).
+          // Used for both page links (newsletter, projects, services) and media (/api/media/... is served via nginx → backend).
+          const SITE = (process.env.NEXT_PUBLIC_SITE_URL || 'https://davelopment.hu').replace(/\/+$/, '')
           const locale = isHu ? 'hu' : 'en'
           const abs = (u: any) => !u ? '' : (String(u).startsWith('http') ? String(u) : SITE + String(u))
           const clip = (s: any, n: number) => !s ? '' : (String(s).length > n ? String(s).slice(0, n).trim() + '…' : String(s))
