@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { optimizeMediaHook, mediaBeforeChange, optimizeExistingMedia } from '../hooks/optimizeMedia'
+import { optimizeMediaHook, mediaBeforeChange, sanitizeUploadFilename, optimizeExistingMedia } from '../hooks/optimizeMedia'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -21,6 +21,7 @@ export const Media: CollectionConfig = {
     defaultColumns: ['filename', 'filesize_human', 'quality_status', 'mimeType', 'createdAt'],
   },
   hooks: {
+    beforeOperation: [sanitizeUploadFilename],
     beforeChange: [mediaBeforeChange],
     afterChange: [optimizeMediaHook],
   },

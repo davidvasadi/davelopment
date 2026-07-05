@@ -2,7 +2,7 @@ import { execFile } from 'child_process'
 import { promisify } from 'util'
 import fs from 'fs'
 import path from 'path'
-import type { CollectionAfterChangeHook, CollectionBeforeChangeHook, PayloadRequest } from 'payload'
+import type { CollectionAfterChangeHook, CollectionBeforeChangeHook, CollectionBeforeOperationHook, PayloadRequest } from 'payload'
 
 const execFileAsync = promisify(execFile)
 
@@ -45,6 +45,18 @@ function uniqueFilename(dir: string, filename: string): string {
   let i = 1
   while (fs.existsSync(path.join(dir, `${base}-${i}${ext}`))) i++
   return `${base}-${i}${ext}`
+}
+
+// ── Before operation — fájlnév sanitizálás MÉG mentés előtt ───────────────────
+// Így a Payload már a tiszta névvel írja ki a fő fájlt ÉS az összes méret-variánst
+// (thumbnail stb.), nincs utólagos átnevezés → nincs versenyhelyzet és nincs árva variáns.
+
+export const sanitizeUploadFilename: CollectionBeforeOperationHook = ({ req, operation }) => {
+  if ((operation === 'create' || operation === 'update') && (req as any).file?.name) {
+    const file = (req as any).file
+    file.name = sanitizeFilename(file.name)
+  }
+  return
 }
 
 // ── Before change — alt auto-fill + filesize_human + quality_status ───────────
@@ -284,21 +296,12 @@ export const optimizeMediaHook: CollectionAfterChangeHook = async ({ doc, operat
   if (!fs.existsSync(originalPath)) return doc
 
   ;(async () => {
-    // 1. Fájlnév sanitizálás
-    const sanitized = sanitizeFilename(filename)
-    let currentPath = originalPath
-    let currentFilename = filename
+    // A fájlnév már tiszta (sanitizeUploadFilename mentés előtt lefutott),
+    // ezért itt nincs átnevezés — csak tömörítés + poster.
+    const currentPath     = originalPath
+    const currentFilename = filename
 
-    if (sanitized !== filename) {
-      const newFilename = uniqueFilename(MEDIA_DIR, sanitized)
-      const newPath     = path.join(MEDIA_DIR, newFilename)
-      fs.renameSync(originalPath, newPath)
-      currentPath     = newPath
-      currentFilename = newFilename
-      logger.info(`[optimizeMedia] átnevezve: "${filename}" → "${newFilename}"`)
-    }
-
-    // 2. Tömörítés + poster generálás videóknál
+    // Tömörítés + poster generálás videóknál
     let newSize: number | null = null
     let posterFilename: string | null = null
     const originalSize = doc.filesize as number
