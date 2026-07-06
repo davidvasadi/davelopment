@@ -170,7 +170,9 @@ async function optimizeImage(filePath: string, mimeType: string, logger: any): P
     if (mimeType === 'image/jpeg' || mimeType === 'image/jpg')
       pipeline = pipeline.jpeg({ quality: 80, progressive: true, mozjpeg: true })
     else if (mimeType === 'image/png')
-      pipeline = pipeline.png({ compressionLevel: 9, quality: 80 })
+      // palette:true enables lossy quantization — WITHOUT it sharp ignores `quality` for PNG,
+      // which is why PNGs stayed multi-MB. effort:10 = best compression search.
+      pipeline = pipeline.png({ compressionLevel: 9, quality: 82, palette: true, effort: 10 })
     else if (mimeType === 'image/webp')
       pipeline = pipeline.webp({ quality: 80 })
     else return null
