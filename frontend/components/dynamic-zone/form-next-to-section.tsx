@@ -305,6 +305,8 @@ export function FormNextToSection({
       setSubmitSuccess(true);
       // GA4 conversion — main lead signal (only fires with analytics consent)
       try { sendGAEvent('event', 'generate_lead', { form: 'contact', page: pathname || '/' }); } catch {}
+      // Google Ads conversion — lead form submission (Consent Mode gates ad_storage/modeling)
+      try { sendGAEvent('event', 'conversion', { send_to: 'AW-18293961883/DVy4CKqjq8kcEJvpnpNE', value: 1.0, currency: 'HUF' }); } catch {}
       setFormData({ name: '', email: '', phone: '', message: '', projectType: '', budget: '', timeline: '', source: '' });
     } catch (err) {
       console.error('Beküldési hiba (hálózat):', err);

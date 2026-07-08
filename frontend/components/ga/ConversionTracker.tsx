@@ -10,7 +10,16 @@ import { sendGAEvent } from '@next/third-parties/google';
  *  - contact_click  → tel: (phone) and mailto: (email) links, anywhere on the site
  * Purely additive: it never changes navigation or link behaviour.
  */
+// Google Ads conversion account — configured alongside GA4 so the `conversion`
+// event (fired on form submit) can attribute. Consent Mode gates ad_storage.
+export const GOOGLE_ADS_ID = 'AW-18293961883';
+
 export function ConversionTracker() {
+  useEffect(() => {
+    // Register the Google Ads tag on top of the GA4 gtag.js already loaded by <GoogleAnalytics>.
+    try { (window as any).gtag?.('config', GOOGLE_ADS_ID); } catch {}
+  }, []);
+
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
