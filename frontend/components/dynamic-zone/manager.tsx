@@ -31,6 +31,7 @@ const componentMapping: { [key: string]: any } = {
   'faq': dynamic(() => import('./faq').then((mod) => mod.FAQ)),
   'related-products': dynamic(() => import('./related-products').then((mod) => mod.RelatedProducts)),
   'related-articles': dynamic(() => import('./related-articles').then((mod) => mod.RelatedArticles)),
+  'related-services': dynamic(() => import('./related-services').then((mod) => mod.RelatedServices)),
   'newsletter': dynamic(() => import('./newsletter').then((mod) => mod.Newsletter)),
   'products': dynamic(() => import('./projects').then((mod) => mod.Projects)),
   'macbook-scroll': dynamic(() => import('./macbook-scroll').then((mod) => mod.MacbookScrollSection)),
