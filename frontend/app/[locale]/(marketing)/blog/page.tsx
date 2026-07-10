@@ -5,7 +5,8 @@ import { type Metadata } from 'next';
 import ClientSlugHandler from '../ClientSlugHandler';
 import JsonLd from '@/components/seo/JsonLd';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
-import { webPageSchema, resolveSchema } from '@/lib/shared/structured-data';
+import { renderPageJsonLd } from '@/lib/shared/structured-data';
+import { getSiteLogoUrl } from '@/lib/shared/site-org';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import { localeSegments } from '@/lib/i18n/segments';
 import type { Article } from '@/types/types';
@@ -65,14 +66,20 @@ export default async function Blog(props: {
     {} as Record<string, string>
   );
 
-  const jsonLd = resolveSchema(
-    webPageSchema({
-      title: blogPage?.seo?.metaTitle || blogPage?.title || 'Blog',
-      description: blogPage?.seo?.metaDescription,
-      url: `${SITE_URL}/${params.locale}/blog`,
-    }),
-    blogPage?.seo?.structuredData
-  );
+  const jsonLd = renderPageJsonLd({
+    kind: 'collection',
+    logoUrl: await getSiteLogoUrl(),
+    url: blogPage?.seo?.canonicalURL || `${SITE_URL}/${params.locale}/blog`,
+    locale: params.locale,
+    title: blogPage?.seo?.metaTitle || blogPage?.title || 'Blog',
+    description: blogPage?.seo?.metaDescription,
+    dynamicZone: blogPage?.dynamic_zone,
+    items: articles
+      .filter((a) => (a as any)?.slug)
+      .map((a) => ({ name: (a as any).title || (a as any).slug, url: `${SITE_URL}/${params.locale}/blog/${(a as any).slug}` })),
+    breadcrumbs: [{ name: 'Blog', url: `${SITE_URL}/${params.locale}/blog` }],
+    override: blogPage?.seo?.structuredData,
+  });
 
   return (
     <div className="relative overflow-hidden pt-14">

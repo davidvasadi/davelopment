@@ -8,7 +8,8 @@ import ClientSlugHandler from '../../ClientSlugHandler';
 import PageContent from '@/lib/shared/PageContent';
 import JsonLd from '@/components/seo/JsonLd';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
-import { serviceSchema, resolveSchema } from '@/lib/shared/structured-data';
+import { renderPageJsonLd } from '@/lib/shared/structured-data';
+import { getSiteLogoUrl } from '@/lib/shared/site-org';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import { getLocalizedSegment } from '@/lib/i18n/segments';
 import { Container } from '@/components/container';
@@ -71,14 +72,22 @@ export default async function ServiceSlugPage(props: {
   ) ?? { [params.locale]: params.slug };
 
   const segment = getLocalizedSegment(params.locale, 'services');
-  const jsonLd = resolveSchema(
-    serviceSchema({
-      name: pageData?.seo?.metaTitle || pageData?.label || params.slug,
-      description: pageData?.seo?.metaDescription,
-      url: `${SITE_URL}/${params.locale}/${segment}/${params.slug}`,
-    }),
-    pageData?.seo?.structuredData
-  );
+  const ldUrl = pageData?.seo?.canonicalURL || `${SITE_URL}/${params.locale}/${segment}/${params.slug}`;
+  const ldTitle = pageData?.label || pageData?.seo?.metaTitle || params.slug;
+  const jsonLd = renderPageJsonLd({
+    kind: 'service',
+    logoUrl: await getSiteLogoUrl(),
+    url: ldUrl,
+    locale: params.locale,
+    title: ldTitle,
+    description: pageData?.seo?.metaDescription,
+    dynamicZone: pageData?.dynamic_zone,
+    breadcrumbs: [
+      { name: params.locale === 'en' ? 'Services' : 'Szolgáltatások', url: `${SITE_URL}/${params.locale}/${segment}` },
+      { name: ldTitle, url: ldUrl },
+    ],
+    override: pageData?.seo?.structuredData,
+  });
 
   return (
     <>

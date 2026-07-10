@@ -8,7 +8,8 @@ import PageContent from '@/lib/shared/PageContent';
 import { ServicesPage } from '@/components/services/services-page';
 import JsonLd from '@/components/seo/JsonLd';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
-import { webPageSchema, resolveSchema } from '@/lib/shared/structured-data';
+import { renderPageJsonLd } from '@/lib/shared/structured-data';
+import { getSiteLogoUrl } from '@/lib/shared/site-org';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import { localeSegments, getLocalizedSegment } from '@/lib/i18n/segments';
 import { Container } from '@/components/container';
@@ -151,14 +152,21 @@ const pagesWithImages = await Promise.all(
     );
 
     const segment = getLocalizedSegment(params.locale, 'services');
-    const jsonLd = resolveSchema(
-        webPageSchema({
-            title: pageData?.seo?.metaTitle || 'Services',
-            description: pageData?.seo?.metaDescription,
-            url: `${SITE_URL}/${params.locale}/${segment}`,
-        }),
-        pageData?.seo?.structuredData
-    );
+    const jsonLd = renderPageJsonLd({
+        kind: 'collection',
+        logoUrl: await getSiteLogoUrl(),
+        url: pageData?.seo?.canonicalURL || `${SITE_URL}/${params.locale}/${segment}`,
+        locale: params.locale,
+        title: pageData?.seo?.metaTitle || (params.locale === 'en' ? 'Services' : 'Szolgáltatások'),
+        description: pageData?.seo?.metaDescription,
+        // A szolgáltatás-lista FAQ-ja a `cta` zónában van (nem a dynamic_zone-ban) — mindkettőt átadjuk.
+        dynamicZone: [...(pageData?.dynamic_zone ?? []), ...(pageData?.cta ?? [])],
+        items: (pagesWithImages ?? [])
+            .filter((pg: any) => pg?.slug)
+            .map((pg: any) => ({ name: pg?.label || pg?.seo?.metaTitle || pg?.slug, url: `${SITE_URL}/${params.locale}/${segment}/${pg.slug}` })),
+        breadcrumbs: [{ name: params.locale === 'en' ? 'Services' : 'Szolgáltatások', url: `${SITE_URL}/${params.locale}/${segment}` }],
+        override: pageData?.seo?.structuredData,
+    });
 
     return (
         <>

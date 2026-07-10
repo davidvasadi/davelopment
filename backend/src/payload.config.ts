@@ -171,6 +171,46 @@ export default buildConfig({
     process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:1337',
   ],
 
+  endpoints: [
+    {
+      // Read-only proxy for the admin StructuredDataPreview: fetches the live
+      // frontend page server-side (same generator, no CORS) and returns its
+      // JSON-LD. Same-origin for the admin, so it works in dev AND production.
+      path: '/structured-data-preview',
+      method: 'get',
+      handler: async (req: any) => {
+        if (!req?.user) {
+          return Response.json({ error: 'unauthorized', blocks: [] }, { status: 401 })
+        }
+        let rawPath = ''
+        try {
+          rawPath = (req?.query?.path as string) || new URL(req.url).searchParams.get('path') || ''
+        } catch {
+          rawPath = (req?.query?.path as string) || ''
+        }
+        // Only allow site-relative paths (block protocol-relative / SSRF).
+        if (!rawPath.startsWith('/') || rawPath.startsWith('//') || rawPath.includes('://') || rawPath.includes('\\')) {
+          return Response.json({ error: 'invalid path', blocks: [] }, { status: 400 })
+        }
+        const base = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/+$/, '')
+        const url = `${base}${rawPath}`
+        try {
+          const res = await fetch(url, { cache: 'no-store' })
+          if (!res.ok) return Response.json({ url, error: `HTTP ${res.status}`, blocks: [] })
+          const html = await res.text()
+          const blocks = Array.from(
+            html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi),
+          )
+            .map((m) => (m[1] || '').trim())
+            .filter(Boolean)
+          return Response.json({ url, blocks })
+        } catch (e: any) {
+          return Response.json({ url, error: String(e?.message || e), blocks: [] })
+        }
+      },
+    },
+  ],
+
   plugins: [
     // seoPlugin temporarily disabled for debugging
     // seoPlugin({...}),

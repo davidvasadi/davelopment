@@ -11,7 +11,8 @@ import { Heading } from '@/components/elements/heading';
 import { Subheading } from '@/components/elements/subheading';
 import { Featured } from '@/components/products/featured';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
-import { webPageSchema, resolveSchema } from '@/lib/shared/structured-data';
+import { renderPageJsonLd } from '@/lib/shared/structured-data';
+import { getSiteLogoUrl } from '@/lib/shared/site-org';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import { localeSegments, getLocalizedSegment } from '@/lib/i18n/segments';
 import type { Product } from '@/types/types';
@@ -93,14 +94,20 @@ export default async function Products(props: {
     : allProducts.filter((p) => p.featured);
 
   const segment = getLocalizedSegment(params.locale, 'products');
-  const jsonLd = resolveSchema(
-    webPageSchema({
-      title: productPage?.seo?.metaTitle || productPage?.heading || 'Products',
-      description: productPage?.seo?.metaDescription,
-      url: `${SITE_URL}/${params.locale}/${segment}`,
-    }),
-    productPage?.seo?.structuredData
-  );
+  const jsonLd = renderPageJsonLd({
+    kind: 'collection',
+    logoUrl: await getSiteLogoUrl(),
+    url: productPage?.seo?.canonicalURL || `${SITE_URL}/${params.locale}/${segment}`,
+    locale: params.locale,
+    title: productPage?.seo?.metaTitle || productPage?.heading || (params.locale === 'en' ? 'Projects' : 'Projektek'),
+    description: productPage?.seo?.metaDescription,
+    dynamicZone: productPage?.dynamic_zone,
+    items: allProducts
+      .filter((p) => (p as any)?.slug)
+      .map((p) => ({ name: (p as any).name || (p as any).slug, url: `${SITE_URL}/${params.locale}/${segment}/${(p as any).slug}` })),
+    breadcrumbs: [{ name: params.locale === 'en' ? 'Projects' : 'Projektek', url: `${SITE_URL}/${params.locale}/${segment}` }],
+    override: productPage?.seo?.structuredData,
+  });
 
   return (
     <div className="relative overflow-hidden mx-0 md:mx-auto">

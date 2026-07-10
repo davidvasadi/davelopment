@@ -6,7 +6,8 @@ import ClientSlugHandler from '../ClientSlugHandler';
 import PageContent from '@/lib/shared/PageContent';
 import JsonLd from '@/components/seo/JsonLd';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
-import { webPageSchema, resolveSchema } from '@/lib/shared/structured-data';
+import { renderPageJsonLd } from '@/lib/shared/structured-data';
+import { getSiteLogoUrl } from '@/lib/shared/site-org';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import  {notFound}  from 'next/navigation';
 
@@ -61,14 +62,16 @@ export default async function Page(props: {
     { [params.locale]: params.slug }
   );
 
-  const jsonLd = resolveSchema(
-    webPageSchema({
-      title: pageData?.seo?.metaTitle || pageData?.label || params.slug,
-      description: pageData?.seo?.metaDescription,
-      url: `${SITE_URL}/${params.locale}/${params.slug}`,
-    }),
-    pageData?.seo?.structuredData
-  );
+  const jsonLd = renderPageJsonLd({
+    kind: 'webpage',
+    logoUrl: await getSiteLogoUrl(),
+    url: pageData?.seo?.canonicalURL || `${SITE_URL}/${params.locale}/${params.slug}`,
+    locale: params.locale,
+    title: pageData?.label || pageData?.seo?.metaTitle || params.slug,
+    description: pageData?.seo?.metaDescription,
+    dynamicZone: pageData?.dynamic_zone,
+    override: pageData?.seo?.structuredData,
+  });
 
   return (
     <>

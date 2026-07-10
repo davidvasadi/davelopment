@@ -8,7 +8,8 @@ import { BlogLayout } from '@/components/blog-layout';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
-import { articleSchema, resolveSchema } from '@/lib/shared/structured-data';
+import { renderPageJsonLd } from '@/lib/shared/structured-data';
+import { getSiteLogoUrl } from '@/lib/shared/site-org';
 import type { Metadata } from 'next';
 import type { Article } from '@/types/types';
 
@@ -96,17 +97,25 @@ export default async function SingleArticlePage(props: {
     { [params.locale]: params.slug }
   );
 
-  const jsonLd = resolveSchema(
-    articleSchema({
-      title: article.seo?.metaTitle || article.title,
-      description: article.seo?.metaDescription,
-      imageUrl: article.image?.url ? strapiImage(article.image.url) : null,
-      publishedAt: article.publishedAt || article.createdAt,
-      updatedAt: article.updatedAt,
-      url: `${SITE_URL}/${params.locale}/blog/${params.slug}`,
-    }),
-    article.seo?.structuredData
-  );
+  const ldUrl = article.seo?.canonicalURL || `${SITE_URL}/${params.locale}/blog/${params.slug}`;
+  const ldTitle = article.title || article.seo?.metaTitle;
+  const jsonLd = renderPageJsonLd({
+    kind: 'article',
+    logoUrl: await getSiteLogoUrl(),
+    url: ldUrl,
+    locale: params.locale,
+    title: ldTitle,
+    description: article.seo?.metaDescription,
+    imageUrl: article.image?.url ? strapiImage(article.image.url) : null,
+    publishedAt: article.publishedAt || article.createdAt,
+    updatedAt: article.updatedAt,
+    dynamicZone: (article as any).dynamic_zone,
+    breadcrumbs: [
+      { name: 'Blog', url: `${SITE_URL}/${params.locale}/blog` },
+      { name: ldTitle, url: ldUrl },
+    ],
+    override: article.seo?.structuredData,
+  });
 
   return (
     <>

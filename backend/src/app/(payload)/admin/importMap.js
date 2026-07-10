@@ -34,6 +34,7 @@ import { BeforeLogin as BeforeLogin_419a8da2bc438d88facd06b1b2091c5d } from '../
 import { MarketingView as MarketingView_5654287f91358399e988872118c752e1 } from '../../../components/MarketingView'
 import { CommunicationsView as CommunicationsView_33a06190af0161de7ec402f0d05d1d38 } from '../../../components/CommunicationsView'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
+import { StructuredDataPreview as StructuredDataPreview_seopreview } from '../../../components/StructuredDataPreview'
 
 export const importMap = {
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -71,5 +72,6 @@ export const importMap = {
   "./components/BeforeLogin#BeforeLogin": BeforeLogin_419a8da2bc438d88facd06b1b2091c5d,
   "./components/MarketingView#MarketingView": MarketingView_5654287f91358399e988872118c752e1,
   "./components/CommunicationsView#CommunicationsView": CommunicationsView_33a06190af0161de7ec402f0d05d1d38,
-  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
+  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
+  "./components/StructuredDataPreview#StructuredDataPreview": StructuredDataPreview_seopreview
 }

@@ -38,9 +38,22 @@ export const seoField = (): Field => ({
       label: 'Meta robots',
     },
     {
+      name: 'structuredDataPreview',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: './components/StructuredDataPreview#StructuredDataPreview',
+        },
+      },
+    },
+    {
       name: 'structuredData',
       type: 'json',
-      label: 'Strukturált adat (JSON-LD)',
+      label: 'Strukturált adat — kézi felülírás (opcionális)',
+      admin: {
+        description:
+          'Alapból hagyd üresen — a strukturált adat automatikusan generálódik a tartalomból (lásd fent az élő előnézetet). Csak akkor tölts ide teljes @graph JSON-t, ha kézzel felül akarod írni.',
+      },
     },
     {
       name: 'metaViewport',

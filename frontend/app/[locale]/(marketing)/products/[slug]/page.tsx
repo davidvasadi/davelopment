@@ -9,7 +9,8 @@ import DynamicZoneManager from '@/components/dynamic-zone/manager';
 import { SingleProduct } from '@/components/products/single-product';
 import JsonLd from '@/components/seo/JsonLd';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
-import { serviceSchema, resolveSchema } from '@/lib/shared/structured-data';
+import { renderPageJsonLd } from '@/lib/shared/structured-data';
+import { getSiteLogoUrl } from '@/lib/shared/site-org';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import { getLocalizedSegment } from '@/lib/i18n/segments';
 import type { Product } from '@/types/types';
@@ -74,14 +75,22 @@ export default async function SingleProductPage(props: {
     ) ?? { [params.locale]: params.slug };
 
   const segment = getLocalizedSegment(params.locale, 'products');
-  const jsonLd = resolveSchema(
-    serviceSchema({
-      name: (product as any)?.seo?.metaTitle || (product as any)?.title || params.slug,
-      description: (product as any)?.seo?.metaDescription,
-      url: `${SITE_URL}/${params.locale}/${segment}/${params.slug}`,
-    }),
-    (product as any)?.seo?.structuredData
-  );
+  const ldUrl = (product as any)?.seo?.canonicalURL || `${SITE_URL}/${params.locale}/${segment}/${params.slug}`;
+  const ldTitle = (product as any)?.name || (product as any)?.seo?.metaTitle || params.slug;
+  const jsonLd = renderPageJsonLd({
+    kind: 'product',
+    logoUrl: await getSiteLogoUrl(),
+    url: ldUrl,
+    locale: params.locale,
+    title: ldTitle,
+    description: (product as any)?.seo?.metaDescription,
+    dynamicZone: (product as any)?.dynamic_zone,
+    breadcrumbs: [
+      { name: params.locale === 'en' ? 'Projects' : 'Projektek', url: `${SITE_URL}/${params.locale}/${segment}` },
+      { name: ldTitle, url: ldUrl },
+    ],
+    override: (product as any)?.seo?.structuredData,
+  });
 
   return (
     <div className="relative overflow-hidden w-full px-2 md:px-10">
