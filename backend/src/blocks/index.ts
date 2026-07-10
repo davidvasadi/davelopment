@@ -13,6 +13,10 @@ const inlineButtonFields: Field[] = [
     name: 'URL',
     type: 'text',
     label: 'URL',
+    admin: {
+      description:
+        'Link (pl. /kapcsolat) VAGY görgetés az oldalon lévő szekcióhoz: #form-section (kapcsolati űrlap), #pricing (árak), #faq (GYIK), #cta, #services, #testimonials. A #-es cél az AKTUÁLIS oldalon, simán, tiszta URL-lel görget — mindkét nyelven ugyanaz az érték.',
+    },
   },
   {
     name: 'target',
@@ -51,6 +55,10 @@ const inlineLinkFields: Field[] = [
     name: 'URL',
     type: 'text',
     label: 'URL',
+    admin: {
+      description:
+        'Link (pl. /kapcsolat) VAGY görgetés az oldalon lévő szekcióhoz: #form-section (kapcsolati űrlap), #pricing (árak), #faq (GYIK), #cta, #services, #testimonials. A #-es cél az AKTUÁLIS oldalon, simán, tiszta URL-lel görget — mindkét nyelven ugyanaz az érték.',
+    },
   },
   {
     name: 'target',

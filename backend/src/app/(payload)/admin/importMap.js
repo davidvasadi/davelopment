@@ -21,6 +21,7 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { StructuredDataPreview as StructuredDataPreview_2189e01bcb4d5c56e657ab1e5ea5bfa3 } from '../../../components/StructuredDataPreview'
 import { FolderTableCell as FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { FolderField as FolderField_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { FolderTypeField as FolderTypeField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
@@ -34,7 +35,6 @@ import { BeforeLogin as BeforeLogin_419a8da2bc438d88facd06b1b2091c5d } from '../
 import { MarketingView as MarketingView_5654287f91358399e988872118c752e1 } from '../../../components/MarketingView'
 import { CommunicationsView as CommunicationsView_33a06190af0161de7ec402f0d05d1d38 } from '../../../components/CommunicationsView'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
-import { StructuredDataPreview as StructuredDataPreview_seopreview } from '../../../components/StructuredDataPreview'
 
 export const importMap = {
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -60,6 +60,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "./components/StructuredDataPreview#StructuredDataPreview": StructuredDataPreview_2189e01bcb4d5c56e657ab1e5ea5bfa3,
   "@payloadcms/next/rsc#FolderTableCell": FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@payloadcms/next/rsc#FolderField": FolderField_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@payloadcms/next/client#FolderTypeField": FolderTypeField_2b8867833a34864a02ddf429b0728a40,
@@ -72,6 +73,5 @@ export const importMap = {
   "./components/BeforeLogin#BeforeLogin": BeforeLogin_419a8da2bc438d88facd06b1b2091c5d,
   "./components/MarketingView#MarketingView": MarketingView_5654287f91358399e988872118c752e1,
   "./components/CommunicationsView#CommunicationsView": CommunicationsView_33a06190af0161de7ec402f0d05d1d38,
-  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
-  "./components/StructuredDataPreview#StructuredDataPreview": StructuredDataPreview_seopreview
+  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

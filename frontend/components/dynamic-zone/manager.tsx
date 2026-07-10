@@ -46,11 +46,15 @@ const DynamicZoneManager: React.FC<Props> = ({ dynamicZone, locale }) => {
           return null;
         }
         return (
-          <Component
+          // Anchor wrapper: every section is scrollable via #blockType
+          // (e.g. #form-section, #cta, #pricing). scroll-mt offsets the navbar.
+          <div
             key={`${componentData.blockType}-${componentData.id ?? index}-${index}`}
-            {...componentData}
-            locale={locale}
-          />
+            id={componentData.blockType}
+            className="scroll-mt-24"
+          >
+            <Component {...componentData} locale={locale} />
+          </div>
         );
       })}
     </div>
