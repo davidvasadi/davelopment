@@ -13,7 +13,6 @@ import { getSiteLogoUrl } from '@/lib/shared/site-org';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import { getLocalizedSegment } from '@/lib/i18n/segments';
 import { Container } from '@/components/container';
-import { OtherServices } from '@/components/services/other-services';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://davelopment.hu').replace(/\/+$/, '');
 
@@ -90,52 +89,13 @@ export default async function ServiceSlugPage(props: {
     override: pageData?.seo?.structuredData,
   });
 
-  // „További szolgáltatások" — a Szolgáltatások global oldal-listájából, az
-  // éppen nyitott oldalt kiszűrve. Minden oldalhoz a hero videó-poszter a thumbnail
-  // (ugyanaz a forrás, mint a listaoldalon).
-  const serviceGlobal = await fetchContentType(
-    'service',
-    { locale: params.locale, populate: { pages: true } },
-    true
-  ).catch(() => null);
-
-  const otherServices = await Promise.all(
-    (serviceGlobal?.pages ?? [])
-      .filter((p: any) => p?.slug && p.slug !== params.slug)
-      .map(async (page: any) => {
-        const fullPage = await fetchContentType(
-          'pages',
-          {
-            filters: { slug: page.slug, locale: params.locale },
-            populate: { dynamic_zone: { populate: '*' } },
-          },
-          true
-        ).catch(() => null);
-        const hero = fullPage?.dynamic_zone?.find((c: any) => c.blockType === 'hero');
-        return { ...page, video_poster: hero?.video_poster ?? null };
-      })
-  );
-
-  // Ha a szerkesztő berakott egy „Kapcsolódó szolgáltatások" blokkot a tartalomba,
-  // oda injektáljuk a listát (a blokk bárhová húzható — pl. CTA és árazás közé).
-  // Ha nincs ilyen blokk, a lap aljára tesszük (alapértelmezett).
-  const zone: any[] = pageData?.dynamic_zone ?? [];
-  const hasRelatedBlock = zone.some((b: any) => b?.blockType === 'related-services');
-  const contentData = hasRelatedBlock
-    ? {
-        ...pageData,
-        dynamic_zone: zone.map((b: any) =>
-          b?.blockType === 'related-services' ? { ...b, services: otherServices } : b
-        ),
-      }
-    : pageData;
-
   return (
     <>
       <JsonLd data={jsonLd} />
       <ClientSlugHandler localizedSlugs={localizedSlugs} />
-      <PageContent pageData={contentData} locale={params.locale} />
-      {!hasRelatedBlock && <OtherServices pages={otherServices} locale={params.locale} />}
+         {/* <Container> */}
+      <PageContent pageData={pageData} locale={params.locale} />
+        {/* </Container> */}
     </>
   );
 }

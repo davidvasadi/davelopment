@@ -1187,38 +1187,6 @@ export const RelatedProductsBlock: Block = {
   ],
 }
 
-// ─── RelatedServicesBlock ─────────────────────────────────────────────────────
-// Tartalma AUTOMATIKUS: a Szolgáltatások lista többi oldala (az éppen nyitott
-// oldalt kiszűrve), a global sorrendjében. Nincs kézi választó — a blokkot csak
-// oda húzod a tartalomban, ahova a szekciót szeretnéd (pl. CTA és árazás közé).
-export const RelatedServicesBlock: Block = {
-  slug: 'related-services',
-  labels: {
-    singular: 'Kapcsolódó szolgáltatások blokk',
-    plural: 'Kapcsolódó szolgáltatások blokkok',
-  },
-  fields: [
-    {
-      name: 'heading',
-      type: 'text',
-      label: 'Főcím',
-      localized: true,
-      admin: {
-        description: 'Üresen hagyva: „További szolgáltatások" / „More services".',
-      },
-    },
-    {
-      name: 'badge_label',
-      type: 'text',
-      label: 'Badge felirat',
-      localized: true,
-      admin: {
-        description: 'A kis felirat a cím fölött. Üresen: „Fedezd fel" / „Discover".',
-      },
-    },
-  ],
-}
-
 // ─── WhyChooseUsBlock ─────────────────────────────────────────────────────────
 
 export const WhyChooseUsBlock: Block = {
@@ -1568,7 +1536,6 @@ export const allBlocks: Block[] = [
   ProductsBlock,
   RelatedArticlesBlock,
   RelatedProductsBlock,
-  RelatedServicesBlock,
   WhyChooseUsBlock,
   FormNextToSectionBlock,
   MacbookScrollBlock,
