@@ -162,5 +162,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
+  // ── Generic content / landing pages (pages collection, non-service) ──────────
+  // Anything in the pages collection that isn't a service sub-page, isn't already
+  // covered as a static route, and isn't noindexed — e.g. /hu/weboldal-keszites.
+  // Dynamic, so future landing pages (marketing, etc.) appear automatically.
+  const coveredSlugs = new Set<string>([
+    'homepage', 'arak', 'kapcsolat', 'adatkezeles',
+    ...servicePageSlugs,
+  ]);
+
+  for (const page of huPages) {
+    if (!page.slug || coveredSlugs.has(page.slug)) continue;
+    if (page?.seo?.noindex) continue;
+    const enAlt = enPages.find((e: any) => e.id === page.id || e.slug === page.slug);
+    const enSlug = enAlt?.slug ?? page.slug;
+    entries.push({
+      url: `${BASE}/hu/${page.slug}`,
+      lastModified: new Date(page.updatedAt ?? now),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+      alternates: {
+        languages: {
+          hu: `${BASE}/hu/${page.slug}`,
+          en: `${BASE}/en/${enSlug}`,
+          'x-default': `${BASE}/hu/${page.slug}`,
+        },
+      },
+    });
+  }
+
   return entries;
 }
