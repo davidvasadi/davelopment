@@ -39,13 +39,17 @@ const nextConfig = {
   async headers() {
     // Dev needs the local Payload API + HMR websocket; prod is same-origin.
     const devConnect = isDev ? ' http://localhost:1337 http://localhost:3000 ws://localhost:3000' : '';
+    // Dev only: media/images are served from the local Payload (localhost:1337).
+    // In production they are same-origin (davelopment.hu), so this is empty.
+    const devMedia = isDev ? ' http://localhost:1337' : '';
     const cspParts = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com https://*.google-analytics.com https://*.googleadservices.com https://*.google.com https://*.doubleclick.net",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https:",
+      `img-src 'self' data: blob: https:${devMedia}`,
+      `media-src 'self'${devMedia}`,
       "font-src 'self' data:",
-      `connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.googleadservices.com https://*.doubleclick.net https://davelopment.hu${devConnect}`,
+      `connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.googleadservices.com https://*.google.com https://*.googlesyndication.com https://*.doubleclick.net https://davelopment.hu${devConnect}`,
       "frame-src 'self' https://*.doubleclick.net https://*.google.com",
       "object-src 'none'",
       "base-uri 'self'",
