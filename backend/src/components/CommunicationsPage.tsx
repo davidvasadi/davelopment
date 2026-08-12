@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useStepNav } from '@payloadcms/ui'
 
-interface Lead { id: string; name?: string; email?: string; message?: string; page?: string; language?: string; state?: string; createdAt: string }
+interface Lead { id: string; name?: string; email?: string; phone?: string; message?: string; page?: string; language?: string; state?: string; createdAt: string }
 interface Subscriber { id: string; email: string; name?: string; language?: string; confirmed?: boolean; unsubscribed?: boolean; createdAt: string }
 interface Campaign { id: string; subject?: string; ref_id?: string; sentCount?: number; fullHtml?: string; isTest?: boolean; createdAt: string; recipients?: string[]; language?: string }
 interface Stats { ok: boolean; newLeads: number; totalLeads: number; activeSubs: number; newSubs: number; monthSent: number; prevMonthSent: number; huSubs?: number; enSubs?: number; totalSubs?: number }
@@ -242,6 +242,14 @@ function LeadModal({ lead, onClose, onUpdate }: { lead: Lead; onClose: () => voi
               <a href={`mailto:${lead.email}`} style={{ color: '#0067eb' }}>{lead.email}</a>
             </div>
           </div>
+          {lead.phone && (
+            <div className="cp-detail-row">
+              <div className="cp-detail-label">Telefon</div>
+              <div className="cp-detail-value">
+                <a href={`tel:${lead.phone}`} style={{ color: '#0067eb' }}>{lead.phone}</a>
+              </div>
+            </div>
+          )}
           {lead.language && (
             <div className="cp-detail-row">
               <div className="cp-detail-label">Nyelv</div>

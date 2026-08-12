@@ -138,6 +138,7 @@ export function FormNextToSection({
           nameRequired: 'A név megadása kötelező.',
           emailRequired: 'Az email megadása kötelező.',
           emailInvalid: 'Érvényes email címet adj meg.',
+          phoneRequired: 'A telefonszám megadása kötelező.',
           messageRequired: 'Az üzenet megadása kötelező.',
           submitFailed: 'Beküldés sikertelen. Próbáld újra.',
           networkError: 'Hálózati hiba. Próbáld újra.',
@@ -148,6 +149,7 @@ export function FormNextToSection({
           nameRequired: 'Your name is required.',
           emailRequired: 'E-mail is required.',
           emailInvalid: 'Please enter a valid e-mail address.',
+          phoneRequired: 'Phone number is required.',
           messageRequired: 'Message is required.',
           submitFailed: 'Submission failed. Please try again.',
           networkError: 'Network error. Please try again.',
@@ -162,6 +164,7 @@ export function FormNextToSection({
   const [showAlert, setShowAlert]         = useState(false);
   const [nameError, setNameError]         = useState<string | null>(null);
   const [emailError, setEmailError]       = useState<string | null>(null);
+  const [phoneError, setPhoneError]       = useState<string | null>(null);
   const [messageError, setMessageError]   = useState<string | null>(null);
 
   // ── Mezők kigyűjtése role alapján ──
@@ -247,6 +250,7 @@ export function FormNextToSection({
     let valid = true;
     setNameError(null);
     setEmailError(null);
+    setPhoneError(null);
     setMessageError(null);
 
     if (!formData.name.trim()) { setNameError(messages.nameRequired); valid = false; }
@@ -255,6 +259,7 @@ export function FormNextToSection({
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       setEmailError(messages.emailInvalid); valid = false;
     }
+    if (!formData.phone.trim()) { setPhoneError(messages.phoneRequired); valid = false; }
     if (SHOW_MESSAGE && !formData.message.trim()) { setMessageError(messages.messageRequired); valid = false; }
 
     return valid;
@@ -282,6 +287,7 @@ export function FormNextToSection({
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
+          phone: formData.phone,
           message: formData.message,
           projectType: formData.projectType || undefined,
           budget: formData.budget || undefined,
@@ -445,7 +451,7 @@ export function FormNextToSection({
                       </div>
                     )}
 
-                    {/* TELEFON — opcionális, nincs kötelező validáció */}
+                    {/* TELEFON */}
                     {phoneInput && (
                       <div>
                         <p className="text-xs font-medium text-black/80 mb-1">{phoneInput.name}</p>
@@ -455,8 +461,9 @@ export function FormNextToSection({
                           value={formData.phone}
                           onChange={handleChange}
                           placeholder={phoneInput.placeholder ?? phoneInput.name}
-                          className={inputCls(false)}
+                          className={inputCls(!!phoneError)}
                         />
+                        {phoneError && <p className="text-sm text-red-600 mt-1">{phoneError}</p>}
                       </div>
                     )}
 

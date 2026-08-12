@@ -117,6 +117,7 @@ export const Contacts: CollectionConfig = {
             html: buildContactAdminHtml({
             name: doc.name || '',
             email: doc.email,
+            phone: doc.phone || '',
             message: doc.message || '',
             page: doc.page || '',
             adminUrl,
@@ -235,6 +236,11 @@ export const Contacts: CollectionConfig = {
       type: 'email',
       label: 'Email',
       required: true,
+    },
+    {
+      name: 'phone',
+      type: 'text',
+      label: 'Telefon',
     },
     {
       name: 'message',
