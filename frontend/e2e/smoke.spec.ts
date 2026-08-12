@@ -102,6 +102,10 @@ test('kapcsolat form: megtalálható és beküldhető', async ({ page, request }
   const nameInput = page.locator('input[type="text"]').first()
   await nameInput.fill('E2E Teszt')
   await emailInput.fill(TEST_EMAIL)
+  const phoneInput = page.locator('input[type="tel"]').first()
+  if (await phoneInput.isVisible()) {
+    await phoneInput.fill('+36301234567')
+  }
   const textarea = page.locator('textarea').first()
   if (await textarea.isVisible()) {
     await textarea.fill('Automatikus e2e teszt üzenet.')
