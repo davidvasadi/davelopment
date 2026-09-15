@@ -1501,7 +1501,7 @@ export function CommunicationsPage() {
                   </div>
                 </div>
                 <div className="cp-sidebar-card-body">
-                  <input className="cp-input" type="email" value={testEmail} onChange={e => setTestEmail(e.target.value)} placeholder="hello.davelopment@gmail.com" style={{ width: '100%' }} />
+                  <input className="cp-input" type="email" value={testEmail} onChange={e => setTestEmail(e.target.value)} placeholder="hello@davelopment.hu" style={{ width: '100%' }} />
                   <button className="cp-btn cp-btn-ghost" onClick={() => sendCampaign(true)} disabled={sendingTest || !testEmail || !campaignSubject} style={{ width: '100%', justifyContent: 'center' }}>
                     {sendingTest ? <><Spinner /> Küldés...</> : '↗ Teszt elküldése'}
                   </button>
@@ -1575,7 +1575,7 @@ export function CommunicationsPage() {
                   { k: 'API kulcs', v: '.env-ből betöltve' },
                   { k: 'Feladó', v: 'hello@davelopment.hu' },
                   { k: 'Domain', v: 'davelopment.hu ✓ Verified' },
-                  { k: 'Értesítések', v: 'hello.davelopment@gmail.com' },
+                  { k: 'Értesítések', v: 'hello@davelopment.hu' },
                   { k: 'Free tier', v: '3 000 email/hó · 100/nap' },
                 ],
               },
@@ -1593,7 +1593,7 @@ export function CommunicationsPage() {
                 icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
                 rows: [
                   { k: 'RESEND_API_KEY', v: 'GitHub Secrets ✓' },
-                  { k: 'NOTIFY_EMAIL', v: 'hello.davelopment@gmail.com' },
+                  { k: 'NOTIFY_EMAIL', v: 'hello@davelopment.hu' },
                 ],
               },
             ].map(s => (
