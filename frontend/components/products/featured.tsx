@@ -197,6 +197,10 @@ const LargeTile: React.FC<TileBase & { arrowClassName?: string }> = ({
   const href  = `/${locale}/products/${product.slug}`;
   const label = product.categories?.[0]?.name;
 
+  // Hosszú cím esetén kisebb betűméret, hogy ne törjön csúnyán szó közepén
+  const nameLength = product.name?.length ?? 0;
+  const titleSizeClass = nameLength > 20 ? 'text-4xl md:text-5xl' : 'text-4xl md:text-8xl';
+
   return (
     <motion.div
       className={`rounded-[6px] overflow-hidden ${className}`}
@@ -210,7 +214,7 @@ const LargeTile: React.FC<TileBase & { arrowClassName?: string }> = ({
               <span className="text-white text-xl md:text-4xl font-medium tracking-tight leading-tight">{label}</span>
               <ArrowBadge iconClassName={arrowClassName ?? 'text-white'} />
             </div>
-            <h2 className="text-4xl md:text-8xl font-medium tracking-tight text-white mt-6 md:mt-16 lg:mt-40 xl:mt-60 leading-none break-words">
+            <h2 className={`${titleSizeClass} font-medium tracking-tight text-white mt-6 md:mt-16 lg:mt-40 xl:mt-60 leading-none break-words`}>
               {product.name}
             </h2>
           </div>

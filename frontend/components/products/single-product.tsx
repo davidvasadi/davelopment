@@ -67,6 +67,13 @@ export const SingleProduct = ({
   const heroImageUrl = !isHeroVideo && product.media?.url ? strapiImage(product.media.url) : null;
   const hasHeroMedia = !!(heroVideoUrl || heroImageUrl);
 
+  // Hosszú cím esetén kisebb betűméret, hogy ne törjön csúnyán szó közepén
+  const nameLength = product.name?.length ?? 0;
+  const titleSizeClass =
+    nameLength > 20 ? 'text-4xl md:text-7xl' :
+    nameLength > 12 ? 'text-5xl md:text-8xl' :
+    'text-6xl md:text-[140px]';
+
   const [activeThumbnail] = useState<string>(
     galleryImages[0] ? strapiImage(galleryImages[0].url) : ''
   );
@@ -146,7 +153,7 @@ export const SingleProduct = ({
         )}
 
         <motion.h2
-          className={`relative z-10 text-6xl md:text-[140px] font-semibold mb-4 max-w-4xl break-words ${
+          className={`relative z-10 ${titleSizeClass} font-semibold mb-4 max-w-4xl break-words ${
             hasHeroMedia ? 'text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.55)]' : 'text-black'
           }`}
           {...fadeUp(0.05, 50)}
