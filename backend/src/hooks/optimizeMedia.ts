@@ -143,10 +143,10 @@ async function optimizeVideo(filePath: string, logger: any): Promise<number | nu
   try {
     await execFileAsync('ffmpeg', [
       '-i', filePath,
-      '-c:v', 'libx264', '-crf', '28', '-preset', 'medium',
+      '-c:v', 'libx264', '-crf', '23', '-preset', 'slow',
       '-an',
       '-movflags', '+faststart',
-      '-vf', "scale=w='min(1920,iw)':h=-2",
+      '-vf', "scale=w='min(1280,iw)':h=-2",
       '-y', tmpPath,
     ])
     const { size } = fs.statSync(tmpPath)

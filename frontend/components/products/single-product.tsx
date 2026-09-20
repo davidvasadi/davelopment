@@ -62,6 +62,11 @@ export const SingleProduct = ({
 
   const galleryImages = product.images?.slice(1) ?? [];
 
+  const isHeroVideo = !!product.media?.mimeType?.startsWith('video/');
+  const heroVideoUrl = isHeroVideo && product.media?.url ? strapiImage(product.media.url) : null;
+  const heroImageUrl = !isHeroVideo && product.media?.url ? strapiImage(product.media.url) : null;
+  const hasHeroMedia = !!(heroVideoUrl || heroImageUrl);
+
   const [activeThumbnail] = useState<string>(
     galleryImages[0] ? strapiImage(galleryImages[0].url) : ''
   );
@@ -88,33 +93,71 @@ export const SingleProduct = ({
     { label: isHu ? 'Időkeret' : 'Timeline',    value: timeline },
   ].filter((row) => row.value);
 
+  const badgeAndDescription = (
+    <motion.div
+      className="flex flex-col md:flex-row justify-start md:justify-between"
+      {...fadeUp(0.1, 30)}
+    >
+      <div className="flex text-sm text-black font-semibold mb-4">
+        <span>
+          <PlusIcon className="inline-block w-5 h-5 mr-1 bg-black text-white rounded-full p-1" />
+        </span>
+        {product.badge_label}
+      </div>
+      <p className="font-regular mb-4 text-black max-w-lg indent-16 text-lg">
+        {product.description}
+      </p>
+    </motion.div>
+  );
+
   return (
     <Container>
     <div className="">
 
-      {/* FELSŐ HEADING + LEÍRÁS */}
-      <motion.section className="my-12 mt-[200px] md:mt-[150px]" {...fadeUp(0)}>
+      {/* FELSŐ HEADING — a média (kép/videó) a cím mögött, háttérként jelenik meg, ha van. A leírás médiánál kívül kerül. */}
+      <motion.section
+        className={`relative ${hasHeroMedia ? 'mb-12' : 'my-12 mt-[200px] md:mt-[150px]'} ${
+          hasHeroMedia
+            ? 'rounded-2xl overflow-hidden px-6 py-12 md:px-16 md:py-20 min-h-[480px] md:min-h-[700px] flex flex-col justify-end'
+            : ''
+        }`}
+        {...fadeUp(0)}
+      >
+        {heroVideoUrl && (
+          <video
+            className="absolute inset-0 h-full w-full object-cover z-0"
+            src={heroVideoUrl}
+            autoPlay
+            loop
+            muted
+            playsInline
+          />
+        )}
+        {!heroVideoUrl && heroImageUrl && (
+          <StrapiImage
+            src={heroImageUrl}
+            alt={product.name}
+            fill
+            className="absolute inset-0 h-full w-full object-cover z-0"
+          />
+        )}
+        {hasHeroMedia && (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent z-[1]" />
+        )}
+
         <motion.h2
-className="text-6xl md:text-[140px] font-semibold mb-4 text-black max-w-4xl"          {...fadeUp(0.05, 50)}
+          className={`relative z-10 text-6xl md:text-[140px] font-semibold mb-4 max-w-4xl break-words ${
+            hasHeroMedia ? 'text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.55)]' : 'text-black'
+          }`}
+          {...fadeUp(0.05, 50)}
         >
           {product.name}
         </motion.h2>
 
-        <motion.div
-          className="flex flex-col md:flex-row justify-start md:justify-between mt-[100px]"
-          {...fadeUp(0.1, 30)}
-        >
-          <div className="flex text-sm text-black font-semibold mb-4">
-            <span>
-              <PlusIcon className="inline-block w-5 h-5 mr-1 bg-black text-white rounded-full p-1" />
-            </span>
-            {product.badge_label}
-          </div>
-          <p className="font-regular mb-4 text-black max-w-lg indent-16 text-lg">
-            {product.description}
-          </p>
-        </motion.div>
+        {!hasHeroMedia && <div className="mt-[100px]">{badgeAndDescription}</div>}
       </motion.section>
+
+      {hasHeroMedia && <div className="mb-16">{badgeAndDescription}</div>}
 
       <div>
 

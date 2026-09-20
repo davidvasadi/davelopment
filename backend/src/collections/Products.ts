@@ -150,6 +150,15 @@ export const Products: CollectionConfig = {
       localized: true,
     },
     {
+      name: 'media',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Média (kép vagy videó)',
+      admin: {
+        description: 'Opcionális — kép vagy videó egyaránt feltölthető, ez jelenik meg a projekt oldal tetején.',
+      },
+    },
+    {
       name: 'logo',
       type: 'relationship',
       relationTo: 'logos',

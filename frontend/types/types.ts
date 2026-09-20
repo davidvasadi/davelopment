@@ -43,6 +43,7 @@ export interface Product {
   perks: any[];
   featured?: boolean;
   images: any[];
+  media?: any;
   categories?: any[];
   badge_label?: string;
   badge_label_center?: string;

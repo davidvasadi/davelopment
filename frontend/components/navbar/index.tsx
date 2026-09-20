@@ -1,6 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
+import { useRef, useState } from 'react';
 import { DesktopNavbar } from './desktop-navbar';
 import { MobileNavbar } from './mobile-navbar';
 import { cn } from '@/lib/utils';
@@ -42,11 +43,28 @@ export function Navbar({
   // Fix: navBgClass-t clean class stringként adjuk át, nem assignment-ként
   const resolvedBg = navBgClass || DEFAULT_NAV_BG;
 
+  // Lefelé görgetve elrejtjük, felfelé görgetve (vagy az oldal tetején) megjelenik
+  const { scrollY } = useScroll();
+  const [hidden, setHidden] = useState(false);
+  const lastScrollY = useRef(0);
+
+  useMotionValueEvent(scrollY, 'change', (latest) => {
+    const diff = latest - lastScrollY.current;
+    if (latest < 80) {
+      setHidden(false);
+    } else if (diff > 5) {
+      setHidden(true);
+    } else if (diff < -5) {
+      setHidden(false);
+    }
+    lastScrollY.current = latest;
+  });
+
   return (
     <motion.nav
       className={cn('fixed top-0 inset-x-0 z-50 isolate', resolvedBg)}
       initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
+      animate={{ opacity: 1, y: hidden ? '-100%' : 0 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     >
       {/* DESKTOP */}

@@ -44,12 +44,12 @@ const nextConfig = {
     const devMedia = isDev ? ' http://localhost:1337' : '';
     const cspParts = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com https://*.google-analytics.com https://*.googleadservices.com https://*.google.com https://*.doubleclick.net",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com https://*.google-analytics.com https://*.googleadservices.com https://*.google.com https://*.google.hu https://*.doubleclick.net",
       "style-src 'self' 'unsafe-inline'",
       `img-src 'self' data: blob: https:${devMedia}`,
       `media-src 'self'${devMedia}`,
       "font-src 'self' data:",
-      `connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.googleadservices.com https://*.google.com https://*.googlesyndication.com https://*.doubleclick.net https://davelopment.hu${devConnect}`,
+      `connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.googleadservices.com https://*.google.com https://*.google.hu https://*.googlesyndication.com https://*.doubleclick.net https://davelopment.hu${devConnect}`,
       "frame-src 'self' https://*.doubleclick.net https://*.google.com",
       "object-src 'none'",
       "base-uri 'self'",

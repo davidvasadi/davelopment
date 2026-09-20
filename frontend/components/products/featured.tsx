@@ -210,7 +210,7 @@ const LargeTile: React.FC<TileBase & { arrowClassName?: string }> = ({
               <span className="text-white text-xl md:text-4xl font-medium tracking-tight leading-tight">{label}</span>
               <ArrowBadge iconClassName={arrowClassName ?? 'text-white'} />
             </div>
-            <h2 className="text-4xl md:text-8xl font-medium tracking-tight text-white mt-6 md:mt-16 lg:mt-40 xl:mt-60 leading-none">
+            <h2 className="text-4xl md:text-8xl font-medium tracking-tight text-white mt-6 md:mt-16 lg:mt-40 xl:mt-60 leading-none break-words">
               {product.name}
             </h2>
           </div>
@@ -223,7 +223,7 @@ const LargeTile: React.FC<TileBase & { arrowClassName?: string }> = ({
               <span className="text-white text-xl font-medium tracking-tight leading-tight">{label}</span>
               <ArrowBadge iconClassName={arrowClassName ?? 'text-white'} href={href} />
             </div>
-            <h2 className="text-4xl font-medium tracking-tight text-white mt-6 leading-none">{product.name}</h2>
+            <h2 className="text-4xl font-medium tracking-tight text-white mt-6 leading-none break-words">{product.name}</h2>
           </div>
         </TileWithImageBackground>
       </div>
