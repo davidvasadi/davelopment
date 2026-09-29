@@ -2,7 +2,36 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useStepNav } from '@payloadcms/ui'
 
-interface Lead { id: string; name?: string; email?: string; phone?: string; message?: string; page?: string; language?: string; state?: string; createdAt: string }
+interface Lead {
+  id: string; name?: string; email?: string; phone?: string; message?: string; page?: string; language?: string; state?: string; createdAt: string
+  plan?: string; marketingAddon?: boolean
+  projectStage?: string; goal?: string; industry?: string; businessAge?: string
+}
+
+const PROJECT_STAGE_LABELS: Record<string, string> = {
+  new: 'Most indul, nincs még weboldala',
+  replace: 'Van weboldala, le akarja cserélni',
+  expand: 'Van weboldala, bővítené',
+  exploring: 'Még csak tájékozódik',
+}
+const GOAL_LABELS: Record<string, string> = {
+  leads: 'Több megkeresés/érdeklődő',
+  branding: 'Professzionálisabb megjelenés',
+  sales: 'Online értékesítés',
+  existing_clients: 'Meglévő ügyfelek kiszolgálása',
+}
+const INDUSTRY_LABELS: Record<string, string> = {
+  services: 'Szolgáltatás',
+  ecommerce: 'Termékértékesítés (webshop)',
+  hospitality: 'Vendéglátás, szálláshely',
+  health_beauty: 'Egészségügy, szépségipar',
+  other: 'Egyéb',
+}
+const BUSINESS_AGE_LABELS: Record<string, string> = {
+  startup: 'Most induló vállalkozás',
+  '1-3y': '1-3 éve működik',
+  established: 'Több éve stabil vállalkozás',
+}
 interface Subscriber { id: string; email: string; name?: string; language?: string; confirmed?: boolean; unsubscribed?: boolean; createdAt: string }
 interface Campaign { id: string; subject?: string; ref_id?: string; sentCount?: number; fullHtml?: string; isTest?: boolean; createdAt: string; recipients?: string[]; language?: string }
 interface Stats { ok: boolean; newLeads: number; totalLeads: number; activeSubs: number; newSubs: number; monthSent: number; prevMonthSent: number; huSubs?: number; enSubs?: number; totalSubs?: number }
@@ -250,6 +279,25 @@ function LeadModal({ lead, onClose, onUpdate }: { lead: Lead; onClose: () => voi
               </div>
             </div>
           )}
+          {lead.plan && (
+            <div className="cp-detail-row">
+              <div className="cp-detail-label">Csomag</div>
+              <div className="cp-detail-value" style={{ fontWeight: 600 }}>
+                {lead.plan}{lead.marketingAddon ? ' + Marketing csomag' : ''}
+              </div>
+            </div>
+          )}
+          {[
+            { label: 'Hol tart', value: lead.projectStage && PROJECT_STAGE_LABELS[lead.projectStage] },
+            { label: 'Fő cél', value: lead.goal && GOAL_LABELS[lead.goal] },
+            { label: 'Iparág', value: lead.industry && INDUSTRY_LABELS[lead.industry] },
+            { label: 'Vállalkozás kora', value: lead.businessAge && BUSINESS_AGE_LABELS[lead.businessAge] },
+          ].filter(r => r.value).map(r => (
+            <div key={r.label} className="cp-detail-row">
+              <div className="cp-detail-label">{r.label}</div>
+              <div className="cp-detail-value">{r.value}</div>
+            </div>
+          ))}
           {lead.language && (
             <div className="cp-detail-row">
               <div className="cp-detail-label">Nyelv</div>

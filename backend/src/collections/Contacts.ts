@@ -30,6 +30,32 @@ const SOURCES: { value: string; hu: string }[] = [
   { value: 'referral',  hu: 'Ajánlás' },
   { value: 'other',     hu: 'Egyéb' },
 ]
+// Kapcsolat-form 2. verziójának kérdései (form-next-to-section.tsx) — az érték/címke
+// párokat szinkronban kell tartani a frontenddel.
+const PROJECT_STAGES: { value: string; hu: string }[] = [
+  { value: 'new',       hu: 'Most indul, nincs még weboldala' },
+  { value: 'replace',   hu: 'Van weboldala, le akarja cserélni' },
+  { value: 'expand',    hu: 'Van weboldala, bővítené' },
+  { value: 'exploring', hu: 'Még csak tájékozódik' },
+]
+const GOALS: { value: string; hu: string }[] = [
+  { value: 'leads',            hu: 'Több megkeresés/érdeklődő' },
+  { value: 'branding',         hu: 'Professzionálisabb megjelenés' },
+  { value: 'sales',            hu: 'Online értékesítés' },
+  { value: 'existing_clients', hu: 'Meglévő ügyfelek kiszolgálása' },
+]
+const INDUSTRIES: { value: string; hu: string }[] = [
+  { value: 'services',      hu: 'Szolgáltatás' },
+  { value: 'ecommerce',     hu: 'Termékértékesítés (webshop)' },
+  { value: 'hospitality',   hu: 'Vendéglátás, szálláshely' },
+  { value: 'health_beauty', hu: 'Egészségügy, szépségipar' },
+  { value: 'other',         hu: 'Egyéb' },
+]
+const BUSINESS_AGES: { value: string; hu: string }[] = [
+  { value: 'startup',     hu: 'Most induló vállalkozás' },
+  { value: '1-3y',        hu: '1-3 éve működik' },
+  { value: 'established', hu: 'Több éve stabil vállalkozás' },
+]
 const labelFrom = (opts: { value: string; hu: string }[], value?: string | null) =>
   opts.find((o) => o.value === value)?.hu || ''
 const projectTypeLabel = (value?: string | null) => labelFrom(PROJECT_TYPES, value)
@@ -99,8 +125,10 @@ export const Contacts: CollectionConfig = {
         // E2E teszt cleanup — azonnal töröljük, nem küldünk emailt
         if (doc.email?.includes('e2e-test@')) {
           try {
-            await payload.delete({ collection: 'contacts', id: doc.id, overrideAccess: true })
-          } catch (_) {}
+            await payload.delete({ collection: 'contacts', id: doc.id, overrideAccess: true, req })
+          } catch (err) {
+            payload.logger.error({ err }, 'Contacts: e2e-test cleanup delete failed')
+          }
           return
         }
 
@@ -125,6 +153,12 @@ export const Contacts: CollectionConfig = {
             budget: labelFrom(BUDGETS, doc.budget),
             timeline: labelFrom(TIMELINES, doc.timeline),
             source: labelFrom(SOURCES, doc.source),
+            plan: doc.plan || '',
+            marketingAddon: !!doc.marketingAddon,
+            projectStage: labelFrom(PROJECT_STAGES, doc.projectStage),
+            goal: labelFrom(GOALS, doc.goal),
+            industry: labelFrom(INDUSTRIES, doc.industry),
+            businessAge: labelFrom(BUSINESS_AGES, doc.businessAge),
           }),
           })
         } catch (err) {
@@ -248,22 +282,69 @@ export const Contacts: CollectionConfig = {
       label: 'Üzenet',
     },
     {
+      name: 'plan',
+      type: 'text',
+      label: 'Kiválasztott csomag',
+      admin: {
+        description: 'A pricing kártyáról kiválasztott csomag neve (ha onnan érkezett a látogató).',
+      },
+    },
+    {
+      name: 'marketingAddon',
+      type: 'checkbox',
+      label: 'Marketing csomagot is kérte',
+      defaultValue: false,
+    },
+    {
+      name: 'projectStage',
+      type: 'select',
+      label: 'Hol tart most',
+      options: PROJECT_STAGES.map((p) => ({ label: p.hu, value: p.value })),
+    },
+    {
+      name: 'goal',
+      type: 'select',
+      label: 'Fő cél a weboldallal',
+      options: GOALS.map((p) => ({ label: p.hu, value: p.value })),
+    },
+    {
+      name: 'industry',
+      type: 'select',
+      label: 'Iparág',
+      options: INDUSTRIES.map((p) => ({ label: p.hu, value: p.value })),
+    },
+    {
+      name: 'businessAge',
+      type: 'select',
+      label: 'Vállalkozás kora',
+      options: BUSINESS_AGES.map((p) => ({ label: p.hu, value: p.value })),
+    },
+    {
       name: 'projectType',
       type: 'select',
-      label: 'Irány',
+      label: 'Irány (régi form)',
       options: PROJECT_TYPES.map((p) => ({ label: p.hu, value: p.value })),
+      admin: {
+        description: 'Legacy mező — az új kapcsolat-form már nem küldi, csak a régebbi beküldéseknél van kitöltve.',
+      },
     },
     {
       name: 'budget',
       type: 'select',
-      label: 'Költségkeret',
+      label: 'Költségkeret (régi form)',
       options: BUDGETS.map((p) => ({ label: p.hu, value: p.value })),
+      admin: {
+        description: 'Legacy mező — az új kapcsolat-form már nem küldi, csak a régebbi beküldéseknél van kitöltve.',
+      },
     },
     {
       name: 'timeline',
       type: 'select',
-      label: 'Határidő',
+      label: 'Határidő (régi form)',
       options: TIMELINES.map((p) => ({ label: p.hu, value: p.value })),
+      admin: {
+        description: 'Legacy mező — az új kapcsolat-form már nem küldi, csak a régebbi beküldéseknél van kitöltve.',
+      },
     },
     {
       name: 'source',

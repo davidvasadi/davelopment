@@ -87,8 +87,15 @@ function buildWelcomeHtml(name: string, language: 'hu' | 'en', unsubscribeUrl: s
 function buildContactAdminHtml(o: {
   name: string; email: string; phone?: string; message: string; page: string; adminUrl: string;
   projectType?: string; budget?: string; timeline?: string; source?: string;
+  plan?: string; marketingAddon?: boolean;
+  projectStage?: string; goal?: string; industry?: string; businessAge?: string;
 }): string {
-  const { name, email, phone = '', message, page, adminUrl, projectType = '', budget = '', timeline = '', source = '' } = o
+  const {
+    name, email, phone = '', message, page, adminUrl,
+    projectType = '', budget = '', timeline = '', source = '',
+    plan = '', marketingAddon = false,
+    projectStage = '', goal = '', industry = '', businessAge = '',
+  } = o
   const metaRow = (label: string, value: string) => value ? `<tr>
     <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:12px;color:#9ca3af;font-family:Geist,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">${label}</td>
     <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px;"><span style="display:inline-block;padding:2px 9px;border-radius:20px;font-size:12px;font-weight:600;background:#f3f4f6;border:1px solid #e5e7eb;color:#111;">${value}</span></td>
@@ -136,6 +143,14 @@ function buildContactAdminHtml(o: {
                   <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:12px;color:#9ca3af;font-family:Geist,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">Telefon</td>
                   <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px;"><a href="tel:${phone}" style="color:#111;text-decoration:none;">${phone}</a></td>
                 </tr>` : ''}
+                ${plan ? `<tr>
+                  <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:12px;color:#9ca3af;font-family:Geist,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">Csomag</td>
+                  <td style="padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px;color:#111;font-weight:600;">${plan}${marketingAddon ? ' + Marketing csomag' : ''}</td>
+                </tr>` : ''}
+                ${metaRow('Hol tart', projectStage)}
+                ${metaRow('Fő cél', goal)}
+                ${metaRow('Iparág', industry)}
+                ${metaRow('Vállalkozás kora', businessAge)}
                 ${metaRow('Irány', projectType)}
                 ${metaRow('Költségkeret', budget)}
                 ${metaRow('Határidő', timeline)}
