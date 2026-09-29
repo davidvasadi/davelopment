@@ -107,12 +107,34 @@ export default async function ServiceSlugPage(props: {
           'pages',
           {
             filters: { slug: page.slug, locale: params.locale },
-            populate: { dynamic_zone: { populate: '*' } },
+            populate: {
+              dynamic_zone: {
+                on: {
+                  'dynamic-zone.hero': {
+                    populate: { video_poster: true },
+                  },
+                  'dynamic-zone.service-hero': {
+                    populate: { video_poster: true },
+                  },
+                },
+              },
+              seo: { populate: { metaImage: true } },
+            },
           },
           true
         ).catch(() => null);
-        const hero = fullPage?.dynamic_zone?.find((c: any) => c.blockType === 'hero');
-        return { ...page, video_poster: hero?.video_poster ?? null };
+        const hero = fullPage?.dynamic_zone?.find((c: any) => c.blockType === 'hero' || c.blockType === 'service-hero');
+        // Csak a rács-kártyához ténylegesen szükséges mezőket adjuk tovább —
+        // ne szivárogjon ki a többi szolgáltatás-aloldal teljes (nem látható) tartalma.
+        return {
+          id: page.id,
+          slug: page.slug,
+          label: page.label,
+          card_short_description: page.card_short_description ?? null,
+          card_tags: page.card_tags ?? null,
+          locale: params.locale,
+          video_poster: hero?.video_poster ?? fullPage?.seo?.metaImage ?? null,
+        };
       })
   );
 
@@ -134,7 +156,7 @@ export default async function ServiceSlugPage(props: {
     <>
       <JsonLd data={jsonLd} />
       <ClientSlugHandler localizedSlugs={localizedSlugs} />
-      <PageContent pageData={contentData} locale={params.locale} />
+      <PageContent pageData={contentData} locale={params.locale} fadeZoom />
       {!hasRelatedBlock && <OtherServices pages={otherServices} locale={params.locale} />}
     </>
   );

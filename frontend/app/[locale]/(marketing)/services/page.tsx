@@ -12,7 +12,7 @@ import { renderPageJsonLd } from '@/lib/shared/structured-data';
 import { getSiteLogoUrl } from '@/lib/shared/site-org';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import { localeSegments, getLocalizedSegment } from '@/lib/i18n/segments';
-import { Container } from '@/components/container';
+// import { Container } from '@/components/container';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://davelopment.hu').replace(/\/+$/, '');
 
@@ -125,7 +125,17 @@ const pagesWithImages = await Promise.all(
                     },
                     populate: {
                         dynamic_zone: {
-                            populate: '*',
+                            on: {
+                                'dynamic-zone.hero': {
+                                    populate: { video_poster: true },
+                                },
+                                'dynamic-zone.service-hero': {
+                                    populate: { video_poster: true },
+                                },
+                            },
+                        },
+                        seo: {
+                            populate: { metaImage: true },
                         },
                     },
                 },
@@ -133,12 +143,19 @@ const pagesWithImages = await Promise.all(
             ).catch(() => null);
 
             const hero = fullPage?.dynamic_zone?.find(
-                (c: any) => c.blockType === 'hero'
+                (c: any) => c.blockType === 'hero' || c.blockType === 'service-hero'
             );
 
+            // Csak a rács-kártyához ténylegesen szükséges mezőket adjuk tovább —
+            // ne szivárogjon ki az egyes szolgáltatás-aloldalak teljes (nem látható) dynamic_zone tartalma.
             return {
-                ...page,
-                video_poster: hero?.video_poster ?? null,
+                id: page.id,
+                slug: page.slug,
+                label: page.label,
+                card_short_description: page.card_short_description ?? null,
+                card_tags: page.card_tags ?? null,
+                locale: params.locale,
+                video_poster: hero?.video_poster ?? fullPage?.seo?.metaImage ?? null,
             };
         })
     );
@@ -172,11 +189,16 @@ const pagesWithImages = await Promise.all(
         <>
             <JsonLd data={jsonLd} />
             <ClientSlugHandler localizedSlugs={localizedSlugs} />
-            <Container>
+            {/* <Container> */}
                 <PageContent pageData={pageData} locale={params.locale} />
-                <ServicesPage pages={pagesWithImages} locale={params.locale} />
+                <ServicesPage
+                    pages={pagesWithImages}
+                    locale={params.locale}
+                    heading={pageData?.heading}
+                    sub_heading={pageData?.sub_heading}
+                />
                 <PageContent pageData={{ ...pageData, dynamic_zone: pageData?.cta ?? [] }} locale={params.locale} />
-            </Container>
+            {/* </Container> */}
         </>
     );
 }
