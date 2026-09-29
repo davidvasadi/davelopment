@@ -83,29 +83,30 @@ export default async function fetchContentType(
   const doc: AnyRecord | null = isGlobal ? json : (json.docs?.[0] ?? null);
   if (!doc) return null;
 
-  // Synthesize `localizations` for the language switcher
-  // Only needed for collections (globals are language-independent singletons here)
-  if (!isGlobal && locale && doc.slug) {
+  // Synthesize `localizations` for the language switcher / hreflang.
+  // Only needed for collections (globals are language-independent singletons here).
+  // IMPORTANT: fetch by the document's own `id`, not by matching `slug` across
+  // locales — slugs are properly translated (e.g. "weboldal-keszites" vs.
+  // "start-your-business-online"), so a slug-equality lookup in the other
+  // locale silently returns nothing and hreflang/alternates go missing.
+  if (!isGlobal && locale && doc.id) {
     const otherLocales = ALL_LOCALES.filter((l) => l !== locale);
     const localizations = (
       await Promise.all(
         otherLocales.map(async (otherLocale) => {
           try {
             const aq = new URLSearchParams({
-              'where[slug][equals]': String(doc.slug),
               locale: otherLocale,
               depth: '0',
-              limit: '1',
             });
             const { cache: _cache, ...fetchOptsWithoutCache } = fetchOpts
-            const r = await fetch(`${API_BASE}/api/${contentType}?${aq}`, {
+            const r = await fetch(`${API_BASE}/api/${contentType}/${doc.id}?${aq}`, {
               ...fetchOptsWithoutCache,
               next: { revalidate: isDraftMode ? 0 : 300 },
             });
             if (!r.ok) return null;
-            const d = await r.json();
-            const alt = d.docs?.[0];
-            return alt ? { locale: otherLocale, slug: alt.slug, id: alt.id } : null;
+            const alt = await r.json();
+            return alt?.slug ? { locale: otherLocale, slug: alt.slug, id: alt.id } : null;
           } catch {
             return null;
           }

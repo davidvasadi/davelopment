@@ -5,10 +5,11 @@ const BASE = (process.env.NEXT_PUBLIC_SITE_URL || 'https://davelopment.hu').repl
 const LOCALES = ['hu', 'en'] as const;
 const PAYLOAD = (process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:1337').replace(/\/+$/, '');
 
-async function fetchAll(collection: string, locale: string): Promise<any[]> {
+async function fetchAll(collection: string, locale: string, publishedOnly = false): Promise<any[]> {
   try {
+    const statusParam = publishedOnly ? '&where[_status][equals]=published' : '';
     const res = await fetch(
-      `${PAYLOAD}/api/${collection}?locale=${locale}&limit=200&depth=0`,
+      `${PAYLOAD}/api/${collection}?locale=${locale}&limit=200&depth=0${statusParam}`,
       { next: { revalidate: 3600 } }
     );
     if (!res.ok) return [];
@@ -31,7 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { huPath: '/hu/szolgaltatasok',   enPath: '/en/services',         priority: 0.8, freq: 'weekly' },
     { huPath: '/hu/arak',             enPath: '/en/pricing',          priority: 0.7, freq: 'weekly' },
     { huPath: '/hu/kapcsolat',        enPath: '/en/contact',          priority: 0.7, freq: 'monthly' },
-    { huPath: '/hu/adatkezeles',      enPath: '/en/privacy',          priority: 0.3, freq: 'yearly' },
+    { huPath: '/hu/adatkezeles',      enPath: '/en/privacy-policy',   priority: 0.3, freq: 'yearly' },
   ];
 
   for (const page of staticPages) {
@@ -53,8 +54,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // ── Blog articles ─────────────────────────────────────────────────────────
   const [huArticles, enArticles] = await Promise.all([
-    fetchAll('articles', 'hu'),
-    fetchAll('articles', 'en'),
+    fetchAll('articles', 'hu', true),
+    fetchAll('articles', 'en', true),
   ]);
 
   const huArticleMap = Object.fromEntries(huArticles.map((a: any) => [a.slug, a]));
