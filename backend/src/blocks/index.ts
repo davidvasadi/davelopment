@@ -146,12 +146,6 @@ export const HeroBlock: Block = {
       localized: true,
     },
     {
-      name: 'copyright',
-      type: 'text',
-      label: 'Copyright',
-      localized: true,
-    },
-    {
       name: 'anchor_id',
       type: 'text',
       label: 'Horgony azonosító',
@@ -222,6 +216,166 @@ export const HeroBlock: Block = {
           label: 'Kép',
         },
         buttonField('button', 'Gomb'),
+      ],
+    },
+  ],
+}
+
+// ─── ServiceHeroBlock ──────────────────────────────────────────────────────
+// Önálló, a szolgáltatás aloldalakra szabott hero: nagy sarkos cím, jobb alul
+// lebegő stat-kártya. Külön blokk a sima HeroBlock-tól, nem variant.
+
+export const ServiceHeroBlock: Block = {
+  slug: 'service-hero',
+  labels: {
+    singular: 'Szolgáltatás Hero blokk',
+    plural: 'Szolgáltatás Hero blokkok',
+  },
+  fields: [
+    {
+      name: 'badge_label',
+      type: 'text',
+      label: 'Badge felirat (a nav alatt)',
+      localized: true,
+    },
+    {
+      name: 'heading',
+      type: 'text',
+      label: 'Nagy főcím',
+      localized: true,
+    },
+    {
+      name: 'sub_heading',
+      type: 'text',
+      label: 'Kiemelő szöveg a főcím mellett',
+      localized: true,
+    },
+    {
+      name: 'CTAs',
+      type: 'array',
+      label: 'CTA gombok',
+      localized: true,
+      fields: inlineButtonFields,
+    },
+    {
+      name: 'video',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Háttér videó',
+    },
+    {
+      name: 'video_poster',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Videó borítókép',
+    },
+    {
+      name: 'stat',
+      type: 'group',
+      label: 'Lebegő stat-kártya',
+      fields: [
+        {
+          name: 'mark_text',
+          type: 'text',
+          label: 'Kis márkajelzés a kártya tetején',
+          defaultValue: '[davelopment]®',
+        },
+        {
+          name: 'label',
+          type: 'text',
+          label: 'Kártya címe',
+          localized: true,
+        },
+        {
+          name: 'description',
+          type: 'text',
+          label: 'Kártya leírása',
+          localized: true,
+        },
+        {
+          name: 'value',
+          type: 'text',
+          label: 'Nagy szám / statisztika',
+          localized: true,
+        },
+      ],
+    },
+  ],
+}
+
+// ─── ServiceHighlightBlock ─────────────────────────────────────────────────
+// SEO-szöveg + meggyőző tag-pill lista + kép, kis lebegő stat-kártyával —
+// a szolgáltatás aloldalak "miért minket" jellegű kiegészítő szekciója.
+
+export const ServiceHighlightBlock: Block = {
+  slug: 'service-highlight',
+  labels: {
+    singular: 'Szolgáltatás Kiemelés blokk',
+    plural: 'Szolgáltatás Kiemelés blokkok',
+  },
+  fields: [
+    {
+      name: 'badge_label',
+      type: 'text',
+      label: 'Badge felirat',
+      localized: true,
+    },
+    {
+      name: 'heading',
+      type: 'text',
+      label: 'Főcím',
+      localized: true,
+    },
+    {
+      name: 'description',
+      type: 'textarea',
+      label: 'SEO leírás (bekezdés)',
+      localized: true,
+    },
+    {
+      name: 'tags',
+      type: 'array',
+      label: 'Kiemelt jellemzők (pill-ek)',
+      localized: true,
+      fields: [
+        { name: 'label', type: 'text', label: 'Címke' },
+      ],
+    },
+    {
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Nagy kép',
+    },
+    {
+      name: 'avatar_image',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Kis kör alakú kép',
+    },
+    {
+      name: 'avatar_caption',
+      type: 'text',
+      label: 'Kis kép felirata',
+      localized: true,
+    },
+    {
+      name: 'stat',
+      type: 'group',
+      label: 'Lebegő stat-kártya a képen',
+      fields: [
+        {
+          name: 'value',
+          type: 'text',
+          label: 'Nagy szám',
+          localized: true,
+        },
+        {
+          name: 'label',
+          type: 'text',
+          label: 'Címke',
+          localized: true,
+        },
       ],
     },
   ],
@@ -396,6 +550,18 @@ export const TestimonialsBlock: Block = {
       relationTo: 'testimonials',
       label: 'Vélemények',
       hasMany: true,
+    },
+    {
+      name: 'stat_background',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Stat kártya háttérkép',
+    },
+    {
+      name: 'stat_dark',
+      type: 'checkbox',
+      label: 'Stat kártya sötét stílus',
+      defaultValue: false,
     },
     {
       name: 'stat_rating',
@@ -815,6 +981,29 @@ export const ServicesBlock: Block = {
           name: 'category_count',
           type: 'text',
           label: 'Kategória szám',
+        },
+        {
+          name: 'stats',
+          type: 'array',
+          label: 'Statisztikák (animált számok)',
+          maxRows: 2,
+          fields: [
+            {
+              name: 'value',
+              type: 'text',
+              label: 'Érték (csak a szám, pl. "60")',
+            },
+            {
+              name: 'suffix',
+              type: 'text',
+              label: 'Utótag (pl. "%+", " hó", " Ft")',
+            },
+            {
+              name: 'label',
+              type: 'text',
+              label: 'Felirat',
+            },
+          ],
         },
       ],
     },
@@ -1314,12 +1503,6 @@ export const FormNextToSectionBlock: Block = {
       localized: true,
     },
     {
-      name: 'copyright',
-      type: 'text',
-      label: 'Copyright',
-      localized: true,
-    },
-    {
       name: 'policy_prefix',
       type: 'text',
       label: 'Adatvédelmi előtag',
@@ -1554,6 +1737,8 @@ export const MacbookScrollBlock: Block = {
 
 export const allBlocks: Block[] = [
   HeroBlock,
+  ServiceHeroBlock,
+  ServiceHighlightBlock,
   FeaturesBlock,
   TestimonialsBlock,
   FAQBlock,

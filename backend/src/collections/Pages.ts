@@ -70,6 +70,32 @@ export const Pages: CollectionConfig = {
         position: 'sidebar',
       },
     },
+    {
+      name: 'card_short_description',
+      type: 'text',
+      label: 'Rövid leírás (szolgáltatás-rács kártya)',
+      localized: true,
+      admin: {
+        description: 'Csak a /szolgaltatasok listázó rács kártyáján jelenik meg, 1 mondatos, ütős leírás.',
+      },
+    },
+    {
+      name: 'card_tags',
+      type: 'array',
+      label: 'Címkék (szolgáltatás-rács kártya)',
+      localized: true,
+      maxRows: 3,
+      admin: {
+        description: 'Max. 3 db, hashtag-stílusban jelenik meg a szolgáltatás-rács kártyán (pl. "seo", "tartalomstratégia").',
+      },
+      fields: [
+        {
+          name: 'tag',
+          type: 'text',
+          required: true,
+        },
+      ],
+    },
     seoField(),
     {
       name: 'dynamic_zone',

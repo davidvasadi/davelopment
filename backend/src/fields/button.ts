@@ -1,6 +1,10 @@
 import type { Field } from 'payload'
 
-export const buttonField = (name = 'button', label = 'Gomb'): Field => ({
+export const buttonField = (
+  name = 'button',
+  label = 'Gomb',
+  options?: { localizeUrl?: boolean },
+): Field => ({
   name,
   type: 'group',
   label,
@@ -15,6 +19,7 @@ export const buttonField = (name = 'button', label = 'Gomb'): Field => ({
       name: 'URL',
       type: 'text',
       label: 'URL',
+      localized: !!options?.localizeUrl,
     },
     {
       name: 'target',

@@ -52,7 +52,7 @@ export const Service: GlobalConfig = {
     {
       name: 'dynamic_zone',
       type: 'blocks',
-      label: 'Dinamikus zóna',
+      label: 'Dinamikus zóna (a szolgáltatás-rács ELŐTT jelenik meg)',
       localized: true,
       admin: { initCollapsed: true },
       blocks: allBlocks,
@@ -60,9 +60,12 @@ export const Service: GlobalConfig = {
     {
       name: 'cta',
       type: 'blocks',
-      label: 'CTA blokkok',
+      label: 'Alsó dinamikus zóna (a szolgáltatás-rács UTÁN jelenik meg)',
       localized: true,
-      admin: { initCollapsed: true },
+      admin: {
+        initCollapsed: true,
+        description: 'Ide kerülnek a szolgáltatás-lista (kártyás rács) alatt megjelenő blokkok, pl. GYIK, CTA, Referenciák — a mező neve "cta", de bármilyen blokk-típus használható benne.',
+      },
       blocks: allBlocks,
     },
   ],
