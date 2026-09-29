@@ -9,14 +9,23 @@ import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
 import { renderPageJsonLd } from '@/lib/shared/structured-data';
 import { getSiteLogoUrl } from '@/lib/shared/site-org';
 import fetchContentType from '@/lib/strapi/fetchContentType';
-import  {notFound}  from 'next/navigation';
+import  {notFound, permanentRedirect}  from 'next/navigation';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://davelopment.hu').replace(/\/+$/, '');
+
+// Slugs that were renamed after being live — redirect the old URL to the new one
+// so any existing backlinks/bookmarks/search index entries aren't broken.
+const LEGACY_SLUG_REDIRECTS: Record<string, string> = {
+  'en/weboldal-keszites': 'en/start-your-business-online',
+};
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const params = await props.params;
+  if (params.slug === 'homepage') permanentRedirect(`/${params.locale}`);
+  const legacyTarget = LEGACY_SLUG_REDIRECTS[`${params.locale}/${params.slug}`];
+  if (legacyTarget) permanentRedirect(`/${legacyTarget}`);
   const pageData = await fetchContentType(
     'pages',
     {
@@ -43,6 +52,12 @@ export default async function Page(props: {
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const params = await props.params;
+  // 'homepage' is a reserved internal slug used to look up the locale root content
+  // (see (marketing)/page.tsx) — it must never be reachable as its own URL, or it
+  // creates a duplicate of the homepage at /[locale]/homepage.
+  if (params.slug === 'homepage') permanentRedirect(`/${params.locale}`);
+  const legacyTarget = LEGACY_SLUG_REDIRECTS[`${params.locale}/${params.slug}`];
+  if (legacyTarget) permanentRedirect(`/${legacyTarget}`);
   const pageData = await fetchContentType(
     'pages',
     {

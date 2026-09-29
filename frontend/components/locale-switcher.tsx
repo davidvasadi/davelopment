@@ -8,7 +8,7 @@ import { useSlugContext } from '@/app/context/SlugContext';
 import { getInternalSegment, getLocalizedSegment } from '@/lib/i18n/segments';
 import { cn } from '@/lib/utils';
 
-export function LocaleSwitcher({ currentLocale }: { currentLocale: string }) {
+export function LocaleSwitcher({ currentLocale, dark = false }: { currentLocale: string; dark?: boolean }) {
   const { state } = useSlugContext();
   const { localizedSlugs } = state;
 
@@ -53,7 +53,7 @@ export function LocaleSwitcher({ currentLocale }: { currentLocale: string }) {
               'flex cursor-pointer items-center justify-center text-sm leading-[110%] w-8 py-1 rounded-md hover:bg-neutral-800 hover:text-white/80 text-white hover:shadow-[0px_1px_0px_0px_var(--neutral-600)_inset] transition duration-200',
               locale === currentLocale
                 ? 'bg-neutral-800 text-white shadow-[0px_1px_0px_0px_var(--neutral-600)_inset]'
-                : 'text-neutral-800'
+                : dark ? 'text-white/70' : 'text-neutral-800'
             )}
           >
             {locale}

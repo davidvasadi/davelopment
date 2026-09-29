@@ -2,12 +2,12 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+import { Link } from 'next-view-transitions';
 
 import { LocaleSwitcher } from '../locale-switcher';
 import { Logo } from '@/components/logo';
+import { MotionLink } from '@/components/motion-link';
 import { cn } from '@/lib/utils';
-import { useNavClose } from '@/components/ui/preloader';
 
 type NavItem = { URL: string; text: string; target?: string };
 type LinkItem = { text: string; URL: string; target?: '_self' | '_blank' };
@@ -37,6 +37,8 @@ export function MobileNavbar({
   contactInputs = [],
   copyrightText,
   navBgClass = 'bg-white',
+  overlayBgClass,
+  pill = false,
 }: {
   leftNavbarItems: NavItem[];
   logo: any;
@@ -45,10 +47,10 @@ export function MobileNavbar({
   contactInputs?: ContactInput[];
   copyrightText?: string | null;
   navBgClass?: string;
+  overlayBgClass?: string;
+  pill?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const { navigateAfterClose } = useNavClose();
-  const router = useRouter();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
@@ -58,27 +60,26 @@ export function MobileNavbar({
 
   useMemo(() => leftNavbarItems, [leftNavbarItems]);
 
-  const handleNavClick = (href: string, external?: boolean) => {
-    if (external) { window.open(href, '_blank'); return; }
-    setOpen(false);
-    router.push(href);
-  };
+  // pill = a hero fölött vagyunk (átlátszó háttér, fehér szöveg) — a
+  // nyitott menü alatt mindig a szolid overlayBgClass-hoz igazodik a felső
+  // sáv is, folyamatos (nem villanó) átmenettel.
+  const dark = pill && !open;
 
   return (
     <>
-      <div className={cn(navBgClass, HEADER_H)}>
+      <div className={cn(open ? (overlayBgClass || navBgClass) : navBgClass, HEADER_H, 'transition-colors duration-300')}>
         <nav className="flex items-center justify-between px-6 h-full">
-          <Logo locale={locale} image={logo?.image} text={logo?.company} />
+          <Logo locale={locale} image={logo?.image} text={logo?.company} dark={dark} />
           <div className="flex items-center gap-6">
-            <LocaleSwitcher currentLocale={locale} />
+            <LocaleSwitcher currentLocale={locale} dark={dark} />
             <button
               aria-label={open ? (locale === 'hu' ? 'Menü bezárása' : 'Close menu') : (locale === 'hu' ? 'Menü megnyitása' : 'Open menu')}
               aria-expanded={open}
               onClick={() => setOpen(v => !v)}
               className="relative w-16 h-16 overflow-hidden"
             >
-              <motion.span className="absolute inset-x-1 h-0.5 bg-black" initial={false} animate={open ? { y: 0, rotate: 12 } : { y: -4, rotate: 0 }} transition={{ duration: 0.18, ease: 'easeInOut' }} />
-              <motion.span className="absolute inset-x-1 h-0.5 bg-black" initial={false} animate={open ? { y: 0, rotate: -12 } : { y: 4, rotate: 0 }} transition={{ duration: 0.18, ease: 'easeInOut' }} />
+              <motion.span className={cn('absolute inset-x-1 h-0.5 transition-colors duration-300', dark ? 'bg-white' : 'bg-black')} initial={false} animate={open ? { y: 0, rotate: 12 } : { y: -4, rotate: 0 }} transition={{ duration: 0.18, ease: 'easeInOut' }} />
+              <motion.span className={cn('absolute inset-x-1 h-0.5 transition-colors duration-300', dark ? 'bg-white' : 'bg-black')} initial={false} animate={open ? { y: 0, rotate: -12 } : { y: 4, rotate: 0 }} transition={{ duration: 0.18, ease: 'easeInOut' }} />
             </button>
           </div>
         </nav>
@@ -88,7 +89,7 @@ export function MobileNavbar({
         {open && (
           <motion.div
             key="mobile-overlay"
-            className={cn('fixed left-0 right-0 bottom-0 z-[70]', OVERLAY_OFFSET, navBgClass)}
+            className={cn('fixed left-0 right-0 bottom-0 z-[70]', OVERLAY_OFFSET, overlayBgClass || navBgClass)}
             style={{ transformOrigin: 'top', overflow: 'hidden', willChange: 'transform, opacity' }}
             initial={{ y: -10, scaleY: 0.965, opacity: 0 }}
             animate={{ y: 0, scaleY: 1, opacity: 1 }}
@@ -101,11 +102,11 @@ export function MobileNavbar({
                   <li key={`${it.text}-${i}`} className="w-full">
                     {/* Szöveg-flip hover: overflow-hidden + dupla szöveg + translateY
                         Mobilon touch eszközön a hover nem aktív, de desktop szélességen működik */}
-                    <motion.button
-                      onClick={() => handleNavClick(
-                        isExternal(it.URL) ? it.URL : `/${locale}${it.URL}`,
-                        isExternal(it.URL)
-                      )}
+                    <MotionLink
+                      href={isExternal(it.URL) ? it.URL : `/${locale}${it.URL}`}
+                      target={isExternal(it.URL) ? '_blank' : undefined}
+                      rel={isExternal(it.URL) ? 'noopener noreferrer' : undefined}
+                      onClick={() => setOpen(false)}
                       className="block w-full font-semibold text-black text-center"
                       whileHover="hover"
                       initial="rest"
@@ -121,7 +122,7 @@ export function MobileNavbar({
                           variants={{ rest: { y: 0 }, hover: { y: -50, transition: { duration: 0.35, ease: [0.33,1,0.68,1] } } }}
                         >{it.text}</motion.div>
                       </div>
-                    </motion.button>
+                    </MotionLink>
                   </li>
                 ))}
               </ul>
@@ -164,7 +165,7 @@ export function MobileNavbar({
                     isExternal(p.URL) ? (
                       <a key={`m-pol-${i}`} href={p.URL} target={p.target || '_self'} rel={p.target === '_blank' ? 'noreferrer' : undefined} onClick={() => setOpen(false)} className="text-sm text-black hover:opacity-70 transition">{p.text}</a>
                     ) : (
-                      <button key={`m-pol-${i}`} onClick={() => handleNavClick(withLocale(p.URL, locale))} className="text-sm text-black hover:opacity-70 transition">{p.text}</button>
+                      <Link key={`m-pol-${i}`} href={withLocale(p.URL, locale)} onClick={() => setOpen(false)} className="text-sm text-black hover:opacity-70 transition">{p.text}</Link>
                     )
                   )}
                 </div>

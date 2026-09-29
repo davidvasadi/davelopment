@@ -38,7 +38,7 @@ export const FAQ = ({
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
           >
-            <Heading as="h1" className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold leading-none tracking-tight text-black">
+            <Heading as="h2" className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold leading-none tracking-tight text-black">
               {heading}
             </Heading>
             {sub_heading ? (
@@ -101,7 +101,7 @@ const FAQItemComponent = ({
       <motion.div
         className="flex-shrink-0 ml-4 w-5 h-5 border bg-black border-gray-200 rounded-full flex items-center justify-center"
         animate={{ rotate: isExpanded ? 180 : 0 }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
       >
         <PlusIcon className="w-3 h-3 text-white" />
       </motion.div>
@@ -113,12 +113,18 @@ const FAQItemComponent = ({
           initial={{ height: 0 }}
           animate={{ height: 'auto' }}
           exit={{ height: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
           className="overflow-hidden"
         >
-          <div className="px-6 pb-6">
+          <motion.div
+            className="px-6 pb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+          >
             <p className="text-black/60">{item.answer}</p>
-          </div>
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>

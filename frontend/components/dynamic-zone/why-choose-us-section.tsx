@@ -5,7 +5,7 @@ import { motion, useInView, type Variants } from 'framer-motion';
 import { Plus as PlusIcon } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { MotionLink } from '@/components/motion-link';
-
+import { Container } from '@/components/container';
 /* helpers */
 const toAbs = (m?: any): string | undefined => {
     if (!m) return undefined;
@@ -110,8 +110,9 @@ export function WhyChooseUsSection({
     const { lead: subLead, rest: subRest } = splitFirstSentence(sub_heading);
 
     return (
+        <Container>
         <section className="w-full py-16 md:py-28 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-6 md:px-8 py-4">
+            <div className="px-6 md:px-8 py-4">
 
                 {/* ── BADGE + HEADING — fade up, minden görgetéskor ── */}
                 <motion.div
@@ -270,6 +271,7 @@ export function WhyChooseUsSection({
                 </div>
             </div>
         </section>
+        </Container>
     );
 }
 

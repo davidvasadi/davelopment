@@ -34,6 +34,8 @@ type TestimonialsProps = {
   stat_cta_text?: string | null;
   stat_cta_url?: string | null;
   stat_brand?: string | null;
+  stat_background?: { url?: string | null; mimeType?: string | null; mime?: string | null } | null;
+  stat_dark?: boolean | null;
   testimonials?: Testimonial[];
 };
 
@@ -131,6 +133,8 @@ const StatCard = ({
   ctaUrl,
   brand,
   avatars,
+  dark,
+  accentIconUrl,
 }: {
   rating?: number | null;
   ratingMax?: number | null;
@@ -141,6 +145,8 @@ const StatCard = ({
   ctaUrl?: string | null;
   brand?: string | null;
   avatars: string[];
+  dark?: boolean;
+  accentIconUrl?: string | null;
 }) => {
   const renderDesc = (text: string, bold?: string | null) => {
     if (!bold || !text.includes(bold)) return <span>{text}</span>;
@@ -148,11 +154,72 @@ const StatCard = ({
     return (
       <>
         {before}
-        <strong className="font-medium text-gray-900">{bold}</strong>
+        <strong className={dark ? 'font-medium text-white' : 'font-medium text-gray-900'}>{bold}</strong>
         {after}
       </>
     );
   };
+
+  if (dark) {
+    return (
+      <div className="rounded-2xl bg-black p-6 flex flex-col justify-between h-full w-full text-white">
+        <div>
+          {trustLabel && (
+            <p className="text-[11px] uppercase tracking-[0.12em] text-white/50 font-medium mb-4">{trustLabel}</p>
+          )}
+          {(avatars.length > 0 || accentIconUrl) && (
+            <div className="flex items-center gap-2">
+              {avatars[0] && (
+                <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 border border-white/20">
+                  <Image src={avatars[0]} alt="" width={36} height={36} className="object-cover object-top w-full h-full" />
+                </div>
+              )}
+              {accentIconUrl && (
+                <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 bg-white/10 flex items-center justify-center">
+                  <Image src={accentIconUrl} alt="" width={20} height={20} className="object-contain w-5 h-5" />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        <div>
+          {rating != null && (
+            <div className="flex items-baseline gap-1 mb-3">
+              <span className="text-6xl font-semibold leading-none tracking-tight text-white">{rating}</span>
+              {ratingMax != null && <span className="text-xl font-medium text-white/50">/{ratingMax}</span>}
+            </div>
+          )}
+          {description && (
+            <p className="text-sm text-white/70 leading-relaxed mb-6">
+              {renderDesc(description, descriptionBold)}
+            </p>
+          )}
+          {ctaText && (
+            <MotionLink
+              href={ctaUrl || '#'}
+              className="block w-full bg-white/10 border border-white/15 text-white text-sm font-medium text-center py-4 px-6 rounded-full overflow-hidden"
+              initial="rest"
+              whileHover="hover"
+              animate="rest"
+            >
+              <div className="overflow-hidden h-5">
+                <motion.div
+                  className="flex flex-col"
+                  variants={{
+                    rest: { y: '-50%' },
+                    hover: { y: '0%', transition: { duration: 0.3, ease: 'easeInOut' } },
+                  }}
+                >
+                  <span>{ctaText}</span>
+                  <span>{ctaText}</span>
+                </motion.div>
+              </div>
+            </MotionLink>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 p-6 flex flex-col justify-between h-full w-full">
@@ -336,12 +403,16 @@ export const Testimonials = ({
   stat_cta_text,
   stat_cta_url,
   stat_brand,
+  stat_background,
+  stat_dark,
   testimonials = [],
 }: TestimonialsProps) => {
   const avatarUrls = testimonials
     .map((t) => toAbs(t.user?.image?.url))
     .filter((u): u is string => !!u)
     .slice(0, 8);
+
+  const isBackgroundImage = !!(stat_background?.mimeType || stat_background?.mime)?.startsWith('image');
 
   const statCardProps = {
     rating: stat_rating,
@@ -353,6 +424,8 @@ export const Testimonials = ({
     ctaUrl: stat_cta_url,
     brand: stat_brand,
     avatars: avatarUrls,
+    dark: !!stat_dark,
+    accentIconUrl: isBackgroundImage ? toAbs(stat_background?.url) : undefined,
   };
 
   const rows: Testimonial[][] = [];

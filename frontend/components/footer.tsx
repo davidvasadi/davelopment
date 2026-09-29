@@ -28,7 +28,6 @@ type FooterProps = {
 
     // BOTTOM BAR TEXTS
     description?: string | null;
-    copyright?: string | null;
     designed_developed_by?: string | null;
     built_with?: string | null;
 
@@ -64,7 +63,6 @@ export const Footer = ({ data, locale }: FooterProps) => {
     navigation_title,
     social_title,
     description,
-    copyright,
     designed_developed_by,
     built_with,
     internal_links,
@@ -72,6 +70,7 @@ export const Footer = ({ data, locale }: FooterProps) => {
     social_media_links,
     profile,
   } = data ?? {};
+  const copyright = `Copyright © ${new Date().getFullYear()} [davelopment]®`;
 
   // --- phone + email: Payload direct fields, fallback to old form.inputs ---
   const inputs = form?.inputs ?? [];

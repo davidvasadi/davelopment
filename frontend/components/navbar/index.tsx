@@ -1,12 +1,15 @@
 'use client';
 
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { DesktopNavbar } from './desktop-navbar';
 import { MobileNavbar } from './mobile-navbar';
+import { isServiceHeroPath } from './navbar-theme';
 import { cn } from '@/lib/utils';
 
 const DEFAULT_NAV_BG = 'bg-[#f5f5f5]';
+const TOP_THRESHOLD = 80;
 
 export function Navbar({
   data,
@@ -34,21 +37,34 @@ export function Navbar({
       []
     );
   })();
-  const copyrightText =
-    data?.copyright ??
-    data?.footer?.copyright ??
-    data?.global?.copyright ??
-    '';
+  const copyrightText = `© ${new Date().getFullYear()} [davelopment]®`;
 
-  // Fix: navBgClass-t clean class stringként adjuk át, nem assignment-ként
-  const resolvedBg = navBgClass || DEFAULT_NAV_BG;
+  const pathname = usePathname();
+  const isHome = pathname === `/${locale}` || pathname === `/${locale}/`;
+  const leftNavbarItems = (data?.left_navbar_items ?? []).filter(
+    (it: { URL: string }) => !(isHome && it.URL === '/')
+  );
 
-  // Lefelé görgetve elrejtjük, felfelé görgetve (vagy az oldal tetején) megjelenik
+  // Szinkron, pathname-alapú detektálás — nincs react-effect-késés, az első
+  // kirajzoláskor már helyes (lásd navbar-theme.tsx).
+  const isServiceHero = isServiceHeroPath(pathname);
+
+  // Lefelé görgetve elrejtjük, felfelé görgetve (vagy az oldal tetején) megjelenik.
+  // Szolgáltatás-aloldalakon a hero fölött lebegő "pill" navbar amíg a tetején
+  // vagyunk (atTop) — utána visszavált a megszokott, elrejthető sávra.
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
+  const [atTop, setAtTop] = useState(true);
   const lastScrollY = useRef(0);
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
+    setAtTop(latest < TOP_THRESHOLD);
+    const pillActive = isServiceHero && latest < TOP_THRESHOLD;
+    if (pillActive) {
+      setHidden(false);
+      lastScrollY.current = latest;
+      return;
+    }
     const diff = latest - lastScrollY.current;
     if (latest < 80) {
       setHidden(false);
@@ -59,6 +75,9 @@ export function Navbar({
     }
     lastScrollY.current = latest;
   });
+
+  const pill = isServiceHero && atTop;
+  const resolvedBg = pill ? 'bg-transparent' : (navBgClass || DEFAULT_NAV_BG);
 
   return (
     <motion.nav
@@ -71,13 +90,15 @@ export function Navbar({
       <div className="hidden lg:block">
         <DesktopNavbar
           locale={locale}
-          leftNavbarItems={data?.left_navbar_items ?? []}
+          leftNavbarItems={leftNavbarItems}
           rightNavbarItems={data?.right_navbar_items ?? []}
           logo={data?.logo}
           policyLinks={policyLinks}
           contactInputs={contactInputs}
           copyrightText={copyrightText}
           navBgClass={resolvedBg}
+          overlayBgClass={navBgClass || DEFAULT_NAV_BG}
+          pill={pill}
         />
       </div>
 
@@ -85,12 +106,14 @@ export function Navbar({
       <div className="lg:hidden">
         <MobileNavbar
           locale={locale}
-          leftNavbarItems={data?.left_navbar_items ?? []}
+          leftNavbarItems={leftNavbarItems}
           logo={data?.logo}
           policyLinks={policyLinks}
           contactInputs={contactInputs}
           copyrightText={copyrightText}
           navBgClass={resolvedBg}
+          overlayBgClass={navBgClass || DEFAULT_NAV_BG}
+          pill={pill}
         />
       </div>
     </motion.nav>

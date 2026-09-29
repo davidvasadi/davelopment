@@ -130,7 +130,7 @@ export default function VisualCard() {
 
         {/* Footer */}
         <p className="mt-4 text-center text-[11px] text-black/25">
-          davelopment.hu 2026©
+          davelopment.hu {new Date().getFullYear()}©
         </p>
 
       </div>

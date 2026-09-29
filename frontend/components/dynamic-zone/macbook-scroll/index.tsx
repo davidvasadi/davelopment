@@ -1,4 +1,5 @@
 'use client';
+import { motion } from 'framer-motion';
 import { MacbookScroll } from '@/components/ui/macbook-scroll';
 import { GrainCanvas } from '@/components/ui/grain-canvas';
 import { strapiImage } from '@/lib/strapi/strapiImage';
@@ -34,8 +35,14 @@ export function MacbookScrollSection({ title, desktop_media, mobile_media, mobil
   const mobileVideoSrc = isVideo(mobile_media) ? mobileUrl : undefined;
 
   return (
-    <div className="px-0 md:px-2">
-      <div className="relative w-full overflow-hidden rounded-none md:rounded-3xl bg-[#080809]">
+    <div className="w-screen ml-[calc(50%-50vw)] mr-[calc(50%-50vw)] px-0 md:px-2">
+      <motion.div
+        className="relative w-full overflow-hidden rounded-none md:rounded-3xl bg-[#080809]"
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
+      >
         {/* Grain */}
         <GrainCanvas strength="light" opacity={0.45} zIndex={1} />
         {/* Radial glow folt — mint a pricing */}
@@ -59,7 +66,7 @@ export function MacbookScrollSection({ title, desktop_media, mobile_media, mobil
             mobileChildren={!mobile_media ? <LiveEditDemo mobile locale={locale} /> : undefined}
           />
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

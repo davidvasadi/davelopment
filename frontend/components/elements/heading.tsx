@@ -1,6 +1,5 @@
 import { MotionProps } from 'framer-motion';
 import React from 'react';
-import Balancer from 'react-wrap-balancer';
 import { cn } from '@/lib/utils';
 
 export const Heading = ({
@@ -31,6 +30,7 @@ export const Heading = ({
         'font-bold',
         // ALAP SZÍN: fekete (felülírható lesz)
         'text-black',
+        'text-balance',
         // Opcionális méretvariáns – ha kell, használd
         // sizeVariants[size],
         // NAGYON FONTOS: a külső className a végére kerül, így felülír mindent
@@ -38,7 +38,7 @@ export const Heading = ({
       )}
       {...props}
     >
-      <Balancer>{children}</Balancer>
+      {children}
     </Tag>
   );
 };

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion, type Variants } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { sendGAEvent } from '@next/third-parties/google';
 import { MotionLink } from '@/components/motion-link';
 import {
@@ -11,6 +11,8 @@ import {
   XIcon,
   RotateCwIcon,
   StepForwardIcon,
+  ChevronDown,
+  ChevronLeft,
 } from 'lucide-react';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -66,7 +68,6 @@ type FormNextToSectionProps = {
   };
   social_media_icon_links?: any[];
   person_card?: PersonCard;
-  copyright?: string;
   video?: Media;
   video_poster?: Media;
   benefits?: Benefit[] | null;
@@ -89,6 +90,120 @@ const renderBenefitIcon = (icon?: BenefitIcon | null) => {
     default:       return <CheckCircleIcon className="w-6 h-6 text-white mt-1" />;
   }
 };
+
+type ChipOption = { value: string; label: string };
+type QuestionKey = 'projectStage' | 'goal' | 'industry' | 'businessAge' | 'source';
+
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+// Egyválasztós dropdown — becsukva pont úgy néz ki mint egy natív select mező.
+// Kattintásra egy lebegő panel nyílik le FÖLÉJE (absolute), ami nem tolja el a
+// körülötte lévő tartalmat. Kiválasztás után bezár.
+function DropdownQuestion({
+  label,
+  options,
+  value,
+  placeholder,
+  isOpen,
+  onToggle,
+  onSelect,
+}: {
+  label: string;
+  options: ChipOption[];
+  value: string;
+  placeholder: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  onSelect: (v: string) => void;
+}) {
+  const selectedLabel = options.find((o) => o.value === value)?.label;
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [justClicked, setJustClicked] = useState<string | null>(null);
+
+  // Kattintás bárhova máshova (pl. egy input mezőre) zárja be, ha épp nyitva van.
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleOutside = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        onToggle();
+      }
+    };
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, [isOpen, onToggle]);
+
+  return (
+    <div className="relative" ref={wrapperRef}>
+      <p className="text-xs font-medium text-black/80 mb-1">{label}</p>
+      <motion.button
+        type="button"
+        onClick={onToggle}
+        whileTap={{ scale: 0.97 }}
+        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl bg-gray-50 text-left ${
+          selectedLabel ? 'text-black' : 'text-black/40'
+        }`}
+      >
+        <span>{selectedLabel || placeholder}</span>
+        <motion.div
+          className="shrink-0"
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ type: 'spring', stiffness: 150, damping: 12 }}
+        >
+          <ChevronDown className="w-4 h-4 text-black/40" />
+        </motion.div>
+      </motion.button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, scaleY: 0.85 }}
+            animate={{ opacity: 1, scaleY: 1 }}
+            exit={{ opacity: 0, scaleY: 0.85 }}
+            transition={{ duration: 0.3, ease: EASE }}
+            style={{ transformOrigin: 'top' }}
+            className="absolute left-0 right-0 top-full mt-2 z-20 bg-white rounded-xl border border-black/10 shadow-xl p-1.5"
+          >
+            <div className="flex flex-col gap-0.5">
+              <motion.button
+                type="button"
+                onClick={() => {
+                  setJustClicked('');
+                  setTimeout(() => onSelect(''), 160);
+                }}
+                animate={justClicked === '' ? { scale: [1, 1.04, 1] } : { scale: 1 }}
+                transition={{ duration: 0.2, ease: EASE }}
+                whileTap={{ scale: 0.95 }}
+                className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-black/40 hover:bg-black/5 transition-colors mb-0.5 border-b border-black/5"
+              >
+                {placeholder}
+              </motion.button>
+              {options.map((o) => {
+                const active = value === o.value;
+                return (
+                  <motion.button
+                    key={o.value}
+                    type="button"
+                    onClick={() => {
+                      setJustClicked(o.value);
+                      setTimeout(() => onSelect(active ? '' : o.value), 160);
+                    }}
+                    animate={justClicked === o.value ? { scale: [1, 1.04, 1] } : { scale: 1 }}
+                    transition={{ duration: 0.2, ease: EASE }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      active || justClicked === o.value ? 'bg-black text-white' : 'text-black/70 hover:bg-black/5'
+                    }`}
+                  >
+                    {o.label}
+                  </motion.button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 // ─────────────────────────────────────────────────────────────
 // Mező-azonosítás: name tartalom alapján, NEM type alapján.
@@ -113,6 +228,28 @@ const fieldRole = (
   return 'unknown';
 };
 
+// Framer-szerű, "lazy" videó-lejátszás: nem indul el azonnal betöltéskor
+// (ez a szekció lejjebb van az oldalon, gyakran még nem is látszik), hanem
+// csak akkor kezd lejátszódni (és el is dekódolódni), amikor ténylegesen a
+// képernyőre görgetjük — kevesebb induló hálózati/CPU terhelés, jobb
+// PageSpeed/Lighthouse mobil-pontszám, ugyanaz a videó marad meg.
+function useLazyVideoPlay() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    if (!videoRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) videoRef.current?.play().catch(() => {});
+        else videoRef.current?.pause();
+      },
+      { threshold: 0.2 }
+    );
+    observer.observe(videoRef.current);
+    return () => observer.disconnect();
+  }, []);
+  return videoRef;
+}
+
 export function FormNextToSection({
   heading,
   sub_heading,
@@ -120,7 +257,6 @@ export function FormNextToSection({
   section,
   person_card,
   person: personAlias,
-  copyright,
   video,
   video_poster,
   benefits,
@@ -129,8 +265,10 @@ export function FormNextToSection({
   policy_and_word,
 }: FormNextToSectionProps & { person?: PersonCard }) {
   const _person = person_card ?? personAlias;
+  const copyright = `© ${new Date().getFullYear()} [davelopment]®`;
   const pathname = usePathname();
   const lang: 'hu' | 'en' = pathname?.startsWith('/hu') ? 'hu' : 'en';
+  const videoRef = useLazyVideoPlay();
 
   const messages =
     lang === 'hu'
@@ -139,7 +277,6 @@ export function FormNextToSection({
           emailRequired: 'Az email megadása kötelező.',
           emailInvalid: 'Érvényes email címet adj meg.',
           phoneRequired: 'A telefonszám megadása kötelező.',
-          messageRequired: 'Az üzenet megadása kötelező.',
           submitFailed: 'Beküldés sikertelen. Próbáld újra.',
           networkError: 'Hálózati hiba. Próbáld újra.',
           sending: 'Küldés folyamatban...',
@@ -150,14 +287,35 @@ export function FormNextToSection({
           emailRequired: 'E-mail is required.',
           emailInvalid: 'Please enter a valid e-mail address.',
           phoneRequired: 'Phone number is required.',
-          messageRequired: 'Message is required.',
           submitFailed: 'Submission failed. Please try again.',
           networkError: 'Network error. Please try again.',
           sending: 'Sending...',
           success: 'Thank you! I will get back to you soon.',
         };
 
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '', projectType: '', budget: '', timeline: '', source: '' });
+  const [formData, setFormData] = useState({
+    name: '', email: '', phone: '',
+    projectStage: '', goal: '', industry: '', businessAge: '', source: '',
+  });
+  const [step, setStep] = useState<1 | 2>(1);
+  const [openQuestion, setOpenQuestion] = useState<QuestionKey | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [selectedMarketingAddon, setSelectedMarketingAddon] = useState(false);
+
+  // A pricing kártyáról érkező ?csomag= és ?marketing= paramétereket olvassuk ki — window.location,
+  // hogy ne kelljen useSearchParams()-hoz Suspense boundary-t bevezetni a szülő fába.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const plan = params.get('csomag');
+    if (!plan) return;
+    setSelectedPlan(plan);
+    setSelectedMarketingAddon(params.get('marketing') === '1');
+    // kis késleltetés, hogy a layout/animációk stabilizálódjanak, mielőtt a formhoz görgetünk
+    setTimeout(() => {
+      document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+  }, []);
   const [isSubmitting, setIsSubmitting]   = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError]     = useState<string | null>(null);
@@ -165,73 +323,81 @@ export function FormNextToSection({
   const [nameError, setNameError]         = useState<string | null>(null);
   const [emailError, setEmailError]       = useState<string | null>(null);
   const [phoneError, setPhoneError]       = useState<string | null>(null);
-  const [messageError, setMessageError]   = useState<string | null>(null);
 
   // ── Mezők kigyűjtése role alapján ──
   const inputs      = form?.inputs ?? [];
   const nameInput    = inputs.find(i => fieldRole(i) === 'name');
   const emailInput   = inputs.find(i => fieldRole(i) === 'email');
   const phoneInput   = inputs.find(i => fieldRole(i) === 'phone');
-  const messageInput = inputs.find(i => fieldRole(i) === 'message');
   const submitInput  = inputs.find(i => fieldRole(i) === 'submit');
-  const SHOW_MESSAGE = false as boolean; // üzenet mező ideiglenes elrejtése (typecheck-biztos kapcsoló)
-
-  // Business direction — keep values in sync with backend Contacts `projectType` options
-  const projectTypeLabel = lang === 'hu' ? 'Miben segíthetünk?' : 'How can we help?';
-  const projectTypePlaceholder = lang === 'hu' ? 'Válassz egy irányt (opcionális)' : 'Pick a direction (optional)';
-  const PROJECT_TYPES: { value: string; label: string }[] = lang === 'hu'
-    ? [
-        { value: 'website', label: 'Weboldal' },
-        { value: 'design',  label: 'UX/UI Design' },
-        { value: 'seo',     label: 'SEO' },
-        { value: 'ads',     label: 'Google Ads / Marketing' },
-        { value: 'system',  label: 'Egyedi rendszer / SaaS' },
-        { value: 'other',   label: 'Egyéb / még nem tudom' },
-      ]
-    : [
-        { value: 'website', label: 'Website' },
-        { value: 'design',  label: 'UX/UI Design' },
-        { value: 'seo',     label: 'SEO' },
-        { value: 'ads',     label: 'Google Ads / Marketing' },
-        { value: 'system',  label: 'Custom system / SaaS' },
-        { value: 'other',   label: 'Other / not sure yet' },
-      ];
 
   const isHuForm = lang === 'hu';
-  const budgetLabel   = isHuForm ? 'Költségkeret' : 'Budget';
-  const timelineLabel = isHuForm ? 'Határidő' : 'Timeline';
-  const sourceLabel   = isHuForm ? 'Honnan találtál ránk?' : 'How did you find us?';
-  const pickPlaceholder = isHuForm ? 'Válassz (opcionális)' : 'Pick one (optional)';
 
-  const BUDGETS = isHuForm
+  // 1. lépés — üzleti kontextus, csak kattintással, gépelés nélkül
+  const projectStageLabel = isHuForm ? 'Hol tartasz most?' : 'Where are you right now?';
+  const goalLabel         = isHuForm ? 'Fő cél a weboldallal' : 'Main goal for the website';
+  const industryLabel     = isHuForm ? 'Milyen területen dolgozol?' : 'What industry are you in?';
+  const businessAgeLabel  = isHuForm ? 'Mióta létezik a vállalkozásod?' : 'How long has your business been running?';
+  const sourceLabel       = isHuForm ? 'Honnan találtál ránk?' : 'How did you find us?';
+  const pickPlaceholder   = isHuForm ? 'Válassz (opcionális)' : 'Pick one (optional)';
+
+  const PROJECT_STAGES: ChipOption[] = isHuForm
     ? [
-        { value: 'lt500',      label: '< 500 000 Ft' },
-        { value: '500-1500',   label: '500e – 1,5M Ft' },
-        { value: '1500-5000',  label: '1,5M – 5M Ft' },
-        { value: 'gt5000',     label: '5M Ft felett' },
-        { value: 'unknown',    label: 'Még nem tudom' },
+        { value: 'new',      label: 'Most indulok, nincs még weboldalam' },
+        { value: 'replace',  label: 'Van weboldalam, de le akarom cserélni' },
+        { value: 'expand',   label: 'Van weboldalam, bővíteném' },
+        { value: 'exploring',label: 'Még csak tájékozódom' },
       ]
     : [
-        { value: 'lt500',      label: 'Under 500k HUF' },
-        { value: '500-1500',   label: '500k – 1.5M HUF' },
-        { value: '1500-5000',  label: '1.5M – 5M HUF' },
-        { value: 'gt5000',     label: 'Over 5M HUF' },
-        { value: 'unknown',    label: 'Not sure yet' },
+        { value: 'new',      label: "Just starting, no website yet" },
+        { value: 'replace',  label: 'I have one but want to replace it' },
+        { value: 'expand',   label: 'I have one, want to expand it' },
+        { value: 'exploring',label: 'Just exploring' },
       ];
-  const TIMELINES = isHuForm
+
+  const GOALS: ChipOption[] = isHuForm
     ? [
-        { value: 'urgent',     label: 'Sürgős' },
-        { value: '1month',     label: '1 hónapon belül' },
-        { value: '1-3months',  label: '1–3 hónap' },
-        { value: 'exploring',  label: 'Csak tájékozódom' },
+        { value: 'leads',           label: 'Több megkeresés/érdeklődő' },
+        { value: 'branding',        label: 'Professzionálisabb megjelenés' },
+        { value: 'sales',           label: 'Online értékesítés' },
+        { value: 'existing_clients',label: 'Meglévő ügyfelek kiszolgálása' },
       ]
     : [
-        { value: 'urgent',     label: 'Urgent' },
-        { value: '1month',     label: 'Within 1 month' },
-        { value: '1-3months',  label: '1–3 months' },
-        { value: 'exploring',  label: 'Just exploring' },
+        { value: 'leads',           label: 'More inquiries / leads' },
+        { value: 'branding',        label: 'A more professional look' },
+        { value: 'sales',           label: 'Online sales' },
+        { value: 'existing_clients',label: 'Serving existing customers' },
       ];
-  const SOURCES = isHuForm
+
+  const INDUSTRIES: ChipOption[] = isHuForm
+    ? [
+        { value: 'services',     label: 'Szolgáltatás' },
+        { value: 'ecommerce',    label: 'Termékértékesítés (webshop)' },
+        { value: 'hospitality',  label: 'Vendéglátás, szálláshely' },
+        { value: 'health_beauty',label: 'Egészségügy, szépségipar' },
+        { value: 'other',        label: 'Egyéb' },
+      ]
+    : [
+        { value: 'services',     label: 'Services' },
+        { value: 'ecommerce',    label: 'Product sales (webshop)' },
+        { value: 'hospitality',  label: 'Hospitality, accommodation' },
+        { value: 'health_beauty',label: 'Health & beauty' },
+        { value: 'other',        label: 'Other' },
+      ];
+
+  const BUSINESS_AGES: ChipOption[] = isHuForm
+    ? [
+        { value: 'startup',    label: 'Most induló vállalkozás' },
+        { value: '1-3y',       label: '1-3 éve működöm' },
+        { value: 'established',label: 'Több éve stabil vállalkozás' },
+      ]
+    : [
+        { value: 'startup',    label: 'Just starting out' },
+        { value: '1-3y',       label: 'Running for 1-3 years' },
+        { value: 'established',label: 'Established, several years in' },
+      ];
+
+  const SOURCES: ChipOption[] = isHuForm
     ? [
         { value: 'google',     label: 'Google' },
         { value: 'instagram',  label: 'Instagram' },
@@ -245,13 +411,20 @@ export function FormNextToSection({
         { value: 'other',      label: 'Other' },
       ];
 
+  const QUESTIONS: { key: QuestionKey; label: string; options: ChipOption[] }[] = [
+    { key: 'projectStage', label: projectStageLabel, options: PROJECT_STAGES },
+    { key: 'goal',         label: goalLabel,         options: GOALS },
+    { key: 'industry',     label: industryLabel,     options: INDUSTRIES },
+    { key: 'businessAge',  label: businessAgeLabel,  options: BUSINESS_AGES },
+    { key: 'source',       label: sourceLabel,       options: SOURCES },
+  ];
+
   // ── Validáció ──
   const validate = () => {
     let valid = true;
     setNameError(null);
     setEmailError(null);
     setPhoneError(null);
-    setMessageError(null);
 
     if (!formData.name.trim()) { setNameError(messages.nameRequired); valid = false; }
     if (!formData.email.trim()) {
@@ -260,7 +433,6 @@ export function FormNextToSection({
       setEmailError(messages.emailInvalid); valid = false;
     }
     if (!formData.phone.trim()) { setPhoneError(messages.phoneRequired); valid = false; }
-    if (SHOW_MESSAGE && !formData.message.trim()) { setMessageError(messages.messageRequired); valid = false; }
 
     return valid;
   };
@@ -288,11 +460,13 @@ export function FormNextToSection({
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
-          message: formData.message,
-          projectType: formData.projectType || undefined,
-          budget: formData.budget || undefined,
-          timeline: formData.timeline || undefined,
+          projectStage: formData.projectStage || undefined,
+          goal: formData.goal || undefined,
+          industry: formData.industry || undefined,
+          businessAge: formData.businessAge || undefined,
           source: formData.source || undefined,
+          plan: selectedPlan || undefined,
+          marketingAddon: selectedPlan ? selectedMarketingAddon : undefined,
           page: pathname || '/',
           language: lang,
         }),
@@ -313,7 +487,15 @@ export function FormNextToSection({
       try { sendGAEvent('event', 'generate_lead', { form: 'contact', page: pathname || '/' }); } catch {}
       // Google Ads conversion — lead form submission (Consent Mode gates ad_storage/modeling)
       try { sendGAEvent('event', 'conversion', { send_to: 'AW-18293961883/S1jgCI3y8MwcEJvpnpNE', value: 1.0, currency: 'HUF' }); } catch {}
-      setFormData({ name: '', email: '', phone: '', message: '', projectType: '', budget: '', timeline: '', source: '' });
+      // Késleltetett reset — a sikeres üzenet a 2. lépésen jelenik meg, a lépésváltás
+      // azonnal elrejtené (unmount), mielőtt bárki elolvashatná.
+      setTimeout(() => {
+        setFormData({ name: '', email: '', phone: '', projectStage: '', goal: '', industry: '', businessAge: '', source: '' });
+        setSelectedPlan(null);
+        setSelectedMarketingAddon(false);
+        setStep(1);
+        setShowAlert(false);
+      }, 3000);
     } catch (err) {
       console.error('Beküldési hiba (hálózat):', err);
       setSubmitError(messages.networkError);
@@ -383,19 +565,20 @@ export function FormNextToSection({
         {/* Háttérvideó */}
         {videoUrl && (
           <video
+            ref={videoRef}
             className="absolute inset-0 w-full h-full object-cover z-0"
             src={videoUrl}
             {...(videoPoster ? { poster: videoPoster } : {})}
-            autoPlay
             loop
             muted
             playsInline
+            preload="metadata"
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-black/10 to-transparent z-0" />
 
         <div className="relative z-10 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-44">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 xl:gap-24 2xl:gap-32 items-center">
 
             {/* ── BAL: ŰRLAP ── */}
             <motion.div
@@ -406,10 +589,10 @@ export function FormNextToSection({
               viewport={{ once: true }}
             >
               <div className="flex flex-col h-full w-full sm:justify-self-center lg:max-w-lg">
-                <div className="bg-white backdrop-blur-md rounded-2xl p-8 md:p-10 shadow-lg flex-grow">
+                <div className="bg-white backdrop-blur-md rounded-2xl p-8 md:p-10 shadow-lg flex flex-col h-auto sm:h-[680px]">
 
                   {/* Cím */}
-                  <div className="mb-4">
+                  <div className="mb-4 shrink-0">
                     <p className="text-lg font-semibold mb-2 text-black/80">[davelopment]®</p>
                     <h2 className="text-3xl font-bold mb-2">
                       <span className="text-black">{heading}</span>
@@ -417,255 +600,292 @@ export function FormNextToSection({
                     </h2>
                   </div>
 
-                  <form onSubmit={handleSubmit} className="space-y-6">
-
-                    {/* NÉV */}
-                    {nameInput && (
-                      <div>
-                        <p className="text-xs font-medium text-black/80 mb-1">{nameInput.name}</p>
-                        <input
-                          type="text"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleChange}
-                          placeholder={nameInput.placeholder ?? nameInput.name}
-                          className={inputCls(!!nameError)}
-                        />
-                        {nameError && <p className="text-sm text-red-600 mt-1">{nameError}</p>}
-                      </div>
-                    )}
-
-                    {/* EMAIL */}
-                    {emailInput && (
-                      <div>
-                        <p className="text-xs font-medium text-black/80 mb-1">{emailInput.name}</p>
-                        <input
-                          type="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          placeholder={emailInput.placeholder ?? emailInput.name}
-                          className={inputCls(!!emailError)}
-                        />
-                        {emailError && <p className="text-sm text-red-600 mt-1">{emailError}</p>}
-                      </div>
-                    )}
-
-                    {/* TELEFON */}
-                    {phoneInput && (
-                      <div>
-                        <p className="text-xs font-medium text-black/80 mb-1">{phoneInput.name}</p>
-                        <input
-                          type="tel"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleChange}
-                          placeholder={phoneInput.placeholder ?? phoneInput.name}
-                          className={inputCls(!!phoneError)}
-                        />
-                        {phoneError && <p className="text-sm text-red-600 mt-1">{phoneError}</p>}
-                      </div>
-                    )}
-
-                    {/* ÜZENET */}
-                    {SHOW_MESSAGE && messageInput && (
-                      <div>
-                        <p className="text-xs font-medium text-black/80 mb-1">{messageInput.name}</p>
-                        <textarea
-                          name="message"
-                          value={formData.message}
-                          onChange={handleChange}
-                          rows={4}
-                          maxLength={1000}
-                          placeholder={messageInput.placeholder ?? messageInput.name}
-                          className={inputCls(!!messageError)}
-                        />
-                        <div className="flex items-center justify-between mt-1">
-                          {messageError
-                            ? <p className="text-sm text-red-600">{messageError}</p>
-                            : <span />}
-                          <span className="text-[11px] text-black/30 tabular-nums">{formData.message.length}/1000</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* ÜZLETI IRÁNY (opcionális) */}
-                    <div>
-                      <p className="text-xs font-medium text-black/80 mb-1">{projectTypeLabel}</p>
-                      <select
-                        name="projectType"
-                        value={formData.projectType}
-                        onChange={handleChange}
-                        className={`${inputCls(false)} appearance-none bg-white cursor-pointer ${!formData.projectType ? 'text-black/40' : ''}`}
-                      >
-                        <option value="">{projectTypePlaceholder}</option>
-                        {PROJECT_TYPES.map(pt => (
-                          <option key={pt.value} value={pt.value} className="text-black">{pt.label}</option>
+                  {/* Kiválasztott csomag + haladás-jelző — egy sorban */}
+                  <div className="mb-4 shrink-0 flex flex-col sm:flex-row-reverse sm:items-center justify-between gap-3">
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      <p className="text-xs font-semibold text-black/40 uppercase tracking-widest">
+                        {step} / 2
+                      </p>
+                      <div className="flex gap-1.5 w-10">
+                        {[1, 2].map((s) => (
+                          <div key={s} className="h-1 flex-1 rounded-full overflow-hidden bg-black/10">
+                            <motion.div
+                              className="h-full w-full rounded-full bg-black"
+                              style={{ transformOrigin: 'left' }}
+                              initial={false}
+                              animate={{ scaleX: s <= step ? 1 : 0 }}
+                              transition={{ duration: 0.4, ease: EASE }}
+                            />
+                          </div>
                         ))}
-                      </select>
-                    </div>
-
-                    {/* KÖLTSÉGKERET + HATÁRIDŐ (opcionális) */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-xs font-medium text-black/80 mb-1">{budgetLabel}</p>
-                        <select
-                          name="budget"
-                          value={formData.budget}
-                          onChange={handleChange}
-                          className={`${inputCls(false)} appearance-none bg-white cursor-pointer ${!formData.budget ? 'text-black/40' : ''}`}
-                        >
-                          <option value="">{pickPlaceholder}</option>
-                          {BUDGETS.map(o => (
-                            <option key={o.value} value={o.value} className="text-black">{o.label}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <p className="text-xs font-medium text-black/80 mb-1">{timelineLabel}</p>
-                        <select
-                          name="timeline"
-                          value={formData.timeline}
-                          onChange={handleChange}
-                          className={`${inputCls(false)} appearance-none bg-white cursor-pointer ${!formData.timeline ? 'text-black/40' : ''}`}
-                        >
-                          <option value="">{pickPlaceholder}</option>
-                          {TIMELINES.map(o => (
-                            <option key={o.value} value={o.value} className="text-black">{o.label}</option>
-                          ))}
-                        </select>
                       </div>
                     </div>
-
-                    {/* HONNAN TALÁLTÁL RÁNK (opcionális) */}
-                    <div>
-                      <p className="text-xs font-medium text-black/80 mb-1">{sourceLabel}</p>
-                      <select
-                        name="source"
-                        value={formData.source}
-                        onChange={handleChange}
-                        className={`${inputCls(false)} appearance-none bg-white cursor-pointer ${!formData.source ? 'text-black/40' : ''}`}
-                      >
-                        <option value="">{pickPlaceholder}</option>
-                        {SOURCES.map(o => (
-                          <option key={o.value} value={o.value} className="text-black">{o.label}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* ISMERETLEN TÍPUSÚ MEZŐK — generikusan renderelve */}
-                    {inputs
-                      .filter(i => fieldRole(i) === 'unknown')
-                      .map((input, idx) => (
-                        <div key={`unknown-${idx}`}>
-                          <p className="text-xs font-medium text-black/80 mb-1">{input.name}</p>
-                          <input
-                            type="text"
-                            name={`extra_${idx}`}
-                            placeholder={input.placeholder ?? input.name}
-                            className={inputCls(false)}
-                          />
-                        </div>
-                      ))}
-
-                    {/* SUBMIT GOMB */}
-                    <motion.button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full bg-black text-white rounded-full py-4 mt-2 font-semibold text-lg flex items-center justify-center disabled:opacity-50"
-                      initial="rest"
-                      whileHover="hover"
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {isSubmitting ? (
-                        <span className="animate-pulse">{messages.sending}</span>
-                      ) : (
-                        <motion.div className="overflow-hidden h-6">
-                          <motion.div className="flex flex-col" variants={wheelVariants}>
-                            <span>{submitInput?.name ?? (lang === 'hu' ? 'Üzenet küldése' : 'Send message')}</span>
-                            <span>{submitInput?.name ?? (lang === 'hu' ? 'Üzenet küldése' : 'Send message')}</span>
-                          </motion.div>
-                        </motion.div>
-                      )}
-                    </motion.button>
-
-                    {/* Állapotüzenet */}
-                    {showAlert && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className={`relative mt-6 rounded-xl px-5 py-4 text-sm text-center backdrop-blur-md border ${
-                          isSubmitting ? 'bg-yellow-50 border-yellow-300 text-yellow-800' : ''
-                        } ${submitSuccess ? 'bg-green-50 border-green-300 text-green-800' : ''} ${
-                          submitError ? 'bg-red-50 border-red-300 text-red-800' : ''
-                        }`}
-                      >
+                    {selectedPlan && (
+                      <div className="w-full sm:w-auto flex items-center justify-between gap-2 bg-black/5 rounded-full pl-4 pr-2 py-2 text-sm font-medium text-black">
+                        <span>
+                          {lang === 'hu' ? 'Kiválasztott csomag' : 'Selected package'}: <strong>{selectedPlan}</strong>
+                          {selectedMarketingAddon && (
+                            <> + <strong>{lang === 'hu' ? 'Marketing csomag' : 'Marketing package'}</strong></>
+                          )}
+                        </span>
                         <button
-                          onClick={() => setShowAlert(false)}
                           type="button"
-                          className="absolute top-2 right-2 text-black/40 hover:text-black"
+                          onClick={() => { setSelectedPlan(null); setSelectedMarketingAddon(false); }}
+                          aria-label={lang === 'hu' ? 'Csomag törlése' : 'Clear selected package'}
+                          className="w-5 h-5 flex items-center justify-center rounded-full bg-black/10 hover:bg-black/20 transition-colors shrink-0"
                         >
-                          <XIcon className="w-4 h-4" />
+                          <XIcon className="w-3 h-3" />
                         </button>
-                        <div className="flex items-center justify-center space-x-2">
-                          {isSubmitting && <ClockIcon className="w-5 h-5" />}
-                          {submitSuccess && <CheckCircleIcon className="w-5 h-5" />}
-                          {submitError && <XCircleIcon className="w-5 h-5" />}
-                          <span>
-                            {isSubmitting && messages.sending}
-                            {submitSuccess && messages.success}
-                            {submitError && submitError}
-                          </span>
-                        </div>
-                      </motion.div>
+                      </div>
                     )}
+                  </div>
 
-                    {/* Policy linkek */}
-                    {filteredPolicyLinks.length > 0 ? (
-                      <p className="text-xs text-black/60 text-left">
-                        {policy_prefix}{' '}
-                        {filteredPolicyLinks.map((link, index) => {
-                          const isLast       = index === filteredPolicyLinks.length - 1;
-                          const isSecondLast = index === filteredPolicyLinks.length - 2;
-                          const separator =
-                            filteredPolicyLinks.length === 1 ? ''
-                            : isLast ? ''
-                            : isSecondLast ? ` ${policy_and_word} `
-                            : ', ';
-                          const target =
-                            link.target === '_blank' || link.target === '_self'
-                              ? link.target
-                              : undefined;
-                          return (
-                            <React.Fragment key={`${link.URL}-${index}`}>
-                              <a
-                                href={link.URL!}
-                                target={target}
-                                rel={target === '_blank' ? 'noopener noreferrer' : undefined}
-                                className="text-black font-semibold hover:underline underline-offset-2"
+                  <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
+                    <AnimatePresence mode="wait">
+                      {step === 1 ? (
+                        <motion.div
+                          key="step1"
+                          layout
+                          initial={{ opacity: 0, x: 16 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -16 }}
+                          transition={{ duration: 0.25, ease: EASE }}
+                          className="flex-1 flex flex-col justify-between"
+                        >
+                          <div className="space-y-5">
+                            {(() => {
+                              const renderQ = (q: typeof QUESTIONS[number]) => (
+                                <DropdownQuestion
+                                  key={q.key}
+                                  label={q.label}
+                                  options={q.options}
+                                  value={formData[q.key]}
+                                  placeholder={pickPlaceholder}
+                                  isOpen={openQuestion === q.key}
+                                  onToggle={() => setOpenQuestion(openQuestion === q.key ? null : q.key)}
+                                  onSelect={(v) => {
+                                    setFormData(prev => ({ ...prev, [q.key]: v }));
+                                    setOpenQuestion(null);
+                                  }}
+                                />
+                              );
+                              const [projectStageQ, goalQ, industryQ, businessAgeQ, sourceQ] = QUESTIONS;
+                              return (
+                                <>
+                                  {renderQ(projectStageQ)}
+                                  {renderQ(goalQ)}
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {renderQ(industryQ)}
+                                    {renderQ(businessAgeQ)}
+                                  </div>
+                                  {renderQ(sourceQ)}
+                                </>
+                              );
+                            })()}
+                          </div>
+
+                          <motion.button
+                            type="button"
+                            onClick={() => setStep(2)}
+                            className="w-full bg-black text-white rounded-full py-4 mt-6 font-semibold text-lg flex items-center justify-center"
+                            initial="rest"
+                            whileHover="hover"
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <motion.div className="overflow-hidden h-6">
+                              <motion.div className="flex flex-col" variants={wheelVariants}>
+                                <span>{lang === 'hu' ? 'Tovább' : 'Continue'}</span>
+                                <span>{lang === 'hu' ? 'Tovább' : 'Continue'}</span>
+                              </motion.div>
+                            </motion.div>
+                          </motion.button>
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="step2"
+                          layout
+                          initial={{ opacity: 0, x: 16 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -16 }}
+                          transition={{ duration: 0.25, ease: EASE }}
+                          className="flex-1 flex flex-col justify-between"
+                        >
+                          <div className="space-y-6">
+                            <button
+                              type="button"
+                              onClick={() => setStep(1)}
+                              className="flex items-center gap-1.5 text-black/50 text-xs -mt-2 hover:text-black transition-colors"
+                            >
+                              <ChevronLeft className="h-3 w-3" /> {lang === 'hu' ? 'Vissza' : 'Back'}
+                            </button>
+
+                            {/* NÉV */}
+                            {nameInput && (
+                              <div>
+                                <p className="text-xs font-medium text-black/80 mb-1">{nameInput.name}</p>
+                                <input
+                                  type="text"
+                                  name="name"
+                                  value={formData.name}
+                                  onChange={handleChange}
+                                  placeholder={nameInput.placeholder ?? nameInput.name}
+                                  className={inputCls(!!nameError)}
+                                />
+                                {nameError && <p className="text-sm text-red-600 mt-1">{nameError}</p>}
+                              </div>
+                            )}
+
+                            {/* EMAIL */}
+                            {emailInput && (
+                              <div>
+                                <p className="text-xs font-medium text-black/80 mb-1">{emailInput.name}</p>
+                                <input
+                                  type="email"
+                                  name="email"
+                                  value={formData.email}
+                                  onChange={handleChange}
+                                  placeholder={emailInput.placeholder ?? emailInput.name}
+                                  className={inputCls(!!emailError)}
+                                />
+                                {emailError && <p className="text-sm text-red-600 mt-1">{emailError}</p>}
+                              </div>
+                            )}
+
+                            {/* TELEFON */}
+                            {phoneInput && (
+                              <div>
+                                <p className="text-xs font-medium text-black/80 mb-1">{phoneInput.name}</p>
+                                <input
+                                  type="tel"
+                                  name="phone"
+                                  value={formData.phone}
+                                  onChange={handleChange}
+                                  placeholder={phoneInput.placeholder ?? phoneInput.name}
+                                  className={inputCls(!!phoneError)}
+                                />
+                                {phoneError && <p className="text-sm text-red-600 mt-1">{phoneError}</p>}
+                              </div>
+                            )}
+
+                            {/* ISMERETLEN TÍPUSÚ MEZŐK — generikusan renderelve */}
+                            {inputs
+                              .filter(i => fieldRole(i) === 'unknown')
+                              .map((input, idx) => (
+                                <div key={`unknown-${idx}`}>
+                                  <p className="text-xs font-medium text-black/80 mb-1">{input.name}</p>
+                                  <input
+                                    type="text"
+                                    name={`extra_${idx}`}
+                                    placeholder={input.placeholder ?? input.name}
+                                    className={inputCls(false)}
+                                  />
+                                </div>
+                              ))}
+                          </div>
+
+                          <div className="space-y-4">
+                            {/* SUBMIT GOMB */}
+                            <motion.button
+                              type="submit"
+                              disabled={isSubmitting}
+                              className="w-full bg-black text-white rounded-full py-4 font-semibold text-lg flex items-center justify-center disabled:opacity-50"
+                              initial="rest"
+                              whileHover="hover"
+                              whileTap={{ scale: 0.98 }}
+                            >
+                              {isSubmitting ? (
+                                <span className="animate-pulse">{messages.sending}</span>
+                              ) : (
+                                <motion.div className="overflow-hidden h-6">
+                                  <motion.div className="flex flex-col" variants={wheelVariants}>
+                                    <span>{submitInput?.name ?? (lang === 'hu' ? 'Üzenet küldése' : 'Send message')}</span>
+                                    <span>{submitInput?.name ?? (lang === 'hu' ? 'Üzenet küldése' : 'Send message')}</span>
+                                  </motion.div>
+                                </motion.div>
+                              )}
+                            </motion.button>
+
+                            {/* Állapotüzenet */}
+                            {showAlert && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className={`relative rounded-xl px-5 py-4 text-sm text-center backdrop-blur-md border ${
+                                  isSubmitting ? 'bg-yellow-50 border-yellow-300 text-yellow-800' : ''
+                                } ${submitSuccess ? 'bg-green-50 border-green-300 text-green-800' : ''} ${
+                                  submitError ? 'bg-red-50 border-red-300 text-red-800' : ''
+                                }`}
                               >
-                                {link.text}
-                              </a>
-                              {!isLast && separator}
-                            </React.Fragment>
-                          );
-                        })}
-                        .
-                      </p>
-                    ) : (
-                      <p className="text-xs text-black/60 text-center">
-                        {lang === 'hu'
-                          ? 'Az űrlap elküldésével elfogadod az ÁSZF-et és az Adatkezelési tájékoztatót.'
-                          : 'By submitting this form you agree to our Terms of Service and Privacy Policy.'}
-                      </p>
-                    )}
+                                <button
+                                  onClick={() => setShowAlert(false)}
+                                  type="button"
+                                  className="absolute top-2 right-2 text-black/40 hover:text-black"
+                                >
+                                  <XIcon className="w-4 h-4" />
+                                </button>
+                                <div className="flex items-center justify-center space-x-2">
+                                  {isSubmitting && <ClockIcon className="w-5 h-5" />}
+                                  {submitSuccess && <CheckCircleIcon className="w-5 h-5" />}
+                                  {submitError && <XCircleIcon className="w-5 h-5" />}
+                                  <span>
+                                    {isSubmitting && messages.sending}
+                                    {submitSuccess && messages.success}
+                                    {submitError && submitError}
+                                  </span>
+                                </div>
+                              </motion.div>
+                            )}
+
+                            {/* Policy linkek */}
+                            {filteredPolicyLinks.length > 0 ? (
+                              <p className="text-xs text-black/60 text-left">
+                                {policy_prefix}{' '}
+                                {filteredPolicyLinks.map((link, index) => {
+                                  const isLast       = index === filteredPolicyLinks.length - 1;
+                                  const isSecondLast = index === filteredPolicyLinks.length - 2;
+                                  const separator =
+                                    filteredPolicyLinks.length === 1 ? ''
+                                    : isLast ? ''
+                                    : isSecondLast ? ` ${policy_and_word} `
+                                    : ', ';
+                                  const target =
+                                    link.target === '_blank' || link.target === '_self'
+                                      ? link.target
+                                      : undefined;
+                                  return (
+                                    <React.Fragment key={`${link.URL}-${index}`}>
+                                      <a
+                                        href={link.URL!}
+                                        target={target}
+                                        rel={target === '_blank' ? 'noopener noreferrer' : undefined}
+                                        className="text-black font-semibold hover:underline underline-offset-2"
+                                      >
+                                        {link.text}
+                                      </a>
+                                      {!isLast && separator}
+                                    </React.Fragment>
+                                  );
+                                })}
+                                .
+                              </p>
+                            ) : (
+                              <p className="text-xs text-black/60 text-center">
+                                {lang === 'hu'
+                                  ? 'Az űrlap elküldésével elfogadod az ÁSZF-et és az Adatkezelési tájékoztatót.'
+                                  : 'By submitting this form you agree to our Terms of Service and Privacy Policy.'}
+                              </p>
+                            )}
+                          </div>
+                        </motion.div>
+                        )}
+                      </AnimatePresence>
                   </form>
                 </div>
 
                 {/* Copyright */}
                 <div className="mt-4 text-left">
-                  <p className="text-sm text-gray-100">{copyright ?? '© [davelopment]®'}</p>
+                  <p className="text-sm text-gray-100">{copyright}</p>
                 </div>
               </div>
             </motion.div>
@@ -680,7 +900,7 @@ export function FormNextToSection({
             >
               <div className="flex flex-col h-full rounded-2xl p-8 md:p-10 text-white">
                 <motion.h2
-                  className="text-5xl md:text-8xl xl:text-8xl font-bold mb-8"
+                  className="text-5xl sm:text-6xl md:text-7xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold mb-8"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.3 }}

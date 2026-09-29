@@ -34,7 +34,6 @@ export type HeroProps = {
   description_lead?: string | null;
   description_body?: string | null;
   description_text?: string | null;
-  copyright?: string | null;
   contact_anchor_id?: string | null;
   badge_label?: string | null;
 };
@@ -74,10 +73,11 @@ function splitLead(body: string, sentencesCount = 2): { lead: string; rest: stri
 export const Hero = ({
   heading, sub_heading, CTAs, locale, video, video_poster,
   services = [], person, description_lead, description_body,
-  description_text, copyright, badge_label,
+  description_text, badge_label,
 }: HeroProps) => {
   const heroRef = useRef<HTMLElement | null>(null);
   const { y, scale } = useSlowScroll(heroRef);
+  const copyright = `© ${new Date().getFullYear()} [davelopment]® Studio`;
 
   const videoUrl = toAbs(video);
   const posterUrl = toAbs(video_poster);
@@ -107,7 +107,12 @@ export const Hero = ({
   // ============================================================
   if (!hasVideo) {
     return (
-      <section ref={heroRef as React.RefObject<HTMLElement>} className="max-w-9xl mx-auto px-2 md:px-8">
+      <div className="w-screen ml-[calc(50%-50vw)] mr-[calc(50%-50vw)]">
+      <section
+        ref={heroRef as React.RefObject<HTMLElement>}
+        data-hero-section
+        className="max-w-9xl mx-auto px-2 md:px-8"
+      >
         <div className="w-full pt-24 md:pt-32 pb-10">
           <motion.h1
             className="text-6xl md:text-8xl lg:text-9xl font-semibold text-black mb-16 md:mb-36"
@@ -129,12 +134,12 @@ export const Hero = ({
             </div>
             <div className="max-w-3xl flex flex-col md:flex-row gap-8 md:gap-20 items-start md:items-end">
               {sub_heading && (
-                <p className="text-3xl text-black font-normal indent-20">
+                <h2 className="text-3xl text-black font-normal indent-20">
                   {sub_heading}
                   {(computedDescription.lead || computedDescription.rest) && (
                     <span className="text-black/50 font-medium"> {computedDescription.lead} {computedDescription.rest}</span>
                   )}
-                </p>
+                </h2>
               )}
               {safeCTAs.length > 0 && (
                 <div className="flex flex-wrap gap-2 shrink-0">
@@ -159,6 +164,7 @@ export const Hero = ({
           </motion.div>
         </div>
       </section>
+      </div>
     );
   }
 
@@ -168,6 +174,7 @@ export const Hero = ({
   return (
     <motion.section
       ref={heroRef as React.RefObject<HTMLElement>}
+      data-hero-section
       style={{ y, scale }}
       className="relative rounded-2xl overflow-hidden bg-black text-white"
       aria-label="Hero"
@@ -218,8 +225,10 @@ export const Hero = ({
       <div className="relative z-[3] px-4 md:px-8 xl:px-16 py-10 md:py-14 lg:py-16 min-h-[78vh] md:min-h-[82vh] lg:min-h-[92vh] grid grid-rows-[1fr_auto]">
         <div className="grid grid-cols-12 gap-x-6 gap-y-8 items-start lg:items-center">
           <div className="col-span-12 lg:col-span-8">
-            <h1 className="font-bold tracking-tight leading-[0.9] text-[12vw] lg:text-[clamp(2.4rem,9.5vw,12rem)]">{heading}</h1>
-            <div className="mt-1 text-[5vw] font-semibold text-white/90 lg:mt-3 lg:text-[clamp(1.05rem,3vw,3.5rem)]">{sub_heading}</div>
+            <h1>
+              <span className="block font-bold tracking-tight leading-[0.9] text-[12vw] lg:text-[clamp(2.4rem,9.5vw,12rem)]">{heading}</span>
+              <span className="block mt-1 text-[5vw] font-semibold text-white/90 lg:mt-3 lg:text-[clamp(1.05rem,3vw,3.5rem)]">{sub_heading}</span>
+            </h1>
             {topCTAs?.length > 0 && (
               <div className="mt-5 flex flex-wrap items-center gap-2">
                 {topCTAs.map((cta) => (
@@ -274,14 +283,14 @@ export const Hero = ({
 
           <div className="col-span-12 md:col-span-6 lg:col-span-5 lg:col-start-1 order-2 lg:order-1">
             {(computedDescription.lead || computedDescription.rest) && (
-              <p className="leading-snug text-base md:text-xl indent-12 xl:indent-20 text-white/90">
+              <h2 className="leading-snug text-base md:text-xl indent-12 xl:indent-20 text-white/90 font-normal">
                 {computedDescription.lead && (
                   <span className="font-semibold">
                     {computedDescription.lead}{computedDescription.lead.endsWith('.') ? ' ' : '. '}
                   </span>
                 )}
                 {computedDescription.rest && <span className="font-light text-gray-200">{computedDescription.rest}</span>}
-              </p>
+              </h2>
             )}
           </div>
 

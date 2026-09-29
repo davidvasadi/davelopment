@@ -2,12 +2,12 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+import { Link } from 'next-view-transitions';
 
 import { LocaleSwitcher } from '../locale-switcher';
 import { Logo } from '@/components/logo';
+import { MotionLink } from '@/components/motion-link';
 import { cn } from '@/lib/utils';
-import { useNavClose } from '@/components/ui/preloader';
 
 type NavItem = { URL: string; text: string; target?: string };
 type LinkItem = { text: string; URL: string; target?: '_self' | '_blank' };
@@ -45,6 +45,8 @@ export function DesktopNavbar({
   contactInputs = [],
   copyrightText,
   navBgClass = 'bg-[#f5f5f5]',
+  overlayBgClass,
+  pill = false,
 }: {
   leftNavbarItems: NavItem[];
   rightNavbarItems: NavItem[];
@@ -54,10 +56,10 @@ export function DesktopNavbar({
   contactInputs?: ContactInput[];
   copyrightText?: string | null;
   navBgClass?: string;
+  overlayBgClass?: string;
+  pill?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const { navigateAfterClose } = useNavClose();
-  const router = useRouter();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
@@ -74,44 +76,46 @@ const inline = useMemo(
   [leftNavbarItems]
 );
 
-  const handleNavClick = (href: string, external?: boolean) => {
-    if (external) { window.open(href, '_blank'); return; }
-    setOpen(false);
-    router.push(href);
-  };
-
+  // pill = a hero fölött vagyunk (átlátszó háttér, fehér szöveg) — ugyanaz a
+  // navbar-szerkezet/betűtípus mint mindenhol, csak a szín vált, folyamatos
+  // átmenettel (nincs villanás), amikor scrollra visszaáll a normál sáv.
   return (
     <>
-      <div className={cn(navBgClass, HEADER_H)}>
+      <div className={cn(open ? (overlayBgClass || navBgClass) : navBgClass, HEADER_H, 'transition-colors duration-300')}>
         <nav className="relative flex items-center px-6 h-full">
-          <Logo locale={locale} image={logo?.image} text={logo?.company} />
+          <Logo locale={locale} image={logo?.image} text={logo?.company} dark={pill && !open} />
 
           {/* Inline nav gombok — ezeken nincs flip hover, csak az overlay-en */}
           <div className={cn(
             'hidden xl:flex absolute left-1/2 -translate-x-1/2 gap-[10rem] transition-opacity',
             open ? 'opacity-0 pointer-events-none' : 'opacity-100'
           )}>
-            {inline.map((it) => (
-              <button
-                key={it.text}
-                onClick={() => handleNavClick(`/${locale}${it.URL}`, isExternal(it.URL))}
-                className="text-base font-semibold text-black"
-              >
-                {it.text}
-              </button>
-            ))}
+            {inline.map((it) => {
+              const external = isExternal(it.URL);
+              return (
+                <Link
+                  key={it.text}
+                  href={external ? it.URL : `/${locale}${it.URL}`}
+                  target={external ? '_blank' : undefined}
+                  rel={external ? 'noopener noreferrer' : undefined}
+                  className={cn('text-base font-semibold transition-colors duration-300', pill ? 'text-white' : 'text-black')}
+                >
+                  {it.text}
+                </Link>
+              );
+            })}
           </div>
 
           <div className="ml-auto flex items-center gap-6">
-            <LocaleSwitcher currentLocale={locale} />
+            <LocaleSwitcher currentLocale={locale} dark={pill && !open} />
             <button
               aria-label={open ? (locale === 'hu' ? 'Menü bezárása' : 'Close menu') : (locale === 'hu' ? 'Menü megnyitása' : 'Open menu')}
               aria-expanded={open}
               onClick={() => setOpen(v => !v)}
               className="relative w-16 h-16 overflow-hidden"
             >
-              <motion.span className="absolute inset-x-1 h-0.5 bg-black" initial={false} animate={open ? { y: 0, rotate: 12 } : { y: -4, rotate: 0 }} transition={SPRING_FAST} />
-              <motion.span className="absolute inset-x-1 h-0.5 bg-black" initial={false} animate={open ? { y: 0, rotate: -12 } : { y: 4, rotate: 0 }} transition={SPRING_FAST} />
+              <motion.span className={cn('absolute inset-x-1 h-0.5 transition-colors duration-300', pill && !open ? 'bg-white' : 'bg-black')} initial={false} animate={open ? { y: 0, rotate: 12 } : { y: -4, rotate: 0 }} transition={SPRING_FAST} />
+              <motion.span className={cn('absolute inset-x-1 h-0.5 transition-colors duration-300', pill && !open ? 'bg-white' : 'bg-black')} initial={false} animate={open ? { y: 0, rotate: -12 } : { y: 4, rotate: 0 }} transition={SPRING_FAST} />
             </button>
           </div>
         </nav>
@@ -121,7 +125,7 @@ const inline = useMemo(
         {open && (
           <motion.div
             key="desktop-overlay"
-            className={cn('fixed left-0 right-0 bottom-0 z-[70]', OVERLAY_OFFSET, navBgClass)}
+            className={cn('fixed left-0 right-0 bottom-0 z-[70]', OVERLAY_OFFSET, overlayBgClass || navBgClass)}
             style={{ transformOrigin: 'top', overflow: 'hidden', willChange: 'transform, opacity' }}
             variants={OVERLAY_VARIANTS}
             initial="closed"
@@ -135,11 +139,11 @@ const inline = useMemo(
                   <motion.li key={`${it.text}-${i}`} variants={ITEM_VARIANTS}>
                     {/* Szöveg-flip hover: overflow-hidden + dupla szöveg + translateY animáció
                         A gomb magassága a szövegmérethez igazodik (leading-[0.95]) */}
-                    <motion.button
-                      onClick={() => handleNavClick(
-                        isExternal(it.URL) ? it.URL : `/${locale}${it.URL}`,
-                        isExternal(it.URL)
-                      )}
+                    <MotionLink
+                      href={isExternal(it.URL) ? it.URL : `/${locale}${it.URL}`}
+                      target={isExternal(it.URL) ? '_blank' : undefined}
+                      rel={isExternal(it.URL) ? 'noopener noreferrer' : undefined}
+                      onClick={() => setOpen(false)}
                       className="block w-full font-semibold text-black text-center"
                       whileHover="hover"
                       initial="rest"
@@ -155,7 +159,7 @@ const inline = useMemo(
                           variants={{ rest: { y: 0 }, hover: { y: -90, transition: { duration: 0.35, ease: [0.33,1,0.68,1] } } }}
                         >{it.text}</motion.div>
                       </div>
-                    </motion.button>
+                    </MotionLink>
                   </motion.li>
                 ))}
               </motion.ul>
@@ -178,7 +182,7 @@ const inline = useMemo(
                         <span className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-white block" />
                       </div>
                     </motion.div>
-                    <span className="relative block text-[30px] md:text-[32px] font-semibold text-black tracking-tight">
+                    <span className="relative block text-[30px] md:text-[32px] lg:text-[22px] xl:text-[32px] font-semibold text-black tracking-tight">
                       {value}
                       <motion.span className="absolute left-0 -bottom-[2px] right-0 h-0.5 bg-black origin-left" variants={{ hover: CONTACT_HOVER.underline }} />
                     </span>
@@ -197,7 +201,7 @@ const inline = useMemo(
                   isExternal(p.URL) ? (
                     <a key={`pol-${i}`} href={p.URL} target={p.target || '_self'} rel={p.target === '_blank' ? 'noreferrer' : undefined} onClick={() => setOpen(false)} className="text-sm text-black hover:opacity-70 transition">{p.text}</a>
                   ) : (
-                    <button key={`pol-${i}`} onClick={() => handleNavClick(withLocale(p.URL, locale))} className="text-sm text-black hover:opacity-70 transition">{p.text}</button>
+                    <Link key={`pol-${i}`} href={withLocale(p.URL, locale)} onClick={() => setOpen(false)} className="text-sm text-black hover:opacity-70 transition">{p.text}</Link>
                   )
                 )}
               </div>

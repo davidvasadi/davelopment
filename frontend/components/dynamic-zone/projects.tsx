@@ -97,7 +97,7 @@ export const Projects: React.FC<ProjectsProps> = ({
         />
 
         <div className="mt-8 md:mt-16">
-          <div className="max-w-7xl mx-auto">
+          <div className=" mx-auto">
 
             {/* NINCS TALÁLAT */}
             {!first && (

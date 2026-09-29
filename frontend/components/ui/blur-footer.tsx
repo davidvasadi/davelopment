@@ -1,19 +1,28 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 
 export function BlurFooter() {
     const blurRef = useRef<HTMLDivElement>(null);
+    const pathname = usePathname();
 
     useEffect(() => {
         const handleScroll = () => {
             if (!blurRef.current) return;
 
-            const scrollY = window.scrollY;
             const windowHeight = window.innerHeight;
             const footerEl = document.querySelector('footer');
+            const heroEl = document.querySelector('[data-hero-section]');
 
-            const fadeInFromTop = Math.min(1, scrollY / 120);
+            // Ha van hero az oldalon: csak annak elhagyása után jelenjen meg.
+            // Ha nincs hero: mindig ott van (nincs scroll-alapú bejövő fade).
+            let fadeInFromTop = 1;
+            if (heroEl) {
+                const heroBottom = heroEl.getBoundingClientRect().bottom;
+                // Kicsit a hero teljes eltűnése előtt már bekapcsol (nem vár, amíg 100%-ban eltűnik).
+                fadeInFromTop = heroBottom <= 500 ? 1 : 0;
+            }
 
             let fadeOutNearFooter = 1;
             if (footerEl) {
@@ -29,7 +38,7 @@ export function BlurFooter() {
         window.addEventListener('scroll', handleScroll, { passive: true });
         handleScroll();
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    }, [pathname]);
 
     return (
         <div
@@ -39,8 +48,8 @@ export function BlurFooter() {
                 height: '200px',
                 // Semmi háttérszín — csak tiszta blur
                 background: 'transparent',
-                backdropFilter: 'blur(1px)',
-                WebkitBackdropFilter: 'blur(1px)',
+                backdropFilter: 'blur(4px)',
+                WebkitBackdropFilter: 'blur(4px)',
                 // Maszk: alul látható, felül elhal
                 maskImage: 'linear-gradient(to top, black 0%, black 20%, rgba(0,0,0,0.5) 50%, transparent 100%)',
                 WebkitMaskImage: 'linear-gradient(to top, black 0%, black 20%, rgba(0,0,0,0.5) 50%, transparent 100%)',

@@ -1,6 +1,5 @@
 import { MotionProps } from 'framer-motion';
 import React from 'react';
-import Balancer from 'react-wrap-balancer';
 
 import { cn } from '@/lib/utils';
 
@@ -21,10 +20,11 @@ export const Subheading = ({
       className={cn(
         'text-sm md:text-base  max-w-4xl text-left my-4 mx-auto',
         'text-muted  font-normal',
+        'text-balance',
         className
       )}
     >
-      <Balancer>{children}</Balancer>
+      {children}
     </Tag>
   );
 };

@@ -226,7 +226,9 @@ export const Button: React.FC<ButtonProps> = ({
       >
         {isPlainText ? (
           <>
-            <div className="overflow-hidden h-3">
+            {/* h-4: a szöveg (text-sm, leading-none) ~14px magas, h-3 (12px)
+                levágta az ereszkedős betűk alját (pl. "j") — h-4 biztos helyet ad. */}
+            <div className="overflow-hidden h-4">
               <motion.div
                 className="flex flex-col leading-none"
                 variants={wheelVariants}

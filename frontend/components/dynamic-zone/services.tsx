@@ -5,6 +5,9 @@ import { motion } from 'framer-motion';
 import { Plus as PlusIcon, Minus as MinusIcon } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { GrainCanvas } from '../ui/grain-canvas';
+import { CapabilitiesAccordion } from './capabilities-accordion';
+
+const CAPABILITIES_BADGES = ['Miből áll', 'What it covers'];
 
 export type ServicesBlockProps = {
     __component: string;
@@ -51,6 +54,8 @@ type UIService = {
     categories: string[];
     categoriesTitle: string;
     categoryCount?: string;
+    icon?: string;
+    stats?: { value?: string; suffix?: string; label?: string }[];
 };
 
 const GRID = 'grid grid-cols-[80px_1fr_60px] lg:grid-cols-[200px_1fr_60px]';
@@ -87,6 +92,8 @@ export function Services(props: ServicesBlockProps) {
             categories: (it?.categories ?? []).map((c: any) => c?.label).filter(Boolean),
             categoriesTitle: it?.categories_title || 'Categories',
             categoryCount: it?.category_count ?? '',
+            icon: it?.icon ?? undefined,
+            stats: Array.isArray(it?.stats) ? it.stats : [],
         }));
     }, [elements_service_item]);
 
@@ -110,6 +117,22 @@ export function Services(props: ServicesBlockProps) {
         if (el) el.scrollIntoView({ behavior: 'smooth' });
         else window.location.hash = `#${t.replace(/^#/, '')}`;
     };
+
+    // "Amit kapsz" / "What you get" jellegű blokkoknál egy teljesen más,
+    // világos, kártyás accordiont adunk vissza — a többi (pl. "A projekt
+    // menete") változatlanul a sötét, teljes szélességű változatot kapja.
+    if (badge_label && CAPABILITIES_BADGES.includes(badge_label)) {
+        return (
+            <CapabilitiesAccordion
+                heading={heading}
+                sub_heading={sub_heading}
+                badge_label={badge_label}
+                cta_title={cta_title}
+                cta_anchor={cta_anchor}
+                items={services}
+            />
+        );
+    }
 
     return (
         <div className="px-0 md:px-2">

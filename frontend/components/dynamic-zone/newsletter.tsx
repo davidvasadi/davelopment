@@ -134,13 +134,13 @@ export const Newsletter: React.FC<NewsletterProps> = ({
       <div className="max-w-9xl mx-auto px-6 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-          {/* ── SZÖVEGES BLOKK — fade up, minden görgetéskor ── */}
+          {/* ── SZÖVEGES BLOKK — fade up, ugyanaz a mintázat mint a form-next-to-section-ben ── */}
           <motion.div
             className="space-y-8"
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.3 }}
-            transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
           >
             <h2 className="text-2xl md:text-3xl font-medium text-black indent-20 max-w-xl">
               <span className="text-black/60">{resolveText(heading_left, isHu)}</span>{' '}
@@ -162,10 +162,10 @@ export const Newsletter: React.FC<NewsletterProps> = ({
           {/* ── FORM BLOKK — fade up, kis delay ── */}
           <motion.div
             className="space-y-8"
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.3 }}
-            transition={{ duration: 0.6, delay: 0.1, ease: [0.33, 1, 0.68, 1] }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
             <h3 className="text-2xl font-semibold text-black">
               {resolveText(title, isHu) || (isHu ? 'Hírlevél' : 'Newsletter')}
