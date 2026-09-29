@@ -79,6 +79,7 @@ export const Articles: CollectionConfig = {
       relationTo: 'categories',
       label: 'Kategóriák',
       hasMany: true,
+      localized: true,
     },
     seoField(),
     {
