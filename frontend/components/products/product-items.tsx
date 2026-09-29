@@ -122,7 +122,7 @@ const ProductItem = ({
               {product.name}
             </h3>
             <span className="inline-flex shrink-0 items-center rounded-full bg-black px-3 py-1 text-xs font-semibold text-white">
-              ${formatNumber(product.price)}
+              {formatNumber(product.price, locale)} Ft
             </span>
           </div>
 

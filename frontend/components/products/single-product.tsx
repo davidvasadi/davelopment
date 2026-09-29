@@ -36,6 +36,41 @@ const dotVariants: Variants = {
   hover: { scale: 1.4, transition: { duration: 0.4, ease: 'easeInOut' } },
 };
 
+// Egy szöveges mezőt bekezdésekre/valódi listákra bont: minden "- " kezdetű
+// sor egy <li>, az egymást követő ilyen sorok egy <ul>-ba kerülnek, minden
+// más sor sima <p>. Sima, listát nem tartalmazó szöveg egyetlen <p>-ként jön ki.
+function renderTextBlocks(text?: string | null) {
+  if (!text) return null;
+  const lines = text.split('\n').filter((l) => l.trim());
+  const blocks: React.ReactNode[] = [];
+  let currentList: string[] = [];
+
+  const flushList = () => {
+    if (currentList.length) {
+      blocks.push(
+        <ul key={`list-${blocks.length}`} className="list-disc pl-5 space-y-1 my-4">
+          {currentList.map((item, i) => (
+            <li key={i}>{item}</li>
+          ))}
+        </ul>
+      );
+      currentList = [];
+    }
+  };
+
+  lines.forEach((line) => {
+    if (line.startsWith('- ')) {
+      currentList.push(line.slice(2));
+    } else {
+      flushList();
+      blocks.push(<p key={`p-${blocks.length}`}>{line}</p>);
+    }
+  });
+  flushList();
+
+  return blocks;
+}
+
 export const SingleProduct = ({
   product,
   locale,
@@ -119,7 +154,7 @@ export const SingleProduct = ({
 
   return (
     <Container>
-    <div className="">
+    <div className="pb-16 md:pb-24">
 
       {/* FELSŐ HEADING — a média (kép/videó) a cím mögött, háttérként jelenik meg, ha van. A leírás médiánál kívül kerül. */}
       <motion.section
@@ -143,7 +178,7 @@ export const SingleProduct = ({
         {!heroVideoUrl && heroImageUrl && (
           <StrapiImage
             src={heroImageUrl}
-            alt={product.name}
+            alt={product.media?.alt || product.name}
             fill
             className="absolute inset-0 h-full w-full object-cover z-0"
           />
@@ -152,14 +187,14 @@ export const SingleProduct = ({
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent z-[1]" />
         )}
 
-        <motion.h2
+        <motion.h1
           className={`relative z-10 ${titleSizeClass} font-semibold mb-4 max-w-4xl break-words ${
             hasHeroMedia ? 'text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.55)]' : 'text-black'
           }`}
           {...fadeUp(0.05, 50)}
         >
           {product.name}
-        </motion.h2>
+        </motion.h1>
 
         {!hasHeroMedia && <div className="mt-[100px]">{badgeAndDescription}</div>}
       </motion.section>
@@ -211,7 +246,7 @@ export const SingleProduct = ({
                   <div className="relative w-full aspect-[4/3] md:aspect-[3/2] rounded-2xl overflow-hidden">
                     <StrapiImage
                       src={activeThumbnail}
-                      alt={product.name}
+                      alt={galleryImages[0]?.alt || product.name}
                       width={900}
                       height={700}
                       className="h-full w-full object-cover"
@@ -228,7 +263,7 @@ export const SingleProduct = ({
                   <div className="relative w-full aspect-[4/3] md:aspect-[3/2] rounded-2xl overflow-hidden">
                     <StrapiImage
                       src={secondImageUrl}
-                      alt={product.name}
+                      alt={galleryImages[1]?.alt || product.name}
                       width={900}
                       height={700}
                       className="h-full w-full object-cover"
@@ -254,8 +289,8 @@ export const SingleProduct = ({
             </div>
           </div>
           <div>
-            <div className="text-3xl font-medium text-black">{heading_center}</div>
-            <p className="font-regular text-black max-w-lg text-lg mt-10">{description_center}</p>
+            <h2 className="text-3xl font-medium text-black">{heading_center}</h2>
+            <div className="font-regular text-black max-w-lg text-lg mt-10 space-y-4">{renderTextBlocks(description_center)}</div>
 
             {button_center?.text && (
               <motion.div {...fadeUp(0.08, 20)} className="inline-block mt-10">
@@ -292,7 +327,7 @@ export const SingleProduct = ({
               >
                 <StrapiImage
                   src={strapiImage(img.url)}
-                  alt={img.alternativeText || product.name}
+                  alt={img.alt || product.name}
                   width={1600}
                   height={900}
                   className="w-full h-auto object-cover"
@@ -304,28 +339,6 @@ export const SingleProduct = ({
 
         {/* PLANS + CATEGORIES + BOTTOM SECTION */}
         <motion.div className="mt-[100px]" {...fadeUp(0.05, 40)}>
-
-          {product.plans && product.plans.length > 0 && (
-            <>
-              <motion.h3
-                className="text-sm font-medium text-neutral-400 mb-2"
-                {...fadeUp(0.05, 20)}
-              >
-                {isHu ? 'Elérhető' : 'Available for'}
-              </motion.h3>
-              <motion.ul className="list-none flex gap-4 flex-wrap" {...fadeUp(0.08, 20)}>
-                {product.plans.map((plan, index) => (
-                  <motion.li
-                    key={index}
-                    className="bg-neutral-800 text-sm text-white px-3 py-1 rounded-full font-medium"
-                    {...fadeUp(0.08 + index * 0.03, 10)}
-                  >
-                    {plan.name}
-                  </motion.li>
-                ))}
-              </motion.ul>
-            </>
-          )}
 
           {product.categories && product.categories.length > 0 && (
             <>
@@ -362,8 +375,8 @@ export const SingleProduct = ({
               </div>
             </div>
             <div>
-              <div className="text-3xl font-medium text-black">{heading_bottom}</div>
-              <p className="font-regular text-black max-w-lg text-lg mt-10">{description_bottom}</p>
+              <h2 className="text-3xl font-medium text-black">{heading_bottom}</h2>
+              <div className="font-regular text-black max-w-lg text-lg mt-10 space-y-4">{renderTextBlocks(description_bottom)}</div>
             </div>
           </motion.div>
 

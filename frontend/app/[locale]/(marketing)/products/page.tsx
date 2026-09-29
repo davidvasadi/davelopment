@@ -120,7 +120,7 @@ export default async function Products(props: {
           </Heading>
           <div className="flex flex-col">
             <Subheading className="text-black m-0 p-0">
-              (2025-26©)
+              (2025-{String(new Date().getFullYear()).slice(-2)}©)
               <br />
               {productPage.sub_heading}
             </Subheading>

@@ -7,6 +7,7 @@ import { Plus as PlusIcon } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { Link } from 'next-view-transitions';
 import { MotionLink } from '@/components/motion-link';
+import { Container } from '@/components/container';
 
 const toAbs = (m?: any): string | undefined => {
   if (!m) return undefined;
@@ -18,6 +19,11 @@ const toAbs = (m?: any): string | undefined => {
 const isVideo = (m?: any): boolean =>
   !!(m?.mimeType?.startsWith('video') || m?.mime?.startsWith('video'));
 
+const isExternal = (u?: string | null) =>
+  !!u && (u.startsWith('http') || u.startsWith('mailto:') || u.startsWith('tel:'));
+const withLocale = (u: string | null | undefined, locale: string) =>
+  isExternal(u) ? (u as string) : `/${locale}${u ?? ''}`;
+
 function MediaBlock({ media, url, alt, sizes }: { media: any; url: string; alt: string; sizes: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -25,7 +31,7 @@ function MediaBlock({ media, url, alt, sizes }: { media: any; url: string; alt: 
     if (!videoRef.current) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) videoRef.current?.play().catch(() => {});
+        if (entry.isIntersecting) videoRef.current?.play().catch(() => { });
         else videoRef.current?.pause();
       },
       { threshold: 0.3 }
@@ -42,7 +48,7 @@ function MediaBlock({ media, url, alt, sizes }: { media: any; url: string; alt: 
         muted
         loop
         playsInline
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover/cta:scale-110 group-hover/cta-m:scale-110"
       />
     );
   }
@@ -52,7 +58,7 @@ function MediaBlock({ media, url, alt, sizes }: { media: any; url: string; alt: 
       src={url}
       alt={alt}
       fill
-      className="object-cover"
+      className="object-cover transition-transform duration-500 ease-out group-hover/cta:scale-110 group-hover/cta-m:scale-110"
       sizes={sizes}
     />
   );
@@ -95,57 +101,79 @@ export const CTA = ({
   badge_label?: string | null;
   image?: any[] | null;
 }) => {
-  const mediaList   = Array.isArray(image) ? image : image ? [image] : [];
-  const firstMedia  = mediaList[0] ?? null;
+  const mediaList = Array.isArray(image) ? image : image ? [image] : [];
+  const firstMedia = mediaList[0] ?? null;
   const firstImgUrl = toAbs(firstMedia);
   const firstImgAlt = firstMedia?.alternativeText ?? heading;
 
   return (
-    <div className="max-w-7xl mx-auto px-2 md:px-4 py-12 md:py-20">
+    <Container>
+      <div className="py-12 md:py-20">
 
-      {/* ══════════════ DESKTOP ══════════════ */}
-      <div className="hidden md:flex md:flex-row md:items-stretch group/cta">
-        {/* Left — szöveg + gomb kártya */}
-        <motion.div
-          {...fadeUp(0)}
-          className="flex-1 min-w-0 flex flex-col justify-between bg-white rounded-2xl group-hover/cta:rounded-r-none mr-1 group-hover/cta:mr-0 transition-[border-radius,margin-right] duration-300 p-8 lg:p-10"
-        >
-          <div>
-            {badge_label && (
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center shrink-0 group-hover/cta:rotate-90 transition-transform duration-300">
-                  <PlusIcon className="w-3 h-3 text-white" />
+        {/* ══════════════ DESKTOP ══════════════ */}
+        <div className="hidden md:flex md:flex-row md:items-stretch group/cta">
+          {/* Left — szöveg + gomb kártya */}
+          <motion.div
+            {...fadeUp(0)}
+            className="flex-1 min-w-0 flex flex-col justify-between bg-white rounded-2xl group-hover/cta:rounded-r-none mr-1 group-hover/cta:mr-0 transition-[border-radius,margin-right] duration-300 p-8 lg:p-10"
+          >
+            <div>
+              {badge_label && (
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center shrink-0 group-hover/cta:rotate-90 transition-transform duration-300">
+                    <PlusIcon className="w-3 h-3 text-white" />
+                  </div>
+                  <p className="text-sm font-medium text-gray-700">{badge_label}</p>
                 </div>
-                <p className="text-sm font-medium text-gray-700">{badge_label}</p>
-              </div>
-            )}
-            <h2 className="font-medium tracking-tight leading-tight mb-6">
-              <span className="text-black text-3xl md:text-4xl lg:text-5xl">{heading}</span>
-              {heading_highlight && (
-                <> <span className="text-black/50 text-3xl md:text-4xl lg:text-5xl">{heading_highlight}</span></>
               )}
-            </h2>
-            {sub_heading && (
-              <p className="text-sm text-gray-400 leading-relaxed mb-6">{sub_heading}</p>
-            )}
-          </div>
+              <h2 className="font-medium tracking-tight leading-tight mb-6">
+                <span className="text-black text-3xl md:text-4xl lg:text-5xl">{heading}</span>
+                {heading_highlight && (
+                  <> <span className="text-black/50 text-3xl md:text-4xl lg:text-5xl">{heading_highlight}</span></>
+                )}
+              </h2>
+              {sub_heading && (
+                <p className="text-sm text-gray-400 leading-relaxed mb-6">{sub_heading}</p>
+              )}
+            </div>
 
-          {CTAs && CTAs.length > 0 && (
-            <div className="flex flex-wrap items-center gap-3">
-              {CTAs.map((cta, index) => {
-                const isPrimary = cta.variant === 'primary' || (cta.variant == null && index === 0);
-                if (isPrimary) {
+            {CTAs && CTAs.length > 0 && (
+              <div className="flex flex-wrap items-center gap-3">
+                {CTAs.map((cta, index) => {
+                  const isPrimary = cta.variant === 'primary' || (cta.variant == null && index === 0);
+                  if (isPrimary) {
+                    return (
+                      <MotionLink
+                        key={index}
+                        href={withLocale(cta.URL, locale)}
+                        target={cta.target ?? '_self'}
+                        rel={cta.target === '_blank' ? 'noopener noreferrer' : undefined}
+                        initial="rest"
+                        whileHover="hover"
+                        animate="rest"
+                        data-cta={cta.text}
+                        className="inline-flex items-center justify-center rounded-full bg-black text-white text-sm font-medium overflow-hidden px-6 py-3.5"
+                      >
+                        <div style={{ overflow: 'hidden', height: 18 }}>
+                          <motion.div className="flex flex-col" style={{ lineHeight: '18px' }} variants={wheelVariants}>
+                            <span className="block">{cta.text}</span>
+                            <span className="block" aria-hidden="true">{cta.text}</span>
+                          </motion.div>
+                        </div>
+                      </MotionLink>
+                    );
+                  }
                   return (
                     <MotionLink
                       key={index}
-                      href={`/${locale}${cta.URL ?? ''}`}
+                      href={withLocale(cta.URL, locale)}
                       target={cta.target ?? '_self'}
                       rel={cta.target === '_blank' ? 'noopener noreferrer' : undefined}
                       initial="rest"
                       whileHover="hover"
                       animate="rest"
                       data-cta={cta.text}
-                      className="inline-flex items-center justify-center rounded-full bg-black text-white text-sm font-medium overflow-hidden px-6 py-3.5"
+                      className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-transparent text-gray-900 text-sm font-medium overflow-hidden px-6 py-3.5"
                     >
                       <div style={{ overflow: 'hidden', height: 18 }}>
                         <motion.div className="flex flex-col" style={{ lineHeight: '18px' }} variants={wheelVariants}>
@@ -155,147 +183,127 @@ export const CTA = ({
                       </div>
                     </MotionLink>
                   );
-                }
-                return (
-                  <MotionLink
-                    key={index}
-                    href={`/${locale}${cta.URL ?? ''}`}
-                    target={cta.target ?? '_self'}
-                    rel={cta.target === '_blank' ? 'noopener noreferrer' : undefined}
-                    initial="rest"
-                    whileHover="hover"
-                    animate="rest"
-                    data-cta={cta.text}
-                    className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-transparent text-gray-900 text-sm font-medium overflow-hidden px-6 py-3.5"
-                  >
-                    <div style={{ overflow: 'hidden', height: 18 }}>
-                      <motion.div className="flex flex-col" style={{ lineHeight: '18px' }} variants={wheelVariants}>
-                        <span className="block">{cta.text}</span>
-                        <span className="block" aria-hidden="true">{cta.text}</span>
-                      </motion.div>
-                    </div>
-                  </MotionLink>
-                );
-              })}
-            </div>
-          )}
-        </motion.div>
-
-        {/* Right — képkártya */}
-        {firstImgUrl && (
-          <motion.div
-            {...fadeUp(0.1)}
-            className="relative w-full md:w-[280px] lg:w-[340px] flex-shrink-0 bg-white rounded-2xl group-hover/cta:rounded-l-none transition-[border-radius] duration-300 p-2 min-h-[360px]"
-          >
-            <div className="relative w-full h-full rounded-xl overflow-hidden min-h-[340px]">
-              <MediaBlock
-                media={firstMedia}
-                url={firstImgUrl}
-                alt={firstImgAlt}
-                sizes="(min-width: 1024px) 340px, 280px"
-              />
-            </div>
-          </motion.div>
-        )}
-      </div>
-
-      {/* ══════════════ MOBILE ══════════════ */}
-      <div className="flex flex-col md:hidden group/cta-m">
-        {/* Képkártya */}
-        {firstImgUrl && (
-  <motion.div
-    {...fadeUp(0)}
-    className="relative w-full bg-white rounded-2xl group-hover/cta-m:rounded-b-none mb-1 group-hover/cta-m:mb-0 transition-[border-radius,margin-bottom] duration-300 p-2"
-    style={{ height: '52vw', minHeight: 210, maxHeight: 320 }}
-  >
-    <div className="relative w-full h-full rounded-xl overflow-hidden">
-      <MediaBlock
-        media={firstMedia}
-        url={firstImgUrl}
-        alt={firstImgAlt}
-        sizes="100vw"
-      />
-
-      {/* Badge – a képen belül, absolute */}
-      {badge_label && (
-        <div className="absolute top-3 left-3 flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-sm">
-          <div className="w-4 h-4 bg-black rounded-full flex items-center justify-center shrink-0 group-hover/cta-m:rotate-90 transition-transform duration-300">
-            <PlusIcon className="w-2.5 h-2.5 text-white" />
-          </div>
-          <p className="text-xs font-medium text-gray-700">{badge_label}</p>
-        </div>
-      )}
-    </div>
-  </motion.div>
-)}
-
-        {/* Szöveg + gomb kártya */}
-        <motion.div
-          {...fadeUp(0.08)}
-          className="flex flex-col gap-5 bg-white rounded-2xl group-hover/cta-m:rounded-t-none transition-[border-radius] duration-300 px-6 pt-5 pb-8"
-        >
-          {/* Heading */}
-          <h2 className="font-medium tracking-tight leading-[1.08]">
-            <span className="text-black text-[1.75rem]">{heading}</span>
-            {heading_highlight && (
-              <> <span className="text-black/45 text-[1.75rem]">{heading_highlight}</span></>
+                })}
+              </div>
             )}
-          </h2>
+          </motion.div>
 
-          {/* Sub heading */}
-          {sub_heading && (
-            <p className="text-sm text-gray-400 leading-relaxed font-light -mt-1">
-              {sub_heading}
-            </p>
+          {/* Right — képkártya */}
+          {firstImgUrl && (
+            <motion.div
+              {...fadeUp(0.1)}
+              className="relative w-full md:w-[280px] lg:w-[340px] flex-shrink-0 bg-white rounded-2xl group-hover/cta:rounded-l-none transition-[border-radius] duration-300 p-2 min-h-[360px]"
+            >
+              <div className="relative w-full h-full rounded-xl overflow-hidden min-h-[340px]">
+                <MediaBlock
+                  media={firstMedia}
+                  url={firstImgUrl}
+                  alt={firstImgAlt}
+                  sizes="(min-width: 1024px) 340px, 280px"
+                />
+              </div>
+            </motion.div>
+          )}
+        </div>
+
+        {/* ══════════════ MOBILE ══════════════ */}
+        <div className="flex flex-col md:hidden group/cta-m">
+          {/* Képkártya */}
+          {firstImgUrl && (
+            <motion.div
+              {...fadeUp(0)}
+              className="relative w-full bg-white rounded-2xl group-hover/cta-m:rounded-b-none mb-1 group-hover/cta-m:mb-0 transition-[border-radius,margin-bottom] duration-300 p-2"
+              style={{ height: '52vw', minHeight: 210, maxHeight: 320 }}
+            >
+              <div className="relative w-full h-full rounded-xl overflow-hidden">
+                <MediaBlock
+                  media={firstMedia}
+                  url={firstImgUrl}
+                  alt={firstImgAlt}
+                  sizes="100vw"
+                />
+
+                {/* Badge – a képen belül, absolute */}
+                {badge_label && (
+                  <div className="absolute top-3 left-3 flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-sm">
+                    <div className="w-4 h-4 bg-black rounded-full flex items-center justify-center shrink-0 group-hover/cta-m:rotate-90 transition-transform duration-300">
+                      <PlusIcon className="w-2.5 h-2.5 text-white" />
+                    </div>
+                    <p className="text-xs font-medium text-gray-700">{badge_label}</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
           )}
 
-          {/* CTAs */}
-          {CTAs && CTAs.length > 0 && (
-            <div className="flex flex-col gap-2.5 pt-1">
-              {CTAs.map((cta, index) => {
-                const isPrimary = cta.variant === 'primary' || (cta.variant == null && index === 0);
+          {/* Szöveg + gomb kártya */}
+          <motion.div
+            {...fadeUp(0.08)}
+            className="flex flex-col gap-5 bg-white rounded-2xl group-hover/cta-m:rounded-t-none transition-[border-radius] duration-300 px-6 pt-5 pb-8"
+          >
+            {/* Heading */}
+            <h2 className="font-medium tracking-tight leading-[1.08]">
+              <span className="text-black text-[1.75rem]">{heading}</span>
+              {heading_highlight && (
+                <> <span className="text-black/45 text-[1.75rem]">{heading_highlight}</span></>
+              )}
+            </h2>
 
-                if (isPrimary) {
+            {/* Sub heading */}
+            {sub_heading && (
+              <p className="text-sm text-gray-400 leading-relaxed font-light -mt-1">
+                {sub_heading}
+              </p>
+            )}
+
+            {/* CTAs */}
+            {CTAs && CTAs.length > 0 && (
+              <div className="flex flex-col gap-2.5 pt-1">
+                {CTAs.map((cta, index) => {
+                  const isPrimary = cta.variant === 'primary' || (cta.variant == null && index === 0);
+
+                  if (isPrimary) {
+                    return (
+                      <Link
+                        key={index}
+                        href={withLocale(cta.URL, locale)}
+                        target={cta.target ?? '_self'}
+                        rel={cta.target === '_blank' ? 'noopener noreferrer' : undefined}
+                        className="w-full flex items-center justify-center rounded-full bg-black text-white border border-black text-sm font-medium py-3.5 px-6 transition-opacity active:opacity-70"
+                      >
+                        {cta.text}
+                      </Link>
+                    );
+                  }
+
+                  // ghost — border only, with wheel animation
                   return (
-                    <Link
+                    <MotionLink
                       key={index}
-                      href={`/${locale}${cta.URL ?? ''}`}
+                      href={withLocale(cta.URL, locale)}
                       target={cta.target ?? '_self'}
                       rel={cta.target === '_blank' ? 'noopener noreferrer' : undefined}
-                      className="w-full flex items-center justify-center rounded-full bg-black text-white border border-black text-sm font-medium py-3.5 px-6 transition-opacity active:opacity-70"
+                      initial="rest"
+                      whileHover="hover"
+                      animate="rest"
+                      className="w-full inline-flex items-center justify-center rounded-full border border-gray-300 bg-transparent text-gray-900 text-sm font-medium overflow-hidden py-3.5 px-6"
                     >
-                      {cta.text}
-                    </Link>
+                      <div style={{ overflow: 'hidden', height: 18 }}>
+                        <motion.div className="flex flex-col" style={{ lineHeight: '18px' }} variants={wheelVariants}>
+                          <span className="block">{cta.text}</span>
+                          <span className="block" aria-hidden="true">{cta.text}</span>
+                        </motion.div>
+                      </div>
+                    </MotionLink>
                   );
-                }
+                })}
+              </div>
+            )}
+          </motion.div>
 
-                // ghost — border only, with wheel animation
-                return (
-                  <MotionLink
-                    key={index}
-                    href={`/${locale}${cta.URL ?? ''}`}
-                    target={cta.target ?? '_self'}
-                    rel={cta.target === '_blank' ? 'noopener noreferrer' : undefined}
-                    initial="rest"
-                    whileHover="hover"
-                    animate="rest"
-                    className="w-full inline-flex items-center justify-center rounded-full border border-gray-300 bg-transparent text-gray-900 text-sm font-medium overflow-hidden py-3.5 px-6"
-                  >
-                    <div style={{ overflow: 'hidden', height: 18 }}>
-                      <motion.div className="flex flex-col" style={{ lineHeight: '18px' }} variants={wheelVariants}>
-                        <span className="block">{cta.text}</span>
-                        <span className="block" aria-hidden="true">{cta.text}</span>
-                      </motion.div>
-                    </div>
-                  </MotionLink>
-                );
-              })}
-            </div>
-          )}
-        </motion.div>
+        </div>
 
       </div>
-
-    </div>
+    </Container>
   );
 };

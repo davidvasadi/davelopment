@@ -9,6 +9,7 @@ import { Search, ChevronDown, ArrowUpRight as ArrowUpRightIcon } from 'lucide-re
 import { StrapiImage } from '@/components/ui/strapi-image';
 import { truncate } from '@/lib/utils';
 import { Product } from '@/types/types';
+import { getLocalizedSegment } from '@/lib/i18n/segments';
 
 const arrowWheelVariants: Variants = {
   rest: { y: '0%' },
@@ -150,7 +151,7 @@ export const Featured = ({ products, locale }: { products: Product[]; locale: st
                 </div>
 
                 {/* DESKTOP */}
-                <div className="hidden md:grid grid-cols-6 grid-rows-12 gap-2 text-black">
+                <div className={`hidden md:grid grid-cols-6 ${second ? 'grid-rows-12' : 'grid-rows-6'} gap-2 text-black`}>
                   {first && (
                     <ProjectTriplet locale={locale} product={first} truncateLength={60} layout={{
                       large: 'col-span-4 row-span-6 bg-white min-h-[400px]',
@@ -194,7 +195,7 @@ type TileBase = { product: Product; locale: string; className?: string };
 const LargeTile: React.FC<TileBase & { arrowClassName?: string }> = ({
   product, locale, className, arrowClassName,
 }) => {
-  const href  = `/${locale}/products/${product.slug}`;
+  const href  = `/${locale}/${getLocalizedSegment(locale, 'products')}/${product.slug}`;
   const label = product.categories?.[0]?.name;
 
   // Hosszú cím esetén kisebb betűméret, hogy ne törjön csúnyán szó közepén
@@ -238,7 +239,7 @@ const LargeTile: React.FC<TileBase & { arrowClassName?: string }> = ({
 const SmallTextTile: React.FC<TileBase & { truncateLength: number }> = ({
   product, locale, className, truncateLength,
 }) => {
-  const href  = `/${locale}/products/${product.slug}`;
+  const href  = `/${locale}/${getLocalizedSegment(locale, 'products')}/${product.slug}`;
   const label = product.categories?.[1]?.name;
 
   return (
@@ -284,7 +285,7 @@ const SmallTextTile: React.FC<TileBase & { truncateLength: number }> = ({
 };
 
 const ImageTile: React.FC<TileBase> = ({ product, locale, className }) => {
-  const href = `/${locale}/products/${product.slug}`;
+  const href = `/${locale}/${getLocalizedSegment(locale, 'products')}/${product.slug}`;
   return (
     <motion.div
       className={`${className} rounded-[6px] overflow-hidden`}

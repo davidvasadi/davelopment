@@ -218,6 +218,84 @@ function breadcrumbNode(url: string, locale: string | undefined, trail: { name: 
   };
 }
 
+// ─── Pricing plans → Product/Offer nodes ─────────────────────────────────────
+
+type PricingPlan = {
+  name?: string | null;
+  price?: string | number | null;
+  currency?: string | null;
+  recommended_for?: string | null;
+};
+
+const slugify = (s: string): string =>
+  s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+/**
+ * Pull the `plans` array out of a page's `pricing` dynamic-zone block, so the
+ * pricing table on /arak (and the services hub) gets real Product/Offer nodes
+ * instead of being invisible to Google's price-aware crawlers.
+ */
+function extractPricingPlans(dynamicZone: unknown): PricingPlan[] {
+  if (!Array.isArray(dynamicZone)) return [];
+  for (const block of dynamicZone) {
+    if (block && (block as any).blockType === 'pricing') {
+      return Array.isArray((block as any).plans) ? (block as any).plans : [];
+    }
+  }
+  return [];
+}
+
+/**
+ * One Product+Offer node per plan. Fixed-price plans (Mikró/Rajt/Növekedés) get
+ * a real price/priceCurrency Offer. Custom-quote plans (Partner) never get a
+ * fabricated number — Google explicitly penalizes a schema price that doesn't
+ * match what's shown on the page — instead they carry a priceSpecification
+ * description so the plan still exists in the graph, just without a price.
+ */
+function pricingProductNodes(url: string, plans: PricingPlan[], locale?: string): Node[] {
+  return plans
+    .filter((p): p is PricingPlan & { name: string } => !!p?.name)
+    .map((p) => {
+      const priceNum =
+        p.price !== null && p.price !== undefined && p.price !== '' && !isNaN(Number(p.price))
+          ? Number(p.price)
+          : null;
+      const node: Node = {
+        '@type': 'Product',
+        '@id': `${url}#product-${slugify(p.name)}`,
+        name: p.name,
+        url,
+        brand: { '@id': ORG_ID },
+        inLanguage: lang(locale),
+      };
+      if (p.recommended_for) node.description = p.recommended_for;
+      node.offers =
+        priceNum !== null
+          ? {
+              '@type': 'Offer',
+              price: String(priceNum),
+              priceCurrency: p.currency || 'HUF',
+              availability: 'https://schema.org/InStock',
+              url,
+            }
+          : {
+              '@type': 'Offer',
+              priceSpecification: {
+                '@type': 'PriceSpecification',
+                description: (typeof p.price === 'string' && p.price) || (locale === 'en' ? 'Custom quote' : 'Egyedi árajánlat'),
+              },
+              availability: 'https://schema.org/InStock',
+              url,
+            };
+      return node;
+    });
+}
+
 function itemListNode(url: string, name: string, items: { name: string; url: string; position?: number }[]): Node | null {
   const clean = items.filter((i) => i.name && i.url);
   if (!clean.length) return null;
@@ -302,6 +380,7 @@ export function renderPageJsonLd(opts: {
   const breadcrumb = opts.breadcrumbs?.length ? breadcrumbNode(url, locale, opts.breadcrumbs) : null;
   const faq = faqPageNode(url, extractFaqs(opts.dynamicZone), locale);
   const list = kind === 'collection' && opts.items?.length ? itemListNode(url, title, opts.items) : null;
+  const pricingProducts = pricingProductNodes(url, extractPricingPlans(opts.dynamicZone), locale);
 
   const webpage = webPageNode({
     url,
@@ -317,7 +396,7 @@ export function renderPageJsonLd(opts: {
     dateModified: kind === 'article' ? opts.updatedAt : undefined,
   });
 
-  nodes.push(webpage, primaryNode, breadcrumb, faq, list);
+  nodes.push(webpage, primaryNode, breadcrumb, faq, list, ...pricingProducts);
 
   const graph = { '@context': 'https://schema.org', '@graph': nodes.filter(Boolean) as Node[] };
   return JSON.stringify(graph);
