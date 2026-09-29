@@ -69,16 +69,6 @@ export const Global: GlobalConfig = {
           fields: navLinkFields,
         },
         {
-          name: 'copyright',
-          type: 'text',
-          label: 'Copyright',
-        },
-        {
-          name: 'copyright_enabled',
-          type: 'checkbox',
-          label: 'Copyright megjelenítése',
-        },
-        {
           name: 'contact_email',
           type: 'email',
           label: 'Kapcsolati email (overlay menüben)',
@@ -106,11 +96,6 @@ export const Global: GlobalConfig = {
           type: 'text',
           label: 'Leírás',
           localized: true,
-        },
-        {
-          name: 'copyright',
-          type: 'text',
-          label: 'Copyright',
         },
         {
           name: 'designed_developed_by',
