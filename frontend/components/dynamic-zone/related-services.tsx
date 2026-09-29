@@ -36,7 +36,12 @@ export const RelatedServices = ({
 
     return (
         <ServicesPage
-            pages={list.map((p) => ({ ...p, locale }))}
+            pages={list.map((p) => ({
+                ...p,
+                locale,
+                label: p.label ?? undefined,
+                video_poster: p.video_poster?.url ? { url: p.video_poster.url } : null,
+            }))}
             locale={locale}
             heading={headingText}
             badge_label={badge_label?.trim() || undefined}
