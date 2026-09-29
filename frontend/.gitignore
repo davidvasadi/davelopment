@@ -39,5 +39,8 @@ next-env.d.ts
 
 
 # env vars
-.env 
+.env
 .contentlayer
+
+# scroll demo / scratch page, not for production
+/app/\[locale\]/scroll-demo
