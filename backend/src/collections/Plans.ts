@@ -41,9 +41,12 @@ export const Plans: CollectionConfig = {
     },
     {
       name: 'price',
-      type: 'number',
+      type: 'text',
       label: 'Ár',
       localized: true,
+      admin: {
+        description: 'Szám (pl. 24900) vagy szöveg (pl. "Egyedi árajánlat") is megadható.',
+      },
     },
     {
       name: 'currency',
@@ -70,7 +73,7 @@ export const Plans: CollectionConfig = {
       defaultValue: false,
       localized: true,
     },
-    buttonField('CTA', 'CTA gomb'),
+    buttonField('CTA', 'CTA gomb', { localizeUrl: true }),
     {
       name: 'perks',
       type: 'array',
@@ -111,9 +114,21 @@ export const Plans: CollectionConfig = {
     },
     {
       name: 'addon_price',
-      type: 'number',
+      type: 'text',
       label: 'Addon ár',
       localized: true,
+      admin: {
+        description: 'Szám (pl. 9900) vagy szöveg (pl. "Egyedi árazással") is megadható.',
+      },
+    },
+    {
+      name: 'recommended_for',
+      type: 'textarea',
+      label: 'Kiknek ajánlott',
+      localized: true,
+      admin: {
+        description: 'Rövid válasz arra, hogy ez a csomag kinek való — ez jelenik meg a pricing blokk "Kiknek ajánlott?" kérdése alatt, csomagonként eltérő szöveggel.',
+      },
     },
     {
       name: 'time_label',
