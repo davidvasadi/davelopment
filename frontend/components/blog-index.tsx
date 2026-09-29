@@ -7,6 +7,7 @@ import { PlusIcon } from 'lucide-react';
 import { Link } from 'next-view-transitions';
 import { format } from 'date-fns';
 import { Container } from '@/components/container'
+import { StrapiImage } from '@/components/ui/strapi-image';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import type { Article } from '@/types/types';
 
@@ -15,6 +16,10 @@ type BlogIndexProps = {
     blogPage: any;
     articles: Article[];
 };
+
+// Ha egy cikkhez nincs saját borítókép feltöltve, ez a sötét hátterű céges
+// logó jelenik meg helyette — sosem marad üres a kártya/hero.
+const DEFAULT_ARTICLE_IMAGE = strapiImage('/api/media/file/logo-desktop-dark-7da9d81f11.svg');
 
 const formatDate = (dateStr?: string, locale?: string) => {
     if (!dateStr) return '';
@@ -49,7 +54,8 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
         url: `/${locale}/blog/${a.slug}`,
         title: a.title,
         description: a.description,
-        image: a.image ? strapiImage(a.image.url) : '',
+        image: a.image ? strapiImage(a.image.url) : DEFAULT_ARTICLE_IMAGE,
+        isPlaceholderImage: !a.image || (a.image as any)?.id === 31,
         date: formatDate(a.publishedAt || a.createdAt, locale),
     }));
 
@@ -141,10 +147,12 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                                     desktopon a szomszéd kártyák magasságához igazodik (stretch) */}
                                 <div className="relative h-full w-full min-h-[320px]">
                                     {featured.image && (
-                                        <img
+                                        <StrapiImage
                                             src={featured.image}
                                             alt={featured.title}
-                                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 group-hover:blur-[4px]"
+                                            fill
+                                            sizes="(min-width: 1024px) 50vw, 100vw"
+                                            className="object-cover transition-transform duration-300 group-hover:scale-105 group-hover:blur-[4px]"
                                         />
                                     )}
                                     {/* gradient overlay */}
@@ -189,10 +197,12 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                                         <div className="relative w-full p-2">
                                             <div className="p-2">
                                                 {post!.image && (
-                                                    <img
+                                                    <StrapiImage
                                                         src={post!.image}
                                                         alt={post!.title}
-                                                        className="w-28 h-28 rounded-xl object-cover transition-transform duration-300 group-hover:scale-150"
+                                                        width={112}
+                                                        height={112}
+                                                        className={`w-28 h-28 rounded-xl transition-transform duration-300 group-hover:scale-150 ${post!.isPlaceholderImage ? 'object-contain bg-neutral-900 p-0' : 'object-cover'}`}
                                                         style={{ transformOrigin: '0% 0%' }}
                                                     />
                                                 )}
@@ -240,10 +250,12 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                                     <div className="relative w-full p-2">
                                         <div className="p-2">
                                             {post.image && (
-                                                <img
+                                                <StrapiImage
                                                     src={post.image}
                                                     alt={post.title}
-                                                    className="w-28 h-28 rounded-xl object-cover transition-transform duration-300 group-hover:scale-150"
+                                                    width={112}
+                                                    height={112}
+                                                    className={`w-28 h-28 rounded-xl transition-transform duration-300 group-hover:scale-150 ${post.isPlaceholderImage ? 'object-contain bg-neutral-900 p-0' : 'object-cover'}`}
                                                     style={{ transformOrigin: '0% 0%' }}
                                                 />
                                             )}

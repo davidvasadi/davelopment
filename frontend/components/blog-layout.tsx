@@ -11,6 +11,10 @@ import DynamicZoneManager from './dynamic-zone/manager';
 import { StrapiImage } from '@/components/ui/strapi-image';
 import { Article } from '@/types/types';
 
+// Ha egy cikkhez nincs saját borítókép feltöltve, ez a sötét hátterű céges
+// logó jelenik meg helyette — sosem marad üres a hero-kép.
+const DEFAULT_ARTICLE_IMAGE = '/api/media/file/logo-desktop-dark-7da9d81f11.svg';
+
 const formatDate = (dateStr?: string, locale?: string) => {
   if (!dateStr) return '';
   const d = new Date(dateStr);
@@ -121,17 +125,14 @@ export const BlogLayout: React.FC<BlogLayoutProps> = ({
                 </span>
               </Link>
             </div>
-            <figure className="w-full aspect-square max-h-[calc(90vh-8rem)] rounded-3xl overflow-hidden mx-auto">              {article?.image ? (
+            <figure className="w-full aspect-square max-h-[calc(90vh-8rem)] rounded-3xl overflow-hidden mx-auto bg-neutral-900">
               <StrapiImage
-                src={article.image.url}
+                src={article?.image?.url || DEFAULT_ARTICLE_IMAGE}
                 height={800}
                 width={800}
                 alt={article.title}
-                className="h-full w-full object-cover"
+                className={article?.image && (article.image as any)?.id !== 31 ? 'h-full w-full object-cover' : 'h-full w-full object-contain p-4'}
               />
-            ) : (
-              <div className="h-full w-full bg-neutral-900" />
-            )}
               <figcaption className="sr-only">{article.title}</figcaption>
             </figure>
           </div>

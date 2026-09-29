@@ -67,8 +67,8 @@ export default async function SingleArticlePage(props: {
   const allArticlesRes = await fetchContentType(
     'articles',
     {
-      filters: { locale: params.locale },
-      sort: ['publishedAt:desc'],
+      filters: { locale: params.locale, _status: 'published' },
+      sort: ['createdAt:desc'],
       populate: ['image'],
     },
     false

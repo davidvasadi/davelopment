@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import { type Metadata } from 'next';
 
 import ClientSlugHandler from '../ClientSlugHandler';
+import PageContent from '@/lib/shared/PageContent';
 import JsonLd from '@/components/seo/JsonLd';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
 import { renderPageJsonLd } from '@/lib/shared/structured-data';
@@ -54,7 +55,7 @@ export default async function Blog(props: {
   const articlesRes = await fetchContentType(
     'articles',
     {
-      filters: { locale: params.locale },
+      filters: { locale: params.locale, _status: 'published' },
     },
     false
   );
@@ -86,6 +87,7 @@ export default async function Blog(props: {
       <JsonLd data={jsonLd} />
       <ClientSlugHandler localizedSlugs={localizedSlugs} />
       <BlogIndex locale={params.locale} blogPage={blogPage} articles={articles} />
+      <PageContent pageData={blogPage} locale={params.locale} />
     </div>
   );
 }
