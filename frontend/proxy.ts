@@ -58,13 +58,11 @@ export function proxy(request: NextRequest) {
 
   if (pathnameIsMissingLocale) {
     const locale = getLocale(request);
+    // pathname === '/' -> /{locale} (nem /{locale}/, mert arra Next.js
+    // újabb redirecttel levágná a trailing slash-t — 2 helyett 1 hop)
+    const target = pathname === '/' ? `/${locale}` : `/${locale}${pathname}`;
 
-    return NextResponse.redirect(
-      new URL(
-        `/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}`,
-        request.url
-      )
-    );
+    return NextResponse.redirect(new URL(target, request.url));
   }
 
   /**
