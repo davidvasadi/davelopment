@@ -39,7 +39,6 @@ export const CircleIcon = ({
         repeatDelay: delay,
       }}
       className={`pointer-events-none h-2 w-2 rounded-full bg-white opacity-20 ${className ?? ''}`}
-      style={{}}
     />
   );
 };
