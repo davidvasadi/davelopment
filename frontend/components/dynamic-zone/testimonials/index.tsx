@@ -144,7 +144,7 @@ const StatCard = ({
   ctaText?: string | null;
   ctaUrl?: string | null;
   brand?: string | null;
-  avatars: string[];
+  avatars: { url: string; name?: string }[];
   dark?: boolean;
   accentIconUrl?: string | null;
 }) => {
@@ -171,7 +171,7 @@ const StatCard = ({
             <div className="flex items-center gap-2">
               {avatars[0] && (
                 <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 border border-white/20">
-                  <Image src={avatars[0]} alt="" width={36} height={36} className="object-cover object-top w-full h-full" />
+                  <Image src={avatars[0].url} alt={avatars[0].name || ''} width={36} height={36} className="object-cover object-top w-full h-full" />
                 </div>
               )}
               {accentIconUrl && (
@@ -243,13 +243,13 @@ const StatCard = ({
         <div className="flex items-center gap-4 mb-5">
           {avatars.length > 0 && (
             <div className="flex items-center">
-              {avatars.slice(0, 4).map((url, i) => (
+              {avatars.slice(0, 4).map((a, i) => (
                 <div
                   key={i}
                   className="w-10 h-10 overflow-hidden flex-shrink-0 border-2 border-white"
                   style={{ marginLeft: i === 0 ? 0 : '-12px', zIndex: 10 - i, borderRadius: '10px', position: 'relative' }}
                 >
-                  <Image src={url} alt="" width={40} height={40} className="object-cover object-top w-full h-full" />
+                  <Image src={a.url} alt={a.name || ''} width={40} height={40} className="object-cover object-top w-full h-full" />
                 </div>
               ))}
               {avatars.length > 4 && (
@@ -407,9 +407,14 @@ export const Testimonials = ({
   stat_dark,
   testimonials = [],
 }: TestimonialsProps) => {
-  const avatarUrls = testimonials
-    .map((t) => toAbs(t.user?.image?.url))
-    .filter((u): u is string => !!u)
+  const avatarUrls: { url: string; name?: string }[] = testimonials
+    .map((t) => {
+      const url = toAbs(t.user?.image?.url);
+      if (!url) return null;
+      const name = [t.user?.firstname, t.user?.lastname].filter(Boolean).join(' ');
+      return { url, name: name || undefined };
+    })
+    .filter((a) => a !== null)
     .slice(0, 8);
 
   const isBackgroundImage = !!(stat_background?.mimeType || stat_background?.mime)?.startsWith('image');

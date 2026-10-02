@@ -259,7 +259,7 @@ export function Services(props: ServicesBlockProps) {
                                                                         marginLeft: i > 0 ? '-12px' : '0',
                                                                     }}
                                                                 >
-                                                                    <img src={src} alt="" className="w-full h-full object-cover" />
+                                                                    <img src={src} alt={s.title} className="w-full h-full object-cover" />
                                                                 </div>
                                                             ))}
                                                         </div>

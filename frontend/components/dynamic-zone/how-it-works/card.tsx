@@ -48,7 +48,7 @@ export const Card = ({
         <div className="flex items-center gap-3">
           {imageSrc && (
             <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl">
-              <img src={imageSrc} alt="" className="h-full w-full object-cover" />
+              <img src={imageSrc} alt={title} className="h-full w-full object-cover" />
             </div>
           )}
           <p className="text-lg font-medium leading-snug text-black">{title}</p>
