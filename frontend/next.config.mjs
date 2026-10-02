@@ -33,6 +33,14 @@ const nextConfig = {
     ]
   },
 
+  // Permanent redirects for renamed/retired URLs
+  async redirects() {
+    return [
+      // hu: a GYIK oldal korábban angol "faq" slug alatt futott — magyar kulcsszóra cserélve
+      { source: '/hu/faq', destination: '/hu/gyik', permanent: true },
+    ]
+  },
+
   // Security headers — applied to every response.
   // CSP is tuned to allow Google Analytics / Ads (Consent Mode) and CMS images,
   // while blocking clickjacking, MIME-sniffing and protocol downgrade.
