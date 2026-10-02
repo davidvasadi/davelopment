@@ -210,9 +210,9 @@ function buildAutoReplyHtml(o: {
       : "No template websites, no empty promises — we build digital solutions that actually work and drive your growth.",
     projectsTitle: isHu ? 'Válogatott munkáink' : 'Selected work',
     servicesTitle: isHu ? 'Amiben segítünk' : 'How we help',
-    nlTitle:  isHu ? '10% kedvezmény az első projektedre' : '10% off your first project',
-    nlBody:   isHu ? 'Iratkozz fel a hírlevelünkre, és 10% kedvezményt adunk az első közös projektedre — plusz hasznos tippek, spam nélkül.' : 'Subscribe and get 10% off your first project with us — plus useful tips, no spam.',
-    nlBtn:    isHu ? 'Kérem a kedvezményt' : 'Get the discount',
+    nlTitle:  isHu ? 'Maradj naprakész' : 'Stay in the loop',
+    nlBody:   isHu ? 'Iratkozz fel a hírlevelünkre, és elsőként értesülj a friss webes és digitális trendekről — spam nélkül.' : 'Subscribe to our newsletter and be the first to know about fresh web and digital trends — no spam.',
+    nlBtn:    isHu ? 'Feliratkozom' : 'Subscribe',
     sign:     isHu ? 'A [davelopment]® csapata' : 'The [davelopment]® team',
   }
 

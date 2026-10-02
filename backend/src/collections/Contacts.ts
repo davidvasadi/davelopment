@@ -204,7 +204,7 @@ export const Contacts: CollectionConfig = {
             })
           } catch (err) { payload.logger.error({ err }, 'auto-reply: services fetch failed') }
 
-          const newsletterUrl = `${SITE}/${locale}/newsletter?email=${encodeURIComponent(doc.email)}&src=autoreply-discount`
+          const newsletterUrl = `${SITE}/${locale}/newsletter?email=${encodeURIComponent(doc.email)}&src=autoreply-newsletter`
 
           await payload.sendEmail({
             to: doc.email,
