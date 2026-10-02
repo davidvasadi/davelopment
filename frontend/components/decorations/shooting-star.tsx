@@ -98,7 +98,7 @@ const ShootingStars: React.FC = () => {
       ref={svgRef}
       width="100%"
       height="100%"
-      style={{ position: 'absolute', top: 0, left: 0 }}
+      className="absolute top-0 left-0"
     >
       {star && (
         <rect
@@ -115,11 +115,8 @@ const ShootingStars: React.FC = () => {
       )}
       <defs>
         <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style={{ stopColor: '#2EB9DF', stopOpacity: 0 }} />
-          <stop
-            offset="100%"
-            style={{ stopColor: '#9E00FF', stopOpacity: 1 }}
-          />
+          <stop offset="0%" stopColor="#2EB9DF" stopOpacity={0} />
+          <stop offset="100%" stopColor="#9E00FF" stopOpacity={1} />
         </linearGradient>
       </defs>
     </svg>

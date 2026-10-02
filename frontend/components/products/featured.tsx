@@ -21,10 +21,10 @@ const arrowWheelVariants: Variants = {
 
 const ArrowBadge = ({ iconClassName = '', href }: { iconClassName?: string; href?: string }) => {
   const inner = (
-    <div className="inline-flex flex-shrink-0" style={{ width: 28, height: 28, overflow: 'hidden' }}>
-      <motion.div style={{ display: 'flex', flexDirection: 'column' }} variants={arrowWheelVariants}>
-        <ArrowUpRightIcon className={`flex-shrink-0 ${iconClassName}`} style={{ width: 28, height: 28 }} />
-        <ArrowUpRightIcon className={`flex-shrink-0 ${iconClassName}`} style={{ width: 28, height: 28 }} />
+    <div className="inline-flex flex-shrink-0 w-7 h-7 overflow-hidden">
+      <motion.div className="flex flex-col" variants={arrowWheelVariants}>
+        <ArrowUpRightIcon className={`flex-shrink-0 w-7 h-7 ${iconClassName}`} />
+        <ArrowUpRightIcon className={`flex-shrink-0 w-7 h-7 ${iconClassName}`} />
       </motion.div>
     </div>
   );

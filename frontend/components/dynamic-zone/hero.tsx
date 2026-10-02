@@ -149,8 +149,8 @@ export const Hero = ({
                       data-cta={`hero:${cta.text}`}
                       className="inline-flex items-center justify-between gap-6 rounded-full bg-black px-3 py-1 text-xs sm:text-sm font-semibold text-white shadow-sm overflow-hidden"
                     >
-                      <div className="overflow-hidden" style={{ height: '1.25rem' }}>
-                        <motion.div className="flex flex-col" style={{ lineHeight: '1.25rem' }} variants={wheelVariants}>
+                      <div className="overflow-hidden h-5">
+                        <motion.div className="flex flex-col leading-5" variants={wheelVariants}>
                           <span className="block">{cta.text}</span>
                           <span className="block" aria-hidden="true">{cta.text}</span>
                         </motion.div>
@@ -267,8 +267,8 @@ export const Hero = ({
                       data-cta={`hero:${talkCTA.text}`}
                       className="mt-1 inline-flex items-center gap-3 self-start rounded-full bg-black px-4 py-2 text-sm font-semibold text-white whitespace-nowrap overflow-hidden"
                     >
-                      <div className="overflow-hidden" style={{ height: '1.25rem' }}>
-                        <motion.div className="flex flex-col" style={{ lineHeight: '1.25rem' }} variants={wheelVariants}>
+                      <div className="overflow-hidden h-5">
+                        <motion.div className="flex flex-col leading-5" variants={wheelVariants}>
                           <span className="block">{talkCTA.text}</span>
                           <span className="block" aria-hidden="true">{talkCTA.text}</span>
                         </motion.div>

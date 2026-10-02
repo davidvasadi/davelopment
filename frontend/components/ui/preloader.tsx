@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname, useRouter } from 'next/navigation';
 import { Inter } from 'next/font/google';
 import { GrainCanvas } from './grain-canvas';
+import { cn } from '@/lib/utils';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -62,20 +63,16 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
           transition={{ duration: 0.7, ease: EASE_IN }}
         >
           <GrainCanvas strength="light" opacity={0.5} zIndex={1} />
-          <div className="relative z-20 flex" style={{ overflow: 'hidden', paddingBottom: '0.1em' }}>
+          <div className="relative z-20 flex overflow-hidden pb-[0.1em]">
             {LOGO.split('').map((char, i) => (
               <motion.span
                 key={i}
-                className={inter.className}
-                style={{
-                  color: '#fff',
-                  fontSize: 'clamp(1.1rem, 2.5vw, 1.8rem)',
-                  fontWeight: 600,
-                  letterSpacing: '-0.02em',
-                  lineHeight: 1,
-                  display: 'inline-block',
-                  minWidth: char === ' ' ? '0.3em' : undefined,
-                }}
+                className={cn(
+                  inter.className,
+                  'text-white font-semibold tracking-[-0.02em] leading-none inline-block',
+                  'text-[clamp(1.1rem,2.5vw,1.8rem)]',
+                  char === ' ' && 'min-w-[0.3em]'
+                )}
                 initial={{ y: '115%' }}
                 animate={{ y: '0%' }}
                 transition={{ duration: 0.55, delay: i * 0.055, ease: [0.33, 1, 0.68, 1] }}
@@ -131,8 +128,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
             transition={{ duration: curtain === 'in' ? 0.55 : 1.0, ease: curtain === 'in' ? EASE_IN : EASE_OUT }}
           />
           <motion.div
-            className="fixed inset-0 z-[9998] bg-[#0a0a0a] pointer-events-none"
-            style={{ transformOrigin: curtain === 'in' ? 'bottom' : 'top' }}
+            className={cn('fixed inset-0 z-[9998] bg-[#0a0a0a] pointer-events-none', curtain === 'in' ? 'origin-bottom' : 'origin-top')}
             initial={{ scaleY: curtain === 'in' ? 0 : 1 }}
             animate={{ scaleY: curtain === 'in' ? 1 : 0 }}
             transition={{ duration: curtain === 'in' ? 0.55 : 1.0, ease: curtain === 'in' ? EASE_IN : EASE_OUT }}
@@ -141,7 +137,7 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
       )}
       <motion.div
         key={pathname}
-        style={{ visibility: contentVisible ? 'visible' : 'hidden' }}
+        className={contentVisible ? 'visible' : 'invisible'}
         initial={{ opacity: 0, y: 40 }}
         animate={contentVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
         transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}

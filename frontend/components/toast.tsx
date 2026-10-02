@@ -75,7 +75,7 @@ export const CookieConsent = () => {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-1.5">
                   <div className="w-3.5 h-3.5 bg-white rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-black font-bold leading-none" style={{ fontSize: 8 }}>+</span>
+                    <span className="text-black font-bold leading-none text-[8px]">+</span>
                   </div>
                   <span className="text-[10px] font-medium tracking-widest uppercase text-white/40">
                     {isEn ? 'Privacy' : 'Adatvédelem'}
@@ -157,8 +157,8 @@ export const CookieConsent = () => {
                     initial="rest" whileHover="hover" animate="rest"
                     className="inline-flex items-center gap-2.5 rounded-full bg-white text-black px-3.5 py-1.5 text-xs font-semibold overflow-hidden"
                   >
-                    <div className="overflow-hidden" style={{ height: '1rem' }}>
-                      <motion.div className="flex flex-col" style={{ lineHeight: '1rem' }} variants={wheelVariants}>
+                    <div className="overflow-hidden h-4">
+                      <motion.div className="flex flex-col leading-4" variants={wheelVariants}>
                         <span className="block">{isEn ? 'Save' : 'Mentés'}</span>
                         <span className="block" aria-hidden>{isEn ? 'Save' : 'Mentés'}</span>
                       </motion.div>
@@ -172,8 +172,8 @@ export const CookieConsent = () => {
                       initial="rest" whileHover="hover" animate="rest"
                       className="inline-flex items-center gap-2.5 rounded-full bg-white text-black px-3.5 py-1.5 text-xs font-semibold overflow-hidden"
                     >
-                      <div className="overflow-hidden" style={{ height: '1rem' }}>
-                        <motion.div className="flex flex-col" style={{ lineHeight: '1rem' }} variants={wheelVariants}>
+                      <div className="overflow-hidden h-4">
+                        <motion.div className="flex flex-col leading-4" variants={wheelVariants}>
                           <span className="block">{isEn ? 'Accept all' : 'Elfogad mindet'}</span>
                           <span className="block" aria-hidden>{isEn ? 'Accept all' : 'Elfogad mindet'}</span>
                         </motion.div>

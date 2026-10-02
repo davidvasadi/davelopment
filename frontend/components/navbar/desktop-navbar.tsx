@@ -125,8 +125,8 @@ const inline = useMemo(
         {open && (
           <motion.div
             key="desktop-overlay"
-            className={cn('fixed left-0 right-0 bottom-0 z-[70]', OVERLAY_OFFSET, overlayBgClass || navBgClass)}
-            style={{ transformOrigin: 'top', overflow: 'hidden', willChange: 'transform, opacity' }}
+            className={cn('fixed left-0 right-0 bottom-0 z-[70] origin-top overflow-hidden', OVERLAY_OFFSET, overlayBgClass || navBgClass)}
+            style={{ willChange: 'transform, opacity' }}
             variants={OVERLAY_VARIANTS}
             initial="closed"
             animate="open"
@@ -149,13 +149,13 @@ const inline = useMemo(
                       initial="rest"
                       animate="rest"
                     >
-                      <div style={{ height: 90, overflow: 'hidden', position: 'relative' }}>
+                      <div className="h-[90px] overflow-hidden relative">
                         <motion.div
-                          style={{ position: 'absolute', top: 0, left: 0, right: 0, fontSize: 72, lineHeight: '90px', textAlign: 'center' }}
+                          className="absolute top-0 left-0 right-0 text-[72px] leading-[90px] text-center"
                           variants={{ rest: { y: 0 }, hover: { y: -90, transition: { duration: 0.35, ease: [0.33,1,0.68,1] } } }}
                         >{it.text}</motion.div>
                         <motion.div
-                          style={{ position: 'absolute', top: 90, left: 0, right: 0, fontSize: 72, lineHeight: '90px', textAlign: 'center' }}
+                          className="absolute top-[90px] left-0 right-0 text-[72px] leading-[90px] text-center"
                           variants={{ rest: { y: 0 }, hover: { y: -90, transition: { duration: 0.35, ease: [0.33,1,0.68,1] } } }}
                         >{it.text}</motion.div>
                       </div>

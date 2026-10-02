@@ -89,8 +89,8 @@ export function MobileNavbar({
         {open && (
           <motion.div
             key="mobile-overlay"
-            className={cn('fixed left-0 right-0 bottom-0 z-[70]', OVERLAY_OFFSET, overlayBgClass || navBgClass)}
-            style={{ transformOrigin: 'top', overflow: 'hidden', willChange: 'transform, opacity' }}
+            className={cn('fixed left-0 right-0 bottom-0 z-[70] origin-top overflow-hidden', OVERLAY_OFFSET, overlayBgClass || navBgClass)}
+            style={{ willChange: 'transform, opacity' }}
             initial={{ y: -10, scaleY: 0.965, opacity: 0 }}
             animate={{ y: 0, scaleY: 1, opacity: 1 }}
             exit={{ y: -10, scaleY: 0.965, opacity: 0 }}
@@ -112,13 +112,13 @@ export function MobileNavbar({
                       initial="rest"
                       animate="rest"
                     >
-                      <div style={{ height: 50, overflow: 'hidden', position: 'relative' }}>
+                      <div className="h-[50px] overflow-hidden relative">
                         <motion.div
-                          style={{ position: 'absolute', top: 0, left: 0, right: 0, fontSize: 38, lineHeight: '50px', textAlign: 'center' }}
+                          className="absolute top-0 left-0 right-0 text-[38px] leading-[50px] text-center"
                           variants={{ rest: { y: 0 }, hover: { y: -50, transition: { duration: 0.35, ease: [0.33,1,0.68,1] } } }}
                         >{it.text}</motion.div>
                         <motion.div
-                          style={{ position: 'absolute', top: 50, left: 0, right: 0, fontSize: 38, lineHeight: '50px', textAlign: 'center' }}
+                          className="absolute top-[50px] left-0 right-0 text-[38px] leading-[50px] text-center"
                           variants={{ rest: { y: 0 }, hover: { y: -50, transition: { duration: 0.35, ease: [0.33,1,0.68,1] } } }}
                         >{it.text}</motion.div>
                       </div>
