@@ -877,6 +877,14 @@ export const HowItWorksBlock: Block = {
           relationTo: 'media',
           label: 'Kép',
         },
+        {
+          name: 'image_alt',
+          type: 'text',
+          label: 'Kép alt-szövege (SEO)',
+          admin: {
+            description: 'Ha üres, a Cím mezőt használja. Legyen kulcsszó-gazdag, de természetes leírás.',
+          },
+        },
       ],
     },
   ],

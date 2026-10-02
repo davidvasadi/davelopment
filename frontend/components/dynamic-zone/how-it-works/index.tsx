@@ -17,7 +17,7 @@ export const HowItWorks = ({
   badge_label?: string;
   heading: string;
   sub_heading?: string;
-  steps: Array<{ title: string; description?: string; image?: any }>;
+  steps: Array<{ title: string; description?: string; image?: any; image_alt?: string }>;
   video?: any;
 }) => {
   const toAbs = (m?: any): string | undefined => {
@@ -118,6 +118,7 @@ export const HowItWorks = ({
                   description={item.description}
                   index={index + 1}
                   imageSrc={toAbs(item.image)}
+                  imageAlt={item.image_alt}
                 />
               </ParallaxItem>
             ))}
