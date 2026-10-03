@@ -18,7 +18,7 @@ export const Logo = ({ image, locale, text, dark = false }: { image?: Image; loc
           alt={image.alt ?? image.alternativeText ?? text ?? '[davelopment]©'}
           width={150}
           height={150}
-          className={cn('h-7 w-auto', dark && 'brightness-0 invert')}
+          className={cn('h-5 w-auto', dark && 'brightness-0 invert')}
         />
       </Link>
     );
