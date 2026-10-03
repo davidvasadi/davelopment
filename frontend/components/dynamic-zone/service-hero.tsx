@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'next-view-transitions';
 import Image from 'next/image';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import { Button } from '../elements/button';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { GrainCanvas } from '../ui/grain-canvas';
@@ -121,43 +121,56 @@ export const ServiceHero = ({
   const safeCTAs = CTAs ?? [];
   const primaryCTA = safeCTAs[0];
 
+  // Parallax scroll: a háttér lassabban mozog mint az előtér (mélységérzet),
+  // a tartalom pedig a szekció aljáig "pinnelve" marad, majd lassan elhalványul.
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '35%']);
+  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '80%']);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
   return (
     <div className="w-screen ml-[calc(50%-50vw)] mr-[calc(50%-50vw)]">
       <motion.section
+        ref={heroRef}
         data-hero-section
-        className="relative w-full overflow-hidden bg-black text-white -mt-16"
+        className="relative w-full min-h-[130vh] overflow-hidden bg-black text-white -mt-16"
         aria-label="Hero"
       >
-        {posterUrl && (
-          <Image
-            src={posterUrl}
-            alt=""
-            fill
-            priority
-            fetchPriority="high"
-            className="object-cover z-[1]"
-            sizes="100vw"
-            aria-hidden
-          />
-        )}
+        <motion.div style={{ y: bgY }} className="absolute inset-0 scale-125">
+          {posterUrl && (
+            <Image
+              src={posterUrl}
+              alt=""
+              fill
+              priority
+              fetchPriority="high"
+              className="object-cover z-[1]"
+              sizes="100vw"
+              aria-hidden
+            />
+          )}
 
-        {videoUrl && (
-          <video
-            className="absolute inset-0 h-full w-full object-cover z-[2]"
-            src={videoUrl}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="metadata"
-            aria-hidden
-          />
-        )}
+          {videoUrl && (
+            <video
+              className="absolute inset-0 h-full w-full object-cover z-[2]"
+              src={videoUrl}
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              aria-hidden
+            />
+          )}
+        </motion.div>
 
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/35 to-black/75 z-[2]" />
         <GrainCanvas opacity={0.25} />
 
-        <div className="relative z-[3] px-5 md:px-10 xl:px-16 pt-24 md:pt-28 pb-10 md:pb-14 min-h-screen flex flex-col justify-between">
+        <motion.div
+          style={{ y: contentY, opacity: contentOpacity }}
+          className="sticky top-0 z-[3] px-5 md:px-10 xl:px-16 pt-24 md:pt-28 pb-10 md:pb-14 h-screen flex flex-col justify-between">
           {/* Badge — jobbra igazított, sima szöveg */}
           {badge_label && (
             <motion.p
@@ -226,7 +239,7 @@ export const ServiceHero = ({
               </motion.div>
             )}
           </div>
-        </div>
+        </motion.div>
       </motion.section>
     </div>
   );
