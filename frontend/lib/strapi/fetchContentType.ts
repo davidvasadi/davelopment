@@ -87,11 +87,16 @@ export default async function fetchContentType(
 
   const url = `${endpoint}?${q.toString()}`;
   const headers = buildHeaders();
-  const fetchOpts: RequestInit = {
-    method: 'GET',
-    cache: 'no-store',
-    headers,
-  };
+  // Draft mode (admin preview) must always be fresh — no-store. Everything
+  // else was previously no-store too, meaning EVERY page view re-hit Payload
+  // (and Postgres) with zero caching, which is the main driver behind the
+  // slow server response / PageSpeed scores. Cache published content for 5
+  // minutes (same window already used below for the localizations lookup) —
+  // worst case a visitor sees content that's up to 5 minutes stale, which is
+  // an acceptable trade for cutting repeat-request load drastically.
+  const fetchOpts: RequestInit = isDraftMode
+    ? { method: 'GET', cache: 'no-store', headers }
+    : { method: 'GET', headers, next: { revalidate: 300, tags: [contentType] } };
 
   const res = await fetch(url, fetchOpts);
   if (!res.ok) {

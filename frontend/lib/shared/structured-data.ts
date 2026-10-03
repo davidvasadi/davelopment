@@ -22,6 +22,20 @@ const LOGO_ID = `${SITE_URL}/#logo`;
 // Public business contact — already shown on the site, safe to expose in schema.
 const CONTACT_EMAIL = 'hello@davelopment.hu';
 
+// Registered sole-trader (egyéni vállalkozó) data — already public on
+// /adatkezeles (legally required impresszum data), so safe to mirror here.
+// Lets this double as LocalBusiness/ProfessionalService schema, not just Organization.
+const LEGAL_NAME = 'Vasadi Dávid';
+const BUSINESS_ADDRESS = {
+  streetAddress: 'Szent István utca 19/C.',
+  addressLocality: 'Csomád',
+  postalCode: '2161',
+  addressCountry: 'HU',
+};
+const TAX_ID = '92176472-1-33';
+const VAT_ID = 'HU92176472';
+const REGISTRATION_NUMBER = '62508634';
+
 // TODO(davelopment): fill with the REAL social profile URLs (Instagram, LinkedIn,
 // Behance, GitHub…). Leave empty rather than guessing — a wrong sameAs hurts more
 // than a missing one. These feed Google's Knowledge Panel entity resolution.
@@ -47,10 +61,24 @@ type Node = Record<string, any>;
 
 function organizationNode(logoUrl?: string | null): Node {
   const node: Node = {
-    '@type': 'Organization',
+    // ProfessionalService is a LocalBusiness subtype — lets this single node
+    // satisfy both "Organization" and "Local Business Schema" SEO checks.
+    '@type': ['Organization', 'ProfessionalService'],
     '@id': ORG_ID,
     name: ORG_NAME,
+    legalName: LEGAL_NAME,
     url: SITE_URL,
+    address: {
+      '@type': 'PostalAddress',
+      ...BUSINESS_ADDRESS,
+    },
+    taxID: TAX_ID,
+    vatID: VAT_ID,
+    identifier: {
+      '@type': 'PropertyValue',
+      name: 'Egyéni vállalkozói nyilvántartási szám',
+      value: REGISTRATION_NUMBER,
+    },
     contactPoint: {
       '@type': 'ContactPoint',
       email: CONTACT_EMAIL,
