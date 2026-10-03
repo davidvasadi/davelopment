@@ -9,6 +9,7 @@ import { PlusIcon } from 'lucide-react';
 import { Button } from '../elements/button';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { GrainCanvas } from '../ui/grain-canvas';
+import { usePreloaderDone } from '../ui/preloader';
 import { longestWordLength } from '@/lib/heading-size';
 
 // A videó nélküli hero fix text-6xl mobil mérete nem skálázódik a
@@ -90,6 +91,10 @@ export const Hero = ({
 }: HeroProps) => {
   const heroRef = useRef<HTMLElement | null>(null);
   const { y, scale } = useSlowScroll(heroRef);
+  // A tartalom már a Preloader alatt renderelődik (lásd preloader.tsx
+  // AppWrapper) — enélkül ez a belépő-animáció végigfutott volna, mire a
+  // Preloader eltűnik, és instant jelenne meg becsúszás helyett.
+  const preloaderDone = usePreloaderDone();
   const copyright = `© ${new Date().getFullYear()} [davelopment]® Studio`;
 
   const videoUrl = toAbs(video);
@@ -129,14 +134,14 @@ export const Hero = ({
         <div className="w-full pt-24 md:pt-32 pb-10">
           <motion.h1
             className={`${videolessHeadingMobileClass(heading)} leading-[0.95] md:leading-none md:text-8xl lg:text-9xl font-semibold text-black mb-16 md:mb-36`}
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 20 }} animate={preloaderDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             {heading}
           </motion.h1>
           <motion.div
             className="mb-16 flex flex-col md:flex-row items-start justify-between gap-8"
-            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 30 }} animate={preloaderDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.8 }}
           >
             <div className="flex items-center space-x-3 shrink-0">

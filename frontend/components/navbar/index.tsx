@@ -6,6 +6,7 @@ import { useRef, useState } from 'react';
 import { DesktopNavbar } from './desktop-navbar';
 import { MobileNavbar } from './mobile-navbar';
 import { isServiceHeroPath } from './navbar-theme';
+import { usePreloaderDone } from '../ui/preloader';
 import { cn } from '@/lib/utils';
 
 const DEFAULT_NAV_BG = 'bg-[#f5f5f5]';
@@ -79,11 +80,16 @@ export function Navbar({
   const pill = isServiceHero && atTop;
   const resolvedBg = pill ? 'bg-transparent' : (navBgClass || DEFAULT_NAV_BG);
 
+  // A tartalom (lásd preloader.tsx AppWrapper) már a Preloader alatt renderelődik,
+  // nem azután — enélkül a nav fade-in-je végigfutott volna, mire a Preloader
+  // eltűnik, és instant jelenne meg becsúszás helyett.
+  const preloaderDone = usePreloaderDone();
+
   return (
     <motion.nav
       className={cn('fixed top-0 inset-x-0 z-50 isolate', resolvedBg)}
       initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: hidden ? '-100%' : 0 }}
+      animate={preloaderDone ? { opacity: 1, y: hidden ? '-100%' : 0 } : { opacity: 0, y: -8 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     >
       {/* DESKTOP */}
