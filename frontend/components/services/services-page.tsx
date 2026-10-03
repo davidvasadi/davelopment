@@ -128,7 +128,7 @@ export function ServicesPage({ pages, locale, heading, sub_heading, badge_label 
         <div id="szolgaltatasok-lista" className="py-12">
             {(heading || sub_heading) && (
                 <motion.div
-                    className="px-4 mb-12 md:mb-16"
+                    className="px-0 md:px-4 mb-12 md:mb-16"
                     initial={{ opacity: 0, y: 50 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.3 }}
@@ -156,7 +156,7 @@ export function ServicesPage({ pages, locale, heading, sub_heading, badge_label 
 
             <div
                 ref={viewportRef}
-                className="px-4 sm:overflow-hidden"
+                className="px-0 md:px-4 sm:overflow-hidden"
             >
                 <motion.div
                     className="flex flex-col sm:flex-row gap-4"
