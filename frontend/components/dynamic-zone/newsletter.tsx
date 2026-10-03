@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { motion, type Variants } from 'framer-motion';
 import { CheckCircleIcon, XCircleIcon, ClockIcon, XIcon } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
@@ -149,7 +150,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
             <div className="flex items-center space-x-4">
               {profileImgUrl && (
                 <div className="w-12 h-12 rounded-full overflow-hidden">
-                  <img src={profileImgUrl} alt={profile_name || ''} className="object-cover" />
+                  <Image src={profileImgUrl} alt={profile_name || ''} width={48} height={48} className="object-cover w-full h-full" />
                 </div>
               )}
               <div>

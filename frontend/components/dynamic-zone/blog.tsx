@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { PlusIcon } from 'lucide-react';
 import { Link } from 'next-view-transitions';
@@ -219,10 +220,12 @@ export const Blog: React.FC<BlogProps> = ({
             transition={{ duration: 0.7, delay: 0.3 }}
             viewport={{ once: true, amount: 0.2 }}
           >
-            <img
+            <Image
               src={heroImage}
               alt={highlight_heading ?? 'Blog highlight'}
-              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+              fill
+              sizes="(max-width: 1024px) 100vw, 40vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/10" />
             <div className="pointer-events-none absolute left-6 top-6 sm:left-8 sm:top-8">

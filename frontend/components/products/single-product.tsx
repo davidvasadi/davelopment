@@ -249,6 +249,7 @@ export const SingleProduct = ({
                       alt={galleryImages[0]?.alt || product.name}
                       width={900}
                       height={700}
+                      sizes="(max-width: 768px) 100vw, 50vw"
                       className="h-full w-full object-cover"
                     />
                   </div>
@@ -266,6 +267,7 @@ export const SingleProduct = ({
                       alt={galleryImages[1]?.alt || product.name}
                       width={900}
                       height={700}
+                      sizes="(max-width: 768px) 100vw, 50vw"
                       className="h-full w-full object-cover"
                     />
                   </div>
@@ -330,6 +332,7 @@ export const SingleProduct = ({
                   alt={img.alt || product.name}
                   width={1600}
                   height={900}
+                  sizes="(max-width: 1280px) 100vw, 1280px"
                   className="w-full h-auto object-cover"
                 />
               </motion.div>
