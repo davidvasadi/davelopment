@@ -104,7 +104,7 @@ export const CTA = ({
   const mediaList = Array.isArray(image) ? image : image ? [image] : [];
   const firstMedia = mediaList[0] ?? null;
   const firstImgUrl = toAbs(firstMedia);
-  const firstImgAlt = firstMedia?.alternativeText ?? heading;
+  const firstImgAlt = firstMedia?.alt ?? heading;
 
   return (
     <Container>

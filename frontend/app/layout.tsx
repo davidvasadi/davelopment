@@ -1,6 +1,7 @@
 import type { Viewport } from 'next';
 import { Geist } from 'next/font/google';
 import Script from 'next/script';
+import { headers } from 'next/headers';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
 import { Locale, i18n } from '@/i18n.config';
@@ -27,13 +28,20 @@ export async function generateStaticParams() {
   return i18n.locales.map((locale) => ({ lang: locale }));
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // a tényleges locale a proxy.ts middleware által beállított headeren jön át
+  // (ez a layout a [locale] route-szegmens FÖLÖTT van, nincs params.locale-ja)
+  const headerLocale = (await headers()).get('x-locale');
+  const lang: Locale = i18n.locales.includes(headerLocale as Locale)
+    ? (headerLocale as Locale)
+    : i18n.defaultLocale;
+
   return (
-    <html lang="hu" suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       <head>
         {/* Google Consent Mode v2 — alapból minden tiltva, amíg a látogató nem dönt.
             Betöltéskor beolvassuk a korábban mentett cookie preferenciát. */}

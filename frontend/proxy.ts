@@ -66,6 +66,16 @@ export function proxy(request: NextRequest) {
   }
 
   /**
+   * A gyökér app/layout.tsx a [locale] szegmens FÖLÖTT van, ezért nincs
+   * közvetlen hozzáférése a params.locale-hoz — a <html lang> ott emiatt
+   * korábban fixen "hu" volt angol oldalakon is. Ezen a headeren keresztül
+   * jut el hozzá a tényleges locale (lásd app/layout.tsx, headers()).
+   */
+  const pathLocale = pathname.match(/^\/([a-z]{2})(\/|$)/)?.[1];
+  const requestHeaders = new Headers(request.headers);
+  if (pathLocale) requestHeaders.set('x-locale', pathLocale);
+
+  /**
    * STEP 2 — Segment lokalizáció
    * /{locale}/{segment}(/{slug})?
    */
@@ -86,7 +96,7 @@ export function proxy(request: NextRequest) {
     if (internal) {
       const url = request.nextUrl.clone();
       url.pathname = `/${locale}/${internal}${rest}`;
-      return NextResponse.rewrite(url);
+      return NextResponse.rewrite(url, { request: { headers: requestHeaders } });
     }
 
     /**
@@ -101,7 +111,7 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 export const config = {
