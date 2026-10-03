@@ -99,15 +99,24 @@ test('kapcsolat form: megtalálható és beküldhető', async ({ page, request }
   }
 
   await page.goto(`/hu/${pageWithForm.slug}`)
+
+  // Az űrlap 2 lépéses: az 1. lépés minősítő kérdéseket mutat egy "Tovább"/
+  // "Continue" gombbal (type="button", nem submit) — a név/email/telefon
+  // mezők és a valódi submit gomb csak a 2. lépésen jelennek meg.
+  const continueButton = page.getByRole('button', { name: /tovább|continue/i }).first()
+  if (await continueButton.isVisible().catch(() => false)) {
+    await continueButton.click()
+  }
+
   const emailInput = page.locator('input[type="email"]').first()
   await expect(emailInput).toBeVisible()
   const nameInput = page.locator('input[type="text"]').first()
   await nameInput.fill('E2E Teszt')
   await emailInput.fill(TEST_EMAIL)
+  // Kötelező mező a validate()-ben — enélkül a submit csendben elhasal.
   const phoneInput = page.locator('input[type="tel"]').first()
-  if (await phoneInput.isVisible()) {
-    await phoneInput.fill('+36301234567')
-  }
+  await expect(phoneInput).toBeVisible()
+  await phoneInput.fill('+36301234567')
   const textarea = page.locator('textarea').first()
   if (await textarea.isVisible()) {
     await textarea.fill('Automatikus e2e teszt üzenet.')
