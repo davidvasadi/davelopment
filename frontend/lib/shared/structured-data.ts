@@ -279,13 +279,16 @@ function extractPricingPlans(dynamicZone: unknown): PricingPlan[] {
 }
 
 /**
- * One Product+Offer node per plan. Fixed-price plans (Mikró/Rajt/Növekedés) get
- * a real price/priceCurrency Offer. Custom-quote plans (Partner) never get a
- * fabricated number — Google explicitly penalizes a schema price that doesn't
- * match what's shown on the page — instead they carry a priceSpecification
- * description so the plan still exists in the graph, just without a price.
+ * One Product+Offer node per plan. Only fixed-price plans (Mikró/Rajt/
+ * Növekedés) get a node — Google's Merchant listing validator requires a
+ * real price/priceCurrency (a priceSpecification-only Offer without a number
+ * doesn't satisfy it), and we never fabricate a number for a custom-quote
+ * plan (Partner) just to fill that field — Google explicitly penalizes a
+ * schema price that doesn't match what's shown on the page. So Partner
+ * simply isn't represented as a Product here; the honest alternative to a
+ * made-up price is no price, not a fake one.
  */
-function pricingProductNodes(url: string, plans: PricingPlan[], locale?: string): Node[] {
+function pricingProductNodes(url: string, plans: PricingPlan[], locale?: string, logoUrl?: string | null): Node[] {
   return plans
     .filter((p): p is PricingPlan & { name: string } => !!p?.name)
     .map((p) => {
@@ -293,35 +296,32 @@ function pricingProductNodes(url: string, plans: PricingPlan[], locale?: string)
         p.price !== null && p.price !== undefined && p.price !== '' && !isNaN(Number(p.price))
           ? Number(p.price)
           : null;
+      if (priceNum === null) return null;
       const node: Node = {
         '@type': 'Product',
         '@id': `${url}#product-${slugify(p.name)}`,
         name: p.name,
         url,
-        brand: { '@id': ORG_ID },
+        // A minimal, single-type Organization object — NOT a reference to the
+        // shared ORG_ID node, whose @type is ['Organization','ProfessionalService']
+        // for the site-wide LocalBusiness markup. Google's Merchant validator
+        // rejects an array @type on Product.brand, so this stays deliberately
+        // separate and simple.
+        brand: { '@type': 'Organization', name: ORG_NAME },
         inLanguage: lang(locale),
       };
       if (p.recommended_for) node.description = p.recommended_for;
-      node.offers =
-        priceNum !== null
-          ? {
-              '@type': 'Offer',
-              price: String(priceNum),
-              priceCurrency: p.currency || 'HUF',
-              availability: 'https://schema.org/InStock',
-              url,
-            }
-          : {
-              '@type': 'Offer',
-              priceSpecification: {
-                '@type': 'PriceSpecification',
-                description: (typeof p.price === 'string' && p.price) || (locale === 'en' ? 'Custom quote' : 'Egyedi árajánlat'),
-              },
-              availability: 'https://schema.org/InStock',
-              url,
-            };
+      if (logoUrl) node.image = logoUrl;
+      node.offers = {
+        '@type': 'Offer',
+        price: String(priceNum),
+        priceCurrency: p.currency || 'HUF',
+        availability: 'https://schema.org/InStock',
+        url,
+      };
       return node;
-    });
+    })
+    .filter((n): n is Node => n !== null);
 }
 
 function itemListNode(url: string, name: string, items: { name: string; url: string; position?: number }[]): Node | null {
@@ -408,7 +408,7 @@ export function renderPageJsonLd(opts: {
   const breadcrumb = opts.breadcrumbs?.length ? breadcrumbNode(url, locale, opts.breadcrumbs) : null;
   const faq = faqPageNode(url, extractFaqs(opts.dynamicZone), locale);
   const list = kind === 'collection' && opts.items?.length ? itemListNode(url, title, opts.items) : null;
-  const pricingProducts = pricingProductNodes(url, extractPricingPlans(opts.dynamicZone), locale);
+  const pricingProducts = pricingProductNodes(url, extractPricingPlans(opts.dynamicZone), locale, opts.logoUrl);
 
   const webpage = webPageNode({
     url,
