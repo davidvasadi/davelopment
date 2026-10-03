@@ -242,7 +242,12 @@ export const Hero = ({
 
       <div className="relative z-[3] px-4 md:px-8 xl:px-16 py-10 md:py-14 lg:py-16 min-h-screen grid grid-rows-[1fr_auto]">
         <div className="grid grid-cols-12 gap-x-6 gap-y-8 items-start lg:items-center">
-          <div className="col-span-12 lg:col-span-8">
+          <motion.div
+            className="col-span-12 lg:col-span-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={preloaderDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
             <h1>
               <span className="block font-bold tracking-tight leading-[0.9] text-[12vw] lg:text-[clamp(2.4rem,9.5vw,12rem)]">{heading}</span>
               <span className="block mt-1 text-[5vw] font-semibold text-white/90 lg:mt-3 lg:text-[clamp(1.05rem,3vw,3.5rem)]">{sub_heading}</span>
@@ -257,10 +262,12 @@ export const Hero = ({
                 ))}
               </div>
             )}
-          </div>
+          </motion.div>
           {serviceLabels.length > 0 && (
             <motion.ul className="col-span-12 lg:col-span-4 lg:self-center lg:justify-self-end lg:pl-8 mt-6 lg:mt-0 space-y-2 text-right"
-              initial={false} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+              initial={{ opacity: 0, y: 20 }}
+              animate={preloaderDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ duration: 0.8, delay: 0.3 }}>
               {serviceLabels.map((label, i) => <li key={`srv-${i}`} className="text-base md:text-lg font-medium">{label}</li>)}
             </motion.ul>
           )}
