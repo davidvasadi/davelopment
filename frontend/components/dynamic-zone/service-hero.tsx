@@ -8,6 +8,7 @@ import { Button } from '../elements/button';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { GrainCanvas } from '../ui/grain-canvas';
 import { usePreloaderDone } from '../ui/preloader';
+import { longestWordLength } from '@/lib/heading-size';
 
 type CTA = {
   id: string | number;
@@ -105,9 +106,9 @@ function AnimatedStatValue({ value }: { value?: string | null }) {
 function headingSizeClass(heading: string) {
   const text = heading || '';
   const len = text.length;
-  const longestWord = text.split(/\s+/).reduce((max, w) => Math.max(max, w.length), 0);
+  const longestWord = longestWordLength(text);
 
-  if (len > 24 || longestWord > 13) return 'text-[9vw] lg:text-[clamp(1.8rem,6.5vw,6.5rem)]';
+  if (len > 24 || longestWord > 13) return 'text-[6.5vw] lg:text-[clamp(1.6rem,6vw,6rem)]';
   if (len > 18 || longestWord > 9) return 'text-[10.5vw] lg:text-[clamp(2.1rem,8vw,8.5rem)]';
   return 'text-[12vw] lg:text-[clamp(2.4rem,9.5vw,10rem)]';
 }
@@ -156,7 +157,7 @@ export const ServiceHero = ({
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/35 to-black/75 z-[2]" />
         <GrainCanvas opacity={0.25} />
 
-        <div className="relative z-[3] px-5 md:px-10 xl:px-16 pt-24 md:pt-28 pb-10 md:pb-14 min-h-[76vh] md:min-h-[84vh] lg:min-h-[92vh] flex flex-col justify-between">
+        <div className="relative z-[3] px-5 md:px-10 xl:px-16 pt-24 md:pt-28 pb-10 md:pb-14 min-h-screen flex flex-col justify-between">
           {/* Badge — jobbra igazított, sima szöveg */}
           {badge_label && (
             <motion.p

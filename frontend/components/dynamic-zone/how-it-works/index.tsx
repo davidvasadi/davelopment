@@ -77,7 +77,7 @@ export const HowItWorks = ({
             )}
           </div>
           <div className="col-span-12 lg:col-start-5 lg:col-span-7">
-            <p className="text-md md:text-lg font-semibold text-black/80">[davelopment]®</p>
+            <p className="text-base md:text-lg font-semibold text-black/80">[davelopment]®</p>
           </div>
         </motion.div>
 

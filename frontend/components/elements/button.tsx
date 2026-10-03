@@ -212,7 +212,7 @@ export const Button: React.FC<ButtonProps> = ({
       <MotionElement
         className={cn(
           baseClass,
-          'rounded-full bg-black text-white px-3 py-2 gap-4 text-md font-semibold',
+          'rounded-full bg-black text-white px-3 py-2 gap-4 text-sm font-semibold',
           className,
         )}
         initial="rest"

@@ -360,7 +360,7 @@ export const Pricing = ({
                           <div className="w-6 h-6 shrink-0 bg-white/10 rounded-full flex items-center justify-center">
                             <PlusIcon className="w-3 h-3 text-white" />
                           </div>
-                          <p className="text-white text-md pt-0.5">{text}</p>
+                          <p className="text-white text-sm md:text-base pt-0.5">{text}</p>
                         </div>
                       ))}
                     </div>
@@ -437,7 +437,7 @@ export const Pricing = ({
                     transition={{ ...cardTransition, delay: 0.04 }}
                   >
                     {(descLead || descRest) && (
-                      <p className="desc-indent text-2xl md:text-3xl font-semibold text-white">
+                      <p className="desc-indent text-lg md:text-3xl font-semibold text-white">
                         <span className="text-white">
                           {descLead}
                           {!/\s$/.test(descLead) && ' '}

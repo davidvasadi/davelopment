@@ -172,7 +172,7 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                                             {featured.title}
                                         </h2>
                                         {featured.description && (
-                                            <p className="hidden md:blocktext-sm md:text-md text-white/80 mb-6 max-w-3xl">
+                                            <p className="hidden md:block text-sm md:text-base text-white/80 mb-6 max-w-3xl">
                                                 {featured.description}
                                             </p>
                                         )}

@@ -143,7 +143,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-2xl md:text-3xl font-medium text-black indent-20 max-w-xl">
+            <h2 className="text-xl md:text-3xl font-medium text-black indent-8 md:indent-20 max-w-xl">
               <span className="text-black/60">{resolveText(heading_left, isHu)}</span>{' '}
               <span className="text-black font-semibold">{resolveText(heading_right, isHu)}</span>
             </h2>
@@ -168,7 +168,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h3 className="text-2xl font-semibold text-black">
+            <h3 className="text-xl md:text-2xl font-semibold text-black">
               {resolveText(title, isHu) || (isHu ? 'Hírlevél' : 'Newsletter')}
             </h3>
 

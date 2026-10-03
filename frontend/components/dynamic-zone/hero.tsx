@@ -9,6 +9,19 @@ import { PlusIcon } from 'lucide-react';
 import { Button } from '../elements/button';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { GrainCanvas } from '../ui/grain-canvas';
+import { longestWordLength } from '@/lib/heading-size';
+
+// A videó nélküli hero fix text-6xl mobil mérete nem skálázódik a
+// képernyő szélességéhez, ezért egy hosszú, törés nélküli szó (pl.
+// "Szolgáltatások") kilóghatott mobilon. A leghosszabb szó alapján
+// vw-alapú, keskenyebb méretre váltunk mobilon; md/lg-n marad a fix
+// Tailwind lépcső, mert ott bőven elfér.
+function videolessHeadingMobileClass(heading: string) {
+  const longestWord = longestWordLength(heading);
+  if (longestWord > 13) return 'text-[10.5vw]';
+  if (longestWord > 9) return 'text-[12vw]';
+  return 'text-6xl';
+}
 
 type CTA = {
   id: string | number;
@@ -115,7 +128,7 @@ export const Hero = ({
       >
         <div className="w-full pt-24 md:pt-32 pb-10">
           <motion.h1
-            className="text-6xl md:text-8xl lg:text-9xl font-semibold text-black mb-16 md:mb-36"
+            className={`${videolessHeadingMobileClass(heading)} leading-[0.95] md:leading-none md:text-8xl lg:text-9xl font-semibold text-black mb-16 md:mb-36`}
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
@@ -222,7 +235,7 @@ export const Hero = ({
           animate={{ opacity: [0.5, 0.85, 0.5], scale: [1, 1.15, 1] }} transition={{ duration: 6, repeat: Infinity, delay: 0.5 }}>+</motion.div>
       </div>
 
-      <div className="relative z-[3] px-4 md:px-8 xl:px-16 py-10 md:py-14 lg:py-16 min-h-[78vh] md:min-h-[82vh] lg:min-h-[92vh] grid grid-rows-[1fr_auto]">
+      <div className="relative z-[3] px-4 md:px-8 xl:px-16 py-10 md:py-14 lg:py-16 min-h-screen grid grid-rows-[1fr_auto]">
         <div className="grid grid-cols-12 gap-x-6 gap-y-8 items-start lg:items-center">
           <div className="col-span-12 lg:col-span-8">
             <h1>
