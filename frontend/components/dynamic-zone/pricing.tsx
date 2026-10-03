@@ -181,7 +181,8 @@ export const Pricing = ({
         <div className="absolute inset-0 z-0">
           <img
             src={bgUrl}
-            alt="Background"
+            alt=""
+            aria-hidden="true"
             className="w-full h-full object-cover opacity-100"
             style={{ filter: 'brightness(1.15)' }}
           />
@@ -272,9 +273,9 @@ export const Pricing = ({
                   transition={cardTransition}
                 >
                   <div>
-                    <h4 className="text-white text-lg font-medium mb-1">
+                    <h3 className="text-white text-lg font-medium mb-1">
                       {activePlan?.addon_title || 'Add marketing add-on'}
-                    </h4>
+                    </h3>
                     <p className="text-white/75 text-sm md:text-base whitespace-pre-line">
                       {activePlan?.addon_description || 'Flexible tools to strengthen your launch.'}
                     </p>

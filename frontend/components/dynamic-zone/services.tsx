@@ -141,10 +141,10 @@ export function Services(props: ServicesBlockProps) {
                 {/* HÁTTÉR */}
                 <div className="absolute inset-0 z-0">
                     {isVideo ? (
-                        <video src={rawBgUrl} className="w-full h-full object-cover"
+                        <video src={rawBgUrl} className="w-full h-full object-cover" aria-hidden="true"
                             autoPlay muted loop playsInline style={{ filter: 'brightness(1.15)' }} />
                     ) : (
-                        <img src={rawBgUrl as string} alt=""
+                        <img src={rawBgUrl as string} alt="" aria-hidden="true"
                             className="w-full h-full object-cover" style={{ filter: 'brightness(1.15)' }} />
                     )}
                     <GrainCanvas strength="light" opacity={0.5} zIndex={1} />
