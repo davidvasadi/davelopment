@@ -166,17 +166,21 @@ export function AppWrapper({ children }: { children: React.ReactNode }) {
     [router]
   );
 
+  // A tartalom korábban egy opacity:0 → 1 motion.div-ben volt, ami `done`-ig
+  // takarásban tartotta — ez a DOM-ban már ott volt (a képek elkezdtek
+  // tölteni), de a böngésző festési-időzítése szerint "nem látszott", így a
+  // Preloader teljes hossza (~2,5s) rákerült az FCP/LCP-re minden egyes
+  // oldalbetöltésnél. A Preloader önmagában is egy teljes képernyős, takaró
+  // réteg (fixed, z-[9999], saját kicsúszó exit-animációval) — ez elég ahhoz,
+  // hogy a felhasználó ugyanazt az élményt lássa (logó, majd felcsúszó
+  // függöny), a tartalom pedig alatta már a valódi betöltési idejéhez
+  // igazodva, azonnal renderelődik/fest — a Preloader csak eltakarja, amíg le
+  // nem fut.
   return (
     <NavCloseContext.Provider value={{ navigateAfterClose }}>
       <PreloaderContext.Provider value={done}>
         {!done && <Preloader onComplete={() => setDone(true)} />}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={done ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-          transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
-        >
-          {children}
-        </motion.div>
+        {children}
       </PreloaderContext.Provider>
     </NavCloseContext.Provider>
   );
