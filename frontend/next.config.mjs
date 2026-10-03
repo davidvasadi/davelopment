@@ -38,6 +38,12 @@ const nextConfig = {
     return [
       // hu: a GYIK oldal korábban angol "faq" slug alatt futott — magyar kulcsszóra cserélve
       { source: '/hu/faq', destination: '/hu/gyik', permanent: true },
+      // blog cikk: a slug nagybetűs "UX"-et tartalmazott, az URL-ek legyenek konzisztensen kisbetűsek
+      {
+        source: '/hu/blog/brutalizmus-a-webdesignban-meresz-esztetika-vagy-csak-rossz-UX',
+        destination: '/hu/blog/brutalizmus-a-webdesignban-meresz-esztetika-vagy-csak-rossz-ux',
+        permanent: true,
+      },
     ]
   },
 

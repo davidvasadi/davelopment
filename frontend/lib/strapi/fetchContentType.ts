@@ -12,6 +12,33 @@ const ALL_LOCALES = ['hu', 'en'];
 
 type AnyRecord = Record<string, any>;
 
+// A Payload REST API depth=3-mal minden relációt (kép, szerző, stb.) teljes,
+// nyers dokumentumként ad vissza — méret-variánsokkal (sizes), admin
+// rendszermezőkkel (_status, createdAt/updatedAt) együtt. Ezeket a frontend
+// sosem olvassa ki (leellenőrizve: a .sizes és ._status mezőre nincs egyetlen
+// hivatkozás sem a kódban), mégis mind belekerülnek a React hidratációs
+// payloadba, feleslegesen megduplázva az oldal súlyát. A dokumentum saját
+// (gyökér szintű) createdAt/updatedAt marad, mert azt pl. a blog dátumozás
+// és a lista-rendezés tényleg használja — csak a beágyazott relációkról
+// (kép, stb.) vesszük le.
+const STRIP_ALWAYS = new Set(['sizes', '_status']);
+
+function sanitizeValue(value: any, depth: number): any {
+  if (Array.isArray(value)) {
+    return value.map((v) => sanitizeValue(v, depth));
+  }
+  if (value && typeof value === 'object') {
+    const out: AnyRecord = {};
+    for (const [k, v] of Object.entries(value)) {
+      if (STRIP_ALWAYS.has(k)) continue;
+      if (depth > 0 && (k === 'createdAt' || k === 'updatedAt')) continue;
+      out[k] = sanitizeValue(v, depth + 1);
+    }
+    return out;
+  }
+  return value;
+}
+
 function buildHeaders(): HeadersInit {
   return { 'Content-Type': 'application/json' };
 }
@@ -75,8 +102,8 @@ export default async function fetchContentType(
   const json = await res.json();
 
   if (!spreadData) {
-    if (isGlobal) return { data: [json] };
-    return { data: json.docs ?? [] };
+    if (isGlobal) return { data: sanitizeValue([json], 0) };
+    return { data: sanitizeValue(json.docs ?? [], 0) };
   }
 
   // spreadData=true → return single flat document
@@ -117,5 +144,5 @@ export default async function fetchContentType(
     doc.localizations = localizations;
   }
 
-  return doc;
+  return sanitizeValue(doc, 0);
 }

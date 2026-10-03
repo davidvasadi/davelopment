@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { PlusIcon } from 'lucide-react';
 import { Link } from 'next-view-transitions';
 import { format } from 'date-fns';
+import { hu } from 'date-fns/locale';
 import { Container } from '@/components/container'
 import { StrapiImage } from '@/components/ui/strapi-image';
 import { strapiImage } from '@/lib/strapi/strapiImage';
@@ -26,7 +27,7 @@ const formatDate = (dateStr?: string, locale?: string) => {
     const d = new Date(dateStr);
     if (Number.isNaN(d.getTime())) return '';
     return locale === 'hu'
-        ? format(d, 'yyyy. MMMM d.')
+        ? format(d, 'yyyy. MMMM d.', { locale: hu })
         : format(d, 'MMM d, yyyy');
 };
 

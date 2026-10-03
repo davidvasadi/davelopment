@@ -17,6 +17,7 @@ import {
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { strapiImage } from '@/lib/strapi/strapiImage';
+import { planNameFromSlug } from '@/lib/plan-slug';
 
 type FormInput = {
   type: 'text' | 'email' | 'textarea' | 'submit' | string;
@@ -309,7 +310,7 @@ export function FormNextToSection({
     const params = new URLSearchParams(window.location.search);
     const plan = params.get('csomag');
     if (!plan) return;
-    setSelectedPlan(plan);
+    setSelectedPlan(planNameFromSlug(plan));
     setSelectedMarketingAddon(params.get('marketing') === '1');
     // kis késleltetés, hogy a layout/animációk stabilizálódjanak, mielőtt a formhoz görgetünk
     setTimeout(() => {

@@ -2,6 +2,7 @@
 
 import { IconArrowLeft } from '@tabler/icons-react';
 import { format } from 'date-fns';
+import { hu } from 'date-fns/locale';
 import { motion, useInView } from 'framer-motion';
 import { Link } from 'next-view-transitions';
 import React, { useRef } from 'react';
@@ -20,7 +21,7 @@ const formatDate = (dateStr?: string, locale?: string) => {
   const d = new Date(dateStr);
   if (Number.isNaN(d.getTime())) return '';
   return locale === 'hu'
-    ? format(d, 'yyyy. MMMM d.')
+    ? format(d, 'yyyy. MMMM d.', { locale: hu })
     : format(d, 'MMMM dd, yyyy');
 };
 

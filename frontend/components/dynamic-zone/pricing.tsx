@@ -9,6 +9,7 @@ import { Subheading } from '../elements/subheading';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { GrainCanvas } from '../ui/grain-canvas';
 import { Container } from '@/components/container';
+import { slugifyPlanName } from '@/lib/plan-slug';
 
 
 type CTA = {
@@ -132,7 +133,7 @@ export const Pricing = ({
   const ctaBaseHref = activePlan?.CTA?.URL || '#';
   const ctaHref =
     activePlan?.name && ctaBaseHref !== '#'
-      ? `${ctaBaseHref}${ctaBaseHref.includes('?') ? '&' : '?'}csomag=${encodeURIComponent(activePlan.name)}${marketingAddon ? '&marketing=1' : ''}`
+      ? `${ctaBaseHref}${ctaBaseHref.includes('?') ? '&' : '?'}csomag=${slugifyPlanName(activePlan.name)}${marketingAddon ? '&marketing=1' : ''}`
       : ctaBaseHref;
   const ctaTarget = activePlan?.CTA?.target || '_self';
 
