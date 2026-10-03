@@ -28,6 +28,42 @@ type GrainCanvasProps = {
   zIndex?: number;
 };
 
+// A zajtextúra tiszta véletlen pixeladat, amit a PNG (veszteségmentes) nagyon
+// rosszul tömörít (~80-90 KB/csempe) — JPEG-gel sokkal kisebb, mert a szem
+// nem veszi észre a veszteséget egy finom grain-effektnél. Az alpha-csatornát
+// (ami a JPEG-ben nincs) a hívó oldali CSS opacity-be sűrítjük bele.
+// Egy adott erősséghez (light/medium/heavy) egyszer generáljuk le a csempét,
+// és minden <GrainCanvas> instance (akár 4-5 is egy oldalon) ugyanazt a
+// data URL-t használja — nincs ok rá, hogy mindegyik saját, külön zajt
+// generáljon és saját base64 payloadot hordozzon.
+const tileCache = new Map<GrainStrength, string>();
+
+function generateTile(strength: GrainStrength): string {
+  const cached = tileCache.get(strength);
+  if (cached) return cached;
+
+  const { base, range } = STRENGTH[strength];
+  const SIZE = 256;
+
+  const canvas = document.createElement('canvas');
+  canvas.width  = SIZE;
+  canvas.height = SIZE;
+  const ctx = canvas.getContext('2d')!;
+
+  const img = ctx.createImageData(SIZE, SIZE);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const v = base + Math.random() * range;
+    img.data[i]     = v;
+    img.data[i + 1] = v;
+    img.data[i + 2] = v;
+    img.data[i + 3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+  tileCache.set(strength, dataUrl);
+  return dataUrl;
+}
+
 export function GrainCanvas({
   opacity = 1,
   strength = 'medium',
@@ -35,26 +71,12 @@ export function GrainCanvas({
   zIndex = 0,
 }: GrainCanvasProps) {
   const [dataUrl, setDataUrl] = useState<string>('');
+  const { alpha } = STRENGTH[strength];
+  // a korábbi, pixelenkénti alpha-csatornát itt, a CSS opacity-ben pótoljuk
+  const effectiveOpacity = opacity * (alpha / 255);
 
   useEffect(() => {
-    const { base, range, alpha } = STRENGTH[strength];
-    const SIZE = 256;
-
-    const canvas = document.createElement('canvas');
-    canvas.width  = SIZE;
-    canvas.height = SIZE;
-    const ctx = canvas.getContext('2d')!;
-
-    const img = ctx.createImageData(SIZE, SIZE);
-    for (let i = 0; i < img.data.length; i += 4) {
-      const v = base + Math.random() * range;
-      img.data[i]     = v;
-      img.data[i + 1] = v;
-      img.data[i + 2] = v;
-      img.data[i + 3] = alpha;
-    }
-    ctx.putImageData(img, 0, 0);
-    setDataUrl(canvas.toDataURL('image/png'));
+    setDataUrl(generateTile(strength));
   }, [strength]);
 
   if (!dataUrl) return null;
@@ -79,7 +101,7 @@ export function GrainCanvas({
       <div
         aria-hidden
         className={className ?? 'absolute inset-0 pointer-events-none overflow-hidden'}
-        style={{ zIndex, opacity }}
+        style={{ zIndex, opacity: effectiveOpacity }}
       >
         <div
           style={{
