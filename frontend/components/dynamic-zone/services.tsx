@@ -58,7 +58,7 @@ type UIService = {
     stats?: { value?: string; suffix?: string; label?: string }[];
 };
 
-const GRID = 'grid grid-cols-[80px_1fr_60px] lg:grid-cols-[200px_1fr_60px]';
+const GRID = 'grid grid-cols-[36px_1fr_60px] lg:grid-cols-[200px_1fr_60px]';
 const TITLE_H = 96;
 const EASE = [0.76, 0, 0.24, 1] as const;
 
@@ -136,7 +136,7 @@ export function Services(props: ServicesBlockProps) {
 
     return (
         <div className="px-0 md:px-2">
-            <section className="w-full px-2 md:px-4 py-20 md:py-32 relative overflow-hidden rounded-none md:rounded-3xl font-sans">
+            <section className="w-full px-1 md:px-4 py-20 md:py-32 relative overflow-hidden rounded-none md:rounded-3xl font-sans">
 
                 {/* HÁTTÉR */}
                 <div className="absolute inset-0 z-0">
