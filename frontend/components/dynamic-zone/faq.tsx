@@ -117,7 +117,7 @@ const FAQItemComponent = ({
           className="overflow-hidden"
         >
           <motion.div
-            className="px-6 pb-6"
+            className="px-6 pb-6 pt-1"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

@@ -43,7 +43,7 @@ export function BlurFooter() {
     return (
         <div
             ref={blurRef}
-            className="fixed bottom-0 left-0 w-full pointer-events-none z-40"
+            className="fixed bottom-0 left-0 w-full pointer-events-none z-40 hidden md:block"
             style={{
                 height: '200px',
                 // Semmi háttérszín — csak tiszta blur

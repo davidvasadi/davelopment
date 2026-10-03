@@ -112,7 +112,7 @@ export function WhyChooseUsSection({
     return (
         <Container>
         <section className="w-full py-16 md:py-28 overflow-hidden">
-            <div className="px-6 md:px-8 py-4">
+            <div className="px-0 md:px-8 py-4">
 
                 {/* ── BADGE + HEADING — fade up, minden görgetéskor ── */}
                 <motion.div

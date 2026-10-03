@@ -98,11 +98,17 @@ function AnimatedStatValue({ value }: { value?: string | null }) {
 }
 
 // Hosszabb címeknél kisebb betűméret, hogy ne törjön csúnyán / ne lógjon ki
-// (pl. "SEO Tartalommarketing" vagy "UX/UI Design — Fejlesztés").
+// (pl. "SEO Tartalommarketing" vagy "UX/UI Design — Fejlesztés"). Egy
+// hosszú, törés nélküli EGYETLEN szó (pl. "Szolgáltatások") magában is
+// kilóghat a képernyőről, még ha a teljes cím összhossza rövidnek számít —
+// ezért a leghosszabb szót is nézzük, nem csak az össz-karakterszámot.
 function headingSizeClass(heading: string) {
-  const len = (heading || '').length;
-  if (len > 24) return 'text-[9vw] lg:text-[clamp(1.8rem,6.5vw,6.5rem)]';
-  if (len > 18) return 'text-[10.5vw] lg:text-[clamp(2.1rem,8vw,8.5rem)]';
+  const text = heading || '';
+  const len = text.length;
+  const longestWord = text.split(/\s+/).reduce((max, w) => Math.max(max, w.length), 0);
+
+  if (len > 24 || longestWord > 13) return 'text-[9vw] lg:text-[clamp(1.8rem,6.5vw,6.5rem)]';
+  if (len > 18 || longestWord > 9) return 'text-[10.5vw] lg:text-[clamp(2.1rem,8vw,8.5rem)]';
   return 'text-[12vw] lg:text-[clamp(2.4rem,9.5vw,10rem)]';
 }
 
