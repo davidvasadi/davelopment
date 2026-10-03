@@ -14,6 +14,14 @@ export const Media: CollectionConfig = {
         position: 'centre',
       },
     ],
+    // sharp (a Payload belső kép-feldolgozója) alapértelmezetten a legkisebb
+    // PNG spec-eltérésre is elhasal ("pngload_buffer: libspng read error") —
+    // ez AI-generált (pl. Gemini) exportoknál gyakori, amik technikailag kis
+    // mértékben nem szabványosak, de minden normál képnéző simán megnyitja
+    // őket. failOn:'none' ugyanúgy engedékenyebbé teszi a dekódolást.
+    constructorOptions: {
+      failOn: 'none',
+    },
   },
   admin: {
     group: 'Tartalom',
