@@ -1,12 +1,14 @@
-'use client';
-
-import { usePathname } from 'next/navigation';
-import { Link } from 'next-view-transitions';
+import { headers } from 'next/headers';
+import Link from 'next/link';
 import { Container } from '@/components/container';
 
-export default function NotFound() {
-  const pathname = usePathname();
-  const isHu = !pathname?.startsWith('/en');
+// Nem 'use client': a usePathname() hook megbízhatatlan egy not-found.tsx
+// boundary-ban (ahogy a params sem jut el ide megbízhatóan) — ehelyett a
+// proxy.ts middleware által beállított x-locale headerből olvassuk ki a
+// nyelvet, ugyanazzal a mintával mint a gyökér layout.tsx.
+export default async function NotFound() {
+  const headerLocale = (await headers()).get('x-locale');
+  const isHu = headerLocale !== 'en';
   const locale = isHu ? 'hu' : 'en';
 
   const t = isHu
