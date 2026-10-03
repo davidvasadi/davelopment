@@ -185,14 +185,14 @@ export function ServicesPage({ pages, locale, heading, sub_heading, badge_label 
                             whileInView={{ opacity: 1 }}
                             viewport={{ once: true, amount: 0.2 }}
                             transition={{ duration: 0.5, delay: idx * 0.07, ease: [0.33, 1, 0.68, 1] }}
-                            className={`group relative rounded-2xl flex flex-col overflow-hidden p-4 h-[480px] sm:h-auto w-full sm:w-[340px] sm:flex-shrink-0 sm:cursor-pointer ${
+                            className={`group relative rounded-2xl flex flex-col overflow-hidden p-4 h-auto w-full sm:w-[340px] sm:flex-shrink-0 sm:cursor-pointer ${
                                 isActive
                                     ? 'bg-white text-black sm:bg-black sm:text-white'
                                     : 'bg-white text-black'
                             }`}
                         >
                             {/* Fix magasságú fejléc — így minden kártyán ugyanakkora marad a kép */}
-                            <div className="shrink-0 min-h-[190px] mb-4">
+                            <div className="shrink-0 mb-4">
                                 <div className="flex items-center justify-between mb-4">
                                     <div className="flex flex-wrap gap-1.5">
                                         {tags.map((t, tIdx) => (
@@ -238,7 +238,7 @@ export function ServicesPage({ pages, locale, heading, sub_heading, badge_label 
 
                             {/* Nagy, domináns kép, ráúsztatott CTA-val */}
                             <div
-                                className={`relative flex-1 min-h-0 sm:flex-none sm:aspect-[16/10] rounded-xl overflow-hidden ${
+                                className={`relative aspect-[16/10] rounded-xl overflow-hidden ${
                                     isActive ? 'bg-black/5 sm:bg-white/10' : 'bg-black/5'
                                 }`}
                             >

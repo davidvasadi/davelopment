@@ -58,7 +58,7 @@ type UIService = {
     stats?: { value?: string; suffix?: string; label?: string }[];
 };
 
-const GRID = 'grid grid-cols-[36px_1fr_60px] lg:grid-cols-[200px_1fr_60px]';
+const GRID = 'grid grid-cols-[36px_1fr_60px] lg:grid-cols-[200px_1fr_60px] gap-x-3 lg:gap-x-0';
 const TITLE_H = 96;
 const EASE = [0.76, 0, 0.24, 1] as const;
 
