@@ -189,12 +189,13 @@ export const Hero = ({
   // ============================================================
   // VIDEÓS MÓD — LCP optimalizált
   // ============================================================
-  // A belépő-animáció a TELJES szekcióra kerül (videó/poszter is), de
-  // kizárólag transzformmal (y), opacity NÉLKÜL — a poszter a LCP-elem, és egy
-  // opacity:0-ról induló animáció a böngésző szemében "még nincs kifestve"
-  // állapotnak számítana, pont azt a hibát hozná vissza, amit korábban (lásd
-  // preloader.tsx) kijavítottunk. Transform-mal a kép onnantól kezdve teljesen
-  // látható/kifestett, csak elmozdítva — ez nem számít láthatatlannak.
+  // A teljes szekció (videó/poszter is) kap belépő-animációt, UGYANOLYAN
+  // opacity+y fade-et, mint a többi elem a site-on — de nem magán a
+  // poszteren/videón, hanem egy föléjük tett, saját háttérszínű takaró
+  // rétegen, ami 1-ről 0 opacity-re ELTŰNIK (nem a tartalom tűnik fel).
+  // A poszter/videó így a legelső pillanattól kezdve teljesen kifestett
+  // marad — a Google ezt méri a LCP-nél —, a felhasználó mégis ugyanazt a
+  // "bemosódó" fade-et látja, mert a takarás oldódik fel fölötte.
   return (
     <motion.div
       initial={{ y: 40 }}
@@ -241,6 +242,16 @@ export const Hero = ({
 />
 
       <GrainCanvas opacity={0.25} />
+
+      {/* Belépő-fade takarórétege — ld. a fenti komment: nem a tartalom
+          tűnik fel, hanem ez tűnik el fölötte, hogy a poszter/videó LCP
+          szempontból mindvégig kifestettnek számítson. */}
+      <motion.div
+        className="absolute inset-0 z-[5] bg-[#0a0a0a] pointer-events-none"
+        initial={{ opacity: 1 }}
+        animate={{ opacity: preloaderDone ? 0 : 1 }}
+        transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
+      />
 
       <div className="absolute inset-0 pointer-events-none z-[2]">
         <motion.div className="absolute top-10 left-8 text-white/50 text-2xl md:drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
