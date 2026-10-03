@@ -163,13 +163,14 @@ export function CapabilitiesAccordion({
 }) {
     const n = items.length;
     const { ITEM_H, VISIBLE, isDesktop } = useResponsiveTileSize();
-    // `step` sosem "ér véget" — mindig nő, a lista pedig 3x meg van ismételve,
-    // így amikor egy teljes körön áthaladtunk, tranzíció nélkül vissza tudunk
-    // ugrani pontosan egy környit — mivel a tartalom ott ugyanaz, ez láthatatlan.
-    // Így a görgetés valóban végtelen, sosem "fogy el".
-    const [step, setStep] = useState(0);
+    // `step` sosem "ér véget" — se előre, se hátra —, a lista pedig 3x meg van
+    // ismételve, így amikor egy teljes körön áthaladtunk (bármelyik irányba),
+    // tranzíció nélkül vissza tudunk ugrani pontosan egy környit — mivel a
+    // tartalom ott ugyanaz, ez láthatatlan. A kezdő érték a középső másolatra
+    // áll (n), hogy visszafelé lépés is azonnal, a legelejétől működjön.
+    const [step, setStep] = useState(n);
     const [noTransition, setNoTransition] = useState(false);
-    const activeIndex = n > 0 ? step % n : 0;
+    const activeIndex = n > 0 ? ((step % n) + n) % n : 0;
     const active = items[activeIndex];
 
     // setTimeout-lánc (nem setInterval): minden step-változás — akár automata
@@ -190,12 +191,31 @@ export function CapabilitiesAccordion({
 
     const tripleItems = n > 0 ? [...items, ...items, ...items] : [];
 
-    // Kézi váltás egy adott elemre — mindig előre lép (a folytonos, lefelé
-    // görgető irányt megtartva), sosem ugrik hátrafelé.
+    const next = () => setStep((s) => s + 1);
+    const prev = () => setStep((s) => s - 1);
+
+    // Kézi váltás egy adott elemre — a rövidebb irányba lép (előre vagy
+    // hátra), nem mindig előre.
     const goTo = (targetIndex: number) => {
-        const delta = ((targetIndex - activeIndex) % n + n) % n;
+        const forward = ((targetIndex - activeIndex) % n + n) % n;
+        const delta = forward > n / 2 ? forward - n : forward;
         if (delta === 0) return;
         setStep((s) => s + delta);
+    };
+
+    // Érintéses lapozás mobilon — eddig csak a pöttyökre/csempékre kattintva
+    // lehetett váltani, swipe-ra semmi nem történt.
+    const touchStartX = useRef<number | null>(null);
+    const onTouchStart = (e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX;
+    };
+    const onTouchEnd = (e: React.TouchEvent) => {
+        if (touchStartX.current === null) return;
+        const dx = e.changedTouches[0].clientX - touchStartX.current;
+        touchStartX.current = null;
+        const SWIPE_THRESHOLD = 40;
+        if (dx <= -SWIPE_THRESHOLD) next();
+        else if (dx >= SWIPE_THRESHOLD) prev();
     };
 
     const onCta = () => {
@@ -277,8 +297,10 @@ export function CapabilitiesAccordion({
 
                     {/* Auto-görgető, magas, végtelenített kép-oszlop */}
                     <div
-                        className="relative overflow-hidden rounded-2xl bg-[#f5f5f5]"
+                        className="relative overflow-hidden rounded-2xl bg-[#f5f5f5] touch-pan-y"
                         style={{ height: ITEM_H * VISIBLE }}
+                        onTouchStart={onTouchStart}
+                        onTouchEnd={onTouchEnd}
                     >
                         <motion.div
                             animate={{ y: -step * ITEM_H }}
@@ -287,6 +309,9 @@ export function CapabilitiesAccordion({
                                 if (step >= n * 2) {
                                     setNoTransition(true);
                                     setStep((s) => s - n);
+                                } else if (step < n) {
+                                    setNoTransition(true);
+                                    setStep((s) => s + n);
                                 }
                             }}
                         >

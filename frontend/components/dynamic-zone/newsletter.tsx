@@ -132,7 +132,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
   return (
     <Container>
     <section className="w-full py-20">
-      <div className="max-w-9xl mx-auto px-6 md:px-8">
+      <div className="max-w-9xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
           {/* ── SZÖVEGES BLOKK — fade up, ugyanaz a mintázat mint a form-next-to-section-ben ── */}
@@ -150,7 +150,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
             <div className="flex items-center space-x-4">
               {profileImgUrl && (
                 <div className="w-12 h-12 rounded-full overflow-hidden">
-                  <Image src={profileImgUrl} alt={profile_name || ''} width={48} height={48} className="object-cover w-full h-full" />
+                  <Image src={profileImgUrl} alt={profile_name || ''} width={48} height={48} className="object-cover object-top w-full h-full" />
                 </div>
               )}
               <div>
