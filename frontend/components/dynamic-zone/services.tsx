@@ -265,7 +265,9 @@ export function Services(props: ServicesBlockProps) {
                                                         </div>
                                                     )}
                                                     <div className="flex flex-col gap-2">
-                                                        <h4 className="text-lg font-semibold text-white">{s.title}</h4>
+                                                        {/* ugyanaz a cím mint a fenti h3-ban (animált be/ki), nem új
+                                                            tartalom -> nem heading-elem, hogy ne duplázódjon a címsor-fa */}
+                                                        <p className="text-lg font-semibold text-white">{s.title}</p>
                                                         {s.description && (
                                                             <p className="text-white/70 text-sm leading-relaxed">{s.description}</p>
                                                         )}
@@ -273,9 +275,9 @@ export function Services(props: ServicesBlockProps) {
                                                 </div>
 
                                                 <div>
-                                                    <h5 className="text-sm font-medium text-white/70 tracking-wider mb-4">
+                                                    <h4 className="text-sm font-medium text-white/70 tracking-wider mb-4">
                                                         {s.categoriesTitle}
-                                                    </h5>
+                                                    </h4>
                                                     <div className="flex flex-wrap gap-3">
                                                         {s.categories.map((cat, ci) => (
                                                             <span key={ci} className="px-4 py-2 bg-white text-black text-xs font-semibold rounded-full">
