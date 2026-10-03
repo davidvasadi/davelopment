@@ -189,7 +189,18 @@ export const Hero = ({
   // ============================================================
   // VIDEÓS MÓD — LCP optimalizált
   // ============================================================
+  // A belépő-animáció a TELJES szekcióra kerül (videó/poszter is), de
+  // kizárólag transzformmal (y), opacity NÉLKÜL — a poszter a LCP-elem, és egy
+  // opacity:0-ról induló animáció a böngésző szemében "még nincs kifestve"
+  // állapotnak számítana, pont azt a hibát hozná vissza, amit korábban (lásd
+  // preloader.tsx) kijavítottunk. Transform-mal a kép onnantól kezdve teljesen
+  // látható/kifestett, csak elmozdítva — ez nem számít láthatatlannak.
   return (
+    <motion.div
+      initial={{ y: 40 }}
+      animate={{ y: preloaderDone ? 0 : 40 }}
+      transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
+    >
     <motion.section
       ref={heroRef as React.RefObject<HTMLElement>}
       data-hero-section
@@ -240,12 +251,7 @@ export const Hero = ({
           animate={{ opacity: [0.5, 0.85, 0.5], scale: [1, 1.15, 1] }} transition={{ duration: 6, repeat: Infinity, delay: 0.5 }}>+</motion.div>
       </div>
 
-      <motion.div
-        className="relative z-[3] px-4 md:px-8 xl:px-16 py-10 md:py-14 lg:py-16 min-h-screen grid grid-rows-[1fr_auto]"
-        initial={{ opacity: 0, y: 20 }}
-        animate={preloaderDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-      >
+      <div className="relative z-[3] px-4 md:px-8 xl:px-16 py-10 md:py-14 lg:py-16 min-h-screen grid grid-rows-[1fr_auto]">
         <div className="grid grid-cols-12 gap-x-6 gap-y-8 items-start lg:items-center">
           <div className="col-span-12 lg:col-span-8">
             <h1>
@@ -323,10 +329,11 @@ export const Hero = ({
             {copyright && <p className="text-white/60 text-sm">{copyright}</p>}
           </div>
         </div>
-      </motion.div>
+      </div>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 md:h-36 w-full bg-gradient-to-t from-black/60 to-transparent z-[1]" />
     </motion.section>
+    </motion.div>
   );
 };
 
