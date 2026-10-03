@@ -36,10 +36,13 @@ const TAX_ID = '92176472-1-33';
 const VAT_ID = 'HU92176472';
 const REGISTRATION_NUMBER = '62508634';
 
-// TODO(davelopment): fill with the REAL social profile URLs (Instagram, LinkedIn,
-// Behance, GitHub…). Leave empty rather than guessing — a wrong sameAs hurts more
-// than a missing one. These feed Google's Knowledge Panel entity resolution.
-const SAME_AS: string[] = [];
+// Real, confirmed profiles only — a wrong sameAs hurts more than a missing
+// one. These feed Google's Knowledge Panel entity resolution.
+const SAME_AS: string[] = [
+  'https://www.instagram.com/davelopment_official/',
+  'https://www.linkedin.com/in/dávid-vasadi-01a3581b8/',
+  'https://maps.app.goo.gl/SfNfrFNHyygiyfdb7',
+];
 
 // The brand logo comes from Payload (global.navbar.logo → logos.image); pages
 // resolve its absolute URL via getSiteLogoUrl() and pass it in as `logoUrl`.
