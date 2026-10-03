@@ -44,6 +44,7 @@ export function proxy(request: NextRequest) {
     pathname.startsWith('/uploads') ||
     pathname.startsWith('/admin') ||
     pathname === '/visual-card' ||
+    pathname === '/llms.txt' ||
     /\.(jpg|jpeg|png|gif|svg|webp|avif|ico|woff2|woff|ttf|otf|mp4|pdf|vcf)$/i.test(pathname)
   ) {
     return NextResponse.next();
