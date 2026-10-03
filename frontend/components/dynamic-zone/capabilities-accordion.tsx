@@ -65,9 +65,13 @@ const ITEM_H_DESKTOP = 170;
 const VISIBLE_DESKTOP = 3;
 
 // A jobb oldali szöveges panel (leírás + cím + CTA + esetleg statisztikák)
-// mobilon fix magasságot kap, hogy elem-váltáskor NE ugráljon a tartalom —
-// a leírások hossza elemenként eltér, ezért ez nem függhet az
-// (amúgy a képcsempék méretezéséhez tartozó) ITEM_H*VISIBLE értéktől.
+// mobilon ezt az értéket kapja minimum-magasságként, hogy elem-váltáskor a
+// rövidebb elemeknél NE ugráljon össze a tartalom — a leírások hossza
+// elemenként eltér, ezért ez nem függhet az (amúgy a képcsempék
+// méretezéséhez tartozó) ITEM_H*VISIBLE értéktől. Fontos: min-height, nem
+// fix height — egy hosszabb leírás + 2 statisztika simán túlnő ezen, és
+// fix magasság + overflow-hidden esetén ilyenkor levágta volna a tartalom
+// alját (lásd: hibajegy screenshot, "0 rendszer" statisztika levágva).
 const TEXT_PANEL_H_MOBILE = 340;
 
 function useResponsiveTileSize() {
@@ -365,8 +369,8 @@ export function CapabilitiesAccordion({
 
                     {/* Jobb oldal — aktív elem szövege, alul elválasztóval + statisztikákkal */}
                     <div
-                        className="min-w-0 flex flex-col overflow-hidden"
-                        style={isDesktop ? { minHeight: ITEM_H * VISIBLE } : { height: TEXT_PANEL_H_MOBILE }}
+                        className="min-w-0 flex flex-col"
+                        style={{ minHeight: isDesktop ? ITEM_H * VISIBLE : TEXT_PANEL_H_MOBILE }}
                     >
                         <AnimatePresence mode="wait">
                             <motion.div
