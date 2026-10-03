@@ -15,10 +15,10 @@ export const Logo = ({ image, locale, text, dark = false }: { image?: Image; loc
       <Link href={href} className={cn('font-normal flex items-center text-sm mr-4 relative z-20', dark ? 'text-white' : 'text-black')}>
         <BlurImage
           src={strapiImage(image.url)}
-          alt={image.alt ?? image.alternativeText ?? text ?? '[davelopment]®'}
+          alt={image.alt ?? image.alternativeText ?? text ?? '[davelopment]©'}
           width={150}
           height={150}
-          className={cn('h-4 w-auto', dark && 'brightness-0 invert')}
+          className={cn('h-7 w-auto', dark && 'brightness-0 invert')}
         />
       </Link>
     );
@@ -26,7 +26,7 @@ export const Logo = ({ image, locale, text, dark = false }: { image?: Image; loc
 
   return (
     <Link href={href} className={cn('font-normal flex items-center text-sm mr-4 relative z-20', dark ? 'text-white' : 'text-black')}>
-      <span className={cn('font-bold text-base', dark ? 'text-white' : 'text-black')}>{text || '[davelopment]®'}</span>
+      <span className={cn('font-bold text-base', dark ? 'text-white' : 'text-black')}>{text || '[davelopment]©'}</span>
     </Link>
   );
 };

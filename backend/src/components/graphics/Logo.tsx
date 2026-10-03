@@ -20,7 +20,7 @@ export function Logo() {
         fontWeight: 700,
         color: 'var(--theme-text)',
         letterSpacing: '-0.02em',
-      }}>[davelopment]®</span>
+      }}>[davelopment]©</span>
     </div>
   )
 }

@@ -15,8 +15,8 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         from,
         to,
-        subject: '[davelopment]® – Email kapcsolat teszt',
-        html: `<div style="font-family:-apple-system,sans-serif;padding:32px;max-width:480px;margin:0 auto;"><h2 style="font-family:'Courier New',monospace;font-size:14px;color:#111;">[davelopment]®</h2><p style="color:#333;font-size:15px;line-height:1.7;">Ez egy teszt email a Resend kapcsolat ellenőrzéséhez.</p><p style="color:#9ca3af;font-size:12px;font-family:'Courier New',monospace;">Elküldve: ${new Date().toLocaleString('hu-HU')}</p></div>`,
+        subject: '[davelopment]© – Email kapcsolat teszt',
+        html: `<div style="font-family:-apple-system,sans-serif;padding:32px;max-width:480px;margin:0 auto;"><h2 style="font-family:'Courier New',monospace;font-size:14px;color:#111;">[davelopment]©</h2><p style="color:#333;font-size:15px;line-height:1.7;">Ez egy teszt email a Resend kapcsolat ellenőrzéséhez.</p><p style="color:#9ca3af;font-size:12px;font-family:'Courier New',monospace;">Elküldve: ${new Date().toLocaleString('hu-HU')}</p></div>`,
       }),
     })
 

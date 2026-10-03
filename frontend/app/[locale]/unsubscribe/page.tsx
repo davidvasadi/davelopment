@@ -144,7 +144,7 @@ export default async function UnsubscribePage(props: {
                 color: '#0b1220',
                 fontFamily: "'Geist Mono', monospace",
               }}>
-                [davelopment]®
+                [davelopment]©
               </div>
               <div className="unsub-badge" style={{
                 display: 'inline-flex',

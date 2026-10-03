@@ -12,7 +12,7 @@
 // Single entry point: renderPageJsonLd(...) → JSON string for <JsonLd data=... />.
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://davelopment.hu').replace(/\/+$/, '');
-const ORG_NAME = '[davelopment]®';
+const ORG_NAME = '[davelopment]©';
 
 // Stable @id anchors for the site-wide singletons (never change these strings).
 const ORG_ID = `${SITE_URL}/#organization`;

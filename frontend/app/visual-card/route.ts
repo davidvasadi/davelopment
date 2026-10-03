@@ -28,9 +28,9 @@ export async function GET() {
   const lines = [
     'BEGIN:VCARD',
     'VERSION:3.0',
-    'FN:Dávid Vasadi — [davelopment]®',
+    'FN:Dávid Vasadi — [davelopment]©',
     'N:Vasadi;Dávid;;;',
-    'ORG:[davelopment]®',
+    'ORG:[davelopment]©',
     'TITLE:Alapító',
     'EMAIL;TYPE=INTERNET:hello@davelopment.hu',
     'TEL;TYPE=CELL:+36303628377',

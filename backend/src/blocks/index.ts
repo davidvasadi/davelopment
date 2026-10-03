@@ -278,7 +278,7 @@ export const ServiceHeroBlock: Block = {
           name: 'mark_text',
           type: 'text',
           label: 'Kis márkajelzés a kártya tetején',
-          defaultValue: '[davelopment]®',
+          defaultValue: '[davelopment]©',
         },
         {
           name: 'label',

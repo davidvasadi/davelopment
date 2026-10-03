@@ -260,7 +260,7 @@ export function LiveEditDemo({ mobile = false, locale }: { mobile?: boolean; loc
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 100% 100% at 50% 50%,transparent 40%,rgba(4,4,10,0.6) 100%)', zIndex: 0, pointerEvents: 'none' }} />
       {/* nav */}
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: sz('6px 14px','8px 16px'), borderBottom: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
-        <span style={{ color: '#fff', fontWeight: 700, letterSpacing: '-0.02em', fontSize: sz('7px','10px') }}>[davelopment]®</span>
+        <span style={{ color: '#fff', fontWeight: 700, letterSpacing: '-0.02em', fontSize: sz('7px','10px') }}>[davelopment]©</span>
         <div style={{ display: 'flex', gap: sz('9px','13px') }}>
           {navLinks.map(l => <span key={l} style={{ color: 'rgba(255,255,255,0.3)', fontSize: sz('5.5px','7px') }}>{l}</span>)}
         </div>
@@ -297,7 +297,7 @@ export function LiveEditDemo({ mobile = false, locale }: { mobile?: boolean; loc
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px 7px', flexShrink: 0, borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <span style={{ color: TEXT, fontWeight: 700, fontSize: '7px', letterSpacing: '-0.01em' }}>[davelopment]®</span>
+          <span style={{ color: TEXT, fontWeight: 700, fontSize: '7px', letterSpacing: '-0.01em' }}>[davelopment]©</span>
           <span style={{ color: MUTED, fontSize: '5.5px' }}>/</span>
           <span style={{ color: TEXT_SEC, fontSize: '5.5px' }}>Dashboard</span>
         </div>
@@ -389,7 +389,7 @@ export function LiveEditDemo({ mobile = false, locale }: { mobile?: boolean; loc
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px 7px', flexShrink: 0, borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <span style={{ color: TEXT, fontWeight: 700, fontSize: '7px', letterSpacing: '-0.01em' }}>[davelopment]®</span>
+          <span style={{ color: TEXT, fontWeight: 700, fontSize: '7px', letterSpacing: '-0.01em' }}>[davelopment]©</span>
           <span style={{ color: MUTED, fontSize: '5.5px' }}>/</span>
           <span style={{ color: TEXT_SEC, fontSize: '5.5px' }}>{pagesLabel}</span>
           <span style={{ color: MUTED, fontSize: '5.5px' }}>/</span>
@@ -441,7 +441,7 @@ export function LiveEditDemo({ mobile = false, locale }: { mobile?: boolean; loc
       <div style={{ position: 'absolute', inset: 0, zIndex: 8, background: 'rgba(0,0,0,0.45)', opacity: navDrawerOpen ? 1 : 0, transition: 'opacity 0.22s ease', pointerEvents: 'none' }} />
       <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '82%', zIndex: 9, background: BG, borderRight: `1px solid ${BORDER_H}`, display: 'flex', flexDirection: 'column', transform: navDrawerOpen ? 'translateX(0)' : 'translateX(-100%)', transition: 'transform 0.25s cubic-bezier(0.33,1,0.68,1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px 6px', borderBottom: `1px solid ${BORDER}`, flexShrink: 0 }}>
-          <span style={{ color: TEXT, fontWeight: 700, fontSize: '8px', letterSpacing: '-0.01em' }}>[davelopment]®</span>
+          <span style={{ color: TEXT, fontWeight: 700, fontSize: '8px', letterSpacing: '-0.01em' }}>[davelopment]©</span>
           <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: SURFACE2, border: `1px solid ${BORDER_H}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ color: TEXT, fontWeight: 700, fontSize: '4.5px' }}>D</span>
           </div>
@@ -479,7 +479,7 @@ export function LiveEditDemo({ mobile = false, locale }: { mobile?: boolean; loc
           <div style={{ width: '14px', height: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2.5px', marginRight: '3px' }}>
             {[0,1,2].map(i => <div key={i} style={{ width: '10px', height: '1px', background: TEXT_SEC, borderRadius: '1px', opacity: 0.5 }} />)}
           </div>
-          <span style={{ color: TEXT, fontWeight: 700, fontSize: '7.5px', letterSpacing: '-0.01em' }}>[davelopment]®</span>
+          <span style={{ color: TEXT, fontWeight: 700, fontSize: '7.5px', letterSpacing: '-0.01em' }}>[davelopment]©</span>
           <span style={{ color: MUTED, fontSize: '5px' }}>/</span>
           <span style={{ color: TEXT_SEC, fontSize: '5px' }}>Dashboard</span>
         </div>
@@ -567,7 +567,7 @@ export function LiveEditDemo({ mobile = false, locale }: { mobile?: boolean; loc
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: BG, overflow: 'hidden' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 11px 6px', flexShrink: 0, borderBottom: `1px solid ${BORDER}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <span style={{ color: TEXT, fontWeight: 700, fontSize: '7.5px', letterSpacing: '-0.01em' }}>[davelopment]®</span>
+          <span style={{ color: TEXT, fontWeight: 700, fontSize: '7.5px', letterSpacing: '-0.01em' }}>[davelopment]©</span>
           <span style={{ color: MUTED, fontSize: '5px' }}>/</span>
           <span style={{ color: TEXT_SEC, fontSize: '5px' }}>{pagesLabel}</span>
           <span style={{ color: MUTED, fontSize: '5px' }}>/</span>

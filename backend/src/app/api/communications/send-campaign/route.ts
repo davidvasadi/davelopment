@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'hello@davelopment.hu'
-    const from = `[davelopment]® <${fromEmail}>`
+    const from = `[davelopment]© <${fromEmail}>`
 
     // Test mode: send only to one address
     if (testEmail) {

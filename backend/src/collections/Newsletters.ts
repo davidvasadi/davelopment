@@ -11,8 +11,8 @@ function buildWelcomeHtml(name: string, language: 'hu' | 'en', unsubscribeUrl: s
     badge:      isHu ? 'feliratkozás sikeres' : 'subscription confirmed',
     title:      isHu ? 'Örülünk, hogy itt vagy.' : 'Great to have you here.',
     body:       isHu
-      ? 'Csatlakoztál a [davelopment]® közösségéhez. Webfejlesztésről, dizájnról és az általunk épített termékekről fogunk írni – csak akkor, ha van mondanivalónk.'
-      : "You've joined the [davelopment]® community. We'll write about web development, design, and the products we build — only when we have something worth saying.",
+      ? 'Csatlakoztál a [davelopment]© közösségéhez. Webfejlesztésről, dizájnról és az általunk épített termékekről fogunk írni – csak akkor, ha van mondanivalónk.'
+      : "You've joined the [davelopment]© community. We'll write about web development, design, and the products we build — only when we have something worth saying.",
     cta:        isHu ? 'Megnézem a weboldalt ›' : 'Visit our website ›',
     unsubLabel: isHu ? 'Leiratkozás a hírlevélről' : 'Unsubscribe from newsletter',
   }
@@ -39,7 +39,7 @@ function buildWelcomeHtml(name: string, language: 'hu' | 'en', unsubscribeUrl: s
             <tr><td style="padding:18px 24px 16px;border-bottom:1px solid #f3f4f6;">
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td style="font-size:13px;font-weight:700;color:#111;font-family:Geist,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;letter-spacing:0.2px;">[davelopment]®</td>
+                  <td style="font-size:13px;font-weight:700;color:#111;font-family:Geist,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;letter-spacing:0.2px;">[davelopment]©</td>
                   <td align="right">
                     <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;font-family:Geist,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">${t.badge}</span>
                   </td>
@@ -120,7 +120,7 @@ function buildContactAdminHtml(o: {
             <tr><td style="padding:18px 24px 16px;border-bottom:1px solid #f3f4f6;">
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td style="font-size:13px;font-weight:700;color:#111;font-family:Geist,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">[davelopment]®</td>
+                  <td style="font-size:13px;font-weight:700;color:#111;font-family:Geist,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">[davelopment]©</td>
                   <td align="right">
                     <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#fef3c7;border:1px solid #fde68a;color:#92400e;font-family:Geist,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">új üzenet</span>
                   </td>
@@ -213,7 +213,7 @@ function buildAutoReplyHtml(o: {
     nlTitle:  isHu ? 'Maradj naprakész' : 'Stay in the loop',
     nlBody:   isHu ? 'Iratkozz fel a hírlevelünkre, és elsőként értesülj a friss webes és digitális trendekről — spam nélkül.' : 'Subscribe to our newsletter and be the first to know about fresh web and digital trends — no spam.',
     nlBtn:    isHu ? 'Feliratkozom' : 'Subscribe',
-    sign:     isHu ? 'A [davelopment]® csapata' : 'The [davelopment]® team',
+    sign:     isHu ? 'A [davelopment]© csapata' : 'The [davelopment]© team',
   }
 
   const stepRow = (n: number, txt: string) => `
@@ -310,9 +310,9 @@ function buildAutoReplyHtml(o: {
     : [['Projects', '/en/products'], ['Services', '/en/services'], ['Pricing', '/en/pricing'], ['Blog', '/en/blog'], ['Contact', '/en/contact']]
   const fl = isHu
     ? { contact: 'Kapcsolat', navH: 'Navigáció', social: 'Közösségi média', privacy: 'Adatkezelési tájékoztató', terms: 'Felhasználási feltételek',
-        desc: 'A [davelopment]® egy kis stúdió, amely webet, márkát és stratégiát épít olyan vállalkozásoknak, akik nem csak egy szép weboldalt akarnak, hanem mérhető eredményeket is.' }
+        desc: 'A [davelopment]© egy kis stúdió, amely webet, márkát és stratégiát épít olyan vállalkozásoknak, akik nem csak egy szép weboldalt akarnak, hanem mérhető eredményeket is.' }
     : { contact: 'Contact', navH: 'Navigation', social: 'Social', privacy: 'Privacy Policy', terms: 'Terms of Use',
-        desc: '[davelopment]® is a small studio building web, brand and strategy for businesses that want more than a pretty site — measurable results.' }
+        desc: '[davelopment]© is a small studio building web, brand and strategy for businesses that want more than a pretty site — measurable results.' }
   const eyebrow = (txt: string) => `<p style="font-size:10.5px;font-weight:700;color:#86868b;text-transform:uppercase;letter-spacing:0.6px;margin:0 0 12px;font-family:${F};">${txt}</p>`
   const fLink = (href: string, label: string) => `<a class="dm-link" href="${href}" style="display:block;color:#1d1d1f;text-decoration:none;font-size:13px;padding:4px 0;font-family:${F};">${label}</a>`
   const navLinks = nav.map(([l, u]) => fLink(`${base}${u}`, l)).join('')
@@ -346,7 +346,7 @@ function buildAutoReplyHtml(o: {
 
     <!-- Wordmark -->
     <tr><td align="right" style="padding:28px 0 34px;text-align:right;">
-      <span class="dm-strong" style="font-size:50px;font-weight:600;color:#1d1d1f;letter-spacing:-2.5px;line-height:0.9;font-family:${F};">[davelopment]®</span>
+      <span class="dm-strong" style="font-size:50px;font-weight:600;color:#1d1d1f;letter-spacing:-2.5px;line-height:0.9;font-family:${F};">[davelopment]©</span>
     </td></tr>`
 
   // Full-width black bar (breaks out of the centered column)
@@ -355,7 +355,7 @@ function buildAutoReplyHtml(o: {
       <table width="100%" cellpadding="0" cellspacing="0" border="0" align="center" style="max-width:520px;">
         <tr><td style="padding:28px 20px 32px;">
           <p style="color:#9a9a9a;font-size:12px;line-height:1.65;margin:0 0 14px;font-family:${F};">${fl.desc}</p>
-          <p style="color:#8a8a8a;font-size:11px;line-height:1.6;margin:0;font-family:${F};">© ${new Date().getFullYear()} [davelopment]®&nbsp;&nbsp;·&nbsp;&nbsp;<a href="${base}/${isHu ? 'hu/adatkezeles' : 'en/privacy-policy'}" style="color:#8a8a8a;text-decoration:none;">${fl.privacy}</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="${base}/${isHu ? 'hu/felhasznalasi-feltetelek' : 'en/terms'}" style="color:#8a8a8a;text-decoration:none;">${fl.terms}</a></p>
+          <p style="color:#8a8a8a;font-size:11px;line-height:1.6;margin:0;font-family:${F};">© ${new Date().getFullYear()} [davelopment]©&nbsp;&nbsp;·&nbsp;&nbsp;<a href="${base}/${isHu ? 'hu/adatkezeles' : 'en/privacy-policy'}" style="color:#8a8a8a;text-decoration:none;">${fl.privacy}</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="${base}/${isHu ? 'hu/felhasznalasi-feltetelek' : 'en/terms'}" style="color:#8a8a8a;text-decoration:none;">${fl.terms}</a></p>
         </td></tr>
       </table>
     </td></tr>`
@@ -392,7 +392,7 @@ function buildAutoReplyHtml(o: {
 
         <!-- Logo -->
         <tr><td align="center" style="padding:44px 0 20px;">
-          <span class="dm-strong" style="font-size:15px;font-weight:700;color:#1d1d1f;letter-spacing:-0.2px;">[davelopment]®</span>
+          <span class="dm-strong" style="font-size:15px;font-weight:700;color:#1d1d1f;letter-spacing:-0.2px;">[davelopment]©</span>
         </td></tr>
         <tr><td style="padding:0 0 34px;"><div class="dm-divider" style="height:1px;line-height:1px;background:#ececec;">&nbsp;</div></td></tr>
 
@@ -517,8 +517,8 @@ export const Newsletters: CollectionConfig = {
           await payload.sendEmail({
             to: doc.email,
             subject: isHu
-              ? 'Feliratkozás sikeres – [davelopment]®'
-              : 'Subscription confirmed – [davelopment]®',
+              ? 'Feliratkozás sikeres – [davelopment]©'
+              : 'Subscription confirmed – [davelopment]©',
             html: buildWelcomeHtml(name, language, unsubscribeUrl, siteUrl),
           })
         } catch (err) {
@@ -533,7 +533,7 @@ export const Newsletters: CollectionConfig = {
             data: {
               type: 'newsletter-welcome',
               to: doc.email,
-              subject: isHu ? 'Feliratkozás sikeres – [davelopment]®' : 'Subscription confirmed – [davelopment]®',
+              subject: isHu ? 'Feliratkozás sikeres – [davelopment]©' : 'Subscription confirmed – [davelopment]©',
               ref_collection: 'newsletters',
               ref_id: String(doc.id),
             },

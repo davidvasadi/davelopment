@@ -95,7 +95,7 @@ export const Hero = ({
   // AppWrapper) — enélkül ez a belépő-animáció végigfutott volna, mire a
   // Preloader eltűnik, és instant jelenne meg becsúszás helyett.
   const preloaderDone = usePreloaderDone();
-  const copyright = `© ${new Date().getFullYear()} [davelopment]® Studio`;
+  const copyright = `© ${new Date().getFullYear()} [davelopment]© Studio`;
 
   const videoUrl = toAbs(video);
   const posterUrl = toAbs(video_poster);

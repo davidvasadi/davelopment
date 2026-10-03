@@ -56,7 +56,7 @@ export const Launches = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          [davelopment]® — Jogi dokumentum
+          [davelopment]© — Jogi dokumentum
         </motion.p> */}
         <motion.h1
           className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-black leading-none mb-5"
@@ -198,7 +198,7 @@ export const Launches = ({
           ))}
 
           <div className="mt-8 pt-8 border-t border-black/8">
-            <p className="text-xs text-black/25">[davelopment]® — {locale === 'en' ? 'All rights reserved.' : 'Minden jog fenntartva.'}</p>
+            <p className="text-xs text-black/25">[davelopment]© — {locale === 'en' ? 'All rights reserved.' : 'Minden jog fenntartva.'}</p>
           </div>
         </main>
 

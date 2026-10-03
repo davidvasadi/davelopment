@@ -141,7 +141,7 @@ export const Contacts: CollectionConfig = {
         try {
           await payload.sendEmail({
             to: adminEmail,
-            subject: `[davelopment]® Új üzenet: ${doc.name || doc.email}`,
+            subject: `[davelopment]© Új üzenet: ${doc.name || doc.email}`,
             html: buildContactAdminHtml({
             name: doc.name || '',
             email: doc.email,
@@ -209,8 +209,8 @@ export const Contacts: CollectionConfig = {
           await payload.sendEmail({
             to: doc.email,
             subject: isHu
-              ? 'Köszönjük az üzeneted – [davelopment]®'
-              : 'Thanks for reaching out – [davelopment]®',
+              ? 'Köszönjük az üzeneted – [davelopment]©'
+              : 'Thanks for reaching out – [davelopment]©',
             html: buildAutoReplyHtml({ name: doc.name || '', isHu, projects, services, newsletterUrl }),
           })
         } catch (err) {

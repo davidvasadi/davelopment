@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import SaveContactButton from './SaveContactButton'
 
 export const metadata: Metadata = {
-  title: 'Vasadi Dávid — [davelopment]®',
+  title: 'Vasadi Dávid — [davelopment]©',
   description: 'Web · Márka · Stratégia',
   robots: 'noindex',
 }
@@ -87,7 +87,7 @@ export default function VisualCard() {
           <div className="bg-[#0e0e0e] px-7 pt-10 pb-10">
             <p className="text-[11px] tracking-[0.18em] uppercase text-white/30 mb-1">Studio</p>
             <h1 className="text-3xl font-bold text-white tracking-tight leading-none mb-3">
-              [davelopment]®
+              [davelopment]©
             </h1>
             <p className="text-[13px] text-white/45 tracking-[0.08em]">{CONTACT.tagline}</p>
           </div>
@@ -120,7 +120,7 @@ export default function VisualCard() {
               name={CONTACT.name}
               phone={CONTACT.phone}
               email={CONTACT.email}
-              org="[davelopment]®"
+              org="[davelopment]©"
               title="Alapító"
               website={CONTACT.websiteUrl}
             />

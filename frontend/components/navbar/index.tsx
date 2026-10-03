@@ -38,7 +38,7 @@ export function Navbar({
       []
     );
   })();
-  const copyrightText = `© ${new Date().getFullYear()} [davelopment]®`;
+  const copyrightText = `© ${new Date().getFullYear()} [davelopment]©`;
 
   const pathname = usePathname();
   const isHome = pathname === `/${locale}` || pathname === `/${locale}/`;

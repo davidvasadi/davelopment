@@ -230,7 +230,7 @@ export const Blog: React.FC<BlogProps> = ({
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/10" />
             <div className="pointer-events-none absolute left-6 top-6 sm:left-8 sm:top-8">
               <span className="text-base font-semibold tracking-tight text-white">
-                [davelopment]®
+                [davelopment]©
               </span>
             </div>
             <div className="absolute right-6 top-6 sm:right-8 sm:top-8 flex h-9 w-9 items-center justify-center rounded-full border border-white/40 bg-white/15 backdrop-blur-sm">

@@ -39,7 +39,7 @@ export const useNavClose = () => useContext(NavCloseContext);
 // ============================================================
 // PRELOADER
 // ============================================================
-const LOGO = '[davelopment]®';
+const LOGO = '[davelopment]©';
 
 export function Preloader({ onComplete }: { onComplete: () => void }) {
   const [visible, setVisible] = useState(true);

@@ -266,7 +266,7 @@ export function FormNextToSection({
   policy_and_word,
 }: FormNextToSectionProps & { person?: PersonCard }) {
   const _person = person_card ?? personAlias;
-  const copyright = `© ${new Date().getFullYear()} [davelopment]®`;
+  const copyright = `© ${new Date().getFullYear()} [davelopment]©`;
   const pathname = usePathname();
   const lang: 'hu' | 'en' = pathname?.startsWith('/hu') ? 'hu' : 'en';
   const videoRef = useLazyVideoPlay();
@@ -594,7 +594,7 @@ export function FormNextToSection({
 
                   {/* Cím */}
                   <div className="mb-4 shrink-0">
-                    <p className="text-lg font-semibold mb-2 text-black/80">[davelopment]®</p>
+                    <p className="text-lg font-semibold mb-2 text-black/80">[davelopment]©</p>
                     <h2 className="text-3xl font-bold mb-2">
                       <span className="text-black">{heading}</span>
                       {sub_heading && <span className="text-black/60"> {sub_heading}</span>}

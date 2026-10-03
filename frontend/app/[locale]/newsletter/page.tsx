@@ -6,7 +6,7 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const { locale } = await props.params;
   return {
-    title: locale === 'en' ? 'Newsletter – [davelopment]®' : 'Hírlevél – [davelopment]®',
+    title: locale === 'en' ? 'Newsletter – [davelopment]©' : 'Hírlevél – [davelopment]©',
     robots: { index: false },
   };
 }
@@ -91,7 +91,7 @@ export default async function NewsletterPage(props: {
     >
       <div style={{ maxWidth: 460 }} className="w-full text-center">
         <div className="inline-flex items-center gap-2 mb-8">
-          <span style={{ fontSize: 15, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.2px' }}>[davelopment]®</span>
+          <span style={{ fontSize: 15, fontWeight: 700, color: '#1d1d1f', letterSpacing: '-0.2px' }}>[davelopment]©</span>
         </div>
         <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.6px', textTransform: 'uppercase', color: '#86868b', margin: '0 0 12px' }}>
           {t.badge}

@@ -70,7 +70,7 @@ export const Footer = ({ data, locale }: FooterProps) => {
     social_media_links,
     profile,
   } = data ?? {};
-  const copyright = `Copyright © ${new Date().getFullYear()} [davelopment]®`;
+  const copyright = `Copyright © ${new Date().getFullYear()} [davelopment]©`;
 
   // --- phone + email: Payload direct fields, fallback to old form.inputs ---
   const inputs = form?.inputs ?? [];
@@ -239,7 +239,7 @@ export const Footer = ({ data, locale }: FooterProps) => {
       <div className="w-full pb-20 text-right">
         <Container>
           <h2 className="text-black text-[40px] sm:text-[50px] md:text-7xl lg:text-8xl xl:text-9xl font-semibold leading-[0.9] tracking-tighter">
-            [davelopment]®
+            [davelopment]©
             {/* <span className=" text-black font-normal rounded-full ">
               <span className="font-semibold">®</span>
             </span> */}

@@ -106,7 +106,7 @@ const MacMenuBar = () => {
       }}
     >
       <div className="flex items-center gap-[18px]">
-        <span className="text-[12px] font-semibold" style={{ color: 'rgba(255,255,255,0.88)' }}>[davelopment]®</span>
+        <span className="text-[12px] font-semibold" style={{ color: 'rgba(255,255,255,0.88)' }}>[davelopment]©</span>
         {['File', 'Edit', 'View', 'Window', 'Help'].map(m => (
           <span key={m} className="hidden md:block text-[12px]" style={{ color: 'rgba(255,255,255,0.38)' }}>{m}</span>
         ))}

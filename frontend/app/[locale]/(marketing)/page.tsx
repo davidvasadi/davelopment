@@ -58,7 +58,7 @@ export default async function HomePage(props: {
     logoUrl: await getSiteLogoUrl(),
     url: pageData?.seo?.canonicalURL || `${SITE_URL}/${params.locale}`,
     locale: params.locale,
-    title: pageData?.seo?.metaTitle || pageData?.label || '[davelopment]®',
+    title: pageData?.seo?.metaTitle || pageData?.label || '[davelopment]©',
     description: pageData?.seo?.metaDescription,
     dynamicZone: pageData?.dynamic_zone,
     override: pageData?.seo?.structuredData,

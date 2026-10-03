@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     if (!apiKey) return NextResponse.json({ ok: false, error: 'RESEND_API_KEY nincs beállítva' }, { status: 500 })
 
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'hello@davelopment.hu'
-    const from = `[davelopment]® <${fromEmail}>`
+    const from = `[davelopment]© <${fromEmail}>`
 
     let sent = 0
     const errors: string[] = []

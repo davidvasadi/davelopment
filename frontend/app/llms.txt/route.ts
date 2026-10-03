@@ -6,7 +6,7 @@ export const dynamic = 'force-static';
 export async function GET() {
   const base = (process.env.NEXT_PUBLIC_SITE_URL || 'https://davelopment.hu').replace(/\/+$/, '');
 
-  const content = `# [davelopment]®
+  const content = `# [davelopment]©
 
 > Weboldal készítés, UX/UI design, branding/arculattervezés és digitális marketing (SEO, Google Ads) egy kézben, magyar kisvállalkozásoknak és vállalkozóknak. Havi előfizetéses csomagok karbantartással, vagy egyszeri fejlesztés — egyedi design, nem sablon.
 
@@ -25,7 +25,7 @@ export async function GET() {
 
 ## Munkáink
 
-- [Projektek](${base}/hu/projektek): Elkészült weboldalak és digitális termékek referenciái (pl. [davelopment]® Booking, LAZAR'S, The Place Studio).
+- [Projektek](${base}/hu/projektek): Elkészült weboldalak és digitális termékek referenciái (pl. [davelopment]© Booking, LAZAR'S, The Place Studio).
 
 ## Tartalom
 

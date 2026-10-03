@@ -10,7 +10,7 @@ import { Preloader } from '../../components/Preloader'
 
 export const metadata: Metadata = {
 
-  title: '[davelopment]® Admin',
+  title: '[davelopment]© Admin',
 }
 
 const serverFunction = async (args: any) => {
