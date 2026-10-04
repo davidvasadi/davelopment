@@ -42,3 +42,5 @@ trash/
 vps/
 docs/
 .github/workflows/deploy.md
+# Google Ads API script credentials
+scripts/google-ads/.env
