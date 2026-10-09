@@ -1,4 +1,4 @@
-// app/api/google-review-photo/[filename]/route.ts
+// app/google-review-photo/[filename]/route.ts
 //
 // A Next.js production szerver (`next start`) a `public/` mappa statikus
 // fájllistáját csak a processz INDÍTÁSAKOR olvassa be — egy futás közben
@@ -7,6 +7,10 @@
 // következő PM2-restartig. Ez a route handler minden kérésnél ténylegesen
 // a lemezről olvassa a képet, ezért cron-restart nélkül is azonnal
 // kiszolgálja az új fotókat.
+//
+// FONTOS: szándékosan NEM /api/... alatt van — az nginx davelopment.hu
+// configja minden /api/-t a Payload backendre (1337-es port) proxyz,
+// sosem jutna el ide a Next.js (3000-es port) szerverhez.
 
 import { readFile } from 'fs/promises';
 import path from 'path';

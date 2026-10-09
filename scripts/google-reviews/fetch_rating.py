@@ -81,7 +81,9 @@ REVIEW_PHOTOS_DIR = FRONTEND_PUBLIC_DIR / "data" / "google-review-photos"
 # magunk hosztoljuk (nem a Google CDN-jéről hotlinkeljük — az instabil,
 # bármikor lejárhat/megváltozhat).
 #
-# A photoUrl a /api/google-review-photo/<fájlnév> route handlert célozza
+# A photoUrl a /google-review-photo/<fájlnév> route handlert célozza (NEM
+# /api/ alatt — az nginx minden /api/-t a Payload backendre proxyz, a
+# Next.js szerverhez el sem jutna)
 # (NEM a sima /data/... statikus útvonalat) — a Next.js production
 # szervere (`next start`) a public/ mappa fájllistáját csak induláskor
 # olvassa be, így egy futás közben (ez a script által) odamásolt új fotó
@@ -141,7 +143,7 @@ def build_reviews_payload(raw_reviews: list) -> list:
             "authorName": author.get("displayName", "Google-felhasználó"),
             "text": original,
             "rating": r.get("rating"),
-            "photoUrl": f"/api/google-review-photo/{photo_filename}" if photo_filename else None,
+            "photoUrl": f"/google-review-photo/{photo_filename}" if photo_filename else None,
             "publishTime": r.get("publishTime"),
         })
     return out
