@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Link } from 'next-view-transitions';
 import { MotionLink } from '@/components/motion-link';
 import Image from 'next/image';
@@ -90,6 +90,7 @@ export const Hero = ({
   description_text, badge_label,
 }: HeroProps) => {
   const heroRef = useRef<HTMLElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const { y, scale } = useSlowScroll(heroRef);
   // A tartalom már a Preloader alatt renderelődik (lásd preloader.tsx
   // AppWrapper) — enélkül ez a belépő-animáció végigfutott volna, mire a
@@ -101,6 +102,35 @@ export const Hero = ({
   const posterUrl = toAbs(video_poster);
   const personImgUrl = toAbs(person?.image || null);
   const hasVideo = !!videoUrl;
+
+  // A háttérvideó szándékosan NEM natív `src`+`autoPlay`-jel indul — azok a
+  // kezdeti HTML-ben azonnal versenybe szállnának a sávszélességért/fő
+  // szálért a poster-képpel (ami a tényleges LCP elem), ezt mérte is a
+  // PageSpeed Insights (~2.9mp "element render delay" mobilon, 2026-10-10).
+  // Így marad a videó (Dave kérésére nem vehető ki), csak a letöltés/
+  // lejátszás indítása csúszik az első kirajzolás UTÁNRA — ez a szokásos
+  // minta háttérvideós hero szekcióknál (pl. Framer is így csinálja).
+  useEffect(() => {
+    if (!hasVideo) return;
+    const video = videoRef.current;
+    if (!video) return;
+    let cancelled = false;
+    const start = () => {
+      if (cancelled) return;
+      video.src = videoUrl!;
+      video.play().catch(() => {});
+    };
+    // Dupla rAF: biztosan az első festés (paint) UTÁN fut, nem közben.
+    const raf1 = requestAnimationFrame(() => {
+      const raf2 = requestAnimationFrame(start);
+      (video as any).__raf2 = raf2;
+    });
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf1);
+      if ((video as any).__raf2) cancelAnimationFrame((video as any).__raf2);
+    };
+  }, [hasVideo, videoUrl]);
 
   const safeCTAs = useMemo(() => CTAs ?? [], [CTAs]);
 
@@ -211,7 +241,7 @@ export const Hero = ({
       {/*
         LCP STRATÉGIA:
         - A poster Image priority=true → fetchpriority="high" + <link rel="preload"> a <head>-be
-        - A videó preload="none" → nem blokkolja az LCP-t
+        - A videó src-je JS-ből, az első festés UTÁN kerül be (lásd fenti useEffect) → nem blokkolja az LCP-t
         - A poster az LCP elem — azonnal látható, gyors
       */}
 
@@ -230,13 +260,12 @@ export const Hero = ({
 )}
 
 <video
+  ref={videoRef}
   className="absolute inset-0 h-full w-full object-cover z-[2]"
-  src={videoUrl}
-  autoPlay
   loop
   muted
   playsInline
-  preload="metadata"
+  preload="none"
   aria-hidden
 />
 

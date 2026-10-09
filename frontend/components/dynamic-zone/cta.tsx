@@ -41,6 +41,12 @@ function MediaBlock({ media, url, alt, sizes }: { media: any; url: string; alt: 
   }, []);
 
   if (isVideo(media)) {
+    // preload="none" — a MediaBlock mindig KÉTSZER renderelődik (desktop +
+    // mobil kártya, csak a nem-aktív breakpointon van CSS-sel elrejtve, a
+    // DOM-ból nem távolítva el), ezért preload nélkül a böngésző mindkét
+    // példányhoz lehúzta a teljes videót — dupla hálózati terhelés
+    // ugyanazért a tartalomért (PageSpeed Insights audit, 2026-10-10).
+    // A lejátszást amúgy is az IntersectionObserver indítja, ha látszik.
     return (
       <video
         ref={videoRef}
@@ -48,6 +54,7 @@ function MediaBlock({ media, url, alt, sizes }: { media: any; url: string; alt: 
         muted
         loop
         playsInline
+        preload="none"
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover/cta:scale-110 group-hover/cta-m:scale-110"
       />
     );
