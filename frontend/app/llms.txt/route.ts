@@ -30,7 +30,7 @@ Nem csak megépítjük a weboldalad, aztán magadra hagyunk vele.
 
 ## Árak és csomagok
 
-- [Árak](${base}/hu/arak): Havi előfizetéses weboldal-csomagok (Mikró, Rajt, Növekedés) és egyedi Partner ajánlat, induló ártól.
+- [Árak](${base}/hu/arak): Havi előfizetéses weboldal-csomagok (Mikró, Rajt, Növekedés) és egyedi Partner ajánlat, **már 24.900 Ft/hótól**.
 
 ## Munkáink
 
@@ -51,7 +51,7 @@ Ezek nem elméleti ígéretek — nézd meg élesben a [projekteket](${base}/hu/
 ### Kiemelt gyakori kérdések
 
 **Mennyibe kerül egy projekt?**
-Nem sablon árlista alapján dolgozunk, mert minden projekt más. Rövid egyeztetés után mindig egyedi ajánlatot adunk. Tájékoztató árak az [Árak oldalon](${base}/hu/arak).
+A legolcsóbb, Mikró csomagunk már havi 24.900 Ft-tól elérhető. Ennél komolyabb, egyedi igényekhez (nagyobb funkciókör, vállalati rendszerek) nem sablon árlista alapján dolgozunk, mert minden projekt más — rövid egyeztetés után egyedi ajánlatot adunk. Részletes csomagok és árak az [Árak oldalon](${base}/hu/arak).
 
 **Miért éri meg jobban egy havi előfizetéses csomag, mint egy egyszeri fizetős weboldal?**
 Az egyszeri fizetős weboldal olcsóbbnak tűnik elsőre, de utána gyakran jönnek az előre nem látott extra költségek — hibajavítás, frissítés, új funkció. Az előfizetéses modellnél a havi díj kiszámítható, a karbantartás és a folyamatos fejlesztés is benne van.

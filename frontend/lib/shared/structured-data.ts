@@ -85,6 +85,16 @@ function organizationNode(logoUrl?: string | null, googleRating?: GoogleRatingDa
       name: 'Egyéni vállalkozói nyilvántartási szám',
       value: REGISTRATION_NUMBER,
     },
+    // A LocalBusiness/ProfessionalService riportnak (Rich Results Test "Helyi
+    // cégek") saját, top-level telephone/priceRange mezőre van szüksége — a
+    // lenti contactPoint.telephone önmagában nem elég neki, csak az
+    // Organization ContactPoline sémáját elégíti ki.
+    telephone: CONTACT_PHONE,
+    // A ténylegesen publikált /hu/arak csomagok (Mikró–Növekedés) sávja —
+    // szándékosan NEM a plans collection egyéb, nem publikált tételeit
+    // (pl. "Studio" 990.000 Ft) használja, azok nem jelennek meg az Árak
+    // oldalon, kitalált/félrevezető lenne ide számolni velük.
+    priceRange: 'Ft 24 900 - Ft 59 900',
     contactPoint: {
       '@type': 'ContactPoint',
       email: CONTACT_EMAIL,
@@ -306,7 +316,13 @@ function extractPricingPlans(dynamicZone: unknown): PricingPlan[] {
  * simply isn't represented as a Product here; the honest alternative to a
  * made-up price is no price, not a fake one.
  */
-function pricingProductNodes(url: string, plans: PricingPlan[], locale?: string, logoUrl?: string | null): Node[] {
+function pricingProductNodes(
+  url: string,
+  plans: PricingPlan[],
+  locale?: string,
+  logoUrl?: string | null,
+  googleRating?: GoogleRatingData,
+): Node[] {
   return plans
     .filter((p): p is PricingPlan & { name: string } => !!p?.name)
     .map((p) => {
@@ -320,22 +336,40 @@ function pricingProductNodes(url: string, plans: PricingPlan[], locale?: string,
         '@id': `${url}#product-${slugify(p.name)}`,
         name: p.name,
         url,
-        // A minimal, single-type Organization object — NOT a reference to the
-        // shared ORG_ID node, whose @type is ['Organization','ProfessionalService']
-        // for the site-wide LocalBusiness markup. Google's Merchant validator
-        // rejects an array @type on Product.brand, so this stays deliberately
-        // separate and simple.
-        brand: { '@type': 'Organization', name: ORG_NAME },
+        // Google Merchant Listing kifejezetten a "Brand" típust várja itt (az
+        // "Organization" technikailag schema.org-valid, de a Merchant
+        // validátor "Invalid object type"-ként jelzi) — lásd Rich Results
+        // Test, 2026-10-09.
+        brand: { '@type': 'Brand', name: ORG_NAME },
         inLanguage: lang(locale),
       };
       if (p.recommended_for) node.description = p.recommended_for;
       if (logoUrl) node.image = logoUrl;
+      // Egy davelopment-csomagra nincs önálló, csomagonkénti Google-vélemény
+      // — a cégszintű (minden csomagra érvényes) aggregált értékelést tesszük
+      // rá minden Product node-ra, hogy a Merchant Listing "Hiányzó mező:
+      // aggregateRating/review" figyelmeztetése eltűnjön.
+      if (googleRating?.rating && googleRating?.userRatingCount) {
+        node.aggregateRating = {
+          '@type': 'AggregateRating',
+          ratingValue: googleRating.rating,
+          reviewCount: googleRating.userRatingCount,
+          bestRating: 5,
+        };
+      }
       node.offers = {
         '@type': 'Offer',
         price: String(priceNum),
         priceCurrency: p.currency || 'HUF',
         availability: 'https://schema.org/InStock',
         url,
+        // shippingDetails / hasMerchantReturnPolicy szándékosan NINCS itt —
+        // ez egy havi előfizetéses, nem fizikai szolgáltatás, a hagyományos
+        // "szállítás"/"termékvisszaküldés" fogalma nem igaz rá. A Rich
+        // Results Test ezt hiányzó (nem kötelező) mezőként jelzi, de kitalált
+        // visszaküldési/szállítási szabályt ide írni félrevezető lenne — ha
+        // tényleg szeretnénk kitölteni, Dave-nek kell megadnia a pontos,
+        // valós lemondási feltételt (lásd GYIK: "bármikor lemondható").
       };
       return node;
     })
@@ -428,7 +462,7 @@ export function renderPageJsonLd(opts: {
   const breadcrumb = opts.breadcrumbs?.length ? breadcrumbNode(url, locale, opts.breadcrumbs) : null;
   const faq = faqPageNode(url, extractFaqs(opts.dynamicZone), locale);
   const list = kind === 'collection' && opts.items?.length ? itemListNode(url, title, opts.items) : null;
-  const pricingProducts = pricingProductNodes(url, extractPricingPlans(opts.dynamicZone), locale, opts.logoUrl);
+  const pricingProducts = pricingProductNodes(url, extractPricingPlans(opts.dynamicZone), locale, opts.logoUrl, opts.googleRating);
 
   const webpage = webPageNode({
     url,

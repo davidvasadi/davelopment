@@ -50,3 +50,6 @@ scripts/google-reviews/.env
 frontend/public/data/google-rating.json
 frontend/public/data/google-reviews.json
 frontend/public/data/google-review-photos/
+
+# Search Console API script credentials
+scripts/google-search-console/.env

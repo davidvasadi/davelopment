@@ -8,6 +8,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
 import { renderPageJsonLd } from '@/lib/shared/structured-data';
 import { getSiteLogoUrl } from '@/lib/shared/site-org';
+import { getCachedGoogleRating } from '@/lib/shared/google-rating';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import  {notFound, permanentRedirect}  from 'next/navigation';
 
@@ -80,6 +81,7 @@ export default async function Page(props: {
   const jsonLd = renderPageJsonLd({
     kind: 'webpage',
     logoUrl: await getSiteLogoUrl(),
+    googleRating: await getCachedGoogleRating(),
     url: pageData?.seo?.canonicalURL || `${SITE_URL}/${params.locale}/${params.slug}`,
     locale: params.locale,
     title: pageData?.label || pageData?.seo?.metaTitle || params.slug,
