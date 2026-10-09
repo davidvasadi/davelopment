@@ -241,9 +241,15 @@ jobs:
 
       - name: Upload via rsync
         run: |
+          # --exclude "public/data" — a napi Google Reviews/rating cron (lásd
+          # scripts/google-reviews/fetch_rating.py) futásidőben írja ide a
+          # JSON-okat + reviewer-fotókat; ezek nincsenek a git-es buildben,
+          # ezért a --delete korábban minden egyes deploy-nál kitörölte az
+          # egészet, amíg a következő cron-futás vissza nem pótolta.
           rsync -avz --delete \
             --exclude "node_modules" \
             --exclude ".env*" \
+            --exclude "public/data" \
             -e "ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes" \
             frontend/ ${VPS_USER}@${VPS_HOST}:${REMOTE_PATH}/
 
