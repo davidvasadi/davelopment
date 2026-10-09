@@ -16,10 +16,23 @@ type TestimonialUser = {
 };
 
 type Testimonial = {
-  id?: number;
+  id?: number | string;
   text?: string | null;
   rating?: number | null;
   user?: TestimonialUser | null;
+  // true, ha ez a bejegyzés élő Google-véleményből lett összeállítva — a
+  // user.image.url ilyenkor már a saját, relatív /data/... útvonalunk,
+  // NEM Strapi/Payload-os médiaútvonal, tehát nem szabad strapiImage()-dzsel
+  // prefixelni (lásd HeaderCard).
+  __live?: boolean;
+};
+
+export type LiveGoogleReview = {
+  authorName: string;
+  text: string;
+  rating: number | null;
+  photoUrl: string | null;
+  publishTime?: string | null;
 };
 
 type TestimonialsProps = {
@@ -37,6 +50,13 @@ type TestimonialsProps = {
   stat_background?: { url?: string | null; mimeType?: string | null; mime?: string | null } | null;
   stat_dark?: boolean | null;
   testimonials?: Testimonial[];
+  // Élő Google-vélemények (lásd lib/shared/PageContent.tsx) — ha jelen
+  // vannak, ezek váltják fel a CMS-es testimonials-lista idézet-kártyáit
+  // ÉS a StatCard bizalmi avatar-sorát is, hogy ne kézzel felvitt,
+  // placeholder tartalom szerepeljen. A heading/leírás/CTA-gomb (StatCard
+  // marketing-szövege) ettől függetlenül mindig a CMS-ből jön, oldalanként
+  // egyedi marad.
+  googleReviews?: LiveGoogleReview[];
 };
 
 // ─── Segédfüggvény ─────────────────────────────────────────────
@@ -53,8 +73,8 @@ const StarRow = ({ count = 5 }: { count?: number }) => (
 );
 
 // ─── Header kártya ─────────────────────────────────────────────
-const HeaderCard = ({ user }: { user: TestimonialUser }) => {
-  const imgUrl = toAbs(user?.image?.url);
+const HeaderCard = ({ user, live }: { user: TestimonialUser; live?: boolean }) => {
+  const imgUrl = live ? user?.image?.url ?? undefined : toAbs(user?.image?.url);
   const name = [user?.firstname, user?.lastname].filter(Boolean).join(' ');
   return (
     <div className="bg-white px-4 py-3 flex items-center gap-3 w-full h-full">
@@ -246,7 +266,7 @@ const StatCard = ({
               {avatars.slice(0, 4).map((a, i) => (
                 <div
                   key={i}
-                  className="w-10 h-10 overflow-hidden flex-shrink-0 border-2 border-white"
+                  className="w-10 h-10 overflow-hidden flex-shrink-0"
                   style={{ marginLeft: i === 0 ? 0 : '-12px', zIndex: 10 - i, borderRadius: '10px', position: 'relative' }}
                 >
                   <Image src={a.url} alt={a.name || ''} width={40} height={40} className="object-cover object-top w-full h-full" />
@@ -254,7 +274,7 @@ const StatCard = ({
               ))}
               {avatars.length > 4 && (
                 <div
-                  className="w-10 h-10 flex items-center justify-center flex-shrink-0 text-white text-xs font-medium border-2 border-white bg-gray-900"
+                  className="w-10 h-10 flex items-center justify-center flex-shrink-0 text-white text-xs font-medium bg-gray-900"
                   style={{ marginLeft: '-12px', zIndex: 5, borderRadius: '10px' }}
                 >
                   {avatars.length - 4}+
@@ -305,7 +325,7 @@ const TestimonialColumn = ({
   const [hovered, setHovered] = React.useState(false);
 
   const headerEl = testimonial.user ? (
-    <HeaderCard user={testimonial.user} />
+    <HeaderCard user={testimonial.user} live={testimonial.__live} />
   ) : (
     <div className="w-full h-full bg-white" />
   );
@@ -405,9 +425,26 @@ export const Testimonials = ({
   stat_brand,
   stat_background,
   stat_dark,
-  testimonials = [],
+  testimonials: cmsTestimonials = [],
+  googleReviews,
 }: TestimonialsProps) => {
-  const avatarUrls: { url: string; name?: string }[] = testimonials
+  const hasLiveReviews = !!googleReviews && googleReviews.length > 0;
+
+  // Ha van élő Google-adat, az idézet-kártyák TELJESEN azt mutatják (szöveg,
+  // csillag, fotó, név) — a CMS-es testimonials-lista csak tartalék, amíg a
+  // cron még nem futott le. A StatCard marketing-szövege (heading, leírás,
+  // CTA-gomb) ettől függetlenül mindig a props-ból (CMS-ből) jön.
+  const testimonials: Testimonial[] = hasLiveReviews
+    ? googleReviews!.map((r) => ({
+        id: r.publishTime ?? r.authorName,
+        text: r.text,
+        rating: r.rating,
+        user: { firstname: r.authorName, image: r.photoUrl ? { url: r.photoUrl } : null },
+        __live: true,
+      }))
+    : cmsTestimonials;
+
+  const cmsAvatarUrls: { url: string; name?: string }[] = cmsTestimonials
     .map((t) => {
       const url = toAbs(t.user?.image?.url);
       if (!url) return null;
@@ -416,6 +453,15 @@ export const Testimonials = ({
     })
     .filter((a) => a !== null)
     .slice(0, 8);
+
+  const liveAvatarUrls: { url: string; name?: string }[] = hasLiveReviews
+    ? googleReviews!
+        .filter((r) => !!r.photoUrl)
+        .map((r) => ({ url: r.photoUrl as string, name: r.authorName }))
+        .slice(0, 8)
+    : [];
+
+  const avatarUrls = liveAvatarUrls.length > 0 ? liveAvatarUrls : cmsAvatarUrls;
 
   const isBackgroundImage = !!(stat_background?.mimeType || stat_background?.mime)?.startsWith('image');
 
@@ -553,7 +599,7 @@ export const Testimonials = ({
                 transition={{ duration: 0.6, delay: 0.2 + i * 0.08 }}
                 viewport={{ once: true, amount: 0.2 }}
               >
-                <HeaderCard user={t.user} />
+                <HeaderCard user={t.user} live={t.__live} />
               </motion.div>
             )}
             {t.text && (

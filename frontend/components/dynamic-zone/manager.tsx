@@ -17,6 +17,10 @@ interface Props {
   // 0.9→1 skálázódik, ahogy scrollra beér a képernyőre — jelenleg csak a
   // szolgáltatás aloldalakon kérve.
   fadeZoom?: boolean;
+  // Élő Google-vélemények — csak a "testimonials" blokk idézet-kártyáit és
+  // bizalmi avatar-sorát töltik fel, a CMS-es heading/leírás/CTA-gomb
+  // (StatCard marketing-szövege) érintetlen marad.
+  googleReviews?: { authorName: string; text: string; rating: number | null; photoUrl: string | null; publishTime?: string | null }[];
 }
 
 // Payload blockType slugs (no 'dynamic-zone.' prefix)
@@ -66,7 +70,7 @@ function FadeZoomParallax({ children }: { children: React.ReactNode }) {
   );
 }
 
-const DynamicZoneManager: React.FC<Props> = ({ dynamicZone, locale, fadeZoom = false }) => {
+const DynamicZoneManager: React.FC<Props> = ({ dynamicZone, locale, fadeZoom = false, googleReviews }) => {
   return (
     <div>
       {dynamicZone.map((componentData, index) => {
@@ -76,7 +80,8 @@ const DynamicZoneManager: React.FC<Props> = ({ dynamicZone, locale, fadeZoom = f
           return null;
         }
         const isHero = componentData.blockType === 'hero' || componentData.blockType === 'service-hero';
-        const content = <Component {...componentData} locale={locale} />;
+        const extraProps = componentData.blockType === 'testimonials' ? { googleReviews } : {};
+        const content = <Component {...componentData} locale={locale} {...extraProps} />;
         return (
           // Anchor wrapper: every section is scrollable via #blockType
           // (e.g. #form-section, #cta, #pricing). scroll-mt offsets the navbar.

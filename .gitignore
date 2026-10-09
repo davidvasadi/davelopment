@@ -44,3 +44,9 @@ docs/
 .github/workflows/deploy.md
 # Google Ads API script credentials
 scripts/google-ads/.env
+
+# Google Places API script credentials + cached rating/review output
+scripts/google-reviews/.env
+frontend/public/data/google-rating.json
+frontend/public/data/google-reviews.json
+frontend/public/data/google-review-photos/

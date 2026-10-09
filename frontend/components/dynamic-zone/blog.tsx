@@ -88,7 +88,7 @@ export const Blog: React.FC<BlogProps> = ({
 
   const heroImage =
     toAbs(highlight_image) ??
-    'https://framerusercontent.com/images/vCmb1SfBKGiUHUXvbQXzqPtmFxo.jpg';
+    '/images/fallback/blog-placeholder.jpg';
 
   const ctaLabel = button?.text ?? 'See all';
   const ctaHref = button?.URL ?? `/${locale}/blog`;
@@ -181,6 +181,8 @@ export const Blog: React.FC<BlogProps> = ({
                           <img
                             src={imageUrl}
                             alt={post.title}
+                            width={112}
+                            height={112}
                             className="h-24 w-24 sm:h-28 sm:w-28 rounded-lg object-cover transition-transform duration-300 group-hover:scale-150"
                             style={{ transformOrigin: '0% 0%' }}
                           />

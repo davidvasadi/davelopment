@@ -210,7 +210,7 @@ export function ServicesPage({ pages, locale, heading, sub_heading, badge_label 
                                     </div>
                                     <Link
                                         href={href}
-                                        aria-label={detailsLabel}
+                                        aria-label={`${detailsLabel}: ${page.label ?? page.slug}`}
                                         className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${
                                             isActive
                                                 ? 'bg-black text-white sm:bg-white sm:text-black'
@@ -248,7 +248,11 @@ export function ServicesPage({ pages, locale, heading, sub_heading, badge_label 
                                         style={{ backgroundImage: `url(${imageUrl})` }}
                                     />
                                 )}
-                                <Link href={href} className="absolute bottom-3 left-3 flex items-center gap-2">
+                                <Link
+                                    href={href}
+                                    aria-label={`${detailsLabel}: ${page.label ?? page.slug}`}
+                                    className="absolute bottom-3 left-3 flex items-center gap-2"
+                                >
                                     <span className="relative bg-white text-black text-sm font-semibold px-4 py-2.5 rounded-full shadow-sm overflow-hidden h-9 flex items-center">
                                         <span className="block overflow-hidden h-5">
                                             <span className="flex flex-col -translate-y-1/2 transition-transform duration-300 ease-in-out group-hover:translate-y-0">

@@ -9,6 +9,7 @@ import { Container } from '@/components/container';
 import { StrapiImage } from '@/components/ui/strapi-image';
 import { Product } from '@/types/types';
 import { truncate } from '@/lib/utils';
+import { getLocalizedSegment } from '@/lib/i18n/segments';
 import { PlusIcon, ArrowUpRight as ArrowUpRightIcon } from 'lucide-react';
 
 const arrowWheelVariants: Variants = {
@@ -43,6 +44,9 @@ type ProjectWithProduct = {
   project: ProjectCardFromStrapi;
   product: Product;
 };
+
+const projectHref = (locale: string, slug: string) =>
+  `/${locale}/${getLocalizedSegment(locale, 'products')}/${slug}`;
 
 const getProductFromProject = (project: ProjectCardFromStrapi): Product | undefined => {
   const raw = project.product as any;
@@ -201,7 +205,7 @@ const Header = ({
   </motion.div>
 );
 
-const ArrowBadge = ({ iconClassName = '', href }: { iconClassName?: string; href?: string }) => {
+const ArrowBadge = ({ iconClassName = '', href, label }: { iconClassName?: string; href?: string; label?: string }) => {
   const inner = (
     <div className="inline-flex flex-shrink-0 w-7 h-7 overflow-hidden">
       <motion.div className="flex flex-col" variants={arrowWheelVariants}>
@@ -211,7 +215,7 @@ const ArrowBadge = ({ iconClassName = '', href }: { iconClassName?: string; href
     </div>
   );
   if (href) {
-    return <Link href={href as never} className="md:pointer-events-none" aria-label="Megnyitás">{inner}</Link>;
+    return <Link href={href as never} className="md:pointer-events-none" aria-label={label ?? 'Megnyitás'}>{inner}</Link>;
   }
   return inner;
 };
@@ -243,7 +247,7 @@ const LargeTile: React.FC<TileBaseProps & { arrowClassName?: string }> = ({
 }) => {
   const { product } = item;
   const label = product.categories?.[0]?.name ?? item.project.badge_label ?? 'Highlight';
-  const href = `/${locale}/products/${product.slug}`;
+  const href = projectHref(locale, product.slug);
 
   return (
     <motion.div
@@ -273,7 +277,7 @@ const LargeTile: React.FC<TileBaseProps & { arrowClassName?: string }> = ({
           <div className="flex h-full flex-col justify-between">
             <div className="flex justify-between gap-2">
               <span className="text-white text-xl font-medium tracking-tight leading-tight">{label}</span>
-              <ArrowBadge iconClassName={arrowClassName ?? 'text-white'} href={href} />
+              <ArrowBadge iconClassName={arrowClassName ?? 'text-white'} href={href} label={product.name} />
             </div>
             <h2 className="text-4xl font-medium tracking-tight text-white mt-6 leading-none">{product.name}</h2>
           </div>
@@ -288,7 +292,7 @@ const SmallTextTile: React.FC<TileBaseProps & { truncateLength: number }> = ({
 }) => {
   const { product, project } = item;
   const label = product.categories?.[1]?.name ?? product.categories?.[0]?.name ?? item.project.badge_label ?? 'Highlight';
-  const href = `/${locale}/products/${product.slug}`;
+  const href = projectHref(locale, product.slug);
 
   return (
     <motion.div
@@ -326,7 +330,7 @@ const SmallTextTile: React.FC<TileBaseProps & { truncateLength: number }> = ({
                   {truncate(project.result_line || product.description, truncateLength)}
                 </span>
               </div>
-              <ArrowBadge iconClassName="text-neutral-400" href={href} />
+              <ArrowBadge iconClassName="text-neutral-400" href={href} label={product.name} />
             </div>
             <h2 className="text-2xl font-medium tracking-tight mt-3 leading-tight">{product.name}</h2>
           </div>
@@ -339,7 +343,7 @@ const SmallTextTile: React.FC<TileBaseProps & { truncateLength: number }> = ({
 const ImageTile: React.FC<TileBaseProps & { imageIndex?: number }> = ({
   item, locale, className, imageIndex = 0,
 }) => {
-  const href = `/${locale}/products/${item.product.slug}`;
+  const href = projectHref(locale, item.product.slug);
   return (
     <motion.div
       className={`${className} rounded-2xl overflow-hidden`}
@@ -350,7 +354,7 @@ const ImageTile: React.FC<TileBaseProps & { imageIndex?: number }> = ({
       animate="rest"
       whileHover="hover"
     >
-      <Link href={href as never} className="hidden md:block h-full w-full">
+      <Link href={href as never} className="hidden md:block h-full w-full" aria-label={item.product.name}>
         <PureImageTile product={item.product} imageIndex={imageIndex} />
       </Link>
       <div className="md:hidden h-full w-full">
@@ -406,7 +410,7 @@ const PureImageTile: React.FC<{ product: Product; imageIndex?: number; mobileHre
         <div className="absolute inset-0 h-full w-full bg-neutral-200" />
       )}
       <div className="relative z-10 h-full w-full flex items-end justify-end p-3 md:p-4">
-        <ArrowBadge iconClassName="text-white/90" href={mobileHref} />
+        <ArrowBadge iconClassName="text-white/90" href={mobileHref} label={product.name} />
       </div>
     </div>
   );

@@ -90,7 +90,7 @@ export const ServiceHighlight = ({
             <motion.div {...fadeUp(0.2)} className="flex items-center gap-3">
               {avatarUrl && (
                 <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-gray-100 relative">
-                  <Image src={avatarUrl} alt="" fill className="object-cover" />
+                  <Image src={avatarUrl} alt={avatar_caption || ''} fill className="object-cover" />
                 </div>
               )}
               {avatar_caption && <p className="text-sm text-black/50">{avatar_caption}</p>}

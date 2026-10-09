@@ -60,7 +60,21 @@ export default async function Blog(props: {
     false
   );
 
-  const articles = (articlesRes?.data ?? []) as Article[];
+  // A lista csak cím/leírás/kép/dátum mezőket jelenít meg (lásd blog-index.tsx),
+  // de a `fetchContentType` depth=3-mal minden cikk TELJES tartalmát (rich-text
+  // body, dynamic_zone, kategóriák, stb.) is lekéri — ez feleslegesen felduzzasztja
+  // a React hidratációs payloadot (mért hatás: ~600KB-tal nagyobb /hu/blog HTML).
+  // Itt levágjuk a listához nem szükséges, nagy mezőket, mielőtt kliensnek adnánk.
+  const articles = ((articlesRes?.data ?? []) as Article[]).map((a) => ({
+    title: a.title,
+    description: a.description,
+    slug: a.slug,
+    image: a.image,
+    publishedAt: a.publishedAt,
+    createdAt: a.createdAt,
+    updatedAt: a.updatedAt,
+    locale: a.locale,
+  })) as Article[];
 
   const localizedSlugs = Object.keys(localeSegments).reduce(
     (acc, loc) => { acc[loc] = 'blog'; return acc; },

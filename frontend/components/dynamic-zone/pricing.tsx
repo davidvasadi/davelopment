@@ -140,7 +140,7 @@ export const Pricing = ({
   const bgUrl =
     toAbs(background_url) ||
     toAbs(background) ||
-    'https://framerusercontent.com/images/vrhxHFTuxnCduP4nljUulqZcuQ.jpg';
+    '/images/fallback/section-background.jpg';
 
   const labelForType = (t: string) => {
     const pool = plans.filter((p) => (p?.plan_type || '') === t);
@@ -183,6 +183,8 @@ export const Pricing = ({
             src={bgUrl}
             alt=""
             aria-hidden="true"
+            width={1912}
+            height={1402}
             className="w-full h-full object-cover opacity-100"
             style={{ filter: 'brightness(1.15)' }}
           />
@@ -452,6 +454,8 @@ export const Pricing = ({
                           <img
                             src={toAbs(profile_image)}
                             alt={profile_label || 'Profile'}
+                            width={40}
+                            height={40}
                             className="w-10 h-10 rounded-full object-cover object-top"
                           />
                         )}

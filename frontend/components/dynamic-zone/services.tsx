@@ -78,7 +78,7 @@ export function Services(props: ServicesBlockProps) {
     const bgUrlFromMedia = toAbs(background);
     const bgMime = getMime(background);
     const rawBgUrl = bgUrlFromUrl || bgUrlFromMedia
-        || 'https://framerusercontent.com/images/vrhxHFTuxnCduP4nljUulqZcuQ.jpg';
+        || '/images/fallback/section-background.jpg';
     const isVideo = (bgMime && bgMime.startsWith('video/')) || looksLikeVideoUrl(rawBgUrl || '');
 
     const services = useMemo<UIService[]>(() => {
@@ -145,6 +145,7 @@ export function Services(props: ServicesBlockProps) {
                             autoPlay muted loop playsInline style={{ filter: 'brightness(1.15)' }} />
                     ) : (
                         <img src={rawBgUrl as string} alt="" aria-hidden="true"
+                            width={1912} height={1402}
                             className="w-full h-full object-cover" style={{ filter: 'brightness(1.15)' }} />
                     )}
                     <GrainCanvas strength="light" opacity={0.5} zIndex={1} />
@@ -259,7 +260,7 @@ export function Services(props: ServicesBlockProps) {
                                                                         marginLeft: i > 0 ? '-12px' : '0',
                                                                     }}
                                                                 >
-                                                                    <img src={src} alt={s.title} className="w-full h-full object-cover" />
+                                                                    <img src={src} alt={s.title} width={80} height={80} className="w-full h-full object-cover" />
                                                                 </div>
                                                             ))}
                                                         </div>

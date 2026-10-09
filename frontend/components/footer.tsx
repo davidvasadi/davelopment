@@ -3,6 +3,7 @@ import { Link } from 'next-view-transitions';
 import React from 'react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { Container } from '@/components/container';
+import { GoogleRatingBadge } from '@/components/google-rating-badge';
 type FooterLink = {
   text?: string | null;
   URL?: string | null;
@@ -302,6 +303,8 @@ export const Footer = ({ data, locale }: FooterProps) => {
                       <img
                         src={profileSrc}
                         alt={designed_developed_by ?? 'Profile'}
+                        width={32}
+                        height={32}
                         className="w-full h-full object-cover object-top"
                       />
                     </div>
@@ -317,6 +320,8 @@ export const Footer = ({ data, locale }: FooterProps) => {
               {built_with && (
                 <p className="text-xs text-white/60">{built_with}</p>
               )}
+
+              <GoogleRatingBadge locale={locale} dark />
             </div>
           </div>
         </Container>

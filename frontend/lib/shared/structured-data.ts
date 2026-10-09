@@ -21,6 +21,7 @@ const LOGO_ID = `${SITE_URL}/#logo`;
 
 // Public business contact — already shown on the site, safe to expose in schema.
 const CONTACT_EMAIL = 'hello@davelopment.hu';
+const CONTACT_PHONE = '+36303628377';
 
 // Registered sole-trader (egyéni vállalkozó) data — already public on
 // /adatkezeles (legally required impresszum data), so safe to mirror here.
@@ -62,7 +63,9 @@ type Node = Record<string, any>;
 
 // ─── Site-wide singleton nodes ───────────────────────────────────────────────
 
-function organizationNode(logoUrl?: string | null): Node {
+type GoogleRatingData = { rating: number; userRatingCount: number } | null | undefined;
+
+function organizationNode(logoUrl?: string | null, googleRating?: GoogleRatingData): Node {
   const node: Node = {
     // ProfessionalService is a LocalBusiness subtype — lets this single node
     // satisfy both "Organization" and "Local Business Schema" SEO checks.
@@ -85,6 +88,7 @@ function organizationNode(logoUrl?: string | null): Node {
     contactPoint: {
       '@type': 'ContactPoint',
       email: CONTACT_EMAIL,
+      telephone: CONTACT_PHONE,
       contactType: 'customer support',
       availableLanguage: ['Hungarian', 'English'],
     },
@@ -99,6 +103,17 @@ function organizationNode(logoUrl?: string | null): Node {
     node.image = { '@id': LOGO_ID };
   }
   if (SAME_AS.length) node.sameAs = SAME_AS;
+  // Napi cron script által cache-elt valódi Google-értékelés (lásd
+  // scripts/google-reviews/fetch_rating.py + getCachedGoogleRating()) —
+  // csak akkor adjuk hozzá, ha van friss adat, soha nem kitaláljuk.
+  if (googleRating?.rating && googleRating?.userRatingCount) {
+    node.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: googleRating.rating,
+      reviewCount: googleRating.userRatingCount,
+      bestRating: 5,
+    };
+  }
   return node;
 }
 
@@ -397,10 +412,12 @@ export function renderPageJsonLd(opts: {
   override?: string | Record<string, any> | null;
   /** Absolute brand logo URL (from Payload via getSiteLogoUrl) for Organization. */
   logoUrl?: string | null;
+  /** Cache-elt Google Cégem-pontszám (lásd getCachedGoogleRating()) → AggregateRating. */
+  googleRating?: GoogleRatingData;
 }): string {
   const { kind, url, title, locale, description } = opts;
 
-  const nodes: (Node | null)[] = [organizationNode(opts.logoUrl), webSiteNode(locale)];
+  const nodes: (Node | null)[] = [organizationNode(opts.logoUrl, opts.googleRating), webSiteNode(locale)];
 
   // Primary entity
   let primaryNode: Node | null = null;

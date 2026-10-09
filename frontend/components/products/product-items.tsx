@@ -9,6 +9,7 @@ import { formatNumber, truncate } from '@/lib/utils';
 import { Product } from '@/types/types';
 import { Heading } from '@/components/elements/heading';
 import { Subheading } from '@/components/elements/subheading';
+import { getLocalizedSegment } from '@/lib/i18n/segments';
 
 
 export const ProductItems = ({
@@ -65,7 +66,7 @@ const ProductItem = ({
 
   return (
     <Link
-      href={`/${locale}/products/${product.slug}` as never}
+      href={`/${locale}/${getLocalizedSegment(locale, 'products')}/${product.slug}` as never}
       className="group block h-full"
     >
       {/* Framer-szerű fehér kártya */}
