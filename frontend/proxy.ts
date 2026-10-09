@@ -58,12 +58,19 @@ export function proxy(request: NextRequest) {
   );
 
   if (pathnameIsMissingLocale) {
+    // A gyökér ("/") mindig a kanonikus x-default locale-ra (hu) megy,
+    // PERMANENS (308) átirányítással — nem a böngésző nyelvére negociálva.
+    // Korábban ez 307 volt és a negociált locale-ra ment: a Google emiatt
+    // külön, saját jogú URL-ként tartotta indexben a "/"-t a "/hu" mellett
+    // (392 impresszió / 0 kattintás 90 nap alatt a Search Console szerint,
+    // 2026-10-09-i audit) — a 307 csak részleges rangsorolási jelet visz át
+    // és nem mondja meg egyértelműen a Google-nek, hogy dobja ki a forrás
+    // URL-t az indexből, a 308 viszont igen.
+    if (pathname === '/') {
+      return NextResponse.redirect(new URL(`/${i18n.defaultLocale}`, request.url), 308);
+    }
     const locale = getLocale(request);
-    // pathname === '/' -> /{locale} (nem /{locale}/, mert arra Next.js
-    // újabb redirecttel levágná a trailing slash-t — 2 helyett 1 hop)
-    const target = pathname === '/' ? `/${locale}` : `/${locale}${pathname}`;
-
-    return NextResponse.redirect(new URL(target, request.url));
+    return NextResponse.redirect(new URL(`/${locale}${pathname}`, request.url));
   }
 
   /**

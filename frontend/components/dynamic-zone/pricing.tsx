@@ -168,6 +168,22 @@ export const Pricing = ({
   const [descLead, descRest] = splitDescription(activePlan?.recommended_for);
   const recommendedForQuestion = isHu ? 'Kiknek ajánlott?' : 'Who is this recommended for?';
 
+  // Statikus, mindig renderelt "induló ártól" mondat — SZÁNDÉKOSAN nem a
+  // fül-váltós activePlan-ből jön, mert az csak kliens-interakcióra kerül a
+  // DOM-ba. Egy AI/Google-crawler sosem kattint a fülekre, így a legolcsóbb
+  // csomag ára e nélkül sosem lenne jelen a betöltéskori, látható szövegben
+  // (lásd Rich Results Test audit, 2026-10-09 — a Mikró 24.900 Ft-ja csak a
+  // JSON-LD-ben volt meg, sehol emberi szövegként).
+  const cheapestPlan = useMemo(() => {
+    return plans
+      .filter((p) => p?.price !== null && p?.price !== undefined && p.price !== '' && !isNaN(Number(p.price)))
+      .reduce<Plan | null>((min, p) => (min === null || Number(p.price) < Number(min.price)) ? p : min, null);
+  }, [plans]);
+
+  const cheapestPriceLabel = cheapestPlan
+    ? `${Math.round(Number(cheapestPlan.price)).toLocaleString(locale)} ${cheapestPlan.currency || ''}`.trim()
+    : null;
+
   const buttonVariants: Variants = {
     rest: { y: '-50%' },
     hover: { y: '0%', transition: { duration: 0.2, ease: 'easeInOut' } },
@@ -214,6 +230,13 @@ export const Pricing = ({
                 <Subheading className="max-w-3xl mx-auto text-white/70">
                   {sub_heading}
                 </Subheading>
+              )}
+              {cheapestPriceLabel && (
+                <p className="text-sm md:text-base text-white/60 mt-2">
+                  {isHu
+                    ? `Csomagjaink már ${cheapestPriceLabel}-tól indulnak.`
+                    : `Our packages start from ${cheapestPriceLabel}.`}
+                </p>
               )}
             </motion.div>
 
