@@ -1,6 +1,0 @@
-[
-  {
-    "q": {"hu": "Magam is tudom szerkeszteni a tartalmat, vagy nektek kell mindent kezelnetek?", "en": "Can I edit content myself, or do you have to manage everything?"},
-    "a": {"hu": "Mindkettő megy. A weboldal kezelés alapból nálunk van (frissítések, biztonsági mentés, hibaelhárítás), de ha szeretnéd, hozzáférést adunk a rendszerhez, és a szövegek, képek cseréje — tehát a weboldal szerkesztése — bármikor magad is elvégezheted, csak a technikai háttér marad nálunk.", "en": "Both work. Website management is handled by us by default (updates, backups, troubleshooting), but if you'd like, we give you access so you can edit the content yourself anytime — the technical backend stays with us."}
-  }
-]

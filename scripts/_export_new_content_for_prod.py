@@ -67,26 +67,61 @@ def pk_column(table):
     return _pk_cache[table]
 
 
-def emit_insert(table, row):
+def emit_insert(table, row, parent_id_override=None):
     cols = list(row.keys())
-    col_list = ', '.join(f'"{c}"' for c in cols)
-    val_list = ', '.join(sql_lit(row[c]) for c in cols)
 
     # `*_locales` tables (pages_locales, articles_locales, faqs_locales, and
     # their _v mirrors) have their OWN surrogate id, which can drift between
-    # environments independently of the parent — conflict on the parent's
-    # own id would then miss a real duplicate. They DO have a genuine
-    # natural-key unique index on (_locale, _parent_id); match on THAT
-    # instead (lesson from docs/audit/2026-09-29-deploy-runbook.md point 5).
-    if table.endswith('_locales') and '_locale' in cols and '_parent_id' in cols:
-        update_cols = [c for c in cols if c not in ('id', '_locale', '_parent_id')]
+    # environments independently of the parent. It's not enough to just
+    # change the ON CONFLICT target to the natural key (_locale, _parent_id)
+    # — the explicit `id` value we're inserting can ALSO collide with some
+    # unrelated row's id on the target environment (a DIFFERENT unique
+    # constraint, the pkey), which still raises a hard error regardless of
+    # what ON CONFLICT names. Fix: don't send `id` at all, let the target's
+    # own sequence assign a fresh one — exactly what Payload itself does
+    # when creating a new locale row (lesson from
+    # docs/audit/2026-09-29-deploy-runbook.md point 5, extended 2026-10-12).
+    is_locales = table.endswith('_locales') and '_locale' in cols and '_parent_id' in cols
+
+    # `*_rels` tables (pages_rels, articles_rels, _pages_v_rels, ...) have
+    # NO natural unique key at all — not even a real one on (parent_id,
+    # path, order), just the surrogate id. Same drift risk as `_locales`
+    # (explicit id can collide with an unrelated row and get silently
+    # skipped via ON CONFLICT DO NOTHING, with NO error — this is what
+    # actually happened 2026-10-12: FAQ/pricing-plan rels for the new pages
+    # silently failed to insert). Fix: drop `id`, and since there's no
+    # constraint to name in ON CONFLICT, guard against re-run duplicates
+    # with a WHERE NOT EXISTS on the full column set instead.
+    is_rels = table.endswith('_rels') and 'parent_id' in cols and 'path' in cols
+
+    if is_locales or is_rels:
+        cols = [c for c in cols if c != 'id']
+
+    col_list = ', '.join(f'"{c}"' for c in cols)
+    val_list = ', '.join(
+        (parent_id_override if (c in ('_parent_id', 'parent_id') and parent_id_override) else sql_lit(row[c]))
+        for c in cols
+    )
+
+    if is_locales:
+        update_cols = [c for c in cols if c not in ('_locale', '_parent_id')]
         set_clause = ', '.join(f'"{c}" = EXCLUDED."{c}"' for c in update_cols)
         conflict = f' ON CONFLICT ("_locale", "_parent_id") DO UPDATE SET {set_clause}' if update_cols else ' ON CONFLICT ("_locale", "_parent_id") DO NOTHING'
+        print(f'INSERT INTO "{table}" ({col_list}) VALUES ({val_list}){conflict};')
+    elif is_rels:
+        match_clause = ' AND '.join(
+            f'"{c}" IS NOT DISTINCT FROM '
+            + (parent_id_override if (c == 'parent_id' and parent_id_override) else sql_lit(row[c]))
+            for c in cols
+        )
+        print(
+            f'INSERT INTO "{table}" ({col_list}) SELECT {val_list} '
+            f'WHERE NOT EXISTS (SELECT 1 FROM "{table}" WHERE {match_clause});'
+        )
     else:
         pk = pk_column(table)
         conflict = f' ON CONFLICT ("{pk}") DO NOTHING' if pk else ' ON CONFLICT DO NOTHING'
-
-    print(f'INSERT INTO "{table}" ({col_list}) VALUES ({val_list}){conflict};')
+        print(f'INSERT INTO "{table}" ({col_list}) VALUES ({val_list}){conflict};')
 
 
 def child_tables_of(prefix):
@@ -139,7 +174,51 @@ def has_column(table, col):
     return bool(rows)
 
 
-def export_tree_from(parent_table, parent_id, only_child_tables=None):
+_pk_type_cache = {}
+
+
+def pk_is_integer(table):
+    """True if the table's pk is a serial/integer (not the hex varchar ids
+    used by live block tables) — these have the SAME cross-environment
+    collision risk as _locales/_pages_v rows (small, sequential, drift-
+    prone), discovered 2026-10-12 in the _pages_v_blocks_* version-mirror
+    tables. Hex-pk tables are safe to insert with their literal id."""
+    if table not in _pk_type_cache:
+        pk = pk_column(table)
+        if not pk:
+            _pk_type_cache[table] = False
+        else:
+            rows = q("""
+                SELECT data_type FROM information_schema.columns
+                WHERE table_name=%s AND column_name=%s
+            """, [table, pk])
+            _pk_type_cache[table] = bool(rows) and rows[0]['data_type'] in ('integer', 'bigint', 'smallint')
+    return _pk_type_cache[table]
+
+
+_var_counter = [0]
+
+
+def emit_insert_returning(table, row, parent_id_override=None):
+    """INSERT dropping the explicit (serial) id, capturing the freshly
+    auto-assigned one into a unique psql variable. Returns the ':varname'
+    reference to use as this row's id in children's _parent_id.
+    `parent_id_override`: same meaning as in emit_insert — substitute this
+    row's own _parent_id/parent_id value (its real local one may not exist
+    on the target) with a psql variable reference instead."""
+    _var_counter[0] += 1
+    var = f'rid{_var_counter[0]}'
+    cols = [c for c in row.keys() if c != pk_column(table)]
+    col_list = ', '.join(f'"{c}"' for c in cols)
+    val_list = ', '.join(
+        (parent_id_override if (c in ('_parent_id', 'parent_id') and parent_id_override) else sql_lit(row[c]))
+        for c in cols
+    )
+    print(f'INSERT INTO "{table}" ({col_list}) VALUES ({val_list}) RETURNING {pk_column(table)} \\gset {var}_')
+    return f':{var}_{pk_column(table)}'
+
+
+def export_tree_from(parent_table, parent_id, only_child_tables=None, output_parent_ref=None):
     """Recursively walks the REAL foreign-key tree (via the FK catalog, not
     name-prefix guessing): finds every table whose _parent_id FK references
     parent_table, exports its rows for this parent_id, then recurses into
@@ -147,17 +226,30 @@ def export_tree_from(parent_table, parent_id, only_child_tables=None):
     naturally reaches every nesting level (block -> c_t_as / tags /
     form_inputs) regardless of how deep it goes, and never confuses a
     sub-table's _parent_id (varchar, references the block row) with the
-    page/article's own integer pk."""
+    page/article's own integer pk.
+
+    `output_parent_ref`: when set (a psql variable name like ':pid123'),
+    used INSTEAD of the literal parent_id in the generated `_parent_id`
+    value for this one level only — for attaching rows to a parent whose
+    real id isn't known yet at generation time (e.g. a freshly
+    RETURNING-assigned _pages_v/_articles_v row). Only applies to the
+    direct children of this call; deeper recursion uses their own real
+    (hex) ids as normal since those have no collision risk."""
     children = tables_fk_referencing(parent_table, '_parent_id')
     if only_child_tables is not None:
         children = [c for c in children if c in only_child_tables]
     for t in children:
         rows = q(f'SELECT * FROM "{t}" WHERE _parent_id = %s', [parent_id])
         for row in rows:
-            emit_insert(t, row)
             pk = pk_column(t)
-            if pk and row.get(pk) is not None:
-                export_tree_from(t, row[pk])
+            if pk_is_integer(t):
+                ref = emit_insert_returning(t, row, parent_id_override=output_parent_ref)
+                if pk and row.get(pk) is not None:
+                    export_tree_from(t, row[pk], output_parent_ref=ref)
+            else:
+                emit_insert(t, row, parent_id_override=output_parent_ref)
+                if pk and row.get(pk) is not None:
+                    export_tree_from(t, row[pk])
 
 
 def export_simple_doc(collection, doc_id):
@@ -189,31 +281,50 @@ def export_collection_doc(collection, doc_id):
     rels_table = f'{collection}_rels'
     if has_column(rels_table, 'parent_id'):
         rel_rows = q(f'SELECT * FROM "{rels_table}" WHERE parent_id = %s', [doc_id])
-        for row in rel_rows:
-            emit_insert(rels_table, row)
+        # Referenced docs (e.g. faqs) MUST be inserted BEFORE the _rels rows
+        # that point at them, or the FK check on the _rels insert fails.
         if has_column(rels_table, 'faqs_id'):
             for faq_id in {r['faqs_id'] for r in rel_rows if r.get('faqs_id') is not None}:
                 export_simple_doc('faqs', faq_id)
+        for row in rel_rows:
+            emit_insert(rels_table, row)
 
     export_tree_from(collection, doc_id)
 
-    # version mirror
+    # version mirror — the _pages_v/_articles_v row's OWN id is a serial
+    # integer with the exact same drift risk as _locales rows (lesson
+    # 2026-10-12): an explicit id can silently collide with a totally
+    # unrelated existing version row on the target and get skipped (or,
+    # worse, its children end up attached to that unrelated row). Fix:
+    # drop the explicit id, let it auto-assign via RETURNING, and have
+    # every child reference that freshly-assigned id via a psql variable
+    # instead of the local id.
+    # Only the LATEST version row is restored — older historical drafts can
+    # reference since-changed/removed media or other now-invalid state
+    # (confirmed 2026-10-12: an old draft's video_poster_id no longer
+    # existed), and only the latest one actually matters for the admin
+    # edit view anyway.
     v_collection = f'_{collection}_v'
-    v_rows = q(f'SELECT * FROM "{v_collection}" WHERE parent_id = %s', [doc_id])
+    v_rows = q(f'SELECT * FROM "{v_collection}" WHERE parent_id = %s AND latest = true', [doc_id])
     for vrow in v_rows:
-        emit_insert(v_collection, vrow)
-        vid = vrow['id']
+        local_vid = vrow['id']
+        var = f'v_{collection}_{local_vid}'
+        cols = [c for c in vrow.keys() if c != 'id']
+        col_list = ', '.join(f'"{c}"' for c in cols)
+        val_list = ', '.join(sql_lit(vrow[c]) for c in cols)
+        print(f'INSERT INTO "{v_collection}" ({col_list}) VALUES ({val_list}) RETURNING id \\gset {var}_')
+        ref = f':{var}_id'
 
         vloc_table = f'{v_collection}_locales'
-        for row in q(f'SELECT * FROM "{vloc_table}" WHERE _parent_id = %s', [vid]):
-            emit_insert(vloc_table, row)
+        for row in q(f'SELECT * FROM "{vloc_table}" WHERE _parent_id = %s', [local_vid]):
+            emit_insert(vloc_table, row, parent_id_override=ref)
 
         vrels_table = f'{v_collection}_rels'
         if has_column(vrels_table, 'parent_id'):
-            for row in q(f'SELECT * FROM "{vrels_table}" WHERE parent_id = %s', [vid]):
-                emit_insert(vrels_table, row)
+            for row in q(f'SELECT * FROM "{vrels_table}" WHERE parent_id = %s', [local_vid]):
+                emit_insert(vrels_table, row, parent_id_override=ref)
 
-        export_tree_from(v_collection, vid)
+        export_tree_from(v_collection, local_vid, output_parent_ref=ref)
 
 
 def export_new_blocks_on_existing_page(page_id, block_types):
