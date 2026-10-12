@@ -1,0 +1,47 @@
+{
+  "heading": {"hu": "Így dolgozunk", "en": "How we work"},
+  "sub_heading": {"hu": "A kampányodtól a mérhető eredményig.", "en": "From your campaign to measurable results."},
+  "badge_label": {"hu": "Folyamat", "en": "Process"},
+  "items": [
+    {
+      "order": 1, "number": "01", "icon": "search",
+      "title": {"hu": "Kulcsszó- és piackutatás", "en": "Keyword & market research"},
+      "description": {"hu": "Megnézzük, mire keresnek rá ténylegesen a vásárlóid, és hol licitál a konkurenciád — nem találgatunk.", "en": "We check what your actual buyers search for, and where your competitors bid — no guessing."},
+      "categories_title": {"hu": "Amit kapsz", "en": "What you get"},
+      "stats": [{"value": "3", "suffix": "+", "label": {"hu": "konkurens elemzése minden kampánynál", "en": "competitors analyzed per campaign"}}],
+      "categories": [{"hu": "Kulcsszavak", "en": "Keywords"}, {"hu": "Konkurencia", "en": "Competitors"}]
+    },
+    {
+      "order": 2, "number": "02", "icon": "layout-dashboard",
+      "title": {"hu": "Kampány felépítése", "en": "Campaign setup"},
+      "description": {"hu": "Célzás, hirdetésszövegek, landoló oldal összhangban — nem egy általános sablonkampány.", "en": "Targeting, ad copy, and landing page aligned — not a generic template campaign."},
+      "categories_title": {"hu": "Amit kapsz", "en": "What you get"},
+      "stats": [{"value": "100", "suffix": "%", "label": {"hu": "testreszabott kampánystruktúra", "en": "custom campaign structure"}}],
+      "categories": [{"hu": "Célzás", "en": "Targeting"}, {"hu": "Hirdetésszöveg", "en": "Ad copy"}]
+    },
+    {
+      "order": 3, "number": "03", "icon": "zap",
+      "title": {"hu": "Konverziókövetés beállítása", "en": "Conversion tracking setup"},
+      "description": {"hu": "Rendesen bekötött mérés, hogy ne csak kattintást, hanem tényleges ügyfelet láss a számokban.", "en": "Properly wired tracking so you see real customers in the numbers, not just clicks."},
+      "categories_title": {"hu": "Amit kapsz", "en": "What you get"},
+      "stats": [],
+      "categories": [{"hu": "Konverziókövetés", "en": "Conversion tracking"}]
+    },
+    {
+      "order": 4, "number": "04", "icon": "smartphone",
+      "title": {"hu": "Heti optimalizálás", "en": "Weekly optimization"},
+      "description": {"hu": "Kulcsszavak, költségkeret, hirdetésszövegek folyamatos finomítása az összegyűlt adatok alapján.", "en": "Keywords, budget, and ad copy continuously refined based on real data."},
+      "categories_title": {"hu": "Amit kapsz", "en": "What you get"},
+      "stats": [{"value": "1", "suffix": "/hét", "label": {"hu": "aktív felülvizsgálat kampányonként", "en": "active review per campaign"}}],
+      "categories": [{"hu": "Optimalizálás", "en": "Optimization"}]
+    },
+    {
+      "order": 5, "number": "05", "icon": "mail",
+      "title": {"hu": "Havi, érthető riport", "en": "Monthly, clear reporting"},
+      "description": {"hu": "Nem Excel-tábla — rövid összefoglaló arról, mi történt, miért, és mi a következő lépés.", "en": "Not a spreadsheet — a short summary of what happened, why, and what's next."},
+      "categories_title": {"hu": "Amit kapsz", "en": "What you get"},
+      "stats": [],
+      "categories": [{"hu": "Riportálás", "en": "Reporting"}]
+    }
+  ]
+}

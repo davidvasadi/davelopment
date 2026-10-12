@@ -1,0 +1,35 @@
+{
+  "story": {
+    "card1_cta_url": "/kapcsolat",
+    "card2_media_id": 235,
+    "locales": {
+      "hu": {
+        "card1_heading": "Budapesti vállalkozások mondták el, milyen velünk dolgozni",
+        "card1_cta_text": "Kérj ajánlatot",
+        "card2_caption": "Egyedi weboldal, budapesti ügyfeleknek"
+      },
+      "en": {
+        "card1_heading": "Budapest businesses told us what it's like working with us",
+        "card1_cta_text": "Get a quote",
+        "card2_caption": "Custom websites, for Budapest clients"
+      }
+    }
+  },
+  "hero": {
+    "image_id": 175,
+    "locales": {
+      "hu": {
+        "eyebrow": "GOOGLE ÉRTÉKELÉSEK",
+        "heading": "Amiért a budapesti ügyfeleink minket választanak",
+        "description": "A The Place Studio és más budapesti partnereink is azért dolgoznak velünk, mert személyesen, gyorsan és érthetően kommunikálunk.",
+        "tags": ["Budapest", "Egyedi fejlesztés", "Személyes egyeztetés", "Gyors kommunikáció"]
+      },
+      "en": {
+        "eyebrow": "GOOGLE REVIEWS",
+        "heading": "Why our Budapest clients choose us",
+        "description": "The Place Studio and our other Budapest partners work with us because we communicate personally, quickly and clearly.",
+        "tags": ["Budapest", "Custom development", "Personal consultation", "Fast communication"]
+      }
+    }
+  }
+}

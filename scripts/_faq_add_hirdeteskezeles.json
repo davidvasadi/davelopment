@@ -1,0 +1,14 @@
+[
+  {
+    "q": {"hu": "A Google Ads fiók a tiétek lesz, vagy az enyém marad?", "en": "Will the Google Ads account be yours, or will it stay mine?"},
+    "a": {"hu": "Mindig a tiéd marad — a saját Google-fiókodban dolgozunk, nem zárunk be semmit. Ha bármikor váltani szeretnél, a teljes kampány-előzménnyel együtt a tiéd marad.", "en": "It always stays yours — we work inside your own Google account, nothing gets locked away. If you ever want to switch, the full campaign history stays with you."}
+  },
+  {
+    "q": {"hu": "Fix díjat fizetek, vagy a hirdetési költés százalékát?", "en": "Do I pay a fixed fee, or a percentage of ad spend?"},
+    "a": {"hu": "Fix havidíjban dolgozunk a kezelésért — ez független a hirdetési költésedtől, így nem érdekünk mesterségesen magasabb büdzsét javasolni. A hirdetési költség ettől teljesen külön, közvetlenül a Google felé megy.", "en": "We work with a fixed monthly management fee, independent of your ad spend — so we have no incentive to push an artificially higher budget. Ad spend itself is completely separate and goes straight to Google."}
+  },
+  {
+    "q": {"hu": "Google Ads vagy Facebook/Instagram hirdetés éri meg jobban?", "en": "Is Google Ads or Facebook/Instagram advertising better for me?"},
+    "a": {"hu": "Attól függ, mit keresnek a vásárlóid: ha aktívan keresnek rá valamire (pl. \"weboldal készítés\"), a Google Ads jobban teljesít, mert szándékot céloz. Ha inkább felfedezésről/impulzusvásárlásról van szó, a Meta-hirdetés is szóba jöhet — ezt az első konzultáción átbeszéljük.", "en": "It depends on what your customers are searching for: if they're actively looking for something (e.g. \"web design\"), Google Ads performs better because it targets intent. If it's more about discovery/impulse buying, Meta ads can make sense too — we discuss this at the first consultation."}
+  }
+]

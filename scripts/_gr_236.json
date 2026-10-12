@@ -1,0 +1,35 @@
+{
+  "story": {
+    "card1_cta_url": "/kapcsolat",
+    "card2_media_id": 29,
+    "locales": {
+      "hu": {
+        "card1_heading": "Azért vagyunk itt, hogy a weboldalad mindig működjön",
+        "card1_cta_text": "Kérdésed van?",
+        "card2_caption": "Folyamatos karbantartás, nyugodt háttér"
+      },
+      "en": {
+        "card1_heading": "We're here so your website always keeps working",
+        "card1_cta_text": "Got a question?",
+        "card2_caption": "Ongoing maintenance, peace of mind"
+      }
+    }
+  },
+  "hero": {
+    "image_id": 255,
+    "locales": {
+      "hu": {
+        "eyebrow": "GOOGLE ÉRTÉKELÉSEK",
+        "heading": "Megbízhatóság, amit az ügyfeleink is visszaigazolnak",
+        "description": "A karbantartás nem látványos — de az ügyfeleink pont ezért értékelik, hogy sosem kell aggódniuk a weboldaluk miatt.",
+        "tags": ["Folyamatos frissítés", "Biztonsági mentés", "Gyors hibaelhárítás", "WordPress & egyedi is"]
+      },
+      "en": {
+        "eyebrow": "GOOGLE REVIEWS",
+        "heading": "Reliability our clients confirm themselves",
+        "description": "Maintenance isn't flashy — which is exactly why our clients value never having to worry about their website.",
+        "tags": ["Ongoing updates", "Backups", "Fast troubleshooting", "WordPress & custom too"]
+      }
+    }
+  }
+}

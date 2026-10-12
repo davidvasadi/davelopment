@@ -1741,6 +1741,103 @@ export const MacbookScrollBlock: Block = {
   ],
 }
 
+// ─── GoogleReviewStoryBlock ────────────────────────────────────────────────────
+// 3 egymás melletti "story"-kártya: 1) szöveges CTA-kártya, 2) kép/videó kártya,
+// 3) automatikus Google-értékelés stat-kártya (értékelések száma + arány —
+// nincs hozzá admin mező, a frontend a cache-elt Google adatokból számolja).
+
+export const GoogleReviewStoryBlock: Block = {
+  slug: 'google-review-story',
+  labels: {
+    singular: 'Google-értékelés story csík',
+    plural: 'Google-értékelés story csíkok',
+  },
+  fields: [
+    {
+      name: 'card1_heading',
+      type: 'text',
+      label: '1. kártya — szöveg',
+      localized: true,
+    },
+    {
+      name: 'card1_cta_text',
+      type: 'text',
+      label: '1. kártya — gomb szövege',
+      localized: true,
+    },
+    {
+      name: 'card1_cta_url',
+      type: 'text',
+      label: '1. kártya — gomb URL',
+    },
+    {
+      name: 'card2_media',
+      type: 'upload',
+      relationTo: 'media',
+      label: '2. kártya — kép vagy videó',
+    },
+    {
+      name: 'card2_caption',
+      type: 'text',
+      label: '2. kártya — felirat',
+      localized: true,
+    },
+  ],
+}
+
+// ─── GoogleReviewHeroBlock ──────────────────────────────────────────────────────
+// Nagy, két hasábos "hero" blokk — bal oldalt kép (pl. elkészült weboldal
+// mockup), jobb oldalt egyedi szöveg + tag-ek. A "google-review-hero" slug
+// a block-tábla szerkezete miatt maradt, de a blokk tartalma oldalanként
+// szabadon szerkeszthető, nem Google-értékelés-specifikus.
+
+export const GoogleReviewHeroBlock: Block = {
+  slug: 'google-review-hero',
+  labels: {
+    singular: 'Kiemelt projekt / funkció blokk',
+    plural: 'Kiemelt projekt / funkció blokkok',
+  },
+  fields: [
+    {
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Bal oldali kép',
+    },
+    {
+      name: 'eyebrow',
+      type: 'text',
+      label: 'Felső kis felirat',
+      localized: true,
+    },
+    {
+      name: 'heading',
+      type: 'text',
+      label: 'Főcím',
+      localized: true,
+    },
+    {
+      name: 'description',
+      type: 'textarea',
+      label: 'Leírás',
+      localized: true,
+    },
+    {
+      name: 'tags',
+      type: 'array',
+      label: 'Tag-ek',
+      localized: true,
+      fields: [
+        {
+          name: 'label',
+          type: 'text',
+          label: 'Felirat',
+        },
+      ],
+    },
+  ],
+}
+
 // ─── All blocks array ─────────────────────────────────────────────────────────
 
 export const allBlocks: Block[] = [
@@ -1765,4 +1862,6 @@ export const allBlocks: Block[] = [
   WhyChooseUsBlock,
   FormNextToSectionBlock,
   MacbookScrollBlock,
+  GoogleReviewStoryBlock,
+  GoogleReviewHeroBlock,
 ]

@@ -1,0 +1,17 @@
+{
+  "image_id": 170,
+  "locales": {
+    "hu": {
+      "eyebrow": "BUDAPESTI REFERENCIA",
+      "heading": "The Place Studio — egy budapesti egyedi weboldal",
+      "description": "Ez a weboldal is egyedi fejlesztéssel készült, kifejezetten egy budapesti vállalkozás márkájára és céljaira szabva.",
+      "tags": ["Egyedi design", "Budapest", "Valódi referencia", "Márkaépítés"]
+    },
+    "en": {
+      "eyebrow": "BUDAPEST REFERENCE",
+      "heading": "The Place Studio — a custom Budapest website",
+      "description": "This website was also custom-built, tailored specifically to a Budapest business's brand and goals.",
+      "tags": ["Custom design", "Budapest", "Real reference", "Branding"]
+    }
+  }
+}

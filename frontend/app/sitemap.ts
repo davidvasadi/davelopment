@@ -142,6 +142,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const servicePageSlugs = new Set([
     'branding-arculat', 'ux-ui-design-fejlesztes',
     'digitalis-rendszerek', 'seo-tartalommarketing',
+    'hirdeteskezeles', 'karbantartas',
   ]);
 
   for (const page of huPages) {

@@ -1,0 +1,20 @@
+{
+  "article_id": 57,
+  "url": "/szolgaltatasok/karbantartas",
+  "locales": {
+    "hu": {
+      "badge_label": "Váltás",
+      "heading": "Elegük van a WordPress",
+      "heading_highlight": "frissítésekből és biztonsági hibákból?",
+      "sub_heading": "Segítünk gyors, egyedi és biztonságos weboldalra váltani — a karbantartást pedig onnantól mi visszük.",
+      "cta_text": "Nézd meg a karbantartást"
+    },
+    "en": {
+      "badge_label": "Switch",
+      "heading": "Tired of WordPress",
+      "heading_highlight": "updates and security patches?",
+      "sub_heading": "We help you move to a fast, custom site — and take over the maintenance from there.",
+      "cta_text": "See maintenance plans"
+    }
+  }
+}

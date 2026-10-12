@@ -1,0 +1,20 @@
+{
+  "article_id": 59,
+  "url": "/arak",
+  "locales": {
+    "hu": {
+      "badge_label": "AI-láthatóság",
+      "heading": "Készen állsz",
+      "heading_highlight": "az AI-keresés korára?",
+      "sub_heading": "GEO-optimalizált, gépek számára is jól olvasható weboldalt építünk, hogy az AI-eszközök is téged idézzenek.",
+      "cta_text": "Kezdjünk neki"
+    },
+    "en": {
+      "badge_label": "AI visibility",
+      "heading": "Ready for the",
+      "heading_highlight": "age of AI search?",
+      "sub_heading": "We build GEO-optimized, machine-readable sites so AI tools cite you, not just rank you.",
+      "cta_text": "Let's get started"
+    }
+  }
+}

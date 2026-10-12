@@ -1,0 +1,35 @@
+{
+  "story": {
+    "card1_cta_url": "/kapcsolat",
+    "card2_media_id": 246,
+    "locales": {
+      "hu": {
+        "card1_heading": "Nézd meg, hogyan dolgozunk valódi projekteken",
+        "card1_cta_text": "Kérj ajánlatot",
+        "card2_caption": "Weboldal készítés, a tervezéstől az élesítésig"
+      },
+      "en": {
+        "card1_heading": "See how we work on real projects",
+        "card1_cta_text": "Get a quote",
+        "card2_caption": "Website creation, from design to launch"
+      }
+    }
+  },
+  "hero": {
+    "image_id": 167,
+    "locales": {
+      "hu": {
+        "eyebrow": "VALÓDI PROJEKT",
+        "heading": "Ilyen egy élesben futó weboldal, amit mi készítettünk",
+        "description": "A LAZAR'S weboldala is tőlünk indult — gyors, mobilbarát, és pontosan arra épül, amire a vállalkozásnak szüksége van.",
+        "tags": ["Egyedi design", "Gyors betöltés", "Mobilbarát", "Valódi referencia"]
+      },
+      "en": {
+        "eyebrow": "REAL PROJECT",
+        "heading": "This is a live website we built",
+        "description": "LAZAR'S website started with us too — fast, mobile-friendly, and built exactly around what the business needed.",
+        "tags": ["Custom design", "Fast loading", "Mobile-friendly", "Real reference"]
+      }
+    }
+  }
+}

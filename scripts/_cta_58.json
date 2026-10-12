@@ -1,0 +1,20 @@
+{
+  "article_id": 58,
+  "url": "/arak",
+  "locales": {
+    "hu": {
+      "badge_label": "Láthatóság",
+      "heading": "Szeretnéd, hogy",
+      "heading_highlight": "a zero-click korban is megtaláljanak?",
+      "sub_heading": "Olyan weboldalt építünk, ami a hagyományos Google-találatokban és az AI-asszisztensekben is megjelenik.",
+      "cta_text": "Nézd meg az árainkat"
+    },
+    "en": {
+      "badge_label": "Visibility",
+      "heading": "Want to stay findable",
+      "heading_highlight": "in the zero-click era?",
+      "sub_heading": "We build sites that show up in both classic Google results and AI assistants.",
+      "cta_text": "See our pricing"
+    }
+  }
+}

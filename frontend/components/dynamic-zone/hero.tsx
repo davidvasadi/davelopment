@@ -11,6 +11,7 @@ import { strapiImage } from '@/lib/strapi/strapiImage';
 import { GrainCanvas } from '../ui/grain-canvas';
 import { usePreloaderDone } from '../ui/preloader';
 import { longestWordLength } from '@/lib/heading-size';
+import { useIsMobile } from '@/lib/hooks/use-is-mobile';
 
 // A videó nélküli hero fix text-6xl mobil mérete nem skálázódik a
 // képernyő szélességéhez, ezért egy hosszú, törés nélküli szó (pl.
@@ -52,10 +53,13 @@ export type HeroProps = {
   badge_label?: string | null;
 };
 
-function useSlowScroll(ref: React.RefObject<HTMLElement | null>) {
+// Mobilon (gyengébb GPU) a folyamatos scroll-linkelt scale-animáció
+// érezhető akadozást okozott — ott statikus értékre kapcsolunk, csak a
+// desktop élményből marad meg a lassú "kizoomolás" scroll közben.
+function useSlowScroll(ref: React.RefObject<HTMLElement | null>, isMobile: boolean) {
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
   const y = useTransform(scrollYProgress, [0, 1], [0, 0], { clamp: true });
-  const scale = useTransform(scrollYProgress, [0, 1], [1.05, 0.9]);
+  const scale = useTransform(scrollYProgress, [0, 1], isMobile ? [1, 1] : [1.05, 0.9]);
   return { y, scale };
 }
 
@@ -91,7 +95,8 @@ export const Hero = ({
 }: HeroProps) => {
   const heroRef = useRef<HTMLElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const { y, scale } = useSlowScroll(heroRef);
+  const isMobile = useIsMobile();
+  const { y, scale } = useSlowScroll(heroRef, isMobile);
   // A tartalom már a Preloader alatt renderelődik (lásd preloader.tsx
   // AppWrapper) — enélkül ez a belépő-animáció végigfutott volna, mire a
   // Preloader eltűnik, és instant jelenne meg becsúszás helyett.

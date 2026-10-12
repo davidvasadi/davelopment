@@ -1,0 +1,47 @@
+{
+  "heading": {"hu": "Így dolgozunk", "en": "How we work"},
+  "sub_heading": {"hu": "A felügyelettől a nyugodt éjszakákig.", "en": "From oversight to peace of mind."},
+  "badge_label": {"hu": "Folyamat", "en": "Process"},
+  "items": [
+    {
+      "order": 1, "number": "01", "icon": "search",
+      "title": {"hu": "Állapotfelmérés", "en": "Site assessment"},
+      "description": {"hu": "Átnézzük a WordPress-oldaladat — plugin-verziók, biztonsági rések, sebesség —, és megmondjuk őszintén, hol áll.", "en": "We review your WordPress site — plugin versions, security gaps, speed — and tell you honestly where it stands."},
+      "categories_title": {"hu": "Amit kapsz", "en": "What you get"},
+      "stats": [],
+      "categories": [{"hu": "Biztonság", "en": "Security"}, {"hu": "Sebesség", "en": "Speed"}]
+    },
+    {
+      "order": 2, "number": "02", "icon": "zap",
+      "title": {"hu": "Rendszeres frissítés, tesztelve", "en": "Regular, tested updates"},
+      "description": {"hu": "Plugin, téma, WordPress-mag frissítése — nem vakon élesben, hanem tesztelve, hogy ne törjön el semmi.", "en": "Plugin, theme, and core updates — tested first, not blindly pushed live."},
+      "categories_title": {"hu": "Amit kapsz", "en": "What you get"},
+      "stats": [],
+      "categories": [{"hu": "Frissítés", "en": "Updates"}]
+    },
+    {
+      "order": 3, "number": "03", "icon": "layout-dashboard",
+      "title": {"hu": "Automatikus biztonsági mentés", "en": "Automatic backups"},
+      "description": {"hu": "Rendszeres mentés, hogy baj esetén percek alatt vissza tudjunk állni egy működő állapotra.", "en": "Regular backups so we can restore a working state within minutes if something breaks."},
+      "categories_title": {"hu": "Amit kapsz", "en": "What you get"},
+      "stats": [],
+      "categories": [{"hu": "Mentés", "en": "Backups"}]
+    },
+    {
+      "order": 4, "number": "04", "icon": "smartphone",
+      "title": {"hu": "Gyors hibaelhárítás", "en": "Fast troubleshooting"},
+      "description": {"hu": "Fehér képernyő, hibaüzenet, lassulás — mire észreveszed, mi már dolgozunk a javításon.", "en": "White screen, error message, slowdown — we're already fixing it before you notice."},
+      "categories_title": {"hu": "Amit kapsz", "en": "What you get"},
+      "stats": [],
+      "categories": [{"hu": "Hibajavítás", "en": "Troubleshooting"}]
+    },
+    {
+      "order": 5, "number": "05", "icon": "mail",
+      "title": {"hu": "Havi rövid riport", "en": "Monthly short report"},
+      "description": {"hu": "Lásd, mi történt a háttérben — anélkül, hogy technikai zsargont kellene megfejtened.", "en": "See what happened behind the scenes — without needing to decode technical jargon."},
+      "categories_title": {"hu": "Amit kapsz", "en": "What you get"},
+      "stats": [],
+      "categories": [{"hu": "Riportálás", "en": "Reporting"}]
+    }
+  ]
+}

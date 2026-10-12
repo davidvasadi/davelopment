@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { useIsMobile } from '@/lib/hooks/use-is-mobile';
 
 interface DynamicZoneComponent {
   blockType: string;
@@ -21,6 +22,9 @@ interface Props {
   // bizalmi avatar-sorát töltik fel, a CMS-es heading/leírás/CTA-gomb
   // (StatCard marketing-szövege) érintetlen marad.
   googleReviews?: { authorName: string; text: string; rating: number | null; photoUrl: string | null; publishTime?: string | null }[];
+  // Élő Google Cégem-pontszám (átlag + értékelések száma) — a google-review-story
+  // és google-review-hero blokkok automatikus stat-adatához.
+  googleRating?: { rating: number; userRatingCount: number; googleMapsUrl?: string } | null;
 }
 
 // Payload blockType slugs (no 'dynamic-zone.' prefix)
@@ -46,20 +50,26 @@ const componentMapping: { [key: string]: any } = {
   'newsletter': dynamic(() => import('./newsletter').then((mod) => mod.Newsletter)),
   'products': dynamic(() => import('./projects').then((mod) => mod.Projects)),
   'macbook-scroll': dynamic(() => import('./macbook-scroll').then((mod) => mod.MacbookScrollSection)),
+  'google-review-story': dynamic(() => import('./google-review-story').then((mod) => mod.GoogleReviewStory)),
+  'google-review-hero': dynamic(() => import('./google-review-hero').then((mod) => mod.GoogleReviewHero)),
 };
 
 // Belépéskor halványan feltűnik + enyhén 0.94→1 skálázódik (egyszeri), ÉS
 // amíg a képernyőn van, folyamatosan, finoman "lebeg" (scroll-linkelt y) —
 // így a hero parallax-depth érzése a rákövetkező szekciókban is folytatódik,
 // nem csak a hero-ra korlátozódik.
+// Mobilon ez a sok egyidejű scroll-linkelt listener (oldalanként 10+ blokk)
+// érezhető akadozást okozott (gyengébb GPU/frissítési ráta) — ezért mobilon
+// a folyamatos y-parallax kikapcsol, csak az egyszeri fade/scale-in marad.
 function FadeZoomParallax({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
-  const y = useTransform(scrollYProgress, [0, 1], [36, -36]);
+  const y = useTransform(scrollYProgress, [0, 1], isMobile ? [0, 0] : [36, -36]);
   return (
     <motion.div
       ref={ref}
-      style={{ y }}
+      style={{ y: isMobile ? 0 : y }}
       initial={{ opacity: 0, scale: 0.94 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true, amount: 0.25 }}
@@ -70,7 +80,7 @@ function FadeZoomParallax({ children }: { children: React.ReactNode }) {
   );
 }
 
-const DynamicZoneManager: React.FC<Props> = ({ dynamicZone, locale, fadeZoom = false, googleReviews }) => {
+const DynamicZoneManager: React.FC<Props> = ({ dynamicZone, locale, fadeZoom = false, googleReviews, googleRating }) => {
   return (
     <div>
       {dynamicZone.map((componentData, index) => {
@@ -80,7 +90,12 @@ const DynamicZoneManager: React.FC<Props> = ({ dynamicZone, locale, fadeZoom = f
           return null;
         }
         const isHero = componentData.blockType === 'hero' || componentData.blockType === 'service-hero';
-        const extraProps = componentData.blockType === 'testimonials' ? { googleReviews } : {};
+        const extraProps =
+          componentData.blockType === 'testimonials'
+            ? { googleReviews }
+            : componentData.blockType === 'google-review-story'
+            ? { googleRating }
+            : {};
         const content = <Component {...componentData} locale={locale} {...extraProps} />;
         return (
           // Anchor wrapper: every section is scrollable via #blockType

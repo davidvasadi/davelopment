@@ -1,0 +1,17 @@
+{
+  "image_id": 168,
+  "locales": {
+    "hu": {
+      "eyebrow": "VALÓDI PROJEKT",
+      "heading": "Egy weboldal, amit évek óta karbantartunk",
+      "description": "A LAZAR'S weboldala is folyamatos karbantartás alatt áll nálunk — frissítések, biztonsági mentés és hibaelhárítás nélkül egy ilyen oldal is lassan leépülne.",
+      "tags": ["Folyamatos üzemeltetés", "Biztonság", "Frissítések", "Valódi ügyfél"]
+    },
+    "en": {
+      "eyebrow": "REAL PROJECT",
+      "heading": "A website we've been maintaining for years",
+      "description": "LAZAR'S website is also under continuous maintenance with us — without updates, backups and troubleshooting, even a site like this would slowly degrade.",
+      "tags": ["Ongoing operation", "Security", "Updates", "Real client"]
+    }
+  }
+}

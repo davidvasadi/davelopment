@@ -53,3 +53,6 @@ frontend/public/data/google-review-photos/
 
 # Search Console API script credentials
 scripts/google-search-console/.env
+
+# Analytics Data API script credentials
+scripts/google-analytics/.env

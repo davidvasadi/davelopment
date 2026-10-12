@@ -1,0 +1,35 @@
+{
+  "story": {
+    "card1_cta_url": "/kapcsolat",
+    "card2_media_id": 240,
+    "locales": {
+      "hu": {
+        "card1_heading": "Nézd meg, hogyan építjük fel a tartalmi stratégiát",
+        "card1_cta_text": "Kérj ajánlatot",
+        "card2_caption": "SEO és tartalommarketing, mérhető céllal"
+      },
+      "en": {
+        "card1_heading": "See how we build a content strategy",
+        "card1_cta_text": "Get a quote",
+        "card2_caption": "SEO and content marketing, with measurable goals"
+      }
+    }
+  },
+  "hero": {
+    "image_id": 192,
+    "locales": {
+      "hu": {
+        "eyebrow": "MÉRHETŐ EREDMÉNY",
+        "heading": "Tartalom, ami nem csak szép, hanem talál is",
+        "description": "Minden weboldalunkhoz SEO-alapokkal induló tartalomstratégiát építünk, hogy ne csak jól nézzen ki az oldal, hanem meg is találják.",
+        "tags": ["Kulcsszó-kutatás", "Strukturált tartalom", "GEO-optimalizálás", "Mérhető"]
+      },
+      "en": {
+        "eyebrow": "MEASURABLE RESULT",
+        "heading": "Content that doesn't just look good — it gets found",
+        "description": "Every website we build starts with an SEO-grounded content strategy, so the site doesn't just look good, it actually gets found.",
+        "tags": ["Keyword research", "Structured content", "GEO optimization", "Measurable"]
+      }
+    }
+  }
+}

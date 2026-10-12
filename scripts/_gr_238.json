@@ -1,0 +1,35 @@
+{
+  "story": {
+    "card1_cta_url": "/kapcsolat",
+    "card2_media_id": 235,
+    "locales": {
+      "hu": {
+        "card1_heading": "Legyél Te az első debreceni sikertörténetünk",
+        "card1_cta_text": "Kérj ajánlatot",
+        "card2_caption": "Egyedi weboldal, távolról is zökkenőmentesen"
+      },
+      "en": {
+        "card1_heading": "Be our first Debrecen success story",
+        "card1_cta_text": "Get a quote",
+        "card2_caption": "Custom websites, remote and seamless"
+      }
+    }
+  },
+  "hero": {
+    "image_id": 251,
+    "locales": {
+      "hu": {
+        "eyebrow": "GOOGLE ÉRTÉKELÉSEK",
+        "heading": "Amit az ügyfeleink mondanak a közös munkáról",
+        "description": "Nem kell Budapesten lenned ahhoz, hogy ugyanazt a minőséget és odafigyelést kapd — ezt a meglévő ügyfeleink véleménye is mutatja.",
+        "tags": ["Debrecen", "Távoli egyeztetés", "Egyedi fejlesztés", "Átlátható folyamat"]
+      },
+      "en": {
+        "eyebrow": "GOOGLE REVIEWS",
+        "heading": "What our clients say about working with us",
+        "description": "You don't need to be in Budapest to get the same quality and attention — our existing clients' reviews show that.",
+        "tags": ["Debrecen", "Remote consultation", "Custom development", "Transparent process"]
+      }
+    }
+  }
+}

@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'next-view-transitions';
 import Image from 'next/image';
-import { motion, useInView, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Button } from '../elements/button';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { GrainCanvas } from '../ui/grain-canvas';
-import { usePreloaderDone } from '../ui/preloader';
 import { longestWordLength } from '@/lib/heading-size';
+import { useIsMobile } from '@/lib/hooks/use-is-mobile';
 
 type CTA = {
   id: string | number;
@@ -49,53 +49,11 @@ const resolveHref = (locale: string, url?: string) => {
   return `/${locale}${url}`;
 };
 
-// Számláló animáció: a "value" elején lévő számot 0-ból felszámolja, a
-// mögötte lévő nem-szám résztet (%, +, /7 stb.) változatlanul hagyja.
+// A stat-érték (pl. "24 900 Ft-tól") statikusan jelenik meg — a belépő
+// mozgást maga a kártya adja (jobbról beúszik), nem kell hozzá külön
+// pénz-számláló animáció.
 function AnimatedStatValue({ value }: { value?: string | null }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
-  // A hero a lap tetején van, tehát "inView" gyakorlatilag azonnal igaz —
-  // de a preloader / oldalváltás-függöny ilyenkor még takarja a tartalmat,
-  // így a számolás láthatatlanul lefutna. Megvárjuk a preloadert, plusz egy
-  // kis pufferidőt (az oldalváltás-függöny is kb. eddig tart), mielőtt
-  // ténylegesen elindul a számlálás.
-  const preloaderDone = usePreloaderDone();
-  const [display, setDisplay] = useState(0);
-
-  const match = (value || '').match(/^(\d+(?:[.,]\d+)?)(.*)$/);
-  const target = match ? parseFloat(match[1].replace(',', '.')) : null;
-  const suffix = match ? match[2] : (value || '');
-
-  useEffect(() => {
-    if (!inView || !preloaderDone || target === null) return;
-    let timer: ReturnType<typeof setInterval>;
-    const startTimeout = setTimeout(() => {
-      let start = 0;
-      const duration = 1200;
-      const step = target / (duration / 16);
-      timer = setInterval(() => {
-        start += step;
-        if (start >= target) {
-          setDisplay(target);
-          clearInterval(timer);
-        } else {
-          setDisplay(Math.floor(start));
-        }
-      }, 16);
-    }, 250);
-    return () => {
-      clearTimeout(startTimeout);
-      clearInterval(timer);
-    };
-  }, [inView, preloaderDone, target]);
-
-  if (target === null) return <span ref={ref}>{value}</span>;
-  return (
-    <>
-      <span ref={ref}>{display}</span>
-      {suffix}
-    </>
-  );
+  return <>{value}</>;
 }
 
 // Hosszabb címeknél kisebb betűméret, hogy ne törjön csúnyán / ne lógjon ki
@@ -123,11 +81,14 @@ export const ServiceHero = ({
 
   // Parallax scroll: a háttér lassabban mozog mint az előtér (mélységérzet),
   // a tartalom pedig a szekció aljáig "pinnelve" marad, majd lassan elhalványul.
+  // Mobilon (gyengébb GPU) ez a folyamatos scroll-linkelt transform
+  // érezhető akadozást okozott — ott statikus értékekre kapcsolunk.
+  const isMobile = useIsMobile();
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '35%']);
-  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '80%']);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const bgY = useTransform(scrollYProgress, [0, 1], isMobile ? ['0%', '0%'] : ['0%', '35%']);
+  const contentY = useTransform(scrollYProgress, [0, 1], isMobile ? ['0%', '0%'] : ['0%', '80%']);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.8], isMobile ? [1, 1] : [1, 0]);
 
   return (
     <div className="w-screen ml-[calc(50%-50vw)] mr-[calc(50%-50vw)]">
@@ -187,8 +148,8 @@ export const ServiceHero = ({
           <div className="mt-10 md:mt-0 grid grid-cols-12 gap-8 items-end">
             <div className="col-span-12 lg:col-span-8">
               <motion.h1
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: -48 }}
+                animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               >
                 <span className={`block font-bold tracking-tight leading-[0.9] ${headingSizeClass(heading)}`}>
@@ -197,9 +158,9 @@ export const ServiceHero = ({
               </motion.h1>
               {sub_heading && (
                 <motion.h2
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.25 }}
+                  initial={{ opacity: 0, x: -32 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
                   className="mt-4 md:mt-6 leading-snug text-base md:text-xl text-white/90 font-normal max-w-xl"
                 >
                   {sub_heading}
@@ -210,8 +171,8 @@ export const ServiceHero = ({
             {/* Lebegő stat-kártya — benne a CTA gombbal */}
             {stat && (stat.value || stat.label) && (
               <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: 48 }}
+                animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
                 className="col-span-12 lg:col-span-4 lg:justify-self-end w-full max-w-[16rem] lg:max-w-[19rem] lg:ml-auto"
               >
@@ -226,7 +187,7 @@ export const ServiceHero = ({
                     <p className="hidden md:block text-sm text-gray-500 leading-relaxed mb-4">{stat.description}</p>
                   )}
                   {stat.value && (
-                    <p className="text-2xl md:text-5xl font-bold tracking-tight mb-2 md:mb-4">
+                    <p className="text-xl md:text-3xl font-bold tracking-tight mb-2 md:mb-4 whitespace-nowrap">
                       <AnimatedStatValue value={stat.value} />
                     </p>
                   )}

@@ -1,0 +1,62 @@
+{
+  "locales": {
+    "hu": {
+      "label": "Weboldal Készítés Debrecen",
+      "slug": "weboldal-keszites-debrecen",
+      "seo_title": "Weboldal készítés Debrecen — egyedi, SEO-barát | [davelopment]©",
+      "seo_desc": "Egyedi, Figma-ban tervezett weboldalak debreceni vállalkozásoknak — teljesen online folyamat, ugyanolyan minőség, mint egy budapesti ügynökségnél."
+    },
+    "en": {
+      "label": "Web Design Debrecen",
+      "slug": "web-design-debrecen",
+      "seo_title": "Web Design Debrecen — Custom, SEO-ready | [davelopment]©",
+      "seo_desc": "Custom, Figma-designed websites for Debrecen businesses — fully remote process, same quality as a Budapest agency."
+    }
+  },
+  "hero": {
+    "badge_label": {"hu": "Debrecen", "en": "Debrecen"},
+    "heading": {"hu": "Weboldal Készítés Debrecen", "en": "Web Design Debrecen"},
+    "sub_heading": {
+      "hu": "Nem kell Budapestre utaznod egy jó weboldalért — teljesen online folyamat, ugyanaz a minőség.",
+      "en": "You don't need to travel to Budapest for a great website — a fully remote process, the same quality."
+    },
+    "stat_label": {"hu": "100%-ban online folyamat", "en": "100% remote process"},
+    "stat_description": {
+      "hu": "Egyeztetés, tervezés, fejlesztés — mindez videóhívással és üzenetekkel, utazás nélkül.",
+      "en": "Consultation, design, development — all via video calls and messaging, no travel needed."
+    },
+    "button_text": {"hu": "Ajánlatot kérek", "en": "Request a quote"},
+    "button_url": "/kapcsolat"
+  },
+  "faq_sub": {
+    "hu": "Amit a legtöbben kérdeznek.",
+    "en": "What people ask most."
+  },
+  "faqs": [
+    {
+      "q": {"hu": "Mivel jár, hogy nem Debrecenben vagytok?", "en": "What does it mean that you're not based in Debrecen?"},
+      "a": {"hu": "Semmivel — a teljes folyamat (egyeztetés, tervezés, visszajelzés, élesítés) online zajlik, videóhívással és üzenetekkel. Nincs szükség személyes találkozóra ahhoz, hogy egy kiváló weboldalad legyen.", "en": "Nothing — the entire process (consultation, design, feedback, launch) happens online, via video calls and messaging. No in-person meetings needed for a great website."}
+    },
+    {
+      "q": {"hu": "Van már debreceni ügyfelünk?", "en": "Do you have Debrecen clients already?"},
+      "a": {"hu": "Egyelőre nincs debreceni referenciánk — de ugyanazt az egyedi, Figma-tervezésű, SEO-ra felkészített munkát kapod, mint a budapesti ügyfeleink (lásd projektjeinket). Szívesen leszünk az első debreceni sikertörténeted.", "en": "We don't have a Debrecen reference yet — but you'll get the exact same custom, Figma-designed, SEO-ready work our Budapest clients get (see our projects). We'd love to be your first Debrecen success story."}
+    },
+    {
+      "q": {"hu": "Mennyibe kerül egy weboldal Debrecenben?", "en": "How much does a website cost in Debrecen?"},
+      "a": {"hu": "Ugyanazok az áraink érvényesek, függetlenül a helyszíntől — a Mikró csomag már havi 24.900 Ft-tól elérhető. Részletek az Árak oldalon.", "en": "Our pricing is location-independent — the Mikró package starts from 24,900 HUF/month. Details on the Pricing page."}
+    },
+    {
+      "q": {"hu": "Hogyan zajlik az egyeztetés, ha nem tudunk személyesen találkozni?", "en": "How does collaboration work if we can't meet in person?"},
+      "a": {"hu": "Egy rövid, ingyenes online konzultációval kezdünk (videóhívás vagy telefon), utána a tervezés és a visszajelzések is online, átlátható folyamatban zajlanak — mindig pontosan látod, hol tart a projekted.", "en": "We start with a short, free online consultation (video call or phone), then design and feedback happen in a transparent online process — you always see exactly where your project stands."}
+    }
+  ],
+  "cta": {
+    "heading": {"hu": "Legyél te az első debreceni sikertörténetünk.", "en": "Be our first Debrecen success story."},
+    "sub_heading": {
+      "hu": "Ingyenes, kötelezettség nélküli online konzultáció — nézzük meg, hogyan nézne ki a te egyedi weboldalad.",
+      "en": "Free, no-obligation online consultation — let's see what your custom site could look like."
+    },
+    "button_text": {"hu": "Ajánlatot kérek", "en": "Request a quote"},
+    "button_url": "/kapcsolat"
+  }
+}

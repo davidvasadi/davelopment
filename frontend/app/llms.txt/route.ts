@@ -27,6 +27,10 @@ Nem csak megépítjük a weboldalad, aztán magadra hagyunk vele.
 - [Branding & arculattervezés](${base}/hu/szolgaltatasok/branding-arculat): Márkaépítés, logó, vizuális identitás.
 - [SEO & tartalommarketing](${base}/hu/szolgaltatasok/seo-tartalommarketing): Keresőoptimalizálás és tartalomstratégia.
 - [Digitális rendszerek](${base}/hu/szolgaltatasok/digitalis-rendszerek): Időpontfoglaló, CRM, email marketing, egyedi vállalatirányítási rendszerek.
+- [Hirdetéskezelés](${base}/hu/szolgaltatasok/hirdeteskezeles): Google Ads kampánykezelés — beállítás, optimalizálás, konverziókövetés.
+- [Karbantartás](${base}/hu/szolgaltatasok/karbantartas): Folyamatos weboldal-karbantartás, frissítések, support havi előfizetésben.
+- [Weboldal készítés Budapesten](${base}/hu/weboldal-keszites-budapest): Egyedi weboldal tervezés és fejlesztés budapesti vállalkozásoknak.
+- [Weboldal készítés Debrecenben](${base}/hu/weboldal-keszites-debrecen): Egyedi weboldal tervezés és fejlesztés debreceni vállalkozásoknak.
 
 ## Árak és csomagok
 
@@ -108,6 +112,10 @@ Az oldal pár napon belül indexelődik a Google-ben, de a jó helyezéshez idő
 - [A tipográfia jövője: Trendek, amelyek meghatározzák a webet](${base}/hu/blog/a-tipografia-jovoje-trendek-amelyek-meghatarozzak-a-webet): A tipográfia szerepe abban, hogyan lépnek interakcióba a felhasználók a márkáddal.
 - [Brutalizmus a webdesignban: Merész esztétika vagy csak rossz UX?](${base}/hu/blog/brutalizmus-a-webdesignban-meresz-esztetika-vagy-csak-rossz-ux): A brutalista webdesign felemelkedése, és hogy működik-e a modern vállalkozások számára.
 - [Miért teszik emlékezetesebbé a márkákat az egyedi illusztrációk?](${base}/hu/blog/miert-teszik-emlekezetesebbe-a-markakat-az-egyedi-illusztraciok): Hogyan segítenek a kézzel készített vizuális elemek kitűnni a stock fotók tengeréből.
+- [WordPress vagy egyedi weboldal 2026-ban?](${base}/hu/blog/wordpress-vagy-egyedi-weboldal-2026-ban): Melyik éli túl az AI-keresés korát — a sablonos WordPress-oldalak vagy az egyedi fejlesztés.
+- [Miért nem kattintanak többé az ügyfeleid a Google-ben? — a zero-click keresés](${base}/hu/blog/zero-click-kereses-miert-nem-kattintanak-az-ugyfeleid): Mit jelent a zero-click keresés, és hogyan alkalmazkodj hozzá vállalkozóként.
+- [Mi az a "Share of Model Voice", és miért fontosabb, mint a Google-helyezésed?](${base}/hu/blog/share-of-model-voice-mi-ez): Az AI-asszisztensek (ChatGPT, Perplexity) válaszaiban való láthatóság az új mérőszám a klasszikus Google-rangsorolás mellett.
+- [Google Ads vagy AI-alapú hirdetések? Amit a ChatGPT-hirdetések jelentenek a kkv-knak](${base}/hu/blog/google-ads-vagy-ai-alapu-hirdetesek): Hogyan változtatják meg az AI-alapú hirdetési felületek a kisvállalkozások marketingjét.
 
 ## Kapcsolat
 

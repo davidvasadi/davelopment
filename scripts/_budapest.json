@@ -1,0 +1,62 @@
+{
+  "locales": {
+    "hu": {
+      "label": "Weboldal Készítés Budapest",
+      "slug": "weboldal-keszites-budapest",
+      "seo_title": "Weboldal készítés Budapest — egyedi, SEO-barát | [davelopment]©",
+      "seo_desc": "Egyedi, Figma-ban tervezett weboldalak budapesti vállalkozásoknak — nem sablon, nem Wix. Valós budapesti referencia: The Place Studio (csontkovács Budapest #1)."
+    },
+    "en": {
+      "label": "Web Design Budapest",
+      "slug": "web-design-budapest",
+      "seo_title": "Web Design Budapest — Custom, SEO-ready | [davelopment]©",
+      "seo_desc": "Custom, Figma-designed websites for Budapest businesses — not a template, not Wix. Real Budapest reference: The Place Studio."
+    }
+  },
+  "hero": {
+    "badge_label": {"hu": "Budapest", "en": "Budapest"},
+    "heading": {"hu": "Weboldal Készítés Budapest", "en": "Web Design Budapest"},
+    "sub_heading": {
+      "hu": "Nem sablon, nem Wix — egyedi, Figma-ban tervezett weboldal a budapesti vállalkozásodnak.",
+      "en": "Not a template, not Wix — a custom, Figma-designed website for your Budapest business."
+    },
+    "stat_label": {"hu": "Budapesti referencia", "en": "Budapest reference"},
+    "stat_description": {
+      "hu": "A The Place Studio weboldalának elkészülte óta a \"csontkovács Budapest\" keresés élén állnak a Google-ben.",
+      "en": "Since we built The Place Studio's site, they rank #1 for \"csontkovács Budapest\" on Google."
+    },
+    "button_text": {"hu": "Ajánlatot kérek", "en": "Request a quote"},
+    "button_url": "/kapcsolat"
+  },
+  "faq_sub": {
+    "hu": "Amit a legtöbben kérdeznek.",
+    "en": "What people ask most."
+  },
+  "faqs": [
+    {
+      "q": {"hu": "Miért egyedi weboldal, és miért nem elég egy Wix/Squarespace-es budapesti vállalkozásnak?", "en": "Why a custom site instead of Wix/Squarespace for a Budapest business?"},
+      "a": {"hu": "Budapesten rengeteg a verseny — egy sablon-oldal ugyanúgy néz ki, mint a konkurenciáé, és a Google is nehezebben különbözteti meg. Egy egyedi, Figma-ban tervezett oldal gyorsabb, jobban optimalizálható, és ténylegesen kitűnsz vele.", "en": "Budapest has heavy competition — a template site looks like everyone else's, and Google has a harder time telling you apart. A custom, Figma-designed site is faster, better optimized, and actually stands out."}
+    },
+    {
+      "q": {"hu": "Személyesen is találkozunk, vagy csak online zajlik a munka?", "en": "Do we meet in person, or is everything online?"},
+      "a": {"hu": "[VÁLASZ MEGADANDÓ — Dave, vállalsz személyes egyeztetést budapesti ügyfelekkel, vagy marad a videóhívás/online folyamat?]", "en": "[ANSWER TBD]"}
+    },
+    {
+      "q": {"hu": "Van már budapesti referenciátok?", "en": "Do you have Budapest references already?"},
+      "a": {"hu": "Igen — a The Place Studio (budapesti csontkovász és manuálterapeuta) weboldalát mi építettük, és a weboldal elkészülte óta a \"csontkovács Budapest\" keresésre is ők állnak az élen a Google-ben.", "en": "Yes — we built The Place Studio's site (a Budapest-based chiropractor), and since launch they rank #1 on Google for \"csontkovács Budapest\"."}
+    },
+    {
+      "q": {"hu": "Mennyibe kerül egy weboldal Budapesten?", "en": "How much does a website cost in Budapest?"},
+      "a": {"hu": "Ugyanazok az áraink érvényesek, függetlenül a helyszíntől — a Mikró csomag már havi 24.900 Ft-tól elérhető. Részletek az Árak oldalon.", "en": "Our pricing is location-independent — the Mikró package starts from 24,900 HUF/month. Details on the Pricing page."}
+    }
+  ],
+  "cta": {
+    "heading": {"hu": "Legyél te a következő budapesti sikertörténet.", "en": "Be the next Budapest success story."},
+    "sub_heading": {
+      "hu": "Ingyenes, kötelezettség nélküli konzultáció — nézzük meg, hogyan nézne ki a te egyedi weboldalad.",
+      "en": "Free, no-obligation consultation — let's see what your custom site could look like."
+    },
+    "button_text": {"hu": "Ajánlatot kérek", "en": "Request a quote"},
+    "button_url": "/kapcsolat"
+  }
+}

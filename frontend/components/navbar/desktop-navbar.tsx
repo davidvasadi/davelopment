@@ -149,14 +149,14 @@ const inline = useMemo(
                       initial="rest"
                       animate="rest"
                     >
-                      <div className="h-[90px] overflow-hidden relative">
+                      <div className="h-[72px] overflow-hidden relative">
                         <motion.div
-                          className="absolute top-0 left-0 right-0 text-[72px] leading-[90px] text-center"
-                          variants={{ rest: { y: 0 }, hover: { y: -90, transition: { duration: 0.35, ease: [0.33,1,0.68,1] } } }}
+                          className="absolute top-0 left-0 right-0 text-[58px] leading-[72px] text-center"
+                          variants={{ rest: { y: 0 }, hover: { y: -72, transition: { duration: 0.35, ease: [0.33,1,0.68,1] } } }}
                         >{it.text}</motion.div>
                         <motion.div
-                          className="absolute top-[90px] left-0 right-0 text-[72px] leading-[90px] text-center"
-                          variants={{ rest: { y: 0 }, hover: { y: -90, transition: { duration: 0.35, ease: [0.33,1,0.68,1] } } }}
+                          className="absolute top-[72px] left-0 right-0 text-[58px] leading-[72px] text-center"
+                          variants={{ rest: { y: 0 }, hover: { y: -72, transition: { duration: 0.35, ease: [0.33,1,0.68,1] } } }}
                         >{it.text}</motion.div>
                       </div>
                     </MotionLink>

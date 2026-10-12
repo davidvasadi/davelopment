@@ -1,0 +1,35 @@
+{
+  "story": {
+    "card1_cta_url": "/kapcsolat",
+    "card2_media_id": 236,
+    "locales": {
+      "hu": {
+        "card1_heading": "Nézd meg, milyen egyedi rendszereket fejlesztünk",
+        "card1_cta_text": "Kérj ajánlatot",
+        "card2_caption": "Digitális rendszerek, a nulláról építve"
+      },
+      "en": {
+        "card1_heading": "See what custom systems we build",
+        "card1_cta_text": "Get a quote",
+        "card2_caption": "Digital systems, built from scratch"
+      }
+    }
+  },
+  "hero": {
+    "image_id": 228,
+    "locales": {
+      "hu": {
+        "eyebrow": "VALÓDI RENDSZER",
+        "heading": "Egy saját fejlesztésű foglalási rendszer működés közben",
+        "description": "A davelopment Booking is egy általunk épített, élesben futó digitális rendszer — ugyanaz a fejlesztői csapat áll mögötte, mint a weboldalak mögött.",
+        "tags": ["Egyedi fejlesztés", "Automatizálás", "Skálázható", "Valódi termék"]
+      },
+      "en": {
+        "eyebrow": "REAL SYSTEM",
+        "heading": "A custom-built booking system, in action",
+        "description": "davelopment Booking is a live digital system we built ourselves — the same team behind it builds our websites too.",
+        "tags": ["Custom development", "Automation", "Scalable", "Real product"]
+      }
+    }
+  }
+}
