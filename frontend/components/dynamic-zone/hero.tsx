@@ -18,6 +18,20 @@ import { useIsMobile } from '@/lib/hooks/use-is-mobile';
 // "Szolgáltatások") kilóghatott mobilon. A leghosszabb szó alapján
 // vw-alapú, keskenyebb méretre váltunk mobilon; md/lg-n marad a fix
 // Tailwind lépcső, mert ott bőven elfér.
+// A heading CMS-mezőben előforduló "©" karaktert mindig kisebb, felső
+// indexes formában jelenítjük meg (pl. "[davelopment]©" címsorban), ne
+// ugyanakkora legyen, mint a betű mellette.
+function formatHeading(heading: string): React.ReactNode {
+  if (!heading.includes('©')) return heading;
+  const parts = heading.split('©');
+  return parts.map((part, i) => (
+    <React.Fragment key={i}>
+      {part}
+      {i < parts.length - 1 && <sup className="text-[0.5em] top-[-0.19em]">©</sup>}
+    </React.Fragment>
+  ));
+}
+
 function videolessHeadingMobileClass(heading: string) {
   const longestWord = longestWordLength(heading);
   if (longestWord > 13) return 'text-[10.5vw]';
@@ -172,7 +186,7 @@ export const Hero = ({
             initial={{ opacity: 0, y: 20 }} animate={preloaderDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            {heading}
+            {formatHeading(heading)}
           </motion.h1>
           <motion.div
             className="mb-16 flex flex-col md:flex-row items-start justify-between gap-8"
@@ -289,7 +303,7 @@ export const Hero = ({
         <div className="grid grid-cols-12 gap-x-6 gap-y-8 items-start lg:items-center">
           <div className="col-span-12 lg:col-span-8">
             <h1>
-              <span className="block font-bold tracking-tight leading-[0.9] text-[12vw] lg:text-[clamp(2.4rem,9.5vw,12rem)]">{heading}</span>
+              <span className="block font-bold tracking-tight leading-[0.9] text-[12vw] lg:text-[clamp(2.4rem,9.5vw,12rem)]">{formatHeading(heading)}</span>
               <span className="block mt-1 text-[5vw] font-semibold text-white/90 lg:mt-3 lg:text-[clamp(1.05rem,3vw,3.5rem)]">{sub_heading}</span>
             </h1>
             {topCTAs?.length > 0 && (

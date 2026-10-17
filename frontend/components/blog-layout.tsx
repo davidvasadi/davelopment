@@ -10,6 +10,7 @@ import React, { useRef } from 'react';
 import { Container } from './container';
 import DynamicZoneManager from './dynamic-zone/manager';
 import { StrapiImage } from '@/components/ui/strapi-image';
+import { GrainCanvas } from '@/components/ui/grain-canvas';
 import { Article } from '@/types/types';
 
 // Ha egy cikkhez nincs saját borítókép feltöltve, ez a sötét hátterű céges
@@ -126,7 +127,7 @@ export const BlogLayout: React.FC<BlogLayoutProps> = ({
                 </span>
               </Link>
             </div>
-            <figure className="w-full aspect-square max-h-[calc(90vh-8rem)] rounded-3xl overflow-hidden mx-auto bg-neutral-900">
+            <figure className="relative w-full aspect-square max-h-[calc(90vh-8rem)] rounded-3xl overflow-hidden mx-auto bg-neutral-900">
               <StrapiImage
                 src={article?.image?.url || DEFAULT_ARTICLE_IMAGE}
                 height={800}
@@ -134,6 +135,13 @@ export const BlogLayout: React.FC<BlogLayoutProps> = ({
                 alt={article.title}
                 className={article?.image && (article.image as any)?.id !== 31 ? 'h-full w-full object-cover' : 'h-full w-full object-contain p-4'}
               />
+              <GrainCanvas strength="light" opacity={0.4} zIndex={1} />
+              <span
+                className="absolute bottom-4 right-4 z-10 text-white/80 text-sm font-semibold tracking-wide pointer-events-none select-none"
+                style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
+              >
+                [davelopment]<sup className="text-[0.6em]">©</sup>
+              </span>
               <figcaption className="sr-only">{article.title}</figcaption>
             </figure>
           </div>

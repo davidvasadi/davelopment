@@ -71,7 +71,8 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
                   inter.className,
                   'text-white font-semibold tracking-[-0.02em] leading-none inline-block',
                   'text-[clamp(1.1rem,2.5vw,1.8rem)]',
-                  char === ' ' && 'min-w-[0.3em]'
+                  char === ' ' && 'min-w-[0.3em]',
+                  char === '©' && 'text-[0.55em] align-super'
                 )}
                 initial={{ y: '115%' }}
                 animate={{ y: '0%' }}

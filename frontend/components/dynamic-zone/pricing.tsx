@@ -80,6 +80,23 @@ export const Pricing = ({
   const [pricingType, setPricingType] = useState<string>('project');
   const [marketingAddon, setMarketingAddon] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  // Alapértelmezetten az egyösszegű (kedvezményes) mód aktív — ez a magasabb
+  // érzékelt értéket és a konverziót segíti, nem a havidíjas az alapállapot.
+  const [billingMode, setBillingMode] = useState<'monthly' | 'upfront'>('upfront');
+
+  // Egyösszegű fizetésnél 20% kedvezmény a 12 havi díj összegéhez képest —
+  // csak a valódi havidíjas csomagoknál (currency_project_label === '/hó'),
+  // az egyedi árajánlatos (Partner) és projekt-alapú csomagoknál nincs értelme.
+  const UPFRONT_DISCOUNT = 0.2;
+
+  // Egyösszegű módban az átfutási idő csomagonként eltér — a Növekedés nagyobb,
+  // egyedi fejlesztésű munka, ezért hosszabb. Nincs külön CMS mező erre, a
+  // csomagnév alapján választjuk ki.
+  const upfrontDeliveryTime = (planName?: string | null): string => {
+    if (planName === 'Növekedés') return isHu ? 'kb. 4–8 hét' : 'approx. 4–8 weeks';
+    if (planName === 'Rajt') return isHu ? 'kb. 2–6 hét' : 'approx. 2–6 weeks';
+    return isHu ? 'kb. 2–4 hét' : 'approx. 2–4 weeks';
+  };
 
   const planTypes = useMemo(() => {
     const s = new Set<string>();
@@ -116,11 +133,27 @@ export const Pricing = ({
   const basePrice = priceIsNumeric ? Number(rawPrice) : 0;
   const addon = addonIsNumeric ? Number(rawAddonPrice) : 0;
   const total = marketingAddon && addonIsNumeric ? basePrice + addon : basePrice;
-  const formattedPrice = priceIsNumeric
-    ? Math.round(total).toLocaleString(locale)
-    : String(rawPrice ?? '—');
   const currency = priceIsNumeric ? activePlan?.currency || '' : '';
   const priceSuffix = priceIsNumeric ? activePlan?.currency_project_label || '' : '';
+
+  // Csak a tényleges havidíjas csomagoknál ajánljuk fel az egyösszegű
+  // fizetést — az egyedi árajánlatos (Partner) és nem "/hó" jelölésű
+  // csomagoknál (pl. projekt-alapú, egyszeri díjas) nincs értelme.
+  const isMonthlyPlan = priceIsNumeric && priceSuffix === '/hó';
+  const isUpfront = isMonthlyPlan && billingMode === 'upfront';
+  // A marketing addon SOSEM szorzódik bele a 12 hónapos egyösszegű
+  // végösszegbe — csak az alap csomagár kerül egyösszegben, kedvezménnyel
+  // kiszámolásra. Ha az addon be van kapcsolva, az csak EGYSZER (egy havi
+  // összeggel) adódik hozzá a végösszeghez, nem ×12-vel.
+  const fullYearTotal = Math.round(basePrice * 12);
+  const upfrontTotal = Math.round(fullYearTotal * (1 - UPFRONT_DISCOUNT));
+  const upfrontSavings = fullYearTotal - upfrontTotal;
+  const upfrontTotalWithAddon = upfrontTotal + (marketingAddon && addonIsNumeric ? addon : 0);
+
+  const displayTotal = isUpfront ? upfrontTotalWithAddon : total;
+  const formattedPrice = priceIsNumeric
+    ? Math.round(displayTotal).toLocaleString(locale)
+    : String(rawPrice ?? '—');
 
   const featureList: string[] = useMemo(() => {
     const primary = (activePlan?.perks || []).map((x) => x?.text).filter(Boolean) as string[];
@@ -133,7 +166,7 @@ export const Pricing = ({
   const ctaBaseHref = activePlan?.CTA?.URL || '#';
   const ctaHref =
     activePlan?.name && ctaBaseHref !== '#'
-      ? `${ctaBaseHref}${ctaBaseHref.includes('?') ? '&' : '?'}csomag=${slugifyPlanName(activePlan.name)}${marketingAddon ? '&marketing=1' : ''}`
+      ? `${ctaBaseHref}${ctaBaseHref.includes('?') ? '&' : '?'}csomag=${slugifyPlanName(activePlan.name)}${marketingAddon ? '&marketing=1' : ''}${isUpfront ? '&fizetes=egyosszeg' : ''}`
       : ctaBaseHref;
   const ctaTarget = activePlan?.CTA?.target || '_self';
 
@@ -180,8 +213,10 @@ export const Pricing = ({
       .reduce<Plan | null>((min, p) => (min === null || Number(p.price) < Number(min.price)) ? p : min, null);
   }, [plans]);
 
+  // A legolcsóbb csomag lehet havidíjas (/hó) vagy egyszeri díjas (-tól) is —
+  // a mondat ezt is jelezze, különben félreérthető, hogy ez a teljes projekt ára.
   const cheapestPriceLabel = cheapestPlan
-    ? `${Math.round(Number(cheapestPlan.price)).toLocaleString(locale)} ${cheapestPlan.currency || ''}`.trim()
+    ? `${Math.round(Number(cheapestPlan.price)).toLocaleString(locale)} ${cheapestPlan.currency || ''} ${cheapestPlan.currency_project_label || ''}`.trim()
     : null;
 
   const buttonVariants: Variants = {
@@ -259,8 +294,11 @@ export const Pricing = ({
                           setPricingType(t);
                           setExpanded(false);
                           setMarketingAddon(false);
+                          // A fizetési mód (havi/egyösszegű) szándékosan NEM reseteled
+                          // csomagváltáskor — ha valaki egyösszegűben gondolkodik, az
+                          // maradjon érvényben akkor is, ha másik csomagra vált.
                         }}
-                        className="relative px-3 py-2.5 md:px-6 md:py-4 rounded-full text-xs md:text-sm font-medium transition-colors z-10 whitespace-nowrap shrink-0"
+                        className="relative px-4 py-3 md:px-6 md:py-4 rounded-full text-sm md:text-sm font-medium transition-colors z-10 whitespace-nowrap shrink-0"
                         style={{ color: active ? 'black' : 'rgba(255,255,255,0.8)' }}
                       >
                         {active && (
@@ -290,7 +328,7 @@ export const Pricing = ({
               <AnimatePresence mode="wait">
                 <motion.div
                   key={`addon-${pricingType}`}
-                  className="bg-white/5 rounded-xl p-6 flex flex-col justify-between min-h-[360px]"
+                  className="order-2 lg:order-1 bg-white/5 rounded-xl p-6 flex flex-col justify-between min-h-[360px]"
                   variants={cardVariants}
                   initial="initial"
                   animate="animate"
@@ -306,11 +344,19 @@ export const Pricing = ({
                     </p>
                   </div>
                   <div className="flex items-center justify-between mt-auto pt-6">
-                    <p className="text-white/70 text-lg font-semibold">
-                      {addonIsNumeric
-                        ? `+${Math.round(addon).toLocaleString(locale)} ${activePlan?.currency || ''}`
-                        : String(rawAddonPrice ?? '—')}
-                    </p>
+                    <div className="text-white/70 text-lg font-semibold">
+                      {/* Mindig a sima havi összeg — egyösszegű módban se számoljuk ki rá a
+                          12 hónapos, kedvezményes nagy végösszeget, az ijesztően hat. A fő ár
+                          alatti végösszeg (lásd fent) természetesen már tartalmazza az addont. */}
+                      {addonIsNumeric ? (
+                        <>
+                          +{Math.round(addon).toLocaleString(locale)} {activePlan?.currency || ''}
+                          <span className="block text-white/40 text-xs font-normal mt-0.5">/hó</span>
+                        </>
+                      ) : (
+                        String(rawAddonPrice ?? '—')
+                      )}
+                    </div>
                     <motion.button
                       onClick={() => setMarketingAddon(!marketingAddon)}
                       className={`relative w-16 h-10 rounded-full transition-colors ${marketingAddon ? 'bg-white' : 'bg-white/20'
@@ -331,7 +377,7 @@ export const Pricing = ({
               <AnimatePresence mode="wait">
                 <motion.div
                   key={`main-${pricingType}`}
-                  className="lg:col-span-2 bg-white/5 rounded-xl p-6 md:p-8 flex flex-col lg:flex-row lg:gap-x-10 min-h-[360px]"
+                  className="order-1 lg:order-2 lg:col-span-2 bg-white/5 rounded-xl p-6 md:p-8 flex flex-col lg:flex-row lg:gap-x-10 min-h-[360px]"
                   variants={cardVariants}
                   initial="initial"
                   animate="animate"
@@ -340,30 +386,75 @@ export const Pricing = ({
                 >
                   {/* Ár blokk */}
                   <div className="flex-1 flex flex-col justify-between">
+                    {/* Fizetési mód — kompakt, az ár fölött, nem a fejléc-fülekkel egy
+                        sorban/stílusban, hogy ne folyjanak össze vizuálisan. */}
+                    {isMonthlyPlan && (
+                      <div className="flex items-center gap-1.5 mb-4">
+                        {([
+                          { key: 'monthly' as const, label: isHu ? 'Havonta' : 'Monthly' },
+                          { key: 'upfront' as const, label: isHu ? `Egyösszegben −${UPFRONT_DISCOUNT * 100}%` : `Upfront −${UPFRONT_DISCOUNT * 100}%` },
+                        ]).map((opt) => {
+                          const active = billingMode === opt.key;
+                          return (
+                            <button
+                              key={opt.key}
+                              onClick={() => setBillingMode(opt.key)}
+                              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap border ${
+                                active
+                                  ? 'bg-white text-black border-white'
+                                  : 'bg-transparent text-white/60 border-white/20 hover:text-white/80'
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                     <AnimatePresence mode="wait">
                       <motion.div
-                        key={String(marketingAddon) + pricingType}
+                        key={String(marketingAddon) + pricingType + billingMode}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.25 }}
-                        className="text-white text-4xl md:text-5xl font-bold"
                       >
-                        {formattedPrice}
-                        <span className="text-white/60 text-sm font-normal ml-2">
-                          <span className="mx-1">{currency}</span>
-                          {priceSuffix}
-                        </span>
+                        {isUpfront && (
+                          <div className="text-white/40 text-sm md:text-base line-through mb-1">
+                            {(fullYearTotal + (marketingAddon && addonIsNumeric ? addon : 0)).toLocaleString(locale)} {currency}
+                          </div>
+                        )}
+                        <div className="text-white text-4xl md:text-5xl font-bold leading-none">
+                          {formattedPrice}
+                          <span className="text-white/60 text-sm font-normal ml-2">{currency}</span>
+                        </div>
+                        <div className="text-white/50 text-xs md:text-sm mt-1.5">
+                          {isUpfront ? (isHu ? 'egyösszegben, 12 hónapra' : 'upfront, for 12 months') : priceSuffix}
+                        </div>
+                        {isUpfront && (
+                          <>
+                            <div className="inline-block mt-2.5 text-xs md:text-sm font-semibold text-black bg-white rounded-full px-3 py-1">
+                              {isHu
+                                ? `Megtakarítás: ${upfrontSavings.toLocaleString(locale)} ${currency}`
+                                : `You save ${upfrontSavings.toLocaleString(locale)} ${currency}`}
+                            </div>
+                            <p className="text-white/40 text-xs mt-2">
+                              {isHu
+                                ? 'Később is átválthatsz havi fizetésre, ha menet közben mégis azt szeretnéd.'
+                                : "You can switch to monthly billing later if you'd prefer that instead."}
+                            </p>
+                          </>
+                        )}
                       </motion.div>
                     </AnimatePresence>
 
                     <div className="flex flex-col">
-                      <div className="flex flex-row justify-between items-center m-5">
-                        <p className="text-white/60 text-sm font-semibold mb-1">
-                          {activePlan?.time_label || 'Delivery time'}
+                      <div className="flex flex-row justify-between items-center mt-6">
+                        <p className="text-white/60 text-sm font-semibold">
+                          {isUpfront ? (isHu ? 'Átfutási idő' : 'Delivery time') : activePlan?.time_label || 'Delivery time'}
                         </p>
                         <p className="text-white text-sm font-semibold">
-                          {activePlan?.time_value || '—'}
+                          {isUpfront ? upfrontDeliveryTime(activePlan?.name) : activePlan?.time_value || '—'}
                         </p>
                       </div>
                       <div className="relative w-full h-[1px] bg-white/10 overflow-hidden mt-4">
@@ -429,6 +520,97 @@ export const Pricing = ({
                 </motion.div>
               </AnimatePresence>
             </motion.div>
+
+            {/* ── ÖSSZEHASONLÍTÓ TÁBLÁZAT — mindig a kezdő HTML-ben van, nem fültől függ.
+                 A fenti kártyák csak az aktív fület mutatják (kattintásra váltanak),
+                 ezt viszont AI-crawler/Google is látja JS nélkül: minden csomag
+                 egyszerre, egy táblázatban. Lásd GEO audit, 2026-10-14. */}
+            {plans.length > 1 && (
+              <motion.div
+                className="mt-14 overflow-x-auto"
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
+              >
+                <table className="w-full min-w-[640px] border-collapse text-sm md:text-base">
+                  <caption className="sr-only">
+                    {isHu ? 'Csomagok összehasonlítása' : 'Compare our packages'}
+                  </caption>
+                  <thead>
+                    <tr className="border-b border-white/10">
+                      <th scope="col" className="text-left text-white/50 font-normal py-3 pr-4">
+                        {isHu ? 'Csomag' : 'Package'}
+                      </th>
+                      {plans.map((p) => (
+                        <th key={p.name} scope="col" className="text-left text-white font-semibold py-3 px-4">
+                          {p.name}
+                          {p.featured && (
+                            <span className="block text-xs font-normal text-white/50 mt-0.5">
+                              {isHu ? 'Legnépszerűbb' : 'Most popular'}
+                            </span>
+                          )}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-white/10">
+                      <th scope="row" className="text-left text-white/50 font-normal py-3 pr-4 align-top">
+                        {isHu ? 'Ár' : 'Price'}
+                      </th>
+                      {/* A táblázat is követi a Havonta/Egyösszegben kapcsolót — ugyanúgy
+                          kedvezményes, 12 hónapra szóló összeget mutat egyösszegű módban,
+                          mint a fenti interaktív kártya, nem csak a nyers havi számot. */}
+                      {plans.map((p) => {
+                        const num = p.price !== null && p.price !== undefined && p.price !== '' && !isNaN(Number(p.price));
+                        const pIsMonthly = num && p.currency_project_label === '/hó';
+                        const pIsUpfront = pIsMonthly && billingMode === 'upfront';
+                        const displayNum = pIsUpfront
+                          ? Math.round(Number(p.price) * 12 * (1 - UPFRONT_DISCOUNT))
+                          : num
+                          ? Math.round(Number(p.price))
+                          : null;
+                        return (
+                          <td key={p.name} className="text-white py-3 px-4 align-top font-semibold">
+                            {num ? displayNum!.toLocaleString(locale) : String(p.price ?? '—')}
+                            {num && (
+                              <span className="text-white/60 font-normal text-xs ml-1">
+                                {p.currency} {pIsUpfront ? (isHu ? 'egyben' : 'upfront') : p.currency_project_label}
+                              </span>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                    <tr className="border-b border-white/10">
+                      <th scope="row" className="text-left text-white/50 font-normal py-3 pr-4 align-top">
+                        {isHu ? 'Időtartam' : 'Duration'}
+                      </th>
+                      {plans.map((p) => {
+                        const num = p.price !== null && p.price !== undefined && p.price !== '' && !isNaN(Number(p.price));
+                        const pIsUpfront = num && p.currency_project_label === '/hó' && billingMode === 'upfront';
+                        return (
+                          <td key={p.name} className="text-white/80 py-3 px-4 align-top">
+                            {pIsUpfront ? upfrontDeliveryTime(p.name) : p.time_value || '—'}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                    <tr>
+                      <th scope="row" className="text-left text-white/50 font-normal py-3 pr-4 align-top">
+                        {isHu ? 'Kiknek ajánlott' : 'Recommended for'}
+                      </th>
+                      {plans.map((p) => (
+                        <td key={p.name} className="text-white/80 py-3 px-4 align-top">
+                          {p.recommended_for || '—'}
+                        </td>
+                      ))}
+                    </tr>
+                  </tbody>
+                </table>
+              </motion.div>
+            )}
 
             {/* ── ALSÓ BLOKK — fade up ── */}
             {(profile_label || activePlan?.recommended_for) && (

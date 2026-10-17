@@ -6,10 +6,12 @@ import { Metadata } from 'next';
 import ClientSlugHandler from '../ClientSlugHandler';
 import PageContent from '@/lib/shared/PageContent';
 import { ServicesPage } from '@/components/services/services-page';
+import { ServicesComparisonTable } from '@/components/services/services-comparison-table';
 import JsonLd from '@/components/seo/JsonLd';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
 import { renderPageJsonLd } from '@/lib/shared/structured-data';
 import { getSiteLogoUrl } from '@/lib/shared/site-org';
+import { getCachedGoogleRating } from '@/lib/shared/google-rating';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import { localeSegments, getLocalizedSegment } from '@/lib/i18n/segments';
 // import { Container } from '@/components/container';
@@ -176,6 +178,8 @@ const pagesWithImages = await Promise.all(
         locale: params.locale,
         title: pageData?.seo?.metaTitle || (params.locale === 'en' ? 'Services' : 'Szolgáltatások'),
         description: pageData?.seo?.metaDescription,
+        updatedAt: pageData?.updatedAt,
+        googleRating: await getCachedGoogleRating(),
         // A szolgáltatás-lista FAQ-ja a `cta` zónában van (nem a dynamic_zone-ban) — mindkettőt átadjuk.
         dynamicZone: [...(pageData?.dynamic_zone ?? []), ...(pageData?.cta ?? [])],
         items: (pagesWithImages ?? [])
@@ -197,6 +201,7 @@ const pagesWithImages = await Promise.all(
                     heading={pageData?.heading}
                     sub_heading={pageData?.sub_heading}
                 />
+                <ServicesComparisonTable pages={pagesWithImages} locale={params.locale} />
                 <PageContent pageData={{ ...pageData, dynamic_zone: pageData?.cta ?? [] }} locale={params.locale} />
             {/* </Container> */}
         </>

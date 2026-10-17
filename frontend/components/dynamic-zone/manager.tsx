@@ -44,6 +44,7 @@ const componentMapping: { [key: string]: any } = {
   'form-section': dynamic(() => import('./form-next-to-section').then((mod) => mod.FormNextToSection)),
   'blog': dynamic(() => import('./blog').then((mod) => mod.Blog)),
   'faq': dynamic(() => import('./faq').then((mod) => mod.FAQ)),
+  'key_points': dynamic(() => import('./key-points').then((mod) => mod.KeyPoints)),
   'related-products': dynamic(() => import('./related-products').then((mod) => mod.RelatedProducts)),
   'related-articles': dynamic(() => import('./related-articles').then((mod) => mod.RelatedArticles)),
   'related-services': dynamic(() => import('./related-services').then((mod) => mod.RelatedServices)),

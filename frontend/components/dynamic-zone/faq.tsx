@@ -1,12 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { PlusIcon } from 'lucide-react';
 import { Container } from '@/components/container';
 import { Heading } from '@/components/elements/heading';
 
 type FAQItem = { question: string; answer: string };
+
+// Stabil, horgonyozható (deep-linkelhető) id minden kérdéshez — se AI
+// válaszmotorok, se a sitemap/TOC ne csak egy mondvacsinált aria-id-t
+// kapjanak, hanem egy valódi #slug-ot, amire rá lehet mutatni.
+const slugify = (text: string): string =>
+  text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 
 export const FAQ = ({
   heading,
@@ -89,13 +100,15 @@ const FAQItemComponent = ({
   item: FAQItem;
   isExpanded: boolean;
   onToggle: () => void;
-}) => (
-  <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+}) => {
+  const anchorId = slugify(item.question);
+  return (
+  <div id={anchorId} className="bg-white border border-gray-100 rounded-2xl overflow-hidden scroll-mt-28">
     <button
       onClick={onToggle}
       className="w-full flex items-center justify-between p-6 text-left"
       aria-expanded={isExpanded}
-      aria-controls={`faq-panel-${item.question}`}
+      aria-controls={`faq-panel-${anchorId}`}
     >
       <h3 className="text-lg font-medium">{item.question}</h3>
       <motion.div
@@ -106,27 +119,25 @@ const FAQItemComponent = ({
         <PlusIcon className="w-3 h-3 text-white" />
       </motion.div>
     </button>
-    <AnimatePresence initial={false}>
-      {isExpanded && (
-        <motion.div
-          id={`faq-panel-${item.question}`}
-          initial={{ height: 0 }}
-          animate={{ height: 'auto' }}
-          exit={{ height: 0 }}
-          transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-          className="overflow-hidden"
-        >
-          <motion.div
-            className="px-6 pb-6 pt-1"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-          >
-            <p className="text-sm md:text-base text-black/60">{item.answer}</p>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    {/* A válasz MINDIG a DOM-ban marad (csak height/opacity animál csukva/nyitva) —
+        ha feltételesen (un)mountolnánk, a crawlerek (Google, AI) csak az épp
+        nyitott válasz szövegét látnák, a többi FAQ-választ "nem létezőnek"
+        érzékelnék. Lásd GEO audit, 2026-10-14 ("Align FAQ schema with content"). */}
+    <motion.div
+      id={`faq-panel-${anchorId}`}
+      initial={false}
+      animate={{ height: isExpanded ? 'auto' : 0 }}
+      transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
+      className="overflow-hidden"
+    >
+      <motion.div
+        className="px-6 pb-6 pt-1"
+        animate={{ opacity: isExpanded ? 1 : 0 }}
+        transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+      >
+        <p className="text-sm md:text-base text-black/60">{item.answer}</p>
+      </motion.div>
+    </motion.div>
   </div>
-);
+  );
+};

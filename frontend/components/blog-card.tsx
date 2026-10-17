@@ -7,9 +7,24 @@ import React from 'react';
 
 import { Logo } from './logo';
 import { BlurImage } from '@/components/blur-image';
+import { GrainCanvas } from '@/components/ui/grain-canvas';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { truncate } from '@/lib/utils';
 import { Article } from '@/types/types';
+
+// Minden blogkép ugyanazt a finom, animált zajtextúrát és vízjelet kapja —
+// a pricing szekció sötét hátteréről ismerős effekt, itt márkajelölésre.
+const ImageWatermark = () => (
+  <>
+    <GrainCanvas strength="light" opacity={0.4} zIndex={1} />
+    <span
+      className="absolute bottom-3 right-3 z-10 text-white/80 text-xs font-semibold tracking-wide pointer-events-none select-none"
+      style={{ textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}
+    >
+      [davelopment]<sup className="text-[0.6em]">©</sup>
+    </span>
+  </>
+);
 
 export const BlogCard = ({
   article,
@@ -23,15 +38,18 @@ export const BlogCard = ({
       className="shadow-derek grid grid-cols-1 md:grid-cols-2  rounded-3xl group border border-transparent hover:border-neutral-800 w-full hover:bg-neutral-900  overflow-hidden  hover:scale-[1.02] transition duration-200"
       href={`/${locale}/blog/${article.slug}`}
     >
-      <div className="">
+      <div className="relative overflow-hidden rounded-3xl">
         {article.image ? (
-          <BlurImage
-            src={strapiImage(article.image.url)}
-            alt={article.title}
-            height="1200"
-            width="1200"
-            className="h-full object-cover object-top w-full rounded-3xl"
-          />
+          <>
+            <BlurImage
+              src={strapiImage(article.image.url)}
+              alt={article.title}
+              height="1200"
+              width="1200"
+              className="h-full object-cover object-top w-full rounded-3xl"
+            />
+            <ImageWatermark />
+          </>
         ) : (
           <div className="h-full flex items-center justify-center group-hover:bg-neutral-900">
             {/* <Logo /> */}
@@ -88,15 +106,18 @@ export const BlogCardVertical = ({
       className="shadow-derek   rounded-3xl group border border-transparent hover:border-neutral-800 w-full hover:bg-neutral-900  overflow-hidden  hover:scale-[1.02] transition duration-200"
       href={`/${locale}/blog/${article.slug}`}
     >
-      <div className="">
+      <div className="relative overflow-hidden rounded-3xl">
         {article.image ? (
-          <BlurImage
-            src={strapiImage(article.image.url || '')}
-            alt={article.title}
-            height="800"
-            width="800"
-            className=" h-64 md:h-96 object-cover object-top w-full rounded-3xl"
-          />
+          <>
+            <BlurImage
+              src={strapiImage(article.image.url || '')}
+              alt={article.title}
+              height="800"
+              width="800"
+              className=" h-64 md:h-96 object-cover object-top w-full rounded-3xl"
+            />
+            <ImageWatermark />
+          </>
         ) : (
           <div className=" h-64 md:h-96 flex items-center justify-center group-hover:bg-neutral-900">
             {/* <Logo /> */}

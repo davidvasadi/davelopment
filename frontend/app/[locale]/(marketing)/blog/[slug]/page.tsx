@@ -8,12 +8,26 @@ import { BlogLayout } from '@/components/blog-layout';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
-import { renderPageJsonLd } from '@/lib/shared/structured-data';
+import { renderPageJsonLd, extractNumberedSteps } from '@/lib/shared/structured-data';
 import { getSiteLogoUrl } from '@/lib/shared/site-org';
 import type { Metadata } from 'next';
 import type { Article } from '@/types/types';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://davelopment.hu').replace(/\/+$/, '');
+
+// Valódi szószám a lexical JSON-ból — sosem becsült/kitalált szám, mindig a
+// tényleges cikkszövegből számolva, a schema wordCount mezőjéhez.
+function countWords(node: any): number {
+  if (!node) return 0;
+  let total = 0;
+  if (node.type === 'text' && typeof node.text === 'string') {
+    total += node.text.trim().split(/\s+/).filter(Boolean).length;
+  }
+  if (Array.isArray(node.children)) {
+    for (const child of node.children) total += countWords(child);
+  }
+  return total;
+}
 
 export async function generateMetadata(props: {
   params: Promise<{ slug: string; locale: string }>;
@@ -107,8 +121,16 @@ export default async function SingleArticlePage(props: {
     title: ldTitle,
     description: article.seo?.metaDescription,
     imageUrl: article.image?.url ? strapiImage(article.image.url) : null,
+    imageWidth: (article.image as any)?.width ?? null,
+    imageHeight: (article.image as any)?.height ?? null,
     publishedAt: article.publishedAt || article.createdAt,
     updatedAt: article.updatedAt,
+    authorName: (article as any).person_card?.name || 'Dávid Vasadi',
+    authorRole: (article as any).person_card?.role || null,
+    articleSection: (article as any).categories?.[0]?.name || null,
+    keywords: article.seo?.keywords || null,
+    wordCount: countWords((article as any).content?.root) || null,
+    howToSteps: extractNumberedSteps((article as any).content?.root),
     dynamicZone: (article as any).dynamic_zone,
     breadcrumbs: [
       { name: 'Blog', url: `${SITE_URL}/${params.locale}/blog` },

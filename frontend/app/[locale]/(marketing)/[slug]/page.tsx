@@ -86,6 +86,7 @@ export default async function Page(props: {
     locale: params.locale,
     title: pageData?.label || pageData?.seo?.metaTitle || params.slug,
     description: pageData?.seo?.metaDescription,
+    updatedAt: pageData?.updatedAt,
     dynamicZone: pageData?.dynamic_zone,
     override: pageData?.seo?.structuredData,
   });

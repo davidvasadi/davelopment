@@ -2,7 +2,7 @@ import type { CollectionConfig } from 'payload'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { seoField } from '../fields/seo'
 import { buttonField } from '../fields/button'
-import { CTABlock, RelatedArticlesBlock } from '../blocks/index'
+import { CTABlock, RelatedArticlesBlock, FAQBlock, KeyPointsBlock } from '../blocks/index'
 import { generateStructuredDataHook } from '../hooks/generateStructuredData'
 
 export const Articles: CollectionConfig = {
@@ -87,7 +87,7 @@ export const Articles: CollectionConfig = {
       type: 'blocks',
       label: 'Dinamikus zóna',
       admin: { initCollapsed: true },
-      blocks: [CTABlock, RelatedArticlesBlock],
+      blocks: [CTABlock, RelatedArticlesBlock, FAQBlock, KeyPointsBlock],
     },
     {
       name: 'person_card',

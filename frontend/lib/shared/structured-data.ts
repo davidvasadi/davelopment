@@ -30,6 +30,7 @@ const LEGAL_NAME = 'Vasadi Dávid';
 const BUSINESS_ADDRESS = {
   streetAddress: 'Szent István utca 19/C.',
   addressLocality: 'Csomád',
+  addressRegion: 'Pest',
   postalCode: '2161',
   addressCountry: 'HU',
 };
@@ -39,9 +40,11 @@ const REGISTRATION_NUMBER = '62508634';
 
 // Real, confirmed profiles only — a wrong sameAs hurts more than a missing
 // one. These feed Google's Knowledge Panel entity resolution.
+const DAVID_LINKEDIN = 'https://www.linkedin.com/in/dávid-vasadi-01a3581b8/';
+
 const SAME_AS: string[] = [
   'https://www.instagram.com/davelopment_official/',
-  'https://www.linkedin.com/in/dávid-vasadi-01a3581b8/',
+  DAVID_LINKEDIN,
   'https://maps.app.goo.gl/SfNfrFNHyygiyfdb7',
 ];
 
@@ -90,11 +93,10 @@ function organizationNode(logoUrl?: string | null, googleRating?: GoogleRatingDa
     // lenti contactPoint.telephone önmagában nem elég neki, csak az
     // Organization ContactPoline sémáját elégíti ki.
     telephone: CONTACT_PHONE,
-    // A ténylegesen publikált /hu/arak csomagok (Mikró–Növekedés) sávja —
-    // szándékosan NEM a plans collection egyéb, nem publikált tételeit
-    // (pl. "Studio" 990.000 Ft) használja, azok nem jelennek meg az Árak
-    // oldalon, kitalált/félrevezető lenne ide számolni velük.
-    priceRange: 'Ft 24 900 - Ft 59 900',
+    // A ténylegesen publikált /hu/arak csomagok sávja — Mikró (19 900 Ft/hó,
+    // legolcsóbb belépő) és Növekedés (59 900 Ft/hó, legmagasabb havidíj)
+    // között. Frissítve: 2026-10-17.
+    priceRange: 'Ft 19 900 - Ft 59 900',
     contactPoint: {
       '@type': 'ContactPoint',
       email: CONTACT_EMAIL,
@@ -215,14 +217,45 @@ function creativeWorkNode(opts: {
   return node;
 }
 
+/**
+ * A named author gets a real Person node (stable @id, reused across every
+ * article by the same person) instead of the article's "author" pointing at
+ * the Organization — Google/LLM trust signals want a Person, not a company,
+ * as the author of a BlogPosting.
+ */
+function personNode(name: string, role?: string | null): Node {
+  const node: Node = {
+    '@type': 'Person',
+    '@id': `${SITE_URL}/#person-${slugify(name)}`,
+    name,
+    worksFor: { '@id': ORG_ID },
+  };
+  if (role) node.jobTitle = role;
+  // Egyetlen ismert, valódi szerzői profil van most (Vasadi Dávid LinkedIn-je,
+  // ugyanaz, mint az Organization sameAs-ában) — más/ismeretlen szerzőnek nem
+  // találunk ki linket, inkább nincs url/sameAs mező.
+  const normalized = name.trim().toLowerCase();
+  if (normalized === 'vasadi dávid' || normalized === 'dávid vasadi') {
+    node.url = DAVID_LINKEDIN;
+    node.sameAs = [DAVID_LINKEDIN];
+  }
+  return node;
+}
+
 function articleNode(opts: {
   url: string;
   title: string;
   description?: string | null;
   imageUrl?: string | null;
+  imageWidth?: number | null;
+  imageHeight?: number | null;
   publishedAt?: string | null;
   updatedAt?: string | null;
   locale?: string;
+  authorId?: string;
+  articleSection?: string | null;
+  keywords?: string | null;
+  wordCount?: number | null;
 }): Node {
   const node: Node = {
     '@type': 'BlogPosting',
@@ -230,22 +263,32 @@ function articleNode(opts: {
     headline: opts.title,
     url: opts.url,
     mainEntityOfPage: { '@id': `${opts.url}#webpage` },
-    author: { '@id': ORG_ID },
+    author: { '@id': opts.authorId || ORG_ID },
     publisher: { '@id': ORG_ID },
     inLanguage: lang(opts.locale),
   };
   if (opts.description) node.description = opts.description;
   const img = abs(opts.imageUrl);
-  if (img) node.image = img;
+  if (img) {
+    // ImageObject (url/width/height) kell a sima URL-string helyett — a
+    // méretek a Payload media dokumentumából jönnek, sosem kitalálva.
+    node.image =
+      opts.imageWidth && opts.imageHeight
+        ? { '@type': 'ImageObject', url: img, width: opts.imageWidth, height: opts.imageHeight }
+        : img;
+  }
   if (opts.publishedAt) node.datePublished = opts.publishedAt;
   if (opts.updatedAt) node.dateModified = opts.updatedAt;
+  if (opts.articleSection) node.articleSection = opts.articleSection;
+  if (opts.keywords) node.keywords = opts.keywords;
+  if (opts.wordCount) node.wordCount = opts.wordCount;
   return node;
 }
 
-function faqPageNode(url: string, faqs: FaqItem[], locale?: string): Node | null {
+function faqPageNode(url: string, faqs: FaqItem[], locale?: string, dateModified?: string | null): Node | null {
   const clean = faqs.filter((f) => f.question && f.answer);
   if (!clean.length) return null;
-  return {
+  const node: Node = {
     '@type': 'FAQPage',
     '@id': `${url}#faqpage`,
     inLanguage: lang(locale),
@@ -255,6 +298,8 @@ function faqPageNode(url: string, faqs: FaqItem[], locale?: string): Node | null
       acceptedAnswer: { '@type': 'Answer', text: f.answer },
     })),
   };
+  if (dateModified) node.dateModified = dateModified;
+  return node;
 }
 
 function breadcrumbNode(url: string, locale: string | undefined, trail: { name: string; url: string }[]): Node | null {
@@ -265,11 +310,11 @@ function breadcrumbNode(url: string, locale: string | undefined, trail: { name: 
   return {
     '@type': 'BreadcrumbList',
     '@id': `${url}#breadcrumb`,
+    // Google wants ListItem.item as a Thing (with @id + name), not a bare URL string.
     itemListElement: items.map((item, i) => ({
       '@type': 'ListItem',
       position: i + 1,
-      name: item.name,
-      item: item.url,
+      item: { '@id': item.url, name: item.name },
     })),
   };
 }
@@ -316,12 +361,19 @@ function extractPricingPlans(dynamicZone: unknown): PricingPlan[] {
  * simply isn't represented as a Product here; the honest alternative to a
  * made-up price is no price, not a fake one.
  */
+// Offers are revisited at least yearly — valid through the end of the
+// current calendar year, recomputed on every request (never a stale hardcode).
+function endOfYearISO(): string {
+  return `${new Date().getUTCFullYear()}-12-31`;
+}
+
 function pricingProductNodes(
   url: string,
   plans: PricingPlan[],
   locale?: string,
   logoUrl?: string | null,
   googleRating?: GoogleRatingData,
+  dateModified?: string | null,
 ): Node[] {
   return plans
     .filter((p): p is PricingPlan & { name: string } => !!p?.name)
@@ -345,6 +397,7 @@ function pricingProductNodes(
       };
       if (p.recommended_for) node.description = p.recommended_for;
       if (logoUrl) node.image = logoUrl;
+      if (dateModified) node.dateModified = dateModified;
       // Egy davelopment-csomagra nincs önálló, csomagonkénti Google-vélemény
       // — a cégszintű (minden csomagra érvényes) aggregált értékelést tesszük
       // rá minden Product node-ra, hogy a Merchant Listing "Hiányzó mező:
@@ -362,6 +415,7 @@ function pricingProductNodes(
         price: String(priceNum),
         priceCurrency: p.currency || 'HUF',
         availability: 'https://schema.org/InStock',
+        priceValidUntil: endOfYearISO(),
         url,
         // shippingDetails / hasMerchantReturnPolicy szándékosan NINCS itt —
         // ez egy havi előfizetéses, nem fizikai szolgáltatás, a hagyományos
@@ -374,6 +428,56 @@ function pricingProductNodes(
       return node;
     })
     .filter((n): n is Node => n !== null);
+}
+
+type HowToStep = { name: string; text?: string };
+
+/**
+ * HowTo schema egy cikk saját, számozott lépéseiből ("1. Egyeztetés és
+ * tervezés" stílusú H2-kből) — csak akkor jön létre, ha a cikk ténylegesen
+ * ilyen felépítésű, sosem szintetikus lépéslista.
+ */
+function howToNode(url: string, name: string, steps: HowToStep[], locale?: string): Node | null {
+  const clean = steps.filter((s) => s.name);
+  if (clean.length < 2) return null;
+  return {
+    '@type': 'HowTo',
+    '@id': `${url}#howto`,
+    name,
+    inLanguage: lang(locale),
+    step: clean.map((s, i) => {
+      const step: Node = { '@type': 'HowToStep', position: i + 1, name: s.name };
+      if (s.text) step.text = s.text;
+      return step;
+    }),
+  };
+}
+
+/**
+ * Egy lexical dokumentumból kinyeri a "N. Cím" formátumú H2 lépéseket, az
+ * utánuk közvetlenül következő bekezdés szövegével — ha a cikk nem ilyen
+ * felépítésű (nincs legalább 2 számozott H2), üres listát ad vissza.
+ */
+export function extractNumberedSteps(root: any): HowToStep[] {
+  const children = root?.children;
+  if (!Array.isArray(children)) return [];
+  const steps: HowToStep[] = [];
+  const textOf = (node: any): string =>
+    Array.isArray(node?.children)
+      ? node.children.map((c: any) => (typeof c?.text === 'string' ? c.text : '')).join('')
+      : '';
+  for (let i = 0; i < children.length; i++) {
+    const node = children[i];
+    if (node?.type === 'heading' && node?.tag === 'h2') {
+      const heading = textOf(node).trim();
+      if (/^\d+[.)]\s*/.test(heading)) {
+        const name = heading.replace(/^\d+[.)]\s*/, '');
+        const next = children.slice(i + 1).find((n: any) => n?.type === 'paragraph' && textOf(n).trim());
+        steps.push({ name, text: next ? textOf(next).trim() : undefined });
+      }
+    }
+  }
+  return steps;
 }
 
 function itemListNode(url: string, name: string, items: { name: string; url: string; position?: number }[]): Node | null {
@@ -448,21 +552,60 @@ export function renderPageJsonLd(opts: {
   logoUrl?: string | null;
   /** Cache-elt Google Cégem-pontszám (lásd getCachedGoogleRating()) → AggregateRating. */
   googleRating?: GoogleRatingData;
+  /** Article author (from the article's person_card) — gets its own Person node. */
+  authorName?: string | null;
+  authorRole?: string | null;
+  /** Article-only extras — real data from the article doc, never fabricated. */
+  imageWidth?: number | null;
+  imageHeight?: number | null;
+  articleSection?: string | null;
+  keywords?: string | null;
+  wordCount?: number | null;
+  /** Számozott lépések ("1. Cím" H2-k) a cikk saját tartalmából → HowTo schema. */
+  howToSteps?: HowToStep[];
 }): string {
   const { kind, url, title, locale, description } = opts;
 
   const nodes: (Node | null)[] = [organizationNode(opts.logoUrl, opts.googleRating), webSiteNode(locale)];
 
+  const author =
+    kind === 'article' && opts.authorName ? personNode(opts.authorName, opts.authorRole) : null;
+
   // Primary entity
   let primaryNode: Node | null = null;
   if (kind === 'service') primaryNode = serviceNode({ url, name: title, description, locale });
   else if (kind === 'product') primaryNode = creativeWorkNode({ url, name: title, description, imageUrl: opts.imageUrl, locale });
-  else if (kind === 'article') primaryNode = articleNode({ url, title, description, imageUrl: opts.imageUrl, publishedAt: opts.publishedAt, updatedAt: opts.updatedAt, locale });
+  else if (kind === 'article')
+    primaryNode = articleNode({
+      url,
+      title,
+      description,
+      imageUrl: opts.imageUrl,
+      publishedAt: opts.publishedAt,
+      updatedAt: opts.updatedAt,
+      locale,
+      authorId: author?.['@id'],
+      imageWidth: opts.imageWidth,
+      imageHeight: opts.imageHeight,
+      articleSection: opts.articleSection,
+      keywords: opts.keywords,
+      wordCount: opts.wordCount,
+    });
+
+  const howTo =
+    kind === 'article' && opts.howToSteps?.length ? howToNode(url, title, opts.howToSteps, locale) : null;
 
   const breadcrumb = opts.breadcrumbs?.length ? breadcrumbNode(url, locale, opts.breadcrumbs) : null;
-  const faq = faqPageNode(url, extractFaqs(opts.dynamicZone), locale);
+  const faq = faqPageNode(url, extractFaqs(opts.dynamicZone), locale, opts.updatedAt);
   const list = kind === 'collection' && opts.items?.length ? itemListNode(url, title, opts.items) : null;
-  const pricingProducts = pricingProductNodes(url, extractPricingPlans(opts.dynamicZone), locale, opts.logoUrl, opts.googleRating);
+  const pricingProducts = pricingProductNodes(
+    url,
+    extractPricingPlans(opts.dynamicZone),
+    locale,
+    opts.logoUrl,
+    opts.googleRating,
+    opts.updatedAt,
+  );
 
   const webpage = webPageNode({
     url,
@@ -475,10 +618,10 @@ export function renderPageJsonLd(opts: {
     faqId: faq?.['@id'],
     imageUrl: kind === 'article' ? opts.imageUrl : undefined,
     datePublished: kind === 'article' ? opts.publishedAt : undefined,
-    dateModified: kind === 'article' ? opts.updatedAt : undefined,
+    dateModified: opts.updatedAt,
   });
 
-  nodes.push(webpage, primaryNode, breadcrumb, faq, list, ...pricingProducts);
+  nodes.push(webpage, primaryNode, author, breadcrumb, faq, howTo, list, ...pricingProducts);
 
   const graph = { '@context': 'https://schema.org', '@graph': nodes.filter(Boolean) as Node[] };
   return JSON.stringify(graph);

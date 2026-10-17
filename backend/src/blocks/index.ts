@@ -651,6 +651,44 @@ export const FAQBlock: Block = {
   ],
 }
 
+// ─── KeyPointsBlock ──────────────────────────────────────────────────────────
+// Rövid, pontokba szedett "dióhéjban" összefoglaló az oldal/cikk tetejére —
+// AI-crawlerek (ChatGPT, Perplexity, Google AI Overviews) ezt tudják a
+// leggyorsabban kiragadni és idézni, szemben egy hosszú folyószöveggel.
+// Lásd GEO audit, 2026-10-14 ("Key Points is missing" / "Key Takeaways is missing").
+
+export const KeyPointsBlock: Block = {
+  slug: 'key_points',
+  labels: {
+    singular: 'Dióhéjban blokk',
+    plural: 'Dióhéjban blokkok',
+  },
+  fields: [
+    {
+      name: 'heading',
+      type: 'text',
+      label: 'Főcím',
+      localized: true,
+      defaultValue: 'Dióhéjban',
+    },
+    {
+      name: 'points',
+      type: 'array',
+      label: 'Pontok',
+      labels: { singular: 'Pont', plural: 'Pontok' },
+      fields: [
+        {
+          name: 'text',
+          type: 'text',
+          label: 'Szöveg',
+          localized: true,
+          required: true,
+        },
+      ],
+    },
+  ],
+}
+
 // ─── CTABlock ─────────────────────────────────────────────────────────────────
 
 export const CTABlock: Block = {
@@ -1841,6 +1879,7 @@ export const GoogleReviewHeroBlock: Block = {
 // ─── All blocks array ─────────────────────────────────────────────────────────
 
 export const allBlocks: Block[] = [
+  KeyPointsBlock,
   HeroBlock,
   ServiceHeroBlock,
   ServiceHighlightBlock,

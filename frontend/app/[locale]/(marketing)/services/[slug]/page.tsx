@@ -10,6 +10,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
 import { renderPageJsonLd } from '@/lib/shared/structured-data';
 import { getSiteLogoUrl } from '@/lib/shared/site-org';
+import { getCachedGoogleRating } from '@/lib/shared/google-rating';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import { getLocalizedSegment } from '@/lib/i18n/segments';
 import { Container } from '@/components/container';
@@ -82,6 +83,8 @@ export default async function ServiceSlugPage(props: {
     locale: params.locale,
     title: ldTitle,
     description: pageData?.seo?.metaDescription,
+    updatedAt: pageData?.updatedAt,
+    googleRating: await getCachedGoogleRating(),
     dynamicZone: pageData?.dynamic_zone,
     breadcrumbs: [
       { name: params.locale === 'en' ? 'Services' : 'Szolgáltatások', url: `${SITE_URL}/${params.locale}/${segment}` },
