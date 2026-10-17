@@ -6,7 +6,6 @@ import { Metadata } from 'next';
 import ClientSlugHandler from '../ClientSlugHandler';
 import PageContent from '@/lib/shared/PageContent';
 import { ServicesPage } from '@/components/services/services-page';
-import { ServicesComparisonTable } from '@/components/services/services-comparison-table';
 import JsonLd from '@/components/seo/JsonLd';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
 import { renderPageJsonLd } from '@/lib/shared/structured-data';
@@ -201,7 +200,6 @@ const pagesWithImages = await Promise.all(
                     heading={pageData?.heading}
                     sub_heading={pageData?.sub_heading}
                 />
-                <ServicesComparisonTable pages={pagesWithImages} locale={params.locale} />
                 <PageContent pageData={{ ...pageData, dynamic_zone: pageData?.cta ?? [] }} locale={params.locale} />
             {/* </Container> */}
         </>

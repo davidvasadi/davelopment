@@ -389,27 +389,35 @@ export const Pricing = ({
                     {/* Fizetési mód — kompakt, az ár fölött, nem a fejléc-fülekkel egy
                         sorban/stílusban, hogy ne folyjanak össze vizuálisan. */}
                     {isMonthlyPlan && (
-                      <div className="flex items-center gap-1.5 mb-4">
+                      <motion.div
+                        className="relative self-start inline-flex items-center gap-1 mb-4 p-1.5 rounded-full bg-white/10"
+                        whileTap={{ scale: 0.95 }}
+                      >
                         {([
                           { key: 'monthly' as const, label: isHu ? 'Havonta' : 'Monthly' },
-                          { key: 'upfront' as const, label: isHu ? `Egyösszegben −${UPFRONT_DISCOUNT * 100}%` : `Upfront −${UPFRONT_DISCOUNT * 100}%` },
+                          { key: 'upfront' as const, label: isHu ? `Egy összegben −${UPFRONT_DISCOUNT * 100}%` : `Upfront −${UPFRONT_DISCOUNT * 100}%` },
                         ]).map((opt) => {
                           const active = billingMode === opt.key;
                           return (
                             <button
                               key={opt.key}
                               onClick={() => setBillingMode(opt.key)}
-                              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap border ${
-                                active
-                                  ? 'bg-white text-black border-white'
-                                  : 'bg-transparent text-white/60 border-white/20 hover:text-white/80'
-                              }`}
+                              className="relative px-4 py-2.5 rounded-full text-base font-medium whitespace-nowrap z-10"
                             >
-                              {opt.label}
+                              {active && (
+                                <motion.div
+                                  layoutId="billing-mode-pill"
+                                  className="absolute inset-0 bg-white rounded-full -z-10 shadow-[0_2px_8px_rgba(0,0,0,0.25)]"
+                                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                                />
+                              )}
+                              <span className={active ? 'text-black' : 'text-white/60'}>
+                                {opt.label}
+                              </span>
                             </button>
                           );
                         })}
-                      </div>
+                      </motion.div>
                     )}
                     <AnimatePresence mode="wait">
                       <motion.div
@@ -429,7 +437,7 @@ export const Pricing = ({
                           <span className="text-white/60 text-sm font-normal ml-2">{currency}</span>
                         </div>
                         <div className="text-white/50 text-xs md:text-sm mt-1.5">
-                          {isUpfront ? (isHu ? 'egyösszegben, 12 hónapra' : 'upfront, for 12 months') : priceSuffix}
+                          {isUpfront ? (isHu ? 'egy összegben, 12 hónapra' : 'upfront, for 12 months') : priceSuffix}
                         </div>
                         {isUpfront && (
                           <>
