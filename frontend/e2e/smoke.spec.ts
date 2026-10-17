@@ -108,20 +108,32 @@ test('kapcsolat form: megtalálható és beküldhető', async ({ page, request }
     await continueButton.click()
   }
 
-  const emailInput = page.locator('input[type="email"]').first()
+  // A kapcsolat-form a form-next-to-section komponens saját <form>-ja — az
+  // oldalon lehet MÁS form is (pl. hírlevél-feliratkozás ugyanazon az
+  // oldalon, saját type="text"/type="email" mezőkkel). Ha a locatorok
+  // oldal-szinten, nem ehhez a <form>-hoz szkópolva keresnek, könnyen a
+  // másik form mezőit töltik ki — pont ez okozott korábban hamis bukást,
+  // mert a valódi kapcsolat-form name/email mezője üresen maradt, és a
+  // validáció csendben megállította a submitot. A name="name" attribútum
+  // a komponens saját input-ja (lásd form-next-to-section.tsx), ez a
+  // legmegbízhatóbb szkópolási kiindulópont.
+  const contactForm = page.locator('form').filter({ has: page.locator('input[name="name"]') })
+  await expect(contactForm).toBeVisible()
+
+  const emailInput = contactForm.locator('input[type="email"]').first()
   await expect(emailInput).toBeVisible()
-  const nameInput = page.locator('input[type="text"]').first()
+  const nameInput = contactForm.locator('input[name="name"]').first()
   await nameInput.fill('E2E Teszt')
   await emailInput.fill(TEST_EMAIL)
   // Kötelező mező a validate()-ben — enélkül a submit csendben elhasal.
-  const phoneInput = page.locator('input[type="tel"]').first()
+  const phoneInput = contactForm.locator('input[type="tel"]').first()
   await expect(phoneInput).toBeVisible()
   await phoneInput.fill('+36301234567')
-  const textarea = page.locator('textarea').first()
-  if (await textarea.isVisible()) {
+  const textarea = contactForm.locator('textarea').first()
+  if (await textarea.isVisible().catch(() => false)) {
     await textarea.fill('Automatikus e2e teszt üzenet.')
   }
-  await page.locator('button[type="submit"]').first().click()
+  await contactForm.locator('button[type="submit"]').first().click()
   await expect(
     page.locator('text=/köszön|elküldve|megkaptam|success|thank/i').first()
   ).toBeVisible({ timeout: 8000 })
