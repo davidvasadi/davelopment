@@ -1,9 +1,9 @@
 // frontend/components/blog-index.tsx
 'use client';
 
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { PlusIcon } from 'lucide-react';
+import { PlusIcon, Search, X } from 'lucide-react';
 import { Link } from 'next-view-transitions';
 import { format } from 'date-fns';
 import { hu } from 'date-fns/locale';
@@ -31,11 +31,19 @@ const formatDate = (dateStr?: string, locale?: string) => {
         : format(d, 'MMM d, yyyy');
 };
 
+// Hányat mutassunk kezdetben a "Többi poszt" rácsból, mielőtt a "Továbbiak
+// betöltése" gombra kattintva bővülne — 20+ cikknél enélkül mind egyszerre
+// renderelődne és animálódna be, ami érezhetően lassítja az oldalt.
+const OTHERS_PAGE_SIZE = 8;
+
 export const BlogIndex: React.FC<BlogIndexProps> = ({
     locale,
     blogPage,
     articles,
 }) => {
+    const [query, setQuery] = useState('');
+    const [visibleOthers, setVisibleOthers] = useState(OTHERS_PAGE_SIZE);
+
     const featuredSlugs: string[] = (blogPage?.featured_articles ?? [])
         .map((fa: any) => fa?.slug ?? null)
         .filter(Boolean);
@@ -59,6 +67,16 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
         isPlaceholderImage: !a.image || (a.image as any)?.id === 31,
         date: formatDate(a.publishedAt || a.createdAt, locale),
     }));
+
+    const normalizedQuery = query.trim().toLowerCase();
+    const isSearching = normalizedQuery.length > 0;
+    const searchResults = isSearching
+        ? posts.filter(
+            (p) =>
+                p.title?.toLowerCase().includes(normalizedQuery) ||
+                p.description?.toLowerCase().includes(normalizedQuery)
+        )
+        : [];
 
     if (!posts.length) {
         return (
@@ -129,6 +147,71 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                         </div>
                     </motion.div>
 
+                    {/* --- Kereső --- */}
+                    <div className="relative mb-12 md:mb-16 max-w-md">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40 pointer-events-none" />
+                        <input
+                            type="search"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            placeholder={locale === 'hu' ? 'Keress a cikkek között…' : 'Search articles…'}
+                            className="w-full pl-11 pr-10 py-3 rounded-full border border-gray-200 bg-white text-sm text-black placeholder:text-black/40 focus:outline-none focus:border-black/30 transition-colors"
+                        />
+                        {isSearching && (
+                            <button
+                                type="button"
+                                onClick={() => setQuery('')}
+                                aria-label={locale === 'hu' ? 'Keresés törlése' : 'Clear search'}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                            >
+                                <X className="w-3.5 h-3.5 text-black/60" />
+                            </button>
+                        )}
+                    </div>
+
+                    {isSearching ? (
+                        <div className="pb-12">
+                            {searchResults.length === 0 ? (
+                                <p className="text-black/50 text-sm">
+                                    {locale === 'hu' ? 'Nincs találat.' : 'No results.'}
+                                </p>
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
+                                    {searchResults.map((post) => (
+                                        <div className="group" key={post.slug}>
+                                            <Link
+                                                href={post.url}
+                                                className="block bg-white rounded-2xl h-full"
+                                            >
+                                                <div className="relative w-full p-2">
+                                                    <div className="p-2">
+                                                        {post.image && (
+                                                            <StrapiImage
+                                                                src={post.image}
+                                                                alt={post.title}
+                                                                width={112}
+                                                                height={112}
+                                                                className={`w-28 h-28 rounded-xl transition-transform duration-300 group-hover:scale-150 ${post.isPlaceholderImage ? 'object-contain bg-neutral-900 p-0' : 'object-cover'}`}
+                                                                style={{ transformOrigin: '0% 0%' }}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="p-6 flex-1 flex flex-col justify-end">
+                                                    <p className="text-xs text-gray-400 font-medium mt-3">{post.date}</p>
+                                                    <h3 className="text-xl font-medium leading-tight mt-6">{post.title}</h3>
+                                                    {post.description && (
+                                                        <p className="text-sm text-black/60 mt-6">{post.description}</p>
+                                                    )}
+                                                </div>
+                                            </Link>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                    <>
                     {/* --- Fő poszt + 2 oldalsó kártya --- */}
                     {/* items-stretch: a két oszlop egyforma magasságú lesz */}
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-1 mb-2 items-stretch">
@@ -236,7 +319,7 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
 
                     {/* --- TÖBBI POSZT --- */}
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-1">
-                        {others.map((post, idx) => (
+                        {others.slice(0, visibleOthers).map((post, idx) => (
                             <motion.div
                                 className="group"
                                 key={post.slug}
@@ -283,6 +366,20 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                             </motion.div>
                         ))}
                     </div>
+
+                    {visibleOthers < others.length && (
+                        <div className="flex justify-center mt-10">
+                            <button
+                                type="button"
+                                onClick={() => setVisibleOthers((v) => v + OTHERS_PAGE_SIZE)}
+                                className="px-6 py-3 rounded-full border border-gray-200 text-sm font-medium text-black hover:bg-black hover:text-white hover:border-black transition-colors"
+                            >
+                                {locale === 'hu' ? 'Továbbiak betöltése' : 'Load more'}
+                            </button>
+                        </div>
+                    )}
+                    </>
+                    )}
 
                 </div>
         </Container>
