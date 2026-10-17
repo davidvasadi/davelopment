@@ -12,6 +12,8 @@
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
+    "migrate:safe": "tsx scripts/migrate.ts",
+    "migrate:create:safe": "tsx scripts/migrate-create.ts",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload"
   },
   "dependencies": {
@@ -35,7 +37,8 @@
     "sass": "^1.98.0",
     "pino": "^9.14.0",
     "sharp": "^0.32.6",
-    "tailwindcss": "^4.2.2"
+    "tailwindcss": "^4.2.2",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
