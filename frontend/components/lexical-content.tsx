@@ -55,8 +55,20 @@ function LexicalNode({ node }: { node: any }): React.ReactElement | null {
 
     case 'heading': {
       const Tag = (node.tag ?? 'h2') as keyof Pick<React.JSX.IntrinsicElements, 'h1'|'h2'|'h3'|'h4'|'h5'|'h6'>;
+      // Horgony (anchor) minden fejléchez — enélkül sem belső ugrólinkek, sem
+      // AI-idézhető mélylinkek nem működnek a cikk tartalmán belül.
+      const text = (node.children ?? [])
+        .map((c: any) => c.text ?? '')
+        .join('')
+        .trim();
+      const id = text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
       return (
-        <Tag>
+        <Tag id={id || undefined} className="scroll-mt-28">
           <LexicalChildren nodes={node.children} />
         </Tag>
       );
