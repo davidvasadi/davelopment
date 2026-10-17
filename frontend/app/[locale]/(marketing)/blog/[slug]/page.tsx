@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import React from 'react';
 import { LexicalContent } from '@/components/lexical-content';
 import JsonLd from '@/components/seo/JsonLd';
+import { WordpressVsCustomTable } from '@/components/blog/wordpress-vs-custom-table';
 
 import ClientSlugHandler from '../../ClientSlugHandler';
 import { BlogLayout } from '@/components/blog-layout';
@@ -150,6 +151,9 @@ export default async function SingleArticlePage(props: {
       >
         <ClientSlugHandler localizedSlugs={localizedSlugs} />
         <LexicalContent content={article.content} />
+        {params.slug === 'wordpress-vagy-egyedi-weboldal-2026-ban' && (
+          <WordpressVsCustomTable locale={params.locale} />
+        )}
       </BlogLayout>
     </>
   );

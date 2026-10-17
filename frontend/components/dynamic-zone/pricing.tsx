@@ -10,6 +10,7 @@ import { strapiImage } from '@/lib/strapi/strapiImage';
 import { GrainCanvas } from '../ui/grain-canvas';
 import { Container } from '@/components/container';
 import { slugifyPlanName } from '@/lib/plan-slug';
+import { PlanDeepDive } from './plan-deep-dive';
 
 
 type CTA = {
@@ -695,6 +696,7 @@ export const Pricing = ({
           }
         `}</style>
       </section>
+      <PlanDeepDive plans={plans} locale={locale} />
     </div>
   );
 };
