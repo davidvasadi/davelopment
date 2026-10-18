@@ -235,7 +235,7 @@ export const Pricing = ({
 
   return (
     <div className="px-0 md:px-2">
-      <section className="w-full px-4 py-12 md:py-18 relative overflow-hidden rounded-none md:rounded-3xl font-sans">
+      <section className="w-full py-12 md:py-18 relative overflow-hidden rounded-none md:rounded-3xl font-sans">
 
         <GrainCanvas strength="light" opacity={0.5} zIndex={1} />
         <div className="absolute inset-0 z-0">
