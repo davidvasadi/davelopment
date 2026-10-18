@@ -254,7 +254,7 @@ export const Hero = ({
       ref={heroRef as React.RefObject<HTMLElement>}
       data-hero-section
       style={{ y, scale }}
-      className="relative rounded-2xl overflow-hidden bg-black text-white"
+      className="relative mx-1.5 sm:mx-2 md:mx-0 rounded-2xl overflow-hidden bg-black text-white"
       aria-label="Hero"
     >
       {/*
@@ -299,7 +299,7 @@ export const Hero = ({
           animate={{ opacity: [0.5, 0.85, 0.5], scale: [1, 1.15, 1] }} transition={{ duration: 6, repeat: Infinity, delay: 0.5 }}>+</motion.div>
       </div>
 
-      <div className="relative z-[3] px-4 md:px-8 xl:px-16 py-10 md:py-14 lg:py-16 min-h-screen grid grid-rows-[1fr_auto]">
+      <div className="relative z-[3] px-6 md:px-8 xl:px-16 py-10 md:py-14 lg:py-16 min-h-screen grid grid-rows-[1fr_auto]">
         <div className="grid grid-cols-12 gap-x-6 gap-y-8 items-start lg:items-center">
           <div className="col-span-12 lg:col-span-8">
             <h1>

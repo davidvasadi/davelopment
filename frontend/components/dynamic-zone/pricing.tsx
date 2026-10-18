@@ -287,7 +287,7 @@ export const Pricing = ({
             {/* ── TÍPUSVÁLASZTÓ — fade up, kis delay ── */}
             {!!planTypes.length && (
               <motion.div
-                className="flex items-center justify-start md:justify-center overflow-x-auto"
+                className="flex items-center justify-start md:justify-center"
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
@@ -411,7 +411,7 @@ export const Pricing = ({
                             <button
                               key={opt.key}
                               onClick={() => setBillingMode(opt.key)}
-                              className="relative px-4 py-2.5 rounded-full text-base font-medium whitespace-nowrap z-10"
+                              className="relative px-3 py-2 sm:px-4 sm:py-2.5 rounded-full text-sm sm:text-base font-medium whitespace-nowrap z-10"
                             >
                               {active && (
                                 <motion.div
