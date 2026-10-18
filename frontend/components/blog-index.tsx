@@ -44,19 +44,34 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
     const [query, setQuery] = useState('');
     const [visibleOthers, setVisibleOthers] = useState(OTHERS_PAGE_SIZE);
 
+    const byDateDesc = (a: Article, b: Article) =>
+        new Date(b.publishedAt || b.createdAt || '').getTime() -
+        new Date(a.publishedAt || a.createdAt || '').getTime();
+
+    // Csak a legfeljebb első 3 kézzel kiemelt cikk kap kitüntetett helyet
+    // (a fejléc 3 nagy kártyája) — korábban a kiemelt lista (itt 22 régi
+    // cikk, nyilván nem tudatos válogatás) TELJESEN lecserélte a listát, és
+    // minden más cikk, így minden jövőbeli ÚJ cikk is, örökre láthatatlan
+    // maradt, amíg valaki kézzel hozzá nem adta ehhez a listához. A "többi
+    // poszt" rács mindig dátum szerint, a kiemelt 3-at kivéve mutatja az
+    // összes cikket — új cikk automatikusan megjelenik, nem kell kézzel
+    // kuratálni.
     const featuredSlugs: string[] = (blogPage?.featured_articles ?? [])
+        .slice(0, 3)
         .map((fa: any) => fa?.slug ?? null)
         .filter(Boolean);
 
-    const sorted: Article[] = featuredSlugs.length > 0
-        ? featuredSlugs
-            .map((slug) => articles.find((a) => a.slug === slug))
-            .filter((a): a is Article => !!a)
-        : [...articles].sort(
-            (a, b) =>
-                new Date(b.publishedAt || b.createdAt || '').getTime() -
-                new Date(a.publishedAt || a.createdAt || '').getTime()
-        );
+    const featuredOnes: Article[] = featuredSlugs
+        .map((slug) => articles.find((a) => a.slug === slug))
+        .filter((a): a is Article => !!a);
+    const featuredSlugSet = new Set(featuredOnes.map((a) => a.slug));
+    const restByDate = articles
+        .filter((a) => !featuredSlugSet.has(a.slug))
+        .sort(byDateDesc);
+
+    const sorted: Article[] = featuredOnes.length > 0
+        ? [...featuredOnes, ...restByDate]
+        : [...articles].sort(byDateDesc);
 
     const posts = sorted.map((a) => ({
         slug: a.slug,
@@ -325,7 +340,7 @@ export const BlogIndex: React.FC<BlogIndexProps> = ({
                                 key={post.slug}
                                 initial={{ opacity: 0, y: 30 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, delay: 0.7 + idx * 0.07 }}
+                                transition={{ duration: 0.5, delay: (idx % OTHERS_PAGE_SIZE) * 0.05 }}
                             >
                                 <Link
                                     href={post.url}

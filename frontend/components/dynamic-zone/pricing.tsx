@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { MotionLink } from '@/components/motion-link';
 import { PlusIcon, ChevronDown, ChevronUp } from 'lucide-react';
@@ -78,6 +79,13 @@ export const Pricing = ({
   background_url,
   locale = 'hu-HU',
 }: PricingProps) => {
+  // A "Csomagok részletesen" mélyfúrás-szekció csak az /arak oldalon kell —
+  // a Pricing blokk több más oldalon (pl. branding-arculat, karbantartas)
+  // is megjelenik, és ott ez a nagy, duplikált szekció csak felesleges,
+  // zavaró üres térnek tűnő résként jelentkezett.
+  const pathname = usePathname();
+  const isArakPage = /\/arak\/?$/.test(pathname || '');
+
   const [pricingType, setPricingType] = useState<string>('project');
   const [marketingAddon, setMarketingAddon] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -696,7 +704,7 @@ export const Pricing = ({
           }
         `}</style>
       </section>
-      <PlanDeepDive plans={plans} locale={locale} />
+      {isArakPage && <PlanDeepDive plans={plans} locale={locale} />}
     </div>
   );
 };
