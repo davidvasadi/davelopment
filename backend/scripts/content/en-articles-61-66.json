@@ -1,0 +1,336 @@
+{
+  "linkMap": {
+    "/hu": "/en",
+    "/hu/arak": "/en/pricing",
+    "/hu/kapcsolat": "/en/contact",
+    "/hu/szolgaltatasok/branding-arculat": "/en/services/branding-identity",
+    "/hu/szolgaltatasok/seo-tartalommarketing": "/en/services/seo-content-marketing",
+    "/hu/blog/miert-dontheti-el-a-weboldalad-sebessege-a-vallalkozasod-sorsat": "/en/blog/why-website-speed-matters-for-your-business"
+  },
+  "articles": {
+    "61": {
+      "title": "7 SEO Tips That Actually Grow Your Small Business's Organic Traffic",
+      "slug": "seo-tips-to-grow-small-business-organic-traffic",
+      "description": "Concrete, practical SEO steps for small businesses — not in theory, but in the order they actually deliver results.",
+      "metaTitle": "7 SEO Tips for Small Businesses — [davelopment]©",
+      "keywords": "SEO tips, small business SEO, grow organic traffic, SEO for beginners, local SEO",
+      "texts": [
+        "[davelopment]®",
+        " sees it every day: most small business owners have heard of SEO but have no idea where to start — or they start in the wrong place, spending on logo animations and colour schemes before the most basic technical things are in order. These 7 steps follow the order that actually matters.",
+        "1. Technical basics first, content second",
+        "Writing articles for a slow site that works poorly on mobile is wasted effort — both Google and visitors turn away before they read anything. Check how long your site takes to load and whether it is genuinely comfortable to use on a phone. If your website itself is slow, ",
+        "we wrote about it in more detail here",
+        ".",
+        "2. Focus on one specific, local keyword — not everything at once",
+        "As a small business you can't compete with a national brand for a generic term. A location-bound, specific phrase is a far more realistic target — e.g. \"accountant in Debrecen\" instead of \"accounting\". There is much less competition for these, and the visitor gets exactly what they were looking for.",
+        "3. Google Business Profile — if you want local customers, it isn't optional",
+        "A fully completed, up-to-date Google Business Profile (opening hours, photos, genuine reviews) often brings more than a month of article writing — especially for local, service-based businesses.",
+        "4. Regular, fresh content — not a one-off sprint",
+        "Google (and now AI-powered search tools such as ChatGPT and Google AI Overviews) rewards sites that are updated regularly. One or two genuinely useful articles a month beat a month-long sprint you forget about afterwards.",
+        "5. Structured, easy-to-read content",
+        "Short paragraphs, clear subheadings, concrete answers at the top — this is good not only for the reader but also for how AI search tools extract and quote your content.",
+        "6. Measure, don't guess",
+        "Without Google Search Console you don't even know which keywords you appear for — you're working blind. Set it up and review it at least once a month.",
+        "7. If you don't have the time, don't do it halfway",
+        "Half-configured, neglected SEO is worse than consciously skipping it — it gives you a false sense of security. If you don't have the capacity to work on it regularly, consider choosing ",
+        "a package that starts with technical SEO foundations",
+        " or bringing in ",
+        "a team that specialises in exactly this",
+        ".",
+        "If you'd like someone to handle all of this for you — from technical foundations to regular content — ",
+        "take a look at our packages",
+        ", or ",
+        "write to us",
+        " with a few lines about where you stand right now."
+      ],
+      "keyPoints": {
+        "heading": "In a nutshell",
+        "points": [
+          "Technical basics first (speed, mobile-friendliness), content second.",
+          "Focus on one specific, local keyword rather than everything at once.",
+          "For local customers, a Google Business Profile often brings more than a month of article writing.",
+          "One or two articles a month beat a one-off sprint.",
+          "Without Google Search Console you don't even know what you appear for."
+        ]
+      },
+      "cta": {
+        "badge_label": "SEO",
+        "heading": "Don't want",
+        "heading_highlight": "to handle it alone?",
+        "sub_heading": "See how we take over technical SEO and regular content for you.",
+        "text": "SEO service",
+        "URL": "/services/seo-content-marketing"
+      },
+      "keyPointsHu": {
+        "heading": "Dióhéjban",
+        "points": [
+          "Előbb a technikai alapok (sebesség, mobilbarát működés), utána a tartalom.",
+          "Egy konkrét, helyi kulcsszóra érdemes fókuszálni, nem mindenre egyszerre.",
+          "A Google Cégem profil helyi ügyfeleknél gyakran többet hoz, mint egy hónapnyi cikkírás.",
+          "Rendszeres, havi 1-2 cikk jobb, mint egy egyszeri rohammunka.",
+          "Google Search Console nélkül nem tudod, mire jelensz meg egyáltalán."
+        ]
+      }
+    },
+    "62": {
+      "title": "Which Design Elements Increase a Landing Page's Conversion Rate?",
+      "slug": "landing-page-conversion-design-elements",
+      "description": "Concrete, proven design decisions that bring in more submitted forms or orders — not just good looks.",
+      "metaTitle": "Landing Page Design That Converts — [davelopment]©",
+      "keywords": "landing page conversion, landing page design, conversion rate optimization, CTA button, form conversion",
+      "texts": [
+        "[davelopment]®",
+        " designs every landing page from this angle: the goal of a landing page isn't to look beautiful — it's to get the visitor to take the desired action. Every design element has to serve that, otherwise it's just decoration.",
+        "One call-to-action button, not ten",
+        "If five different buttons compete for attention on your page (\"Request a quote\", \"Read more\", \"Subscribe\", \"Call us\"...), the visitor won't press any of them — the decision load is too high. Have one main action; anything else should be a secondary, more understated option at most.",
+        "The first screen (without scrolling) should answer \"what do I get?\"",
+        "Most visitors don't scroll down — if it isn't clear within the first second what you offer and to whom, they leave. The headline shouldn't be a slogan but a concrete promise.",
+        "Social proof — but real",
+        "A specific review with a name or company attached is worth far more than a generic \"our clients are satisfied\" line. If you have genuine references, show them — fictional or exaggerated claims achieve exactly the opposite.",
+        "A short form with fewer fields",
+        "Every extra field you ask for lowers the completion rate. Ask yourself for each field: do you really need it right now, or can it wait until a phone call?",
+        "It has to work just as well on mobile",
+        "Most traffic now comes from mobile — if the button is hard to reach on a phone or the form is awkward to fill in, most of your conversions are lost right there, before anything else could go wrong.",
+        "Don't make the design the star",
+        "An over-designed page crammed with animations distracts from what matters. Good conversion design is often invisible — the visitor doesn't notice the layout, they focus on what you're telling them.",
+        "If you'd like us to build a page like this, designed specifically for conversion, ",
+        "take a look at our solutions built for it",
+        ", or ",
+        "get in touch with us",
+        "."
+      ],
+      "keyPoints": {
+        "heading": "In a nutshell",
+        "points": [
+          "Have one main call-to-action button, not five competing ones.",
+          "Answer \"what do I get?\" on the first screen, without scrolling.",
+          "Genuine social proof with real names is worth far more than a generic line.",
+          "Every extra form field lowers the completion rate.",
+          "It has to work just as well on mobile as on desktop."
+        ]
+      },
+      "cta": {
+        "badge_label": "Web Design",
+        "heading": "Want a page",
+        "heading_highlight": "designed for conversion?",
+        "sub_heading": "Take a look at our packages and pick the one that fits you.",
+        "text": "Our packages",
+        "URL": "/pricing"
+      },
+      "keyPointsHu": {
+        "heading": "Dióhéjban",
+        "points": [
+          "Egy fő cselekvésre hívó gomb legyen, ne öt egymással versengő.",
+          "Az első képernyőn (görgetés nélkül) válaszolj a \"mit kapok?\" kérdésre.",
+          "Valódi, névvel ellátott social proof sokkal többet ér, mint egy általános mondat.",
+          "Minden plusz űrlapmező csökkenti a kitöltési arányt.",
+          "Mobilon ugyanolyan jól kell működnie, mint asztali gépen."
+        ]
+      }
+    },
+    "63": {
+      "title": "How to Actually Generate Leads With Your Website (Not Just Visitors)",
+      "slug": "how-to-generate-leads-with-your-website",
+      "description": "Traffic on its own isn't revenue — this is the difference between a website that simply \"exists\" and one that actually brings in customers.",
+      "metaTitle": "Lead Generation With Your Website — [davelopment]©",
+      "keywords": "lead generation website, website lead generation, getting customers online, website conversion, B2B leads",
+      "texts": [
+        "[davelopment]®",
+        " meets many business owners in the same situation: they have visitors on their website, yet no enquiries come in. Most of the time the problem isn't the amount of traffic — it's that the site doesn't guide the visitor towards getting in touch.",
+        "Make the next step obvious",
+        "On every page, ask yourself: if someone gets this far, what exactly should they do now? If the answer isn't clear to you, it will be even less clear to the visitor.",
+        "Don't keep your contact details only on a \"Contact\" page",
+        "If the option to get in touch sits on a single, tucked-away subpage, you lose the people who were about to decide on your service page but don't want to click through to yet another page.",
+        "Reduce the sense of risk",
+        "\"Free consultation\", \"No commitment\", \"We reply within 24 hours\" — these lines aren't decoration; they genuinely reduce the uncertainty that stops someone from submitting the form.",
+        "Follow up on what happens after submission",
+        "If someone fills in the form and doesn't hear from you for days, that's the experience they take away. A fast, human reply brings conversions (and repeat referrals) on its own.",
+        "Measure where your actual enquiries come from",
+        "Without this you spend blindly on ads or content for channels that don't actually deliver — while underfunding a channel that performs well.",
+        "If you want your website not just to look good but to actually bring in enquiries, ",
+        "see how we build this into our packages",
+        ", or ",
+        "write to us",
+        " about your current situation."
+      ],
+      "keyPoints": {
+        "heading": "In a nutshell",
+        "points": [
+          "Every page should make the visitor's next step obvious.",
+          "Don't hide the option to get in touch on a single tucked-away subpage.",
+          "Reduce the sense of risk with concrete lines (e.g. \"no commitment\").",
+          "A fast, human reply after submission brings conversions on its own.",
+          "Measure where your actual enquiries come from — don't guess."
+        ]
+      },
+      "cta": {
+        "badge_label": "Contact",
+        "heading": "Want your website",
+        "heading_highlight": "to bring in leads?",
+        "sub_heading": "Write us a few lines about your current situation.",
+        "text": "Get in touch",
+        "URL": "/contact"
+      },
+      "keyPointsHu": {
+        "heading": "Dióhéjban",
+        "points": [
+          "Minden oldalon legyen egyértelmű, mi a következő lépés a látogatónak.",
+          "A kapcsolatfelvétel lehetősége ne csak egy eldugott aloldalon legyen elérhető.",
+          "Csökkentsd a kockázatérzetet konkrét mondatokkal (pl. \"nincs elköteleződés\").",
+          "A gyors, emberi válasz a beküldés után önmagában is konverziót hoz.",
+          "Mérd, honnan jönnek a tényleges megkeresések, ne találgasd."
+        ]
+      }
+    },
+    "64": {
+      "title": "I'm Starting a Business — Should I Build the Brand Identity or the Website First?",
+      "slug": "brand-identity-or-website-first",
+      "description": "The most common question when starting out — and why the answer isn't necessarily the one you'd expect.",
+      "metaTitle": "Brand Identity or Website First? — [davelopment]©",
+      "keywords": "brand identity or website first, startup branding, brand identity design, website for a new business, logo design",
+      "texts": [
+        "[davelopment]®",
+        " hears this question more than almost any other from people who are just starting a business — the answer isn't black and white, but there's one practical consideration that often settles it.",
+        "You don't need a finished brand identity first",
+        "Many people put off their website because they think they first need a \"finished\" brand identity (logo, colours, typeface). In reality, a well-structured website design process includes shaping the visual direction too — there's no need to treat them as two separate projects.",
+        "The website is what actually makes money",
+        "A logo on its own doesn't generate revenue. A website that can be found and is convincing does. If your budget or time is tight, what brings in customers deserves priority over what is \"merely\" beautiful.",
+        "But an inconsistent brand erodes trust",
+        "If your website, your Facebook page and your business cards all look different, it gives an amateur impression — precisely with the decision-makers for whom trust matters most.",
+        "The practical answer: both at once, from one team",
+        "The best results come when the website and the brand identity are built by one team, each building on the other — not bouncing between two separate contractors on two separate schedules.",
+        "If you're just starting out and want your website and brand identity built together, in sync, ",
+        "take a look at our Micro package",
+        ", or explore ",
+        "our branding service",
+        "."
+      ],
+      "keyPoints": {
+        "heading": "In a nutshell",
+        "points": [
+          "You don't need a finished brand identity — it can be part of the website design process.",
+          "The website is what actually generates revenue, not the logo on its own.",
+          "An inconsistent brand (website, social media, business cards) erodes trust.",
+          "The best results come when one team builds the website and the brand identity together."
+        ]
+      },
+      "cta": {
+        "badge_label": "Web Design",
+        "heading": "Just starting out?",
+        "heading_highlight": "Let's build both at once.",
+        "sub_heading": "Take a look at our Micro package — website and brand identity from one team.",
+        "text": "Our packages",
+        "URL": "/pricing"
+      },
+      "keyPointsHu": {
+        "heading": "Dióhéjban",
+        "points": [
+          "Nem kell kész arculattal érkezned — ez a weboldal-tervezés része is lehet.",
+          "A weboldal az, ami ténylegesen bevételt termel, nem a logó önmagában.",
+          "A következetlen arculat (weboldal, social media, névjegy) bizalmat ront.",
+          "A legjobb eredmény, ha a weboldal és az arculat egy csapat kezében, egyszerre készül."
+        ]
+      }
+    },
+    "65": {
+      "title": "How to Keep a Consistent Brand Identity Across Your Website and Social Media",
+      "slug": "consistent-brand-identity-website-social-media",
+      "description": "Practical steps to make your business look and sound the same everywhere — without having to build a design studio for it.",
+      "metaTitle": "Consistent Branding on Web and Social — [davelopment]©",
+      "keywords": "consistent brand identity, brand consistency, social media branding, brand guidelines, brand building",
+      "texts": [
+        "[davelopment]®",
+        " sees it often: many small businesses' websites and Instagram pages look as if they belonged to two different companies — different colours, a different tone, a different logo version. This isn't an aesthetic detail; it's a matter of trust.",
+        "A fixed, small colour palette",
+        "You don't need 10 colours — 2–3 main colours and 1–2 accents are enough, used consistently everywhere: on your website, your posts and your story templates.",
+        "The same tone of voice everywhere",
+        "If your website is formal and your social media posts are casual, visitors can't tell which one is the \"real\" business. Your tone (formal or friendly, serious or humorous) should be a conscious decision, and you should keep it everywhere.",
+        "A clean set of logos",
+        "Have one main logo version and one or two simplified variants (e.g. icon only, a round version for profile pictures) — don't redesign it separately for every platform.",
+        "Make the website the \"hub\" everything points to",
+        "Social media is great for day-to-day presence, but the final, detailed, reliable information (prices, services, contact details) should always live on your website — direct people there from everywhere.",
+        "If you'd like someone to think this through and build it for you — from the website to social media templates — ",
+        "take a look at our branding service",
+        ", or ",
+        "write to us",
+        "."
+      ],
+      "keyPoints": {
+        "heading": "In a nutshell",
+        "points": [
+          "2–3 main colours and 1–2 accents are enough — used consistently everywhere.",
+          "Make your tone (formal or friendly) a conscious decision and keep it everywhere.",
+          "Have one main logo version and 1–2 simplified variants — don't redesign it per platform.",
+          "Make the website the \"hub\" — every social media channel should point to it."
+        ]
+      },
+      "cta": {
+        "badge_label": "Branding",
+        "heading": "Want a",
+        "heading_highlight": "consistent brand identity?",
+        "sub_heading": "Take a look at our branding service.",
+        "text": "Branding service",
+        "URL": "/services/branding-identity"
+      },
+      "keyPointsHu": {
+        "heading": "Dióhéjban",
+        "points": [
+          "Elég 2-3 fő szín és 1-2 kiegészítő, de következetesen mindenhol.",
+          "A hangnem (formális/közvetlen) legyen tudatos döntés, és tartsd mindenhol.",
+          "Legyen egy fő logó-verzió és 1-2 egyszerűsített változat, ne újratervezve platformonként.",
+          "A weboldal legyen a \"központ\" — minden social media felület ide irányítson."
+        ]
+      }
+    },
+    "66": {
+      "title": "What to Watch Out for When Building a B2B Website With SEO Optimization",
+      "slug": "b2b-website-seo-optimization",
+      "description": "B2B websites work differently from B2C sites — the decision process is different, different keywords are worth targeting, and different content persuades.",
+      "metaTitle": "B2B Website SEO: What to Watch Out For — [davelopment]©",
+      "keywords": "B2B website, B2B SEO, B2B website development, B2B keywords, B2B content marketing",
+      "texts": [
+        "[davelopment]®",
+        " knows this well: B2B purchasing decisions take longer, pass through more people and are rarely made in a single visit. This fundamentally shapes how a B2B website and its SEO strategy should be built.",
+        "Keywords are more specific, volumes are smaller",
+        "Far fewer people typically search for a B2B service than for a consumer product — but those who do are much closer to a decision. What matters here isn't the quantity of traffic but its quality.",
+        "Content should prove, not just promise",
+        "A B2B decision-maker doesn't buy on a slogan — they look for concrete case studies, numbers and references. The more specific and verifiable your claims, the more credible you are.",
+        "More decision-makers = more types of content",
+        "B2B decisions often involve several people (e.g. the day-to-day user and the manager responsible for the budget) — it's worth including content aimed at both, rather than writing from a single perspective.",
+        "Technical SEO is a baseline requirement here too",
+        "B2B decision-makers also start their search on Google — or, increasingly, in AI assistants. If your site is technically slow or poorly structured, you're out of the race before you can introduce yourself.",
+        "If you're building a B2B website on solid technical SEO foundations, ",
+        "take a look at our packages",
+        ", or let's talk about your specific situation — ",
+        "write to us",
+        "."
+      ],
+      "keyPoints": {
+        "heading": "In a nutshell",
+        "points": [
+          "B2B keywords are more specific, but closer to an actual decision.",
+          "Content should prove itself with concrete numbers and case studies, not just promise.",
+          "B2B decisions often involve several decision-makers — give each of them content of their own.",
+          "Technical SEO is a baseline requirement in B2B too, not an extra."
+        ]
+      },
+      "cta": {
+        "badge_label": "Web Design",
+        "heading": "Building a",
+        "heading_highlight": "B2B website?",
+        "sub_heading": "Let's talk about your specific situation.",
+        "text": "Get in touch",
+        "URL": "/contact"
+      },
+      "keyPointsHu": {
+        "heading": "Dióhéjban",
+        "points": [
+          "A B2B kulcsszavak specifikusabbak, de közelebb vannak a tényleges döntéshez.",
+          "A tartalom bizonyítson konkrét számokkal, esettanulmányokkal, ne csak ígérjen.",
+          "Egy B2B döntésben gyakran több döntéshozó van — nekik külön-külön is szóljon tartalom.",
+          "A technikai SEO B2B-nél is alapkövetelmény, nem extra."
+        ]
+      }
+    }
+  }
+}
