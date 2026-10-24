@@ -82,6 +82,7 @@ export default async function HomePage(props: {
     title: pageData?.seo?.metaTitle || pageData?.label || '[davelopment]©',
     description: pageData?.seo?.metaDescription,
     dynamicZone: pageData?.dynamic_zone,
+    updatedAt: pageData?.updatedAt,
     override: pageData?.seo?.structuredData,
   });
 

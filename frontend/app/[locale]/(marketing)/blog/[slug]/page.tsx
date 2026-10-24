@@ -39,8 +39,15 @@ export async function generateMetadata(props: {
     { filters: { slug: params.slug, locale: params.locale } },
     true
   );
+  // Üresen hagyott SEO-mezőnél a cikk saját címe/leírása legyen a fallback,
+  // ne a generikus "Default Title" (2026-10-17-es cikkek így mentek ki).
+  const seo = {
+    ...article?.seo,
+    metaTitle: article?.seo?.metaTitle || article?.title,
+    metaDescription: article?.seo?.metaDescription || article?.description,
+  };
   return {
-    ...generateMetadataObject(article?.seo),
+    ...generateMetadataObject(seo),
     alternates: buildAlternates(
       params.locale,
       `/${params.locale}/blog/${params.slug}`,

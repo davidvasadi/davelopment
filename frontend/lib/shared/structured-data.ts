@@ -415,6 +415,9 @@ function pricingProductNodes(
         price: String(priceNum),
         priceCurrency: p.currency || 'HUF',
         availability: 'https://schema.org/InStock',
+        // validFrom = az oldal utolsó módosítása: a megjelenített ár legkésőbb
+        // ettől kezdve érvényes (GSC "Hiányzó mező: validFrom", 2026-10-22).
+        ...(dateModified ? { validFrom: dateModified } : {}),
         priceValidUntil: endOfYearISO(),
         url,
         // shippingDetails / hasMerchantReturnPolicy szándékosan NINCS itt —
