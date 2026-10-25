@@ -3,8 +3,12 @@ One-time helper: run this locally to obtain a Google Search Console API
 refresh token. Reuses the same OAuth Client ID/Secret already set up for
 the Google Ads API (scripts/google-ads/.env) — an OAuth client isn't tied
 to one API, only the requested scope matters, so this asks for the
-Search Console readonly scope specifically and gets back a DIFFERENT
-refresh token than the Ads one.
+Search Console scope specifically and gets back a DIFFERENT refresh token
+than the Ads one.
+
+The scope is the full `webmasters` scope (read + write): report.py only reads,
+but submit_sitemap.py needs write access to (re)submit the sitemap. A token
+issued with the old `webmasters.readonly` scope gets 403 on sitemap submit.
 
 Usage:
     cp .env.example .env   # fill in GOOGLE_CLIENT_ID / _CLIENT_SECRET
@@ -24,7 +28,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 load_dotenv()
 
-SCOPES = ["https://www.googleapis.com/auth/webmasters.readonly"]
+SCOPES = ["https://www.googleapis.com/auth/webmasters"]
 
 
 def main():
