@@ -211,7 +211,7 @@ export const Hero = ({
                     <MotionLink key={cta.id} href={resolveHref(locale, cta.URL)} target={cta.target || '_self'}
                       initial="rest" whileHover="hover" animate="rest"
                       data-cta={`hero:${cta.text}`}
-                      className="inline-flex items-center justify-between gap-6 rounded-full bg-black px-3 py-1 text-xs sm:text-sm font-semibold text-white shadow-sm overflow-hidden"
+                      className="inline-flex items-center justify-between gap-6 rounded-full bg-black px-4 py-3 text-xs sm:text-sm font-semibold text-white shadow-sm overflow-hidden"
                     >
                       <div className="overflow-hidden h-5">
                         <motion.div className="flex flex-col leading-5" variants={wheelVariants}>
