@@ -9,6 +9,7 @@ import { strapiImage } from '@/lib/strapi/strapiImage';
 import { GrainCanvas } from '../ui/grain-canvas';
 import { longestWordLength } from '@/lib/heading-size';
 import { useIsMobile } from '@/lib/hooks/use-is-mobile';
+import { localizeHref } from '@/lib/i18n/localize-href';
 
 type CTA = {
   id: string | number;
@@ -43,11 +44,7 @@ const toAbs = (m?: Media) => {
   return raw ? strapiImage(raw) : undefined;
 };
 
-const resolveHref = (locale: string, url?: string) => {
-  if (!url) return '#';
-  if (url.startsWith('http') || url.startsWith('#')) return url;
-  return `/${locale}${url}`;
-};
+const resolveHref = (locale: string, url?: string) => localizeHref(url, locale);
 
 // A stat-érték (pl. "24 900 Ft-tól") statikusan jelenik meg — a belépő
 // mozgást maga a kártya adja (jobbról beúszik), nem kell hozzá külön

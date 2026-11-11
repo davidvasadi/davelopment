@@ -6,6 +6,7 @@ import { PlusIcon, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { MotionLink } from '@/components/motion-link';
+import { localizeHref } from '@/lib/i18n/localize-href';
 
 // ─── Típusok ───────────────────────────────────────────────────
 type TestimonialUser = {
@@ -46,6 +47,7 @@ type TestimonialsProps = {
   stat_trust_label?: string | null;
   stat_cta_text?: string | null;
   stat_cta_url?: string | null;
+  locale?: string;
   stat_brand?: string | null;
   stat_background?: { url?: string | null; mimeType?: string | null; mime?: string | null } | null;
   stat_dark?: boolean | null;
@@ -422,6 +424,7 @@ export const Testimonials = ({
   stat_trust_label,
   stat_cta_text,
   stat_cta_url,
+  locale,
   stat_brand,
   stat_background,
   stat_dark,
@@ -472,7 +475,7 @@ export const Testimonials = ({
     descriptionBold: stat_description_bold,
     trustLabel: stat_trust_label,
     ctaText: stat_cta_text,
-    ctaUrl: stat_cta_url,
+    ctaUrl: stat_cta_url ? localizeHref(stat_cta_url, locale ?? 'hu') : stat_cta_url,
     brand: stat_brand,
     avatars: avatarUrls,
     dark: !!stat_dark,

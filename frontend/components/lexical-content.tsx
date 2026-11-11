@@ -2,6 +2,7 @@
 // Renders Payload Lexical rich text JSON to React elements.
 // Supports: heading, paragraph, list (bullet/number), listitem, text (bold, italic, underline, code), link.
 import React from 'react';
+import { localizeHref } from '@/lib/i18n/localize-href';
 
 // Lexical text format bitmask
 const FORMAT = { bold: 1, italic: 2, underline: 4, strikethrough: 8, code: 16 } as const;
@@ -17,17 +18,17 @@ function LexicalText({ node }: { node: any }) {
   return <>{content}</>;
 }
 
-function LexicalChildren({ nodes }: { nodes: any[] }) {
+function LexicalChildren({ nodes, locale }: { nodes: any[]; locale: string }) {
   return (
     <>
       {(nodes ?? []).map((node, i) => (
-        <LexicalNode key={i} node={node} />
+        <LexicalNode key={i} node={node} locale={locale} />
       ))}
     </>
   );
 }
 
-function LexicalNode({ node }: { node: any }): React.ReactElement | null {
+function LexicalNode({ node, locale }: { node: any; locale: string }): React.ReactElement | null {
   switch (node.type) {
     case 'text':
       return <LexicalText node={node} />;
@@ -38,18 +39,18 @@ function LexicalNode({ node }: { node: any }): React.ReactElement | null {
     case 'link':
       return (
         <a
-          href={node.url ?? node.fields?.url ?? '#'}
+          href={localizeHref(node.url ?? node.fields?.url, locale)}
           target={node.newTab || node.fields?.newTab ? '_blank' : '_self'}
           rel="noopener noreferrer"
         >
-          <LexicalChildren nodes={node.children} />
+          <LexicalChildren nodes={node.children} locale={locale} />
         </a>
       );
 
     case 'paragraph':
       return (
         <p>
-          <LexicalChildren nodes={node.children} />
+          <LexicalChildren nodes={node.children} locale={locale} />
         </p>
       );
 
@@ -69,7 +70,7 @@ function LexicalNode({ node }: { node: any }): React.ReactElement | null {
         .replace(/(^-|-$)/g, '');
       return (
         <Tag id={id || undefined} className="scroll-mt-28">
-          <LexicalChildren nodes={node.children} />
+          <LexicalChildren nodes={node.children} locale={locale} />
         </Tag>
       );
     }
@@ -78,7 +79,7 @@ function LexicalNode({ node }: { node: any }): React.ReactElement | null {
       const Tag = node.listType === 'number' ? 'ol' : 'ul';
       return (
         <Tag>
-          <LexicalChildren nodes={node.children} />
+          <LexicalChildren nodes={node.children} locale={locale} />
         </Tag>
       );
     }
@@ -86,14 +87,14 @@ function LexicalNode({ node }: { node: any }): React.ReactElement | null {
     case 'listitem':
       return (
         <li>
-          <LexicalChildren nodes={node.children} />
+          <LexicalChildren nodes={node.children} locale={locale} />
         </li>
       );
 
     case 'quote':
       return (
         <blockquote>
-          <LexicalChildren nodes={node.children} />
+          <LexicalChildren nodes={node.children} locale={locale} />
         </blockquote>
       );
 
@@ -102,7 +103,7 @@ function LexicalNode({ node }: { node: any }): React.ReactElement | null {
 
     default:
       if (node.children) {
-        return <LexicalChildren nodes={node.children} />;
+        return <LexicalChildren nodes={node.children} locale={locale} />;
       }
       return null;
   }
@@ -111,13 +112,14 @@ function LexicalNode({ node }: { node: any }): React.ReactElement | null {
 interface LexicalContentProps {
   content: { root: any } | null | undefined;
   className?: string;
+  locale?: string;
 }
 
-export function LexicalContent({ content, className }: LexicalContentProps) {
+export function LexicalContent({ content, className, locale = 'hu' }: LexicalContentProps) {
   if (!content?.root) return null;
   return (
     <div className={className}>
-      <LexicalChildren nodes={content.root.children ?? []} />
+      <LexicalChildren nodes={content.root.children ?? []} locale={locale} />
     </div>
   );
 }

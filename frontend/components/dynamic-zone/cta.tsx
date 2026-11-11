@@ -8,6 +8,7 @@ import { strapiImage } from '@/lib/strapi/strapiImage';
 import { Link } from 'next-view-transitions';
 import { MotionLink } from '@/components/motion-link';
 import { Container } from '@/components/container';
+import { localizeHref } from '@/lib/i18n/localize-href';
 
 const toAbs = (m?: any): string | undefined => {
   if (!m) return undefined;
@@ -21,8 +22,7 @@ const isVideo = (m?: any): boolean =>
 
 const isExternal = (u?: string | null) =>
   !!u && (u.startsWith('http') || u.startsWith('mailto:') || u.startsWith('tel:'));
-const withLocale = (u: string | null | undefined, locale: string) =>
-  isExternal(u) ? (u as string) : `/${locale}${u ?? ''}`;
+const withLocale = (u: string | null | undefined, locale: string) => localizeHref(u, locale, `/${locale}`);
 
 function MediaBlock({ media, url, alt, sizes }: { media: any; url: string; alt: string; sizes: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);

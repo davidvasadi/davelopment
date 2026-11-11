@@ -12,6 +12,7 @@ import { GrainCanvas } from '../ui/grain-canvas';
 import { usePreloaderDone } from '../ui/preloader';
 import { longestWordLength } from '@/lib/heading-size';
 import { useIsMobile } from '@/lib/hooks/use-is-mobile';
+import { localizeHref } from '@/lib/i18n/localize-href';
 
 // A videó nélküli hero fix text-6xl mobil mérete nem skálázódik a
 // képernyő szélességéhez, ezért egy hosszú, törés nélküli szó (pl.
@@ -91,11 +92,7 @@ const toAbs = (m?: Media) => {
   return raw ? strapiImage(raw) : undefined;
 };
 
-const resolveHref = (locale: string, url?: string) => {
-  if (!url) return '#';
-  if (url.startsWith('http') || url.startsWith('#')) return url;
-  return `/${locale}${url}`;
-};
+const resolveHref = (locale: string, url?: string) => localizeHref(url, locale);
 
 function splitLead(body: string, sentencesCount = 2): { lead: string; rest: string } {
   const parts = body.split(/(?<=[\.!\?])\s+/).filter(Boolean);

@@ -157,7 +157,7 @@ export default async function SingleArticlePage(props: {
         nextArticle={nextArticle}
       >
         <ClientSlugHandler localizedSlugs={localizedSlugs} />
-        <LexicalContent content={article.content} />
+        <LexicalContent content={article.content} locale={params.locale} />
         {params.slug === 'wordpress-vagy-egyedi-weboldal-2026-ban' && (
           <WordpressVsCustomTable locale={params.locale} />
         )}

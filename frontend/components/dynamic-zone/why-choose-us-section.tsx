@@ -6,6 +6,7 @@ import { Plus as PlusIcon } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { MotionLink } from '@/components/motion-link';
 import { Container } from '@/components/container';
+import { localizeHref } from '@/lib/i18n/localize-href';
 /* helpers */
 const toAbs = (m?: any): string | undefined => {
     if (!m) return undefined;
@@ -74,6 +75,7 @@ export function WhyChooseUsSection({
     hero_card,
     why_choose_us_item,
     cards,
+    locale,
 }: WhyChooseUsProps) {
     const card = hero_card ?? why_choose_us;
     const heroUrl = toAbs(card?.background);
@@ -81,7 +83,8 @@ export function WhyChooseUsSection({
     const heroIsVideo = !!heroMime?.startsWith('video/');
 
     const rawCTA = getFirstLink(card?.cta ?? card?.CTAs);
-    const ctaHref: string | undefined = rawCTA?.URL ?? rawCTA?.url ?? undefined;
+    const rawHref: string | undefined = rawCTA?.URL ?? rawCTA?.url ?? undefined;
+    const ctaHref: string | undefined = rawHref ? localizeHref(rawHref, locale ?? 'hu') : undefined;
     const ctaTarget = rawCTA?.target || undefined;
     const ctaText = rawCTA?.text;
 

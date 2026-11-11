@@ -18,6 +18,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { planNameFromSlug } from '@/lib/plan-slug';
+import { localizeHref } from '@/lib/i18n/localize-href';
 
 type FormInput = {
   type: 'text' | 'email' | 'textarea' | 'submit' | string;
@@ -524,7 +525,7 @@ export function FormNextToSection({
   const buttonHref = (() => {
     if (rawHrefFromButton) {
       if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawHrefFromButton)) return `mailto:${rawHrefFromButton}`;
-      return rawHrefFromButton;
+      return localizeHref(rawHrefFromButton, lang);
     }
     if (rawEmail) return rawEmail.startsWith('mailto:') ? rawEmail : `mailto:${rawEmail}`;
     return 'mailto:hello@davelopment.hu';

@@ -8,13 +8,14 @@ import { LocaleSwitcher } from '../locale-switcher';
 import { Logo } from '@/components/logo';
 import { MotionLink } from '@/components/motion-link';
 import { cn } from '@/lib/utils';
+import { localizeHref } from '@/lib/i18n/localize-href';
 
 type NavItem = { URL: string; text: string; target?: string };
 type LinkItem = { text: string; URL: string; target?: '_self' | '_blank' };
 type ContactInput = { type?: string; name?: string; placeholder?: string };
 
 const isExternal = (u: string) => u?.startsWith('http') || u?.startsWith('mailto:') || u?.startsWith('tel:');
-const withLocale = (u: string, locale: string) => (isExternal(u) ? u : `/${locale}${u}`);
+const withLocale = (u: string, locale: string) => localizeHref(u, locale, `/${locale}`);
 
 const HEADER_H = 'h-16';
 const OVERLAY_OFFSET = 'top-16';

@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { hu } from 'date-fns/locale';
 
 import { strapiImage } from '@/lib/strapi/strapiImage';
+import { localizeHref } from '@/lib/i18n/localize-href';
 
 const toAbs = (m?: any): string | undefined => {
   if (!m) return undefined;
@@ -91,7 +92,7 @@ export const Blog: React.FC<BlogProps> = ({
     '/images/fallback/blog-placeholder.jpg';
 
   const ctaLabel = button?.text ?? 'See all';
-  const ctaHref = button?.URL ?? `/${locale}/blog`;
+  const ctaHref = localizeHref(button?.URL, locale, `/${locale}/blog`);
   const ctaTarget =
     (button?.target as '_self' | '_blank' | undefined) ?? '_self';
 

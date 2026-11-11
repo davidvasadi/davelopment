@@ -6,11 +6,11 @@ import { ArrowUpRight, Star } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { Container } from '@/components/container';
 import { MotionLink } from '@/components/motion-link';
+import { localizeHref } from '@/lib/i18n/localize-href';
 
 const isExternal = (u?: string | null) =>
   !!u && (u.startsWith('http') || u.startsWith('mailto:') || u.startsWith('tel:'));
-const withLocale = (u: string | null | undefined, locale: string) =>
-  isExternal(u) ? (u as string) : `/${locale}${u ?? ''}`;
+const withLocale = (u: string | null | undefined, locale: string) => localizeHref(u, locale, `/${locale}`);
 
 const isVideo = (m?: any): boolean =>
   !!(m?.mimeType?.startsWith('video') || m?.mime?.startsWith('video'));

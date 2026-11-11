@@ -12,6 +12,7 @@ import DynamicZoneManager from './dynamic-zone/manager';
 import { StrapiImage } from '@/components/ui/strapi-image';
 import { GrainCanvas } from '@/components/ui/grain-canvas';
 import { Article } from '@/types/types';
+import { localizeHref } from '@/lib/i18n/localize-href';
 
 // Ha egy cikkhez nincs saját borítókép feltöltve, ez a sötét hátterű céges
 // logó jelenik meg helyette — sosem marad üres a hero-kép.
@@ -99,7 +100,8 @@ export const BlogLayout: React.FC<BlogLayoutProps> = ({
   const authorOrg = personCard?.org ?? null;
   const authorImageUrl = personCard?.image?.url ?? null;
   const authorButton = personCard?.button;
-  const authorButtonHref = authorButton?.URL || (authorButton as any)?.url || null;
+  const authorButtonRaw = authorButton?.URL || (authorButton as any)?.url || null;
+  const authorButtonHref = authorButtonRaw ? localizeHref(authorButtonRaw, locale) : null;
   const authorButtonText = authorButton?.text || null;
   const authorButtonTarget = (authorButton?.target as '_self' | '_blank' | undefined) ?? '_self';
 
