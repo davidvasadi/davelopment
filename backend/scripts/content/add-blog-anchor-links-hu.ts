@@ -70,6 +70,9 @@ const hasLinkTo = (n: any, url: string): boolean =>
 
 const payload = await getPayload({ config })
 
+// SKIP_IDS=46,57 — articles whose latest version row is older than the live row (a Payload save would bring old
+// values back, e.g. a removed CTA block); their content is written directly instead (see the session notes).
+const skip = new Set((process.env.SKIP_IDS ?? '').split(',').filter(Boolean).map(Number))
 const bySlug = new Map<string, [string, string][]>()
 for (const [slug, phrase, url] of LINKS) bySlug.set(slug, [...(bySlug.get(slug) ?? []), [phrase, url]])
 
@@ -78,6 +81,7 @@ for (const [slug, items] of bySlug) {
   const res = await payload.find({ collection: 'articles' as any, locale: 'hu', fallbackLocale: false as any, depth: 0, limit: 1, where: { slug: { equals: slug } } })
   const doc: any = res.docs[0]
   if (!doc) { console.log(`✗ nincs ilyen cikk: ${slug}`); continue }
+  if (skip.has(doc.id)) { console.log(`– kihagyva (SKIP_IDS): #${doc.id} ${slug}`); continue }
   const root = structuredClone(doc.content.root)
   let changed = 0
   console.log(`\n${doc.title}`)
