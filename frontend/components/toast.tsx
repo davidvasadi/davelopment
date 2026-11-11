@@ -5,16 +5,16 @@ import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { applyConsent, COOKIE_KEY, type CookiePreferences } from '@/lib/consent';
+import { applyConsent, COOKIE_KEY, CONSENT_VERSION, readConsent, type CookiePreferences } from '@/lib/consent';
 
 const CATEGORIES_HU = [
   { key: 'necessary' as const, label: 'Szükséges', desc: 'Mindig aktív',               locked: true  },
-  { key: 'analytics' as const, label: 'Analitika', desc: 'Látogatói statisztikák',      locked: false },
+  { key: 'analytics' as const, label: 'Analitika', desc: 'Statisztika és viselkedéselemzés (Google Analytics, Microsoft Clarity)', locked: false },
   { key: 'marketing' as const, label: 'Marketing', desc: 'Személyre szabott tartalom',  locked: false },
 ];
 const CATEGORIES_EN = [
   { key: 'necessary' as const, label: 'Necessary', desc: 'Always active',        locked: true  },
-  { key: 'analytics' as const, label: 'Analytics', desc: 'Visitor statistics',   locked: false },
+  { key: 'analytics' as const, label: 'Analytics', desc: 'Statistics and behaviour analysis (Google Analytics, Microsoft Clarity)', locked: false },
   { key: 'marketing' as const, label: 'Marketing', desc: 'Personalised content', locked: false },
 ];
 
@@ -31,7 +31,7 @@ export const CookieConsent = () => {
   const [isOpen, setIsOpen]           = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [prefs, setPrefs]             = useState<CookiePreferences>({
-    necessary: true, analytics: true, marketing: false,
+    necessary: true, analytics: false, marketing: false,
   });
 
   const params = useParams();
@@ -41,11 +41,11 @@ export const CookieConsent = () => {
   const privacyHref = isEn ? `/${locale}/privacy-policy` : `/${locale}/adatkezeles`;
 
   useEffect(() => {
-    if (!localStorage.getItem(COOKIE_KEY)) setTimeout(() => setIsOpen(true), 1200);
+    if (!readConsent()) setTimeout(() => setIsOpen(true), 1200);
   }, []);
 
   const save = (p: CookiePreferences) => {
-    localStorage.setItem(COOKIE_KEY, JSON.stringify({ ...p, timestamp: Date.now() }));
+    localStorage.setItem(COOKIE_KEY, JSON.stringify({ ...p, v: CONSENT_VERSION, timestamp: Date.now() }));
     applyConsent(p);
     setIsOpen(false);
   };

@@ -12,6 +12,8 @@ import { SlugProvider } from './context/SlugContext';
 import { Preview } from '@/components/preview';
 import { CookieConsent } from '@/components/toast';
 import { ConversionTracker } from '@/components/ga/ConversionTracker';
+import { ClarityTracker } from '@/components/ga/ClarityTracker';
+import { COOKIE_KEY, CONSENT_VERSION } from '@/lib/consent';
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
@@ -51,7 +53,8 @@ export default async function RootLayout({
             function gtag(){dataLayer.push(arguments);}
             window.gtag = gtag;
             var s = null;
-            try { s = JSON.parse(localStorage.getItem('davelopment_cookie_consent') || 'null'); } catch (e) {}
+            try { s = JSON.parse(localStorage.getItem('${COOKIE_KEY}') || 'null'); } catch (e) {}
+            if (!s || s.v !== ${CONSENT_VERSION}) s = null;
             gtag('consent', 'default', {
               analytics_storage:     s && s.analytics ? 'granted' : 'denied',
               ad_storage:            s && s.marketing ? 'granted' : 'denied',
@@ -70,6 +73,7 @@ export default async function RootLayout({
         <SlugProvider>{children}</SlugProvider>
         {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
         {GA_ID && <ConversionTracker />}
+        <ClarityTracker />
       </body>
     </html>
   );
