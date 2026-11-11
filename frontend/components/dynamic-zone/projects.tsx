@@ -215,7 +215,8 @@ const ArrowBadge = ({ iconClassName = '', href, label }: { iconClassName?: strin
     </div>
   );
   if (href) {
-    return <Link href={href as never} className="md:pointer-events-none" aria-label={label ?? 'Megnyitás'}>{inner}</Link>;
+    // a projekt neve szöveges horgonyként (sr-only) — a csak-ikonos link így sem „szöveg nélküli” a keresőknek
+    return <Link href={href as never} className="md:pointer-events-none">{inner}<span className="sr-only">{label}</span></Link>;
   }
   return inner;
 };
@@ -354,7 +355,8 @@ const ImageTile: React.FC<TileBaseProps & { imageIndex?: number }> = ({
       animate="rest"
       whileHover="hover"
     >
-      <Link href={href as never} className="hidden md:block h-full w-full" aria-label={item.product.name}>
+      <Link href={href as never} className="hidden md:block h-full w-full">
+        <span className="sr-only">{item.product.name}</span>
         <PureImageTile product={item.product} imageIndex={imageIndex} />
       </Link>
       <div className="md:hidden h-full w-full">

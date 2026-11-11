@@ -19,7 +19,7 @@ const arrowWheelVariants: Variants = {
   },
 };
 
-const ArrowBadge = ({ iconClassName = '', href }: { iconClassName?: string; href?: string }) => {
+const ArrowBadge = ({ iconClassName = '', href, label }: { iconClassName?: string; href?: string; label?: string }) => {
   const inner = (
     <div className="inline-flex flex-shrink-0 w-7 h-7 overflow-hidden">
       <motion.div className="flex flex-col" variants={arrowWheelVariants}>
@@ -29,7 +29,8 @@ const ArrowBadge = ({ iconClassName = '', href }: { iconClassName?: string; href
     </div>
   );
   if (href) {
-    return <Link href={href as never} className="md:pointer-events-none" aria-label="Megnyitás">{inner}</Link>;
+    // a projekt neve szöveges horgonyként (sr-only) — „Megnyitás” helyett
+    return <Link href={href as never} className="md:pointer-events-none">{inner}<span className="sr-only">{label}</span></Link>;
   }
   return inner;
 };
@@ -226,7 +227,7 @@ const LargeTile: React.FC<TileBase & { arrowClassName?: string }> = ({
           <div className="flex h-full flex-col justify-between">
             <div className="flex justify-between gap-2">
               <span className="text-white text-xl font-medium tracking-tight leading-tight">{label}</span>
-              <ArrowBadge iconClassName={arrowClassName ?? 'text-white'} href={href} />
+              <ArrowBadge iconClassName={arrowClassName ?? 'text-white'} href={href} label={product.name} />
             </div>
             <p className="text-4xl font-medium tracking-tight text-white mt-6 leading-none break-words">{product.name}</p>
           </div>
@@ -274,7 +275,7 @@ const SmallTextTile: React.FC<TileBase & { truncateLength: number }> = ({
                   {truncate(product.description, truncateLength)}
                 </span>
               </div>
-              <ArrowBadge iconClassName="text-neutral-400" href={href} />
+              <ArrowBadge iconClassName="text-neutral-400" href={href} label={product.name} />
             </div>
             <p className="text-2xl font-medium tracking-tight mt-3 leading-tight">{product.name}</p>
           </div>
@@ -293,6 +294,7 @@ const ImageTile: React.FC<TileBase> = ({ product, locale, className }) => {
       whileHover="hover"
     >
       <Link href={href as never} className="hidden md:block h-full w-full">
+        <span className="sr-only">{product.name}</span>
         <PureImageTile product={product} imageIndex={2} />
       </Link>
       <div className="md:hidden h-full w-full">
@@ -346,7 +348,7 @@ const PureImageTile: React.FC<{ product: Product; imageIndex?: number; mobileHre
         <div className="absolute inset-0 h-full w-full bg-neutral-200" />
       )}
       <div className="relative z-10 h-full w-full flex items-end justify-end p-3 md:p-4">
-        <ArrowBadge iconClassName="text-white/90" href={mobileHref} />
+        <ArrowBadge iconClassName="text-white/90" href={mobileHref} label={product.name} />
       </div>
     </div>
   );

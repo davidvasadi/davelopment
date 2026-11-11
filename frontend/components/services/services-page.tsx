@@ -218,6 +218,7 @@ export function ServicesPage({ pages, locale, heading, sub_heading, badge_label 
                                         }`}
                                     >
                                         <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:rotate-45" />
+                                        <span className="sr-only">{`${detailsLabel}: ${page.label ?? page.slug}`}</span>
                                     </Link>
                                 </div>
 

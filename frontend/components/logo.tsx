@@ -13,9 +13,11 @@ export const Logo = ({ image, locale, text, dark = false }: { image?: Image; loc
   if (image?.url) {
     return (
       <Link href={href} className={cn('font-normal flex items-center text-sm mr-4 relative z-20', dark ? 'text-white' : 'text-black')}>
+        {/* szöveges horgony a keresőknek és a képernyőolvasóknak (a kép csak díszítés) */}
+        <span className="sr-only">{text || '[davelopment]®'}</span>
         <BlurImage
           src={strapiImage(image.url)}
-          alt={image.alt ?? image.alternativeText ?? text ?? '[davelopment]©'}
+          alt=""
           width={150}
           height={150}
           className={cn('h-5 w-auto', dark && 'brightness-0 invert')}
