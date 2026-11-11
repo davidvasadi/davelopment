@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, useInView, type Variants } from 'framer-motion';
-import { Plus as PlusIcon } from 'lucide-react';
+import { Plus as PlusIcon, Star } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { MotionLink } from '@/components/motion-link';
 import { Container } from '@/components/container';
@@ -43,6 +43,7 @@ export type WhyChooseUsProps = {
     heading?: string | null;
     sub_heading?: string | null;
     badge_label?: string | null;
+    googleRating?: { rating: number; userRatingCount: number; googleMapsUrl?: string } | null;
     why_choose_us?: WhyChooseUsCard | null;  // legacy Strapi
     hero_card?: WhyChooseUsCard | null;       // Payload
     why_choose_us_item?: WhyChooseUsItem[] | null;
@@ -76,6 +77,7 @@ export function WhyChooseUsSection({
     why_choose_us_item,
     cards,
     locale,
+    googleRating,
 }: WhyChooseUsProps) {
     const card = hero_card ?? why_choose_us;
     const heroUrl = toAbs(card?.background);
@@ -249,6 +251,28 @@ export function WhyChooseUsSection({
                                                 {!!s.description && (
                                                     <p className="text-sm text-gray-600 mb-4">{s.description}</p>
                                                 )}
+                                                {/* Google-értékelés az első (Tapasztalat) kártya aljára — élő adat a napi cronból */}
+                                                {i === 0 && googleRating && (
+                                                    <a
+                                                        href={googleRating.googleMapsUrl || undefined}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="inline-flex items-center gap-2"
+                                                    >
+                                                        <span className="flex items-center gap-0.5" aria-hidden="true">
+                                                            {Array.from({ length: 5 }).map((_, si) => (
+                                                                <Star
+                                                                    key={si}
+                                                                    strokeWidth={si < Math.round(googleRating.rating) ? 0 : 1.5}
+                                                                    className={`h-3.5 w-3.5 ${si < Math.round(googleRating.rating) ? 'fill-current text-amber-400' : 'text-neutral-300'}`}
+                                                                />
+                                                            ))}
+                                                        </span>
+                                                        <span className="whitespace-nowrap text-xs font-medium text-neutral-600">
+                                                            {googleRating.rating.toFixed(1).replace('.', locale === 'en' ? '.' : ',')} · {locale === 'en' ? `${googleRating.userRatingCount} Google reviews` : `${googleRating.userRatingCount} Google-értékelés`}
+                                                        </span>
+                                                    </a>
+                                                )}
                                                 {s.logos.length > 0 && (
                                                     <div className="flex flex-wrap items-center gap-4 grayscale opacity-60">
                                                         {s.logos.slice(0, 10).map((lg, li) =>
@@ -304,7 +328,14 @@ function AnimatedNumber({ value }: { value: number }) {
         return () => clearInterval(timer);
     }, [inView, value]);
 
-    return <span ref={ref}>{display}</span>;
+    // The real number stays in the page text (transparent) so Google / AI read "8", not "0";
+    // the counting animation is drawn on top via CSS (data-k + ::before), so it is not page text.
+    return (
+        <span ref={ref} className="relative inline-block">
+            <span className="text-transparent">{value}</span>
+            <span aria-hidden className="kb-label absolute inset-0" data-k={String(display)} />
+        </span>
+    );
 }
 
 export default WhyChooseUsSection;

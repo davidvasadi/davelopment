@@ -94,7 +94,7 @@ const DynamicZoneManager: React.FC<Props> = ({ dynamicZone, locale, fadeZoom = f
         const extraProps =
           componentData.blockType === 'testimonials'
             ? { googleReviews }
-            : componentData.blockType === 'google-review-story'
+            : componentData.blockType === 'google-review-story' || componentData.blockType === 'why-choose-us'
             ? { googleRating }
             : {};
         const content = <Component {...componentData} locale={locale} {...extraProps} />;

@@ -32,6 +32,7 @@ export async function GoogleRatingBadge({
         {Array.from({ length: 5 }).map((_, i) => (
           <Star
             key={i}
+            strokeWidth={i < Math.round(data.rating) ? 0 : 1.5}
             className={`h-4 w-4 ${
               i < Math.round(data.rating)
                 ? 'fill-current text-amber-400'

@@ -52,7 +52,7 @@ const COPY = {
 const StarRow = ({ count = 5 }: { count?: number }) => (
   <div className="flex gap-0.5">
     {Array.from({ length: Math.round(count) }).map((_, i) => (
-      <Star key={i} className="w-3.5 h-3.5" fill="#f59e0b" stroke="#f59e0b" />
+      <Star key={i} className="w-3.5 h-3.5" fill="#f59e0b" stroke="none" />
     ))}
   </div>
 );
@@ -300,9 +300,9 @@ export function GoogleReviewsSection({
               <p className="text-xs text-gray-500 font-medium">{t.badge}</p>
             </div>
             <div>
-              <h2 className="text-[clamp(3rem,8vw,7rem)] font-medium text-gray-900 leading-none tracking-tight">
+              <p role="heading" aria-level={2} className="text-[clamp(3rem,8vw,7rem)] font-medium text-gray-900 leading-none tracking-tight">
                 {t.heading}
-              </h2>
+              </p>
               <p className="text-gray-400 text-base mt-2 font-medium">{t.sub_heading}</p>
             </div>
           </div>

@@ -112,7 +112,7 @@ export const GoogleReviewStory = ({
             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
             {rating !== null && (
               <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-1 text-xs font-medium text-black">
-                <Star className="w-3 h-3" fill="#f59e0b" stroke="#f59e0b" />
+                <Star className="w-3 h-3" fill="#f59e0b" stroke="none" />
                 {rating.toFixed(1)}
               </div>
             )}
@@ -137,9 +137,9 @@ export const GoogleReviewStory = ({
                 <div className="flex items-end gap-1 mb-1">
                   {[...Array(5)].map((_, i) =>
                     i < Math.round(rating) ? (
-                      <Star key={i} className="w-4 h-4" fill="#f59e0b" stroke="#f59e0b" />
+                      <Star key={i} className="w-4 h-4" fill="#f59e0b" stroke="none" />
                     ) : (
-                      <Star key={i} className="w-4 h-4 fill-transparent text-white/30" />
+                      <Star key={i} className="w-4 h-4 fill-transparent text-white/30" strokeWidth={1.5} />
                     )
                   )}
                 </div>
