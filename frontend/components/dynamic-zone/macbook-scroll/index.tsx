@@ -37,7 +37,7 @@ export function MacbookScrollSection({ title, desktop_media, mobile_media, mobil
   return (
     <div className="w-screen ml-[calc(50%-50vw)] mr-[calc(50%-50vw)] px-0 md:px-2">
       <motion.div
-        className="relative w-full overflow-hidden rounded-none md:rounded-3xl bg-[#080809]"
+        className="relative w-full overflow-clip rounded-none md:rounded-3xl bg-[#080809]" /* clip (nem hidden): a hidden görgető-konténerré tenné, és a natív görgetés-idővonal megállna */
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
@@ -57,6 +57,7 @@ export function MacbookScrollSection({ title, desktop_media, mobile_media, mobil
           <MacbookScroll
             title={title}
             src={src}
+            alt={desktop_media?.alt}
             videoSrc={videoSrc}
             mobileSrc={mobileSrc}
             mobileVideoSrc={mobileVideoSrc}

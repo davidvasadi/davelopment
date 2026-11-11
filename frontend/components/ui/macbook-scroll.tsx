@@ -1,5 +1,5 @@
 'use client';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { MotionValue, motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
@@ -25,7 +25,9 @@ import {
 } from '@tabler/icons-react';
 
 /* ─────────────────────────────────────────────
-   iPhone Dynamic Island frame – mobil nézet
+   iPhone-keret – mobil nézet
+   Ugyanaz a keretkép, mint a davelopment booking landingján (public/images/mockup): a képernyő-kivágásba kerül a
+   tartalom, a keret (lekerekítés, Dynamic Island, gombok) képe fölötte ül.
 ───────────────────────────────────────────── */
 const IPhoneFrame = ({
   src,
@@ -50,205 +52,55 @@ const IPhoneFrame = ({
         </h2>
       )}
 
-      {/* Telefon külső váz */}
-      <div
-        className="relative mx-auto"
-        style={{ width: 'min(320px, 78vw)' }}
-      >
-        {/* Oldalsó gombok – bal (silent + volume) */}
-        <div className="absolute -left-[3.5px] top-[80px] w-[3.5px] h-7 rounded-l-full bg-[#1c1c1e]"
-          style={{ boxShadow: '-1px 0 3px rgba(0,0,0,0.6)' }} />
-        <div className="absolute -left-[3.5px] top-[122px] w-[3.5px] h-10 rounded-l-full bg-[#1c1c1e]"
-          style={{ boxShadow: '-1px 0 3px rgba(0,0,0,0.6)' }} />
-        <div className="absolute -left-[3.5px] top-[168px] w-[3.5px] h-10 rounded-l-full bg-[#1c1c1e]"
-          style={{ boxShadow: '-1px 0 3px rgba(0,0,0,0.6)' }} />
-
-        {/* Action button – bal felső (iPhone 15-stílus) */}
-        <div className="absolute -left-[3.5px] top-[44px] w-[3.5px] h-8 rounded-l-full bg-[#1c1c1e]"
-          style={{ boxShadow: '-1px 0 3px rgba(0,0,0,0.6)' }} />
-
-        {/* Jobb oldali power gomb */}
-        <div className="absolute -right-[3.5px] top-[130px] w-[3.5px] h-14 rounded-r-full bg-[#1c1c1e]"
-          style={{ boxShadow: '1px 0 3px rgba(0,0,0,0.6)' }} />
-
-        {/* Fő váz */}
-        <div
-          className="relative w-full overflow-hidden"
-          style={{
-            background: 'linear-gradient(160deg, #2e2e30 0%, #0d0d0f 45%, #1c1c1e 100%)',
-            borderRadius: '46px',
-            padding: '3px',
-            boxShadow: `
-              0 0 0 0.5px #3a3a3c,
-              0 30px 70px rgba(0,0,0,0.75),
-              0 10px 25px rgba(0,0,0,0.5),
-              inset 0 1px 0 rgba(255,255,255,0.10),
-              inset 0 -1px 0 rgba(0,0,0,0.4)
-            `,
-          }}
-        >
-          {/* Belső fekete keret */}
-          <div
-            className="relative overflow-hidden w-full"
-            style={{
-              borderRadius: '43px',
-              background: '#000',
-              aspectRatio: '9/19.5',
-            }}
-          >
-            {/* Tartalom — DI alatt kezdődik, home indicator felett végződik */}
-            <div className="absolute inset-x-0 overflow-hidden" style={{ top: '62px', bottom: '24px' }}>
-              {children ? (
-                <div className="absolute inset-0 w-full h-full overflow-hidden">
-                  {children}
-                </div>
-              ) : (
-                <motion.div
-                  className="absolute inset-x-0 top-0 w-full"
-                  style={{ height: contentY ? '170%' : '100%', ...(contentY ? { y: contentY } : {}) }}
-                >
-                  {videoSrc ? (
-                    <video
-                      src={videoSrc}
-                      autoPlay muted loop playsInline
-                      className="absolute inset-0 w-full h-full object-cover object-top"
-                    />
-                  ) : src ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={src}
-                      alt="mockup"
-                      className="absolute inset-0 w-full h-full object-cover object-top"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-neutral-900 to-black" />
-                  )}
-                </motion.div>
-              )}
-            </div>
-
-            {/* Kijelző fény visszaverődés */}
-            <div
-              className="absolute inset-x-0 top-0 h-28 pointer-events-none z-10"
-              style={{
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.07) 0%, transparent 100%)',
-                borderRadius: '43px 43px 0 0',
-              }}
-            />
-
-            {/* ── Dynamic Island ── */}
-            <div
-              className="absolute top-[10px] left-1/2 -translate-x-1/2 z-30"
-              style={{
-                width: '36%',
-                height: '33px',
-                background: '#000',
-                borderRadius: '20px',
-                boxShadow: '0 0 0 1px rgba(255,255,255,0.07), 0 6px 16px rgba(0,0,0,0.9)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'absolute',
-              }}
+      <div className="relative mx-auto aspect-[1800/3680]" style={{ width: 'min(320px, 78vw)' }}>
+        {/* Képernyő-kivágás (a keretkép átlátszó része) */}
+        <div className="absolute bottom-[2.55%] left-[5.39%] right-[5.44%] top-[2.53%] overflow-hidden rounded-[13%/6.4%] bg-[#E3E5E6]">
+          {children ? (
+            <div className="absolute inset-x-0 bottom-[3%] top-[7%] overflow-hidden">{children}</div>
+          ) : (
+            <motion.div
+              className="absolute inset-x-0 top-0 w-full"
+              style={{ height: contentY ? '170%' : '100%', ...(contentY ? { y: contentY } : {}) }}
             >
-              {/* Kamera modul */}
-              <div
-                style={{
-                  position: 'absolute',
-                  right: '18%',
-                  width: '12px',
-                  height: '12px',
-                  borderRadius: '50%',
-                  background: 'radial-gradient(circle at 38% 33%, #152030 0%, #07090c 55%, #000 100%)',
-                  boxShadow: '0 0 0 1.5px rgba(255,255,255,0.05), inset 0 0 5px rgba(0,160,255,0.18)',
-                }}
-              >
-                {/* Lencsecsillanás */}
-                <div style={{
-                  position: 'absolute', top: '18%', left: '18%',
-                  width: '32%', height: '32%',
-                  borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.2)',
-                }} />
-              </div>
-
-              {/* Face ID szenzor – apró pont */}
-              <div
-                style={{
-                  position: 'absolute',
-                  left: '24%',
-                  width: '6px',
-                  height: '6px',
-                  borderRadius: '50%',
-                  background: '#0a0a0c',
-                  boxShadow: '0 0 0 1px rgba(255,255,255,0.04)',
-                }}
-              />
-            </div>
-
-            {/* Status bar — 3-column layout adjacent to Dynamic Island */}
-            <div className="absolute top-0 inset-x-0 z-20 flex items-center pointer-events-none" style={{ paddingTop: '17px' }}>
-              {/* Left: time — right-aligned toward DI */}
-              <div className="flex-1 flex justify-end" style={{ paddingRight: '7px' }}>
-                <span className="text-white font-semibold" style={{ fontSize: '12px', letterSpacing: '-0.4px' }}>9:41</span>
-              </div>
-              {/* Center: Dynamic Island placeholder (same width as DI) */}
-              <div style={{ width: '38%' }} />
-              {/* Right: status icons — left-aligned from DI */}
-              <div className="flex-1 flex justify-start items-center gap-[5px]" style={{ paddingLeft: '7px' }}>
-                {/* Mobiljel */}
-                <svg width="16" height="11" viewBox="0 0 16 11" fill="white">
-                  <rect x="0" y="7" width="3" height="4" rx="0.5" />
-                  <rect x="4.5" y="4.5" width="3" height="6.5" rx="0.5" />
-                  <rect x="9" y="2" width="3" height="9" rx="0.5" />
-                  <rect x="13.5" y="0" width="2.5" height="11" rx="0.5" opacity="0.3" />
-                </svg>
-                {/* WiFi — sweep=0 so arcs bow upward */}
-                <svg width="15" height="11" viewBox="0 0 15 11" fill="white">
-                  <circle cx="7.5" cy="9.8" r="1.1"/>
-                  <path d="M4.9 7.0a3.7 3.7 0 0 0 5.2 0" fill="none" stroke="white" strokeWidth="1.25" strokeLinecap="round"/>
-                  <path d="M2.2 4.3a8.2 8.2 0 0 0 10.6 0" fill="none" stroke="white" strokeWidth="1.25" strokeLinecap="round" opacity="0.45"/>
-                </svg>
-                {/* Akkumulátor */}
-                <div className="flex items-center gap-[2px]">
-                  <div style={{
-                    width: '22px', height: '11px',
-                    border: '1.5px solid rgba(255,255,255,0.5)',
-                    borderRadius: '3.5px',
-                    padding: '1.5px',
-                    display: 'flex', alignItems: 'center',
-                  }}>
-                    <div style={{ width: '78%', height: '100%', background: 'white', borderRadius: '1.5px' }} />
-                  </div>
-                  <div style={{ width: '2px', height: '5px', background: 'rgba(255,255,255,0.45)', borderRadius: '1px' }} />
-                </div>
-              </div>
-            </div>
-
-            {/* Home indicator */}
-            <div className="absolute bottom-2 inset-x-0 flex justify-center z-20 pointer-events-none">
-              <div style={{
-                width: '33%', height: '5px',
-                background: 'rgba(255,255,255,0.45)',
-                borderRadius: '3px',
-              }} />
-            </div>
-
-            {showGradient && (
-              <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white to-transparent dark:from-black pointer-events-none z-10" />
-            )}
-          </div>
+              {videoSrc ? (
+                <video
+                  src={videoSrc}
+                  autoPlay muted loop playsInline
+                  className="absolute inset-0 w-full h-full object-cover object-top"
+                />
+              ) : src ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={src}
+                  alt=""
+                  aria-hidden
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover object-top"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-neutral-900 to-black" />
+              )}
+            </motion.div>
+          )}
+          {showGradient && (
+            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white to-transparent dark:from-black pointer-events-none z-10" />
+          )}
         </div>
+
+        {/* A keret képe — fölül, így a sarkok és a Dynamic Island a keretből jönnek */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/mockup/iphone-keret-davelopment.webp"
+          alt=""
+          aria-hidden
+          loading="lazy"
+          className="pointer-events-none absolute inset-0 h-full w-full"
+        />
 
         {/* Padló árnyék */}
         <div
           className="absolute -bottom-6 left-1/2 -translate-x-1/2 pointer-events-none"
-          style={{
-            width: '65%', height: '22px',
-            background: 'rgba(0,0,0,0.28)',
-            filter: 'blur(18px)',
-            borderRadius: '50%',
-          }}
+          style={{ width: '65%', height: '22px', background: 'rgba(0,0,0,0.28)', filter: 'blur(18px)', borderRadius: '50%' }}
         />
       </div>
     </div>
@@ -262,6 +114,7 @@ const IPhoneFrame = ({
 ───────────────────────────────────────────── */
 export const MacbookScroll = ({
   src,
+  alt,
   videoSrc,
   mobileSrc,
   mobileVideoSrc,
@@ -272,6 +125,8 @@ export const MacbookScroll = ({
   mobileChildren,
 }: {
   src?: string;
+  /** a laptop-képernyő képének alt-szövege (a CMS médiából) */
+  alt?: string;
   videoSrc?: string;
   mobileSrc?: string;
   mobileVideoSrc?: string;
@@ -315,6 +170,29 @@ export const MacbookScroll = ({
   // Mobil parallax: tartalom felfelé tolódik a telefon belsejében
   const mobileContentY = useTransform(mobileProgress, [0, 1], ['0%', '-55%']);
 
+  // Mobil cím + telefon: ugyanazok az értékek, de a böngésző saját (hardveres) görgetés-idővonalán (ViewTimeline), ha
+  // támogatja — így a beúszás nem a JS-ből, képkockánként számolódik. A „cover” sáv pontosan a fenti
+  // ['start end', 'end start'] tartomány (0% = a blokk teteje a képernyő alján, 100% = az alja a tetején).
+  // Ahol nincs ViewTimeline, marad a fenti framer-motion (JS) változat.
+  const mobileTitleRef = useRef<HTMLHeadingElement>(null);
+  const mobilePhoneRef = useRef<HTMLDivElement>(null);
+  const [nativeMobile, setNativeMobile] = useState(false);
+  useEffect(() => {
+    const VT = (window as any).ViewTimeline;
+    const subject = mobileRef.current;
+    if (!VT || !subject) return;
+    const timeline = new VT({ subject, axis: 'block' });
+    const run = (el: Element | null, keyframes: Keyframe[], from: number, to: number) =>
+      el?.animate(keyframes, { timeline, rangeStart: `cover ${from}%`, rangeEnd: `cover ${to}%`, fill: 'both', easing: 'linear' } as any);
+    const anims = [
+      run(mobilePhoneRef.current, [{ transform: 'scale(0.72)' }, { transform: 'scale(1)' }], 5, 45),
+      run(mobilePhoneRef.current, [{ opacity: 0 }, { opacity: 1 }], 5, 38),
+      run(mobileTitleRef.current, [{ opacity: 1, transform: 'translateY(0px)' }, { opacity: 0, transform: 'translateY(-30px)' }], 35, 60),
+    ];
+    setNativeMobile(true);
+    return () => anims.forEach((a) => a?.cancel());
+  }, []);
+
   const activeSrc      = mobileSrc      ?? src;
   const activeVideoSrc = mobileVideoSrc ?? videoSrc;
 
@@ -325,8 +203,9 @@ export const MacbookScroll = ({
         <div ref={mobileRef} className="flex flex-col items-center justify-center gap-4 py-16 px-6">
           {title && (
             <motion.h2
-              style={{ opacity: mobileTitleOpacity, y: mobileTitleY }}
-              className="text-center text-2xl font-bold text-white"
+              ref={mobileTitleRef}
+              style={nativeMobile ? undefined : { opacity: mobileTitleOpacity, y: mobileTitleY }}
+              className="text-center text-2xl font-bold text-white will-change-transform"
             >
               {title}
             </motion.h2>
@@ -341,7 +220,11 @@ export const MacbookScroll = ({
               {mobileChildren}
             </IPhoneFrame>
           ) : (
-            <motion.div style={{ scale: mobileScale, opacity: mobilePhoneOpacity }}>
+            <motion.div
+              ref={mobilePhoneRef}
+              style={nativeMobile ? undefined : { scale: mobileScale, opacity: mobilePhoneOpacity }}
+              className="will-change-transform"
+            >
               <IPhoneFrame src={activeSrc} videoSrc={activeVideoSrc} showGradient={showGradient}>
                 {mobileChildren}
               </IPhoneFrame>
@@ -355,14 +238,17 @@ export const MacbookScroll = ({
         ref={desktopRef}
         className="hidden md:relative md:flex md:min-h-[200vh] md:shrink-0 md:flex-col md:items-center md:justify-start md:py-40 [perspective:800px]"
       >
-        <motion.h2
+        {/* desktop copy of the title: role=heading (a11y) but not an <h2> tag — the mobile copy is the h2 */}
+        <motion.p
+          role="heading"
+          aria-level={2}
           style={{ translateY: textTransform, opacity: textOpacity }}
           className="mb-20 text-center text-3xl font-bold text-white"
         >
           {title}
-        </motion.h2>
+        </motion.p>
 
-        <Lid src={src} videoSrc={videoSrc} scaleX={scaleX} scaleY={scaleY} rotate={rotate} translate={translate}>
+        <Lid src={src} alt={alt} videoSrc={videoSrc} scaleX={scaleX} scaleY={scaleY} rotate={rotate} translate={translate}>
           {desktopChildren}
         </Lid>
 
@@ -390,12 +276,13 @@ export const MacbookScroll = ({
    Desktop sub-komponensek (változatlanok)
 ───────────────────────────────────────────── */
 const Lid = ({
-  scaleX, scaleY, rotate, translate, src, videoSrc, children,
+  scaleX, scaleY, rotate, translate, src, alt, videoSrc, children,
 }: {
   scaleX: MotionValue<number>;
   scaleY: MotionValue<number>;
   rotate: MotionValue<number>;
   translate: MotionValue<number>;
+  alt?: string;
   src?: string;
   videoSrc?: string;
   children?: React.ReactNode;
@@ -423,7 +310,7 @@ const Lid = ({
         scaleX, scaleY, rotateX: rotate, translateY: translate,
         transformStyle: 'preserve-3d', transformOrigin: 'top',
       }}
-      className="absolute inset-0 h-96 w-[32rem] rounded-2xl bg-[#010101] p-2"
+      className="absolute inset-0 h-80 w-[32rem] rounded-2xl bg-[#010101] p-2" /* 16:10, mint egy valódi MacBook-kijelző */
     >
       <div className="absolute inset-0 rounded-lg bg-[#272729]" />
       {videoSrc ? (
@@ -431,7 +318,7 @@ const Lid = ({
           className="absolute inset-0 h-full w-full rounded-lg object-cover object-top" />
       ) : src ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt="mockup"
+        <img src={src} alt={alt ?? ''} loading="lazy"
           className="absolute inset-0 h-full w-full rounded-lg object-cover object-top" />
       ) : children ? (
         <div className="absolute inset-0 rounded-lg overflow-hidden">{children}</div>
@@ -543,6 +430,19 @@ const Keypad = () => (
   </div>
 );
 
+// Key labels are drawn with CSS (::before + data-k) instead of text nodes, so the decorative
+// keyboard (F1…F12, QWERTY…) does not end up in the page text that search engines / AI read.
+const cssLabels = (node: React.ReactNode): React.ReactNode =>
+  React.Children.map(node, (c) => {
+    if (typeof c === 'string' || typeof c === 'number') {
+      return <span aria-hidden className="kb-label" data-k={String(c)} />;
+    }
+    if (React.isValidElement<{ children?: React.ReactNode }>(c) && c.props.children !== undefined) {
+      return React.cloneElement(c, undefined, cssLabels(c.props.children));
+    }
+    return c;
+  });
+
 const KBtn = ({
   className, children, childrenClassName, backlit = true,
 }: {
@@ -557,7 +457,7 @@ const KBtn = ({
       style={{ boxShadow: '0px -0.5px 2px 0 #0D0D0F inset, -0.5px 0px 2px 0 #0D0D0F inset' }}
     >
       <div className={cn('flex w-full flex-col items-center justify-center text-[5px] text-neutral-200', childrenClassName, backlit && 'text-white')}>
-        {children}
+        {cssLabels(children)}
       </div>
     </div>
   </div>
