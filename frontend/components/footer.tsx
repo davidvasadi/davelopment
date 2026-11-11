@@ -4,6 +4,7 @@ import React from 'react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { Container } from '@/components/container';
 import { GoogleRatingBadge } from '@/components/google-rating-badge';
+import { CookieSettingsButton } from '@/components/cookie-settings-button';
 type FooterLink = {
   text?: string | null;
   URL?: string | null;
@@ -292,6 +293,10 @@ export const Footer = ({ data, locale }: FooterProps) => {
                   </Link>
                 );
               })}
+              <CookieSettingsButton
+                locale={locale}
+                className="text-left text-sm text-white/80 hover:text-white transition-colors"
+              />
             </div>
 
             {/* ======== JOBB: AVATAR + KREDITEK ======== */}

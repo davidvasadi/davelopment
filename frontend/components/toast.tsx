@@ -5,7 +5,7 @@ import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { applyConsent, COOKIE_KEY, CONSENT_VERSION, readConsent, type CookiePreferences } from '@/lib/consent';
+import { applyConsent, COOKIE_KEY, CONSENT_VERSION, OPEN_CONSENT_EVENT, readConsent, type CookiePreferences } from '@/lib/consent';
 
 const CATEGORIES_HU = [
   { key: 'necessary' as const, label: 'Szükséges', desc: 'Mindig aktív',               locked: true  },
@@ -42,6 +42,15 @@ export const CookieConsent = () => {
 
   useEffect(() => {
     if (!readConsent()) setTimeout(() => setIsOpen(true), 1200);
+    // footer "Süti-beállítások": reopen with the current choice, details expanded (GDPR: withdrawal as easy as consent)
+    const reopen = () => {
+      const saved = readConsent();
+      if (saved) setPrefs({ necessary: true, analytics: !!saved.analytics, marketing: !!saved.marketing });
+      setShowDetails(true);
+      setIsOpen(true);
+    };
+    window.addEventListener(OPEN_CONSENT_EVENT, reopen);
+    return () => window.removeEventListener(OPEN_CONSENT_EVENT, reopen);
   }, []);
 
   const save = (p: CookiePreferences) => {

@@ -32,6 +32,8 @@ const g = (allowed: boolean): ConsentValue => (allowed ? 'granted' : 'denied');
  * Akkor hívjuk, amikor a látogató ment a cookie bannerben.
  */
 export const CONSENT_EVENT = 'davelopment:consent';
+// fired by the footer "Cookie settings" link to reopen the banner
+export const OPEN_CONSENT_EVENT = 'davelopment:open-consent';
 
 export const applyConsent = (prefs: CookiePreferences) => {
   if (typeof window === 'undefined') return;
