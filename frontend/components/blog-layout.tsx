@@ -276,7 +276,7 @@ export const BlogLayout: React.FC<BlogLayoutProps> = ({
                     <div className="absolute inset-0 bg-black/40" />
                     <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-end">
                       <span className="text-white/70 text-xs mb-1 font-medium">{ui.previous}</span>
-                      <h2 className="text-white text-sm sm:text-base md:text-lg lg:text-2xl font-semibold leading-tight">{prevArticle.title}</h2>
+                      <p className="text-white text-sm sm:text-base md:text-lg lg:text-2xl font-semibold leading-tight">{prevArticle.title}</p>
                     </div>
                   </Link>
                 )}
@@ -298,7 +298,7 @@ export const BlogLayout: React.FC<BlogLayoutProps> = ({
                     <div className="absolute inset-0 bg-black/40" />
                     <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-end items-end text-right">
                       <span className="text-white/70 text-xs mb-1 font-medium">{ui.next}</span>
-                      <h2 className="text-white text-sm sm:text-base md:text-lg lg:text-2xl font-semibold leading-tight">{nextArticle.title}</h2>
+                      <p className="text-white text-sm sm:text-base md:text-lg lg:text-2xl font-semibold leading-tight">{nextArticle.title}</p>
                     </div>
                   </Link>
                 )}

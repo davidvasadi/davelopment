@@ -276,9 +276,9 @@ export function Services(props: ServicesBlockProps) {
                                                 </div>
 
                                                 <div>
-                                                    <h4 className="text-sm font-medium text-white/70 tracking-wider mb-4">
+                                                    <p className="text-sm font-medium text-white/70 tracking-wider mb-4">
                                                         {s.categoriesTitle}
-                                                    </h4>
+                                                    </p>
                                                     <div className="flex flex-wrap gap-3">
                                                         {s.categories.map((cat, ci) => (
                                                             <span key={ci} className="px-4 py-2 bg-white text-black text-xs font-semibold rounded-full">

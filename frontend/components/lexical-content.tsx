@@ -55,7 +55,8 @@ function LexicalNode({ node, locale }: { node: any; locale: string }): React.Rea
       );
 
     case 'heading': {
-      const Tag = (node.tag ?? 'h2') as keyof Pick<React.JSX.IntrinsicElements, 'h1'|'h2'|'h3'|'h4'|'h5'|'h6'>;
+      // level normalised per article (see normaliseHeadings): no 2nd H1, no skipped levels
+      const Tag = (node.__tag ?? node.tag ?? 'h2') as keyof Pick<React.JSX.IntrinsicElements, 'h1'|'h2'|'h3'|'h4'|'h5'|'h6'>;
       // Horgony (anchor) minden fejléchez — enélkül sem belső ugrólinkek, sem
       // AI-idézhető mélylinkek nem működnek a cikk tartalmán belül.
       const text = (node.children ?? [])
@@ -115,8 +116,33 @@ interface LexicalContentProps {
   locale?: string;
 }
 
+/**
+ * The page already has the article title as H1, so body headings start at H2: the highest level used
+ * in the article becomes H2, and no heading may jump more than one level below the previous one
+ * (e.g. an article written with H4 sections → H2). Keeps the page outline clean for SEO / screen readers.
+ */
+function normaliseHeadings(nodes: any[]): void {
+  const heads: any[] = [];
+  const walk = (ns: any[]) => (ns ?? []).forEach((n) => {
+    if (n?.type === 'heading') heads.push(n);
+    else if (Array.isArray(n?.children)) walk(n.children);
+  });
+  walk(nodes);
+  if (!heads.length) return;
+  const lvl = (n: any) => Number(String(n.tag ?? 'h2').replace('h', '')) || 2;
+  const shift = Math.min(...heads.map(lvl)) - 2;
+  let prev = 1;
+  for (const h of heads) {
+    const want = Math.max(2, lvl(h) - shift);
+    const level = Math.min(want, prev + 1);
+    h.__tag = `h${level}`;
+    prev = level;
+  }
+}
+
 export function LexicalContent({ content, className, locale = 'hu' }: LexicalContentProps) {
   if (!content?.root) return null;
+  normaliseHeadings(content.root.children ?? []);
   return (
     <div className={className}>
       <LexicalChildren nodes={content.root.children ?? []} locale={locale} />

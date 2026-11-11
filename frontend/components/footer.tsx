@@ -240,12 +240,13 @@ export const Footer = ({ data, locale }: FooterProps) => {
       {/* ======================= NAGY LOGÓ ÉS STUDIO FELIRAT ======================= */}
       <div className="w-full pb-20 text-right">
         <Container>
-          <h2 className="text-black text-[40px] sm:text-[50px] md:text-7xl lg:text-8xl xl:text-9xl font-semibold leading-[0.9] tracking-tighter">
+          {/* díszítő logó-felirat minden oldalon — nem címsor (különben minden oldal végén egy „[davelopment]©” H2 lenne) */}
+          <p className="text-black text-[40px] sm:text-[50px] md:text-7xl lg:text-8xl xl:text-9xl font-semibold leading-[0.9] tracking-tighter">
             [davelopment]©
             {/* <span className=" text-black font-normal rounded-full ">
               <span className="font-semibold">®</span>
             </span> */}
-          </h2>
+          </p>
           {/* <p className="mt-2 text-1xl md:text-3xl xl:text-4xl font-bold "></p> */}
         </Container>
       </div>

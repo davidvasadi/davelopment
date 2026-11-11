@@ -215,9 +215,9 @@ const LargeTile: React.FC<TileBase & { arrowClassName?: string }> = ({
               <span className="text-white text-xl md:text-4xl font-medium tracking-tight leading-tight">{label}</span>
               <ArrowBadge iconClassName={arrowClassName ?? 'text-white'} />
             </div>
-            <h2 className={`${titleSizeClass} font-medium tracking-tight text-white mt-6 md:mt-16 lg:mt-40 xl:mt-60 leading-none break-words`}>
+            <p className={`${titleSizeClass} font-medium tracking-tight text-white mt-6 md:mt-16 lg:mt-40 xl:mt-60 leading-none break-words`}>
               {product.name}
-            </h2>
+            </p>
           </div>
         </TileWithImageBackground>
       </Link>
@@ -228,7 +228,7 @@ const LargeTile: React.FC<TileBase & { arrowClassName?: string }> = ({
               <span className="text-white text-xl font-medium tracking-tight leading-tight">{label}</span>
               <ArrowBadge iconClassName={arrowClassName ?? 'text-white'} href={href} />
             </div>
-            <h2 className="text-4xl font-medium tracking-tight text-white mt-6 leading-none break-words">{product.name}</h2>
+            <p className="text-4xl font-medium tracking-tight text-white mt-6 leading-none break-words">{product.name}</p>
           </div>
         </TileWithImageBackground>
       </div>
@@ -260,7 +260,7 @@ const SmallTextTile: React.FC<TileBase & { truncateLength: number }> = ({
               </div>
               <ArrowBadge iconClassName="text-neutral-400" />
             </div>
-            <h2 className="text-2xl md:text-4xl font-medium tracking-tight mt-3 md:mt-10 leading-tight">{product.name}</h2>
+            <p className="text-2xl md:text-4xl font-medium tracking-tight mt-3 md:mt-10 leading-tight">{product.name}</p>
           </div>
         </div>
       </Link>
@@ -276,7 +276,7 @@ const SmallTextTile: React.FC<TileBase & { truncateLength: number }> = ({
               </div>
               <ArrowBadge iconClassName="text-neutral-400" href={href} />
             </div>
-            <h2 className="text-2xl font-medium tracking-tight mt-3 leading-tight">{product.name}</h2>
+            <p className="text-2xl font-medium tracking-tight mt-3 leading-tight">{product.name}</p>
           </div>
         </div>
       </div>

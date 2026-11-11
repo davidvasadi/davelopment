@@ -133,12 +133,13 @@ export const CTA = ({
                   <p className="text-sm font-medium text-gray-700">{badge_label}</p>
                 </div>
               )}
-              <h2 className="font-medium tracking-tight leading-tight mb-6">
+              {/* desktop copy: role=heading (a11y), not an <h2> tag, so the heading is not doubled for SEO */}
+              <p role="heading" aria-level={2} className="font-medium tracking-tight leading-tight mb-6">
                 <span className="text-black text-3xl md:text-4xl lg:text-5xl">{heading}</span>
                 {heading_highlight && (
                   <> <span className="text-black/50 text-3xl md:text-4xl lg:text-5xl">{heading_highlight}</span></>
                 )}
-              </h2>
+              </p>
               {sub_heading && (
                 <p className="text-sm text-gray-400 leading-relaxed mb-6">{sub_heading}</p>
               )}

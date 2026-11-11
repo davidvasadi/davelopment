@@ -222,9 +222,17 @@ export function ServicesPage({ pages, locale, heading, sub_heading, badge_label 
                                 </div>
 
                                 {/* Cím + rövid leírás */}
-                                <h3 className="font-bold tracking-tight leading-[1.1] text-2xl mb-2">
-                                    {page.label ?? page.slug}
-                                </h3>
+                                {/* the desktop carousel repeats the list 3x for the endless loop — only the first copy
+                                    gets a real <h3>, the clones are plain text so headings aren't tripled for SEO */}
+                                {idx < n ? (
+                                    <h3 className="font-bold tracking-tight leading-[1.1] text-2xl mb-2">
+                                        {page.label ?? page.slug}
+                                    </h3>
+                                ) : (
+                                    <p className="font-bold tracking-tight leading-[1.1] text-2xl mb-2">
+                                        {page.label ?? page.slug}
+                                    </p>
+                                )}
                                 {page.card_short_description && (
                                     <p
                                         className={`text-sm leading-relaxed line-clamp-3 ${

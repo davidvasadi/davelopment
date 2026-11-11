@@ -32,3 +32,5 @@ body {
     text-wrap: balance;
   }
 }
+/* decorative keyboard (components/ui/macbook-scroll.tsx): labels drawn via CSS, not page text */
+.kb-label::before { content: attr(data-k); }
