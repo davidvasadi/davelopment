@@ -320,6 +320,13 @@ jobs:
     name: e2e
     needs: [deploy-frontend, deploy-backend]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # The official Playwright image already contains Chromium and every OS package it needs, so nothing is fetched
+    # from the Ubuntu apt mirror (that mirror kept failing / hanging on GitHub runners). Keep the tag in step with
+    # @playwright/test in the lockfile; if they differ, the install step below downloads the matching browser from
+    # Playwright's CDN (still no apt).
+    container:
+      image: mcr.microsoft.com/playwright:v1.59.1-noble
     if: >-
       always() &&
       (needs.deploy-frontend.result == 'success' || needs.deploy-backend.result == 'success')
@@ -341,8 +348,9 @@ jobs:
       - name: Install deps
         run: pnpm install --frozen-lockfile=false
 
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
+      # No-op when the image already has this version; otherwise a CDN download (never apt).
+      - name: Ensure Playwright browser
+        run: pnpm exec playwright install chromium
 
       - name: Run e2e tests
         run: pnpm test:e2e
