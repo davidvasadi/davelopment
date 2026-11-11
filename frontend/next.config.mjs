@@ -3,6 +3,9 @@ const isDev = process.env.NODE_ENV !== 'production';
 
 const nextConfig = {
   serverExternalPackages: ['sharp'],
+  // telefonos teszt a helyi hálózaton (pl. ALLOWED_DEV_ORIGINS=192.168.0.175 a .env.local-ban) — enélkül a Next a
+  // nem-localhost címről jövő dev-kéréseket (HMR, chunkok) letiltja, és az oldal a betöltőn ragad. Élesben nincs hatása.
+  allowedDevOrigins: (process.env.ALLOWED_DEV_ORIGINS ?? '').split(',').map((s) => s.trim()).filter(Boolean),
   // turbopack: {
   //   root: process.cwd().replace('/next', ''),
   // },
@@ -49,10 +52,13 @@ const nextConfig = {
   // while blocking clickjacking, MIME-sniffing and protocol downgrade.
   async headers() {
     // Dev needs the local Payload API + HMR websocket; prod is same-origin.
-    const devConnect = isDev ? ' http://localhost:1337 http://localhost:3000 ws://localhost:3000' : '';
+    // Dev, phone test over LAN: the same for each ALLOWED_DEV_ORIGINS host (e.g. 192.168.0.175).
+    const lanHosts = isDev ? (process.env.ALLOWED_DEV_ORIGINS ?? '').split(',').map((h) => h.trim()).filter(Boolean) : [];
+    const lanConnect = lanHosts.map((h) => ` http://${h}:1337 http://${h}:3000 ws://${h}:3000`).join('');
+    const devConnect = isDev ? ' http://localhost:1337 http://localhost:3000 ws://localhost:3000' + lanConnect : '';
     // Dev only: media/images are served from the local Payload (localhost:1337).
     // In production they are same-origin (davelopment.hu), so this is empty.
-    const devMedia = isDev ? ' http://localhost:1337' : '';
+    const devMedia = isDev ? ' http://localhost:1337' + lanHosts.map((h) => ` http://${h}:1337`).join('') : '';
     const cspParts = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com https://*.google-analytics.com https://*.googleadservices.com https://*.google.com https://*.google.hu https://*.doubleclick.net https://*.clarity.ms",
