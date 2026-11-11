@@ -265,13 +265,13 @@ export const Hero = ({
       {posterUrl && (
   <Image
     src={posterUrl}
-    alt=""
+    alt={(video_poster as any)?.alt ?? ''}
     fill
     priority
     fetchPriority="high"
     className="object-cover z-[1]"
     sizes="100vw"
-    aria-hidden
+    aria-hidden={!(video_poster as any)?.alt}
   />
 )}
 

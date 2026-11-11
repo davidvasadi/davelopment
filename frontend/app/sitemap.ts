@@ -139,7 +139,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     fetchAll('pages', 'en'),
   ]);
 
+  // weboldal-keszites also lives at /hu/weboldal-keszites, but its canonical is the
+  // /hu/szolgaltatasok/... URL — the sitemap must list the canonical one.
   const servicePageSlugs = new Set([
+    'weboldal-keszites',
     'branding-arculat', 'ux-ui-design-fejlesztes',
     'digitalis-rendszerek', 'seo-tartalommarketing',
     'hirdeteskezeles', 'karbantartas',
