@@ -12,8 +12,9 @@ const apply = process.argv.includes('--apply')
 
 type Target = { kind: 'global' | 'page'; slug?: string; id?: number; locale: 'hu' | 'en'; field: 'metaTitle' | 'metaDescription'; value: string }
 const TARGETS: Target[] = [
-  // product-page: NOT here yet — prod has two rows for this global (pp id 1 and 2; the site reads 2, the admin wrote 1),
-  // so an update fails with "id invalid". Fix the duplicate row first (needs a decision which row stays).
+  // product-page: the duplicate global row (pp id 2, September) was removed on 2026-11-12; the October row stays
+  // (its HU title is already good — only the short EN title is set here)
+  { kind: 'global', slug: 'product-page', locale: 'en', field: 'metaTitle', value: 'Projects & Case Studies: Custom Websites — [davelopment]®' },
   { kind: 'global', slug: 'blog-page', locale: 'en', field: 'metaTitle', value: 'Blog: Web Design, SEO & Digital Growth — [davelopment]®' },
   {
     kind: 'page', id: 230, locale: 'hu', field: 'metaDescription',
