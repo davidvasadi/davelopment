@@ -2,7 +2,7 @@
 
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import { usePathname } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DesktopNavbar } from './desktop-navbar';
 import { MobileNavbar } from './mobile-navbar';
 import { isServiceHeroPath } from './navbar-theme';
@@ -77,8 +77,13 @@ export function Navbar({
     lastScrollY.current = latest;
   });
 
+  // iPhone Safari (iOS 26): a felső sáv színét a lap tetejét érintő fixed elem háttere adja — a felcsúszott (transform)
+  // navbar is még annak számít. Ha teljesen elrejtőzött, átlátszó lesz, így görgetés közben a Safari üveges sávja látszik.
+  const [offscreen, setOffscreen] = useState(false);
+  useEffect(() => { if (!hidden) setOffscreen(false); }, [hidden]);
+
   const pill = isServiceHero && atTop;
-  const resolvedBg = pill ? 'bg-transparent' : (navBgClass || DEFAULT_NAV_BG);
+  const resolvedBg = pill || offscreen ? 'bg-transparent' : (navBgClass || DEFAULT_NAV_BG);
 
   // A tartalom (lásd preloader.tsx AppWrapper) már a Preloader alatt renderelődik,
   // nem azután — enélkül a nav fade-in-je végigfutott volna, mire a Preloader
@@ -91,6 +96,7 @@ export function Navbar({
       initial={{ opacity: 0, y: -8 }}
       animate={preloaderDone ? { opacity: 1, y: hidden ? '-100%' : 0 } : { opacity: 0, y: -8 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      onAnimationComplete={() => { if (hidden) setOffscreen(true); }}
     >
       {/* DESKTOP */}
       <div className="hidden lg:block">
