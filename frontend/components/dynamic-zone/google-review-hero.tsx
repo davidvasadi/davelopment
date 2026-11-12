@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { strapiImage } from '@/lib/strapi/strapiImage';
-import { Container } from '@/components/container';
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 24 },
@@ -30,12 +29,12 @@ export const GoogleReviewHero = ({
   const imgAlt = (typeof image === 'object' && image?.alternativeText) || heading || '';
 
   return (
-    <Container>
+    <div className="w-full px-4 md:px-8">
       <div className="py-12 md:py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center">
 
           {/* Bal oldal — kép */}
-          <motion.div {...fadeUp(0)} className="relative rounded-2xl overflow-hidden min-h-[320px] md:min-h-[460px] bg-gray-100">
+          <motion.div {...fadeUp(0)} className="relative rounded-card overflow-hidden min-h-[320px] md:min-h-[460px] bg-gray-100">
             {imgUrl && (
               <Image
                 src={imgUrl}
@@ -84,6 +83,6 @@ export const GoogleReviewHero = ({
 
         </div>
       </div>
-    </Container>
+    </div>
   );
 };

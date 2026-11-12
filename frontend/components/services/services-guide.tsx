@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { PlusIcon, Check, ArrowUpRight } from 'lucide-react';
 import { Container } from '@/components/container';
-import { Services } from '@/components/dynamic-zone/services';
+import { PillLink } from '@/components/pill-link';
 
 /**
  * Services hub (/hu/szolgaltatasok, /en/services): plain-language "which service do I need?"
@@ -17,7 +17,7 @@ const M = (f: string) => `/api/media/file/${f}`;
 type Situation = { quote: string; answer: string; href: string; cta: string };
 type Copy = {
   badge: string; heading: string; lead: string; situations: Situation[];
-  getTitle: string; get: string[]; outro: React.ReactNode;
+  getTitle: string; get: string[]; outro: string; outroCta: string;
   stepsBadge: string; stepsHeading: string; stepsLead: string; steps: { title: string; time: string; text: string; pills: string[]; images: string[] }[];
 };
 
@@ -26,11 +26,11 @@ const HU = (L: (h: string, t: string) => React.ReactNode): Copy => ({
   heading: 'Melyik kell neked?|Válaszd ki, mi a helyzeted.',
   lead: 'Nem kell értened a szakkifejezésekhez. Elég, ha tudod, mi a gond — a megoldást mi hozzuk.',
   situations: [
-    { quote: '„Még nincs weboldalam, vagy a mostani elavult, nem tetszik.”', answer: 'Készítünk egy modern, mobilon is jól működő weboldalt, ami bemutat és megkeresést hoz. Nincs nagy kezdő költség: havi díjat fizetsz, és a frissítés is benne van.', href: '/hu/szolgaltatasok/weboldal-keszites', cta: 'Weboldal készítés' },
-    { quote: '„Van weboldalam, de senki nem talál meg a Google-ben.”', answer: 'Rendbe tesszük az oldal technikai alapjait, és rendszeresen írunk olyan tartalmat, amire a vevőid keresnek. Így hónapról hónapra több látogató érkezik ingyen.', href: '/hu/szolgaltatasok/seo-tartalommarketing', cta: 'Keresőoptimalizálás (SEO)' },
-    { quote: '„Most kellenének az ügyfelek, nem fél év múlva.”', answer: 'Google-hirdetéssel már az indulás hetében megjelensz azoknál, akik épp a szolgáltatásodat keresik. Minden hónapban érthetően megmutatjuk, mire ment el a pénz és mit hozott.', href: '/hu/szolgaltatasok/hirdeteskezeles', cta: 'Hirdetéskezelés' },
-    { quote: '„Most indulok, nincs még logóm, és nem tudom, hogyan nézzek ki.”', answer: 'Megtervezzük a logót, a színeket és a betűket, hogy mindenhol — weboldalon, Instagramon, névjegyen — ugyanolyan, felismerhető legyél.', href: '/hu/szolgaltatasok/branding-arculat', cta: 'Arculattervezés' },
-    { quote: '„A régi WordPress-oldalam lassú, akadozik, és félek hozzányúlni.”', answer: 'Átvesszük: frissítjük, mentést készítünk és gyorsan javítjuk, ha valami elromlik. Ha már nem éri meg foltozgatni, megmutatjuk az utat egy új oldalhoz.', href: '/hu/szolgaltatasok/karbantartas', cta: 'Weboldal karbantartás' },
+    { quote: '„Még nincs weboldalam, vagy a mostani elavult, nem tetszik.”', answer: 'Üres lapról tervezett, mobilon is jól működő weboldalt készítünk, ami bemutat és megkeresést hoz. Az első beszélgetés után fix árat kapsz, 190 000 Ft-tól.', href: '/hu/szolgaltatasok/weboldal-keszites', cta: 'Weboldal készítés' },
+    { quote: '„Van weboldalam, de már nem illik a cégünkhöz.”', answer: 'Új alapokra helyezzük úgy, hogy a Google-helyezéseid megmaradjanak: minden régi címet átirányítunk, és az indulás után is figyeljük a helyezéseket.', href: '/hu/szolgaltatasok/weboldal-ujratervezes', cta: 'Weboldal újratervezés' },
+    { quote: '„Van weboldalam, de senki nem talál meg a Google-ben.”', answer: 'Keresőoptimalizálás és Google-hirdetés a weboldalad mellé: a hirdetés már az első hetekben hoz érdeklődőt, a SEO pedig hónapról hónapra több ingyenes látogatót.', href: '/hu/szolgaltatasok/marketing-es-seo', cta: 'Marketing & SEO' },
+    { quote: '„Most indulok, nincs még logóm, és nem tudom, hogyan nézzek ki.”', answer: 'Megtervezzük a logót, a színeket és a betűket, hogy mindenhol — weboldalon, Instagramon, névjegyen — ugyanolyan, felismerhető legyél.', href: '/hu/szolgaltatasok/branding-arculat', cta: 'Arculat és design' },
+    { quote: '„A régi WordPress-oldalam lassú, akadozik, és félek hozzányúlni.”', answer: 'Átvesszük: frissítjük, figyeljük és gyorsítjuk, havonta megújuló támogatással, 29 900 Ft/hó-tól. Ha már nem éri meg foltozgatni, megmutatjuk az utat egy új oldalhoz.', href: '/hu/szolgaltatasok/karbantartas', cta: 'Weboldal karbantartás' },
     { quote: '„Rengeteg időm megy el telefonos foglalásra és papírmunkára.”', answer: 'Olyan rendszert építünk, ami helyetted dolgozik: online időpontfoglalás, automatikus emlékeztető, számlázás — a vállalkozásod működéséhez igazítva.', href: '/hu/szolgaltatasok/digitalis-rendszerek', cta: 'Egyedi rendszerek' },
   ],
   stepsBadge: 'Így zajlik',
@@ -47,17 +47,13 @@ const HU = (L: (h: string, t: string) => React.ReactNode): Copy => ({
   get: [
     'Ingyenes, 30 perces egyeztetés — kötelezettség nélkül',
     'Egy kapcsolattartó, aki végig ugyanaz marad',
-    'Havi díj, nagy egyszeri beruházás nélkül — már 19 900 Ft/hótól',
-    'Egy egyszerű weboldal kb. 2–4 hét alatt elkészül',
+    'Fix ár, még a munka előtt — weboldal 190 000 Ft-tól',
+    'Egy bemutatkozó weboldal 1–4 hét alatt elkészül',
     'Mobilon, tableten és gépen is kifogástalanul működik',
     'Az indulás után sem hagyunk magadra',
   ],
-  outro: (
-    <>
-      Nem tudod eldönteni? Nézd meg a {L('/hu/arak', 'weboldal készítés árait')}, vagy írj pár sort — megmondjuk, mivel érdemes kezdeni.
-      Budapesten és Debrecenben személyesen is találkozunk: {L('/hu/weboldal-keszites-budapest', 'weboldal készítés Budapest')}, {L('/hu/weboldal-keszites-debrecen', 'weboldal készítés Debrecen')}.
-    </>
-  ),
+  outro: 'Nem tudod eldönteni? Írj pár sort, és megmondjuk, mivel érdemes kezdeni.',
+  outroCta: 'Beszéljünk',
 });
 
 const EN = (L: (h: string, t: string) => React.ReactNode): Copy => ({
@@ -65,11 +61,11 @@ const EN = (L: (h: string, t: string) => React.ReactNode): Copy => ({
   heading: 'Which one do you need?|Pick your situation.',
   lead: "You don't need to know the jargon. Tell us what the problem is — we bring the solution.",
   situations: [
-    { quote: '"I don\'t have a website yet, or mine is outdated."', answer: 'We build a modern website that works well on mobile, presents your business and brings enquiries. No big upfront cost: you pay monthly, and updates are included.', href: '/en/services/start-your-business-online', cta: 'Website development' },
-    { quote: '"I have a website, but nobody finds me on Google."', answer: 'We fix the technical foundations and regularly publish content your customers are searching for — so more visitors arrive for free, month after month.', href: '/en/services/seo-content-marketing', cta: 'SEO' },
-    { quote: '"I need customers now, not in six months."', answer: "With Google Ads you show up in front of people searching for your service from launch week. Every month we show you clearly where the money went and what it brought.", href: '/en/services/ad-management', cta: 'Ad management' },
-    { quote: '"I\'m just starting out and don\'t have a logo yet."', answer: 'We design your logo, colours and fonts so you look the same and recognisable everywhere — website, Instagram, business card.', href: '/en/services/branding-identity', cta: 'Brand identity' },
-    { quote: '"My old WordPress site is slow and I\'m afraid to touch it."', answer: "We take it over: updates, backups and fast fixes when something breaks. If patching it no longer pays off, we show you the way to a new site.", href: '/en/services/maintenance', cta: 'Website maintenance' },
+    { quote: '"I don\'t have a website yet, or mine is outdated."', answer: 'We design a website from a blank page that works well on mobile, presents your business and brings enquiries. You get a fixed price after the first call, from 190,000 HUF.', href: '/en/services/start-your-business-online', cta: 'Websites' },
+    { quote: '"We have a website, but it no longer fits the company."', answer: 'We rebuild it without losing your Google rankings: every old URL is redirected, and we keep watching rankings after launch.', href: '/en/services/website-redesign', cta: 'Website redesign' },
+    { quote: '"I have a website, but nobody finds me on Google."', answer: 'SEO and Google Ads alongside your website: ads bring enquiries in the first weeks, SEO brings more free visitors month after month.', href: '/en/services/marketing-and-seo', cta: 'Marketing & SEO' },
+    { quote: '"I\'m just starting out and don\'t have a logo yet."', answer: 'We design your logo, colours and fonts so you look the same and recognisable everywhere — website, Instagram, business card.', href: '/en/services/branding-identity', cta: 'Brand & design' },
+    { quote: '"My old WordPress site is slow and I\'m afraid to touch it."', answer: 'We take it over: updates, monitoring and speed, on a rolling monthly plan from 29,900 HUF/month. If patching it no longer pays off, we show you the way to a new site.', href: '/en/services/maintenance', cta: 'Website care' },
     { quote: '"Phone bookings and paperwork eat up my time."', answer: 'We build a system that works for you: online booking, automatic reminders, invoicing — tailored to how your business runs.', href: '/en/services/digital-systems', cta: 'Custom systems' },
   ],
   stepsBadge: 'How it works',
@@ -86,15 +82,17 @@ const EN = (L: (h: string, t: string) => React.ReactNode): Copy => ({
   get: [
     'A free, 30-minute consultation — no obligation',
     'One contact person from start to finish',
-    'A monthly fee instead of a big upfront investment',
-    'A simple website is ready in about 2–4 weeks',
+    'A fixed price before we start — websites from 190,000 HUF',
+    'A business website is ready in 1–4 weeks',
     'Works perfectly on mobile, tablet and desktop',
     "We don't leave you alone after launch",
   ],
-  outro: <>Can&apos;t decide? Check our {L('/en/pricing', 'website pricing')} or drop us a few lines — we&apos;ll tell you where to start.</>,
+  outro: "Can't decide? Drop us a few lines and we'll tell you where to start.",
+  outroCta: "Let's talk",
 });
 
-export function ServicesGuide({ locale }: { locale: string }) {
+// beforeGet: ami a „Melyik kell neked?” kártyák és az „Ezt kapod” rész közé kerül (a Szolgáltatások oldalon a mockup-blokk)
+export function ServicesGuide({ locale, beforeGet }: { locale: string; beforeGet?: React.ReactNode }) {
   const L = (href: string, text: string) => (
     <Link href={href} className="text-black underline underline-offset-4 decoration-black/30 hover:decoration-black transition-colors">
       {text}
@@ -133,7 +131,7 @@ export function ServicesGuide({ locale }: { locale: string }) {
         <div className="px-0 md:px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {c.situations.map((s, idx) => (
             <motion.div
-              key={s.href}
+              key={s.quote}
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true, amount: 0.2 }}
@@ -161,52 +159,38 @@ export function ServicesGuide({ locale }: { locale: string }) {
       </section>
     </Container>
 
-    {/* Így zajlik — a meglévő sötét, lenyíló "Services" blokk (mint a szolgáltatásoldalakon) */}
-    <Services
-      __component="services"
-      id={0}
-      locale={locale}
-      badge_label={c.stepsBadge}
-      heading={c.stepsHeading.replace('|', ' ')}
-      sub_heading={c.stepsLead}
-      elements_service_item={c.steps.map((st, idx) => ({
-        id: idx + 1,
-        number: String(idx + 1).padStart(3, '0'),
-        title: st.title,
-        description: `${st.time} — ${st.text}`,
-        image: st.images.map((url) => ({ url })),
-        categories: st.pills.map((label) => ({ label })),
-        categories_title: locale === 'hu' ? 'Részletek' : 'Details',
-      }))}
-    />
+    {/* 2026-11: az „Így zajlik” (öt lépés) blokk kikerült — a folyamatot a szolgáltatás-aloldalak ütemterve mutatja */}
 
-    <Container>
-      <section className="pt-16 md:pt-24 pb-12">
-        {/* Mit kapsz — közérthető összefoglaló */}
-        <motion.div
-          className="px-0 md:px-4 mt-16 grid grid-cols-1 lg:grid-cols-2 gap-10"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, ease }}
-        >
-          <div>
-            <h3 className="font-bold tracking-tight leading-[1.1] text-2xl mb-5">{c.getTitle}</h3>
-            <ul className="space-y-3">
-              {c.get.map((g) => (
-                <li key={g} className="flex items-start gap-3 text-black/60">
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-black">
-                    <Check className="h-3 w-3 text-white" strokeWidth={3} />
-                  </span>
-                  {g}
-                </li>
-              ))}
-            </ul>
+    {beforeGet}
+
+    {/* Mit kapsz — az új stílusban: nagy cím balra, a lista két oszlopban narancs pipákkal, alatta rövid mondat + gomb */}
+    <section className="w-full px-4 py-16 md:px-8 md:py-24">
+      <motion.div
+        className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-16"
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.6, ease }}
+      >
+        <h2 className="text-4xl font-semibold leading-[0.95] tracking-[-0.05em] text-black md:text-6xl lg:col-span-5 xl:text-7xl">{c.getTitle}</h2>
+        <div className="lg:col-span-7">
+          <ul className="grid grid-cols-1 gap-x-10 gap-y-5 border-t border-black/15 pt-8 sm:grid-cols-2">
+            {c.get.map((g) => (
+              <li key={g} className="flex items-start gap-3 text-base text-black md:text-lg">
+                <span aria-hidden className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#F05A28]">
+                  <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
+                </span>
+                {g}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-10 flex flex-col gap-5 border-t border-black/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
+            <p className="max-w-md text-base leading-relaxed text-black/60 md:text-lg">{c.outro}</p>
+            <PillLink href={locale === 'en' ? '/en/contact' : '/hu/kapcsolat'} cta="services-guide:talk" className="self-start sm:self-auto">{c.outroCta}</PillLink>
           </div>
-          <p className="self-end text-black/50 text-base md:text-lg leading-relaxed">{c.outro}</p>
-        </motion.div>
-      </section>
-    </Container>
+        </div>
+      </motion.div>
+    </section>
     </>
   );
 }

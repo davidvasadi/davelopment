@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { ArrowUpRight, Star } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
-import { Container } from '@/components/container';
 import { MotionLink } from '@/components/motion-link';
 import { localizeHref } from '@/lib/i18n/localize-href';
 
@@ -50,14 +49,14 @@ export const GoogleReviewStory = ({
   const mapsUrl = googleRating?.googleMapsUrl;
 
   return (
-    <Container>
+    <div className="w-full px-4 md:px-8">
       <div className="py-12 md:py-20">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 
           {/* 1. kártya — szöveg + CTA */}
           <motion.div
             {...fadeUp(0)}
-            className="relative bg-white border border-gray-100 rounded-2xl p-8 min-h-[280px] flex flex-col justify-between overflow-hidden"
+            className="relative bg-white border border-gray-100 rounded-card p-8 min-h-[340px] md:min-h-[380px] flex flex-col justify-between overflow-hidden"
           >
             {card1_heading && (
               <h3 className="text-2xl md:text-3xl font-semibold text-black leading-tight tracking-tight">
@@ -86,7 +85,7 @@ export const GoogleReviewStory = ({
           {/* 2. kártya — kép/videó */}
           <motion.div
             {...fadeUp(0.08)}
-            className="relative bg-white border border-gray-100 rounded-2xl min-h-[280px] overflow-hidden"
+            className="relative bg-white border border-gray-100 rounded-card min-h-[340px] md:min-h-[380px] overflow-hidden"
           >
             {mediaUrl && (
               mediaIsVideo ? (
@@ -126,7 +125,7 @@ export const GoogleReviewStory = ({
           {/* 3. kártya — automatikus Google-értékelés stat */}
           <motion.div
             {...fadeUp(0.16)}
-            className="relative bg-black text-white rounded-2xl p-8 min-h-[280px] flex flex-col justify-between overflow-hidden"
+            className="relative bg-black text-white rounded-card p-8 min-h-[340px] md:min-h-[380px] flex flex-col justify-between overflow-hidden"
           >
             <p className="text-xs font-medium tracking-wide text-white/50 uppercase">
               {locale === 'hu' ? 'Google-értékelések' : 'Google reviews'}
@@ -184,6 +183,6 @@ export const GoogleReviewStory = ({
 
         </div>
       </div>
-    </Container>
+    </div>
   );
 };

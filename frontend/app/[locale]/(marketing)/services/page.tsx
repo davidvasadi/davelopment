@@ -5,8 +5,10 @@ import { Metadata } from 'next';
 
 import ClientSlugHandler from '../ClientSlugHandler';
 import PageContent from '@/lib/shared/PageContent';
-import { ServicesPage } from '@/components/services/services-page';
 import { ServicesGuide } from '@/components/services/services-guide';
+import { ServicesIntro } from '@/components/services/services-intro';
+import { ServicesShowcase } from '@/components/services/services-showcase';
+import { ServicesPricing } from '@/components/services/services-pricing';
 import JsonLd from '@/components/seo/JsonLd';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
 import { renderPageJsonLd } from '@/lib/shared/structured-data';
@@ -194,15 +196,17 @@ const pagesWithImages = await Promise.all(
             <JsonLd data={jsonLd} />
             <ClientSlugHandler localizedSlugs={localizedSlugs} />
             {/* <Container> */}
-                <PageContent pageData={pageData} locale={params.locale} />
-                <ServicesPage
-                    pages={pagesWithImages}
+                {/* 2026-11: a CMS-hero helyett a ServicesIntro (h1 = „Szolgáltatások”); a többi CMS-blokk marad */}
+                <ServicesIntro locale={params.locale} />
+                <ServicesShowcase locale={params.locale} />
+                <ServicesPricing locale={params.locale} />
+                {/* a CMS-zóna (Tartalom, adat, kontroll — mockup) a „Melyik kell neked?” és az „Ezt kapod” közé kerül */}
+                <ServicesGuide
                     locale={params.locale}
-                    heading={pageData?.heading}
-                    sub_heading={pageData?.sub_heading}
+                    beforeGet={<PageContent pageData={{ ...pageData, dynamic_zone: (pageData?.dynamic_zone ?? []).filter((b: any) => b?.blockType !== 'hero') }} locale={params.locale} />}
                 />
-                <ServicesGuide locale={params.locale} />
-                <PageContent pageData={{ ...pageData, dynamic_zone: pageData?.cta ?? [] }} locale={params.locale} />
+                {/* a régi árazás blokk helyett fent a ServicesPricing van; a „Miért engem válassz” blokk itt nem jelenik meg */}
+                <PageContent pageData={{ ...pageData, dynamic_zone: (pageData?.cta ?? []).filter((b: any) => b?.blockType !== 'pricing' && b?.blockType !== 'why-choose-us') }} locale={params.locale} />
             {/* </Container> */}
         </>
     );

@@ -1,3 +1,5 @@
+import { getServiceDetail } from '@/lib/services/service-details';
+
 // Szinkron (nem useEffect-alapú) útvonal-detektálás: igaz, ha az aktuális
 // path egy szolgáltatás-aloldal (/{locale}/szolgaltatasok|services/{slug}),
 // ahol a service-hero blokk lakik. Direkt a pathname-ből számoljuk (nem
@@ -12,5 +14,7 @@ export function isServiceHeroPath(pathname: string | null | undefined): boolean 
   // [locale, segment, slug, ...] — a slug megléte különbözteti meg a
   // szolgáltatások lista-oldaltól (aminek nincs service-hero blokkja).
   if (parts.length < 3) return false;
+  // 2026-11: az új, világos fejlécű aloldalakon (ServiceDetailHero) nincs sötét hero → normál navbar
+  if (getServiceDetail(parts[2])) return false;
   return SERVICE_SEGMENTS.includes(parts[1]);
 }

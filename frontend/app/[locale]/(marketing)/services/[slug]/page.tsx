@@ -15,6 +15,11 @@ import fetchContentType from '@/lib/strapi/fetchContentType';
 import { getLocalizedSegment } from '@/lib/i18n/segments';
 import { Container } from '@/components/container';
 import { OtherServices } from '@/components/services/other-services';
+import { ServiceDetailHero } from '@/components/services/service-detail-hero';
+import { ServiceIncluded } from '@/components/services/service-included';
+import { ServiceTimeline } from '@/components/services/service-timeline';
+import { ServiceEnd } from '@/components/services/service-end';
+import { getServiceDetail } from '@/lib/services/service-details';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://davelopment.hu').replace(/\/+$/, '');
 
@@ -144,7 +149,21 @@ export default async function ServiceSlugPage(props: {
   // Ha a szerkesztő berakott egy „Kapcsolódó szolgáltatások" blokkot a tartalomba,
   // oda injektáljuk a listát (a blokk bárhová húzható — pl. CTA és árazás közé).
   // Ha nincs ilyen blokk, a lap aljára tesszük (alapértelmezett).
-  const zone: any[] = pageData?.dynamic_zone ?? [];
+  // 2026-11: ha az aloldalnak van új fejléce (ServiceDetailHero), a régi CMS-es hero kimarad
+  const detail = getServiceDetail(params.slug);
+  const filtered: any[] = (pageData?.dynamic_zone ?? []).filter(
+    (b: any) => !(detail && (b?.blockType === 'service-hero' || b?.blockType === 'hero')),
+  );
+  // az új fejlécű aloldalakon: projektek → GYIK → értékelések (a többi régi CMS-blokk nem jelenik meg)
+  const zone: any[] = detail
+    ? [
+        // előbb a projektek, utána a GYIK; a „valódi projekt” kártya (google-review-hero) itt egyelőre nem jelenik meg
+        ...filtered.filter((b: any) => b?.blockType === 'products'),
+        ...filtered.filter((b: any) => b?.blockType === 'faq').map((b: any) => ({ ...b, card_image: detail.faqImage, ask_card: true })),
+        // a régi CMS-blokkok közül csak az értékelős (google-review-story) marad; utána ServiceEnd, legvégül a hírlevél
+        ...filtered.filter((b: any) => b?.blockType === 'google-review-story'),
+      ]
+    : filtered;
   const hasRelatedBlock = zone.some((b: any) => b?.blockType === 'related-services');
   const contentData = hasRelatedBlock
     ? {
@@ -153,14 +172,24 @@ export default async function ServiceSlugPage(props: {
           b?.blockType === 'related-services' ? { ...b, services: otherServices } : b
         ),
       }
-    : pageData;
+    : { ...pageData, dynamic_zone: zone };
 
   return (
     <>
       <JsonLd data={jsonLd} />
       <ClientSlugHandler localizedSlugs={localizedSlugs} />
+      {detail && <ServiceDetailHero detail={detail} locale={params.locale} />}
+      {detail && <ServiceIncluded detail={detail} />}
+      {detail && <ServiceTimeline detail={detail} />}
       <PageContent pageData={contentData} locale={params.locale} fadeZoom />
-      {!hasRelatedBlock && <OtherServices pages={otherServices} locale={params.locale} />}
+      {!hasRelatedBlock && !detail && <OtherServices pages={otherServices} locale={params.locale} />}
+      {detail && <ServiceEnd detail={detail} locale={params.locale} />}
+      {detail && (
+        <PageContent
+          pageData={{ ...pageData, dynamic_zone: (pageData?.dynamic_zone ?? []).filter((b: any) => b?.blockType === 'newsletter') }}
+          locale={params.locale}
+        />
+      )}
     </>
   );
 }
