@@ -272,6 +272,9 @@ jobs:
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes \
             ${VPS_USER}@${VPS_HOST} <<'EOF'
           set -e
+          # közös deploy-zár a VPS-en: a booking app deployjával ne fusson egyszerre (lásd booking deploy.sh)
+          exec 9>/tmp/vps-deploy.lock
+          flock -w 1800 9 || { echo "deploy-zár nem szabadult fel 30 percen belül"; exit 1; }
           # Projekt-saját nvm Node 22 (a globális Node 20 EOL; a schedulio is így fut)
           export NVM_DIR="/var/www/davelopment/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
@@ -404,6 +407,9 @@ jobs:
           ssh -i ~/.ssh/id_ci -p ${VPS_PORT} -o IdentitiesOnly=yes \
             -o ServerAliveInterval=30 -o ServerAliveCountMax=60 \
             ${VPS_USER}@${VPS_HOST} bash -s << 'ENDSSH'
+          # közös deploy-zár a VPS-en: a booking app deployjával ne fusson egyszerre (lásd booking deploy.sh)
+          exec 9>/tmp/vps-deploy.lock
+          flock -w 1800 9 || { echo "deploy-zár nem szabadult fel 30 percen belül"; exit 1; }
           DEPLOY_SHA="${{ github.sha }}"
           PAYLOAD_SECRET="${{ secrets.PAYLOAD_SECRET }}"
           DATABASE_URI="${{ secrets.DATABASE_URI }}"
