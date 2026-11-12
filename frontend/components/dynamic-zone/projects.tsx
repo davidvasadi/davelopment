@@ -286,7 +286,7 @@ const LargeTile: React.FC<TileBaseProps & { arrowClassName?: string }> = ({
               <span className="text-white text-xl font-medium tracking-tight leading-tight">{label}</span>
               <ArrowBadge iconClassName={arrowClassName ?? 'text-white'} href={href} label={product.name} />
             </div>
-            <p className="text-4xl font-medium tracking-tight text-white mt-6 leading-none">{product.name}</p>
+            <p className="text-3xl sm:text-4xl font-medium tracking-tight text-white mt-6 leading-none break-words">{product.name}</p>
           </div>
         </TileWithImageBackground>
       </div>
@@ -317,14 +317,14 @@ const SmallTextTile: React.FC<TileBaseProps & { truncateLength: number }> = ({
           <div className="relative z-10 flex h-full flex-col justify-between p-4 md:p-6">
             <div className="flex justify-between gap-2">
               <div className="flex flex-col">
-                <span className="text-lg md:text-2xl font-medium tracking-tight leading-tight">{label}</span>
+                <span className="text-lg md:text-xl xl:text-2xl font-medium tracking-tight leading-tight">{label}</span>
                 <span className="text-neutral-400 text-xs md:text-sm font-light mt-1 leading-relaxed">
                   {truncate(project.result_line || product.description, truncateLength)}
                 </span>
               </div>
               <ArrowBadge iconClassName="text-neutral-400" />
             </div>
-            <p className="text-2xl md:text-4xl font-medium tracking-tight mt-3 md:mt-10 leading-tight">{product.name}</p>
+            <p className="text-2xl md:text-2xl lg:text-3xl xl:text-4xl font-medium tracking-tight mt-3 md:mt-10 leading-tight break-words">{product.name}</p>
           </div>
         </div>
       </Link>
@@ -333,14 +333,14 @@ const SmallTextTile: React.FC<TileBaseProps & { truncateLength: number }> = ({
           <div className="relative z-10 flex h-full flex-col justify-between p-4">
             <div className="flex justify-between gap-2">
               <div className="flex flex-col">
-                <span className="text-lg font-medium tracking-tight leading-tight">{label}</span>
+                <span className="text-sm sm:text-lg font-medium tracking-tight leading-tight">{label}</span>
                 <span className="text-neutral-400 text-xs font-light mt-1 leading-relaxed">
                   {truncate(project.result_line || product.description, truncateLength)}
                 </span>
               </div>
               <ArrowBadge iconClassName="text-neutral-400" href={href} label={product.name} />
             </div>
-            <p className="text-2xl font-medium tracking-tight mt-3 leading-tight">{product.name}</p>
+            <p className="text-base sm:text-xl font-medium tracking-tight mt-3 leading-tight break-words">{product.name}</p>
           </div>
         </div>
       </div>

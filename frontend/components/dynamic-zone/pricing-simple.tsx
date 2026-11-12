@@ -146,7 +146,7 @@ export function PricingSimple({ locale = 'hu' }: { locale?: string }) {
                   ))}
                 </ul>
                 <div className="mt-auto pt-6">
-                  <Link href={contactHref as never} className="inline-block border-b-2 border-black pb-0.5 text-base font-medium text-black transition-opacity hover:opacity-60">
+                  <Link href={contactHref as never} className="inline-block whitespace-nowrap border-b-2 border-black pb-0.5 text-sm font-medium sm:text-base text-black transition-opacity hover:opacity-60">
                     {tab === 'projects' ? c.projectLink : c.careLink}
                   </Link>
                 </div>

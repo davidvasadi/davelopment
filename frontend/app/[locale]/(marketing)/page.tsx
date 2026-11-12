@@ -72,12 +72,20 @@ export default async function HomePage(props: {
   const ORDER_BEFORE = ['hero', 'home-intro', 'products', 'services', 'pricing', 'how-it-works', 'why-choose-us'];
   const ORDER_AFTER = ['faq', 'blog', 'cta', 'newsletter'];
   const SKIP = new Set(['testimonials', 'form-section']);
-  // Főoldali blog-blokk: mindig a 2 legfrissebb publikált cikk (nem a CMS-ben kézzel kiválasztottak) — 2026-11.
+  // Főoldali blog-blokk: 2 cikk — elöl a kiemeltek (Dave választása, 2026-11), ha nincs meg valamelyik, a legfrissebb publikált.
   // A nagy mezőket (törzsszöveg, dinamikus zóna) levágjuk, a kártyához nem kellenek.
+  const PINNED_ARTICLES = [
+    ['arculat-vagy-weboldal-mivel-kezdjem', 'brand-identity-or-website-first'],
+    ['landing-oldal-konverzios-dizajn-elemek', 'landing-page-conversion-design-elements'],
+  ];
   const latestRes = await fetchContentType('articles', { filters: { locale: params.locale, _status: 'published' } }, false);
   const latestArticles = ((latestRes?.data ?? []) as any[])
     .filter((x) => x?.slug)
     .sort((x, y) => new Date(y.publishedAt || y.createdAt || 0).getTime() - new Date(x.publishedAt || x.createdAt || 0).getTime())
+    .sort((x, y) => {
+      const rank = (a: any) => { const i = PINNED_ARTICLES.findIndex((slugs) => slugs.includes(a.slug)); return i === -1 ? PINNED_ARTICLES.length : i; };
+      return rank(x) - rank(y);
+    })
     .slice(0, 2)
     .map(({ content, dynamic_zone, ...rest }: any) => rest);
   const pick = (types: string[]) =>

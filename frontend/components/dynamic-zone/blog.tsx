@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { PillLink } from '@/components/pill-link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { PlusIcon } from 'lucide-react';
@@ -79,13 +80,8 @@ export const Blog: React.FC<BlogProps> = ({
 }) => {
   const allArticles = Array.isArray(articles) ? articles : [];
 
-  const sorted = [...allArticles].sort((a, b) => {
-    const da = new Date(a.publishedAt ?? '').getTime();
-    const db = new Date(b.publishedAt ?? '').getTime();
-    return db - da;
-  });
-
-  const blogPosts = sorted.slice(0, 2);
+  // a kapott sorrendet tartjuk: a főoldal már sorba rakja (elöl a kiemelt cikkek), máshol a CMS-ben választott sorrend számít
+  const blogPosts = allArticles.slice(0, 2);
 
   const heroImage =
     toAbs(highlight_image) ??
@@ -93,8 +89,6 @@ export const Blog: React.FC<BlogProps> = ({
 
   const ctaLabel = button?.text ?? 'See all';
   const ctaHref = localizeHref(button?.URL, locale, `/${locale}/blog`);
-  const ctaTarget =
-    (button?.target as '_self' | '_blank' | undefined) ?? '_self';
 
   return (
     <section id='blog' className="w-full px-4 md:px-8 py-20 md:py-28">
@@ -142,16 +136,7 @@ export const Blog: React.FC<BlogProps> = ({
             </div>
             <div className="flex md:justify-end md:self-center">
               {button && ctaHref && (
-                <Link
-                  href={ctaHref}
-                  target={ctaTarget}
-                  className="inline-flex items-center justify-between gap-6 rounded-full bg-black px-3 py-1 text-xs sm:text-sm font-semibold text-white shadow-sm transition-colors hover:bg-neutral-900"
-                >
-                  <span>{ctaLabel}</span>
-                  <div className="flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-white" />
-                  </div>
-                </Link>
+                <PillLink href={ctaHref} cta={`blog:${ctaLabel}`}>{ctaLabel}</PillLink>
               )}
             </div>
           </div>
