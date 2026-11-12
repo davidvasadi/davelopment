@@ -95,7 +95,61 @@ export default async function Page(props: {
     <>
       <JsonLd data={jsonLd} />
       <ClientSlugHandler localizedSlugs={localizedSlugs} />
-      <PageContent pageData={pageData} locale={params.locale} />
+      <PageContent pageData={withPricingPage(withFaqHero(withContactNext(pageData, params.slug), params.slug), params.slug)} locale={params.locale} />
     </>
   );
+}
+
+// Kapcsolat oldal (2026-11): új fejléc (ContactHero) és utána a „Mi történik ezután” blokk (ContactNext) — frontend-oldali típusok
+function withContactNext(pageData: any, slug: string) {
+  if (slug !== 'kapcsolat' && slug !== 'contact') return pageData;
+  const zone: any[] = pageData?.dynamic_zone ?? [];
+  const at = zone.findIndex((b) => b?.blockType === 'hero');
+  const block = { blockType: 'contact-next', id: 'contact-next' };
+  // a hero a Szolgáltatások oldal fejlécének stílusát kapja (ContactHero)
+  const hero = at === -1 ? null : { ...zone[at], blockType: 'contact-hero' };
+  const withHero = at === -1 ? zone : [...zone.slice(0, at), hero, ...zone.slice(at + 1)];
+  // a „Mi történik ezután” az űrlap UTÁN jön (ha nincs űrlap, a fejléc után)
+  const formAt = withHero.findIndex((b) => b?.blockType === 'form-section');
+  const pos = formAt !== -1 ? formAt + 1 : at + 1;
+  const next = [...withHero.slice(0, pos), block, ...withHero.slice(pos)];
+  return { ...pageData, dynamic_zone: next };
+}
+
+// GYIK oldal (2026-11): ugyanaz a fejléc, mint a Kapcsolat oldalon (ContactHero), kisebb címmel, mert hosszabb a szöveg;
+// az űrlap helyett CTA
+function withFaqHero(pageData: any, slug: string) {
+  if (slug !== 'gyik' && slug !== 'faq') return pageData;
+  const zone: any[] = pageData?.dynamic_zone ?? [];
+  // az űrlap helyett a sötét „30 perces beszélgetés” CTA (CallCta)
+  return {
+    ...pageData,
+    dynamic_zone: zone.map((b) =>
+      b?.blockType === 'hero'
+        ? { ...b, blockType: 'contact-hero', compact: true }
+        : b?.blockType === 'form-section'
+          ? { blockType: 'call-cta', id: 'call-cta' }
+          : b,
+    ),
+  };
+}
+
+// Árak oldal (2026-11): a fejléc a Kapcsolat/GYIK oldaléval egyező (ContactHero), a régi vélemény-blokk helyett
+// a főoldali értékelés-szekció (google-reviews)
+function withPricingPage(pageData: any, slug: string) {
+  if (slug !== 'arak' && slug !== 'pricing') return pageData;
+  const zone: any[] = pageData?.dynamic_zone ?? [];
+  return {
+    ...pageData,
+    // az űrlap sem kell — a gombok a Kapcsolat oldalra visznek
+    dynamic_zone: zone
+      .filter((b) => b?.blockType !== 'form-section')
+      .map((b) =>
+        b?.blockType === 'hero'
+          ? { ...b, blockType: 'contact-hero' }
+          : b?.blockType === 'testimonials'
+            ? { blockType: 'google-reviews', id: 'google-reviews' }
+            : b,
+      ),
+  };
 }

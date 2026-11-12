@@ -11,8 +11,6 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { PlusIcon } from 'lucide-react';
-import { Container } from '@/components/container';
 
 type Plan = {
   name?: string | null;
@@ -28,83 +26,108 @@ type DeepDiveCopy = {
   points: string[];
 };
 
+// 2026-11: az új csomagok (egyszeri projektár + havonta megújuló támogatás). A kulcs a csomag neve —
+// magyarul és angolul is (a CMS-ben a név lokalizált), ezért mindkét nyelv nevét felvesszük.
+const UZLETI = {
+  hu: {
+    intro: 'Üres lapról tervezett, egyedi weboldal azoknak, akik most indulnak, vagy akiknek a mostani oldaluk már nem hoz megkeresést.',
+    points: [
+      'Egyedileg tervezett oldalak — nem sablon, hanem a vállalkozásodra szabott felépítés és design.',
+      'Olyan tartalomkezelőt kapsz, amit betanítás után egyedül is tudsz frissíteni.',
+      'Technikai SEO, mérés és gyors betöltés már az indulástól.',
+      'Fix ár az első, 30 perces beszélgetés után — a domain és a tárhely díja külön, az ügyfelet terheli.',
+    ],
+  },
+  en: {
+    intro: 'A custom website designed from a blank page, for businesses that are just starting out or whose current site no longer brings enquiries.',
+    points: [
+      'Custom-designed pages — not a template, a structure and design built around your business.',
+      'A content manager you can update yourself after a short training.',
+      'Technical SEO, tracking and fast loading from launch day.',
+      'A fixed price after the first 30-minute call — domain and hosting fees are billed separately.',
+    ],
+  },
+};
+const MARKETING = {
+  hu: {
+    intro: 'Minden, ami az Üzleti weboldalban, plusz a marketing, ami az indulástól forgalmat és megkeresést hoz.',
+    points: [
+      'Kulcsszókutatás és tartalomstratégia: mire keresnek az ügyfeleid, és mit írjunk róla.',
+      '4–5 induló, kulcsszóra írt blogcikk, belső linkekkel.',
+      'Beállított Google Ads kampány és konverziókövetés, hogy lásd, mi hozza a megkeresést.',
+      'Helyi SEO és Google Cégprofil, hogy a környékeden is megtaláljanak.',
+    ],
+  },
+  en: {
+    intro: 'Everything in Business website, plus the marketing that brings traffic and enquiries from launch.',
+    points: [
+      'Keyword research and content strategy: what your customers search for and what to write about it.',
+      '4–5 keyword-led launch articles, with internal links.',
+      'A live Google Ads campaign and conversion tracking, so you see what brings the enquiry.',
+      'Local SEO and Google Business Profile, so people nearby find you too.',
+    ],
+  },
+};
+const EGYEDI = {
+  hu: {
+    intro: 'Azoknak, akiknek már nem elég egy weboldal: egyedi rendszer kell, ami a saját működésükhöz igazodik.',
+    points: [
+      'Felméréssel és technikai tervezéssel indul — az árat és az ütemezést közösen rögzítjük.',
+      'Foglalórendszer, ügyfélportál vagy bármilyen funkció, ami a mindennapi munkát könnyíti.',
+      'Integrációk a meglévő eszközeiddel (számlázás, naptár, CRM).',
+      'Az indulás után is ugyanaz a csapat marad veled.',
+    ],
+  },
+  en: {
+    intro: 'For businesses that need more than a website: a custom system that fits how they work.',
+    points: [
+      'It starts with discovery and technical scoping — price and timeline are agreed together.',
+      'A booking system, client portal or any feature that makes daily work easier.',
+      'Integrations with the tools you already use (invoicing, calendar, CRM).',
+      'The same team stays with you after launch.',
+    ],
+  },
+};
+const TAMOGATAS = {
+  hu: {
+    intro: 'Havonta megújuló támogatás, hogy a weboldalad az indulás után is fejlődjön — fejlesztő felvétele nélkül.',
+    points: [
+      'Alap támogatás (29 900 Ft/hó): frissítések, biztonsági javítások és elérhetőség-figyelés.',
+      'Növekedés (59 900 Ft/hó): nagyobb fejlesztések, havi teljesítményriport és A/B tesztek.',
+      'Beágyazott csapat (149 900 Ft/hó): közvetlen, személyes kapcsolat a fejlesztővel, havi 4 SEO-cikk, elsőbbség.',
+      'Nem órákban mérjük: a kisebb módosításokat folyamatosan intézzük. 30 napos felmondással.',
+    ],
+  },
+  en: {
+    intro: 'Rolling monthly care, so your website keeps improving after launch — without hiring a developer.',
+    points: [
+      'Essential care (29,900 HUF/month): updates, security patches and uptime monitoring.',
+      'Growth (59,900 HUF/month): bigger changes, a monthly performance report and A/B tests.',
+      'Embedded (149,900 HUF/month): a direct, personal line to your developer, four SEO articles a month, priority.',
+      'We do not count hours: small changes are handled as they come. Thirty days notice.',
+    ],
+  },
+};
+
 const DEEP_DIVE: Record<string, { hu: DeepDiveCopy; en: DeepDiveCopy }> = {
-  Mikró: {
-    hu: {
-      intro: 'Teljesen egyedi, Framer-alapú weboldal azoknak, akik most szeretnének igényes, professzionális online jelenlétet — nem sablonból, hanem a vállalkozásodra szabott UX/UI tervezéssel.',
-      points: [
-        'Akár 30 aloldalig bővíthető — egy egyszerű bemutatkozó oldaltól egy részletesebb szolgáltatás-struktúráig minden elfér benne.',
-        'A Framer-hosting villámgyors betöltést és SEO-barát alapokat ad már az induláskor.',
-        'Az admin felületen keresztül magad is frissítheted a tartalmat — ha mégsem szeretnél vele foglalkozni, a karbantartást opcionálisan, havi 14 900 Ft-tól átvállaljuk.',
-        'A domain/tárhely technikai beállítását elvégezzük, de a tényleges szolgáltatási díj külön, az ügyfelet terheli.',
-        'Opcionális marketing-csomag (havi 39 900 Ft): Google Cégem (Google Business Profile) beállítás, Google Ads felügyelet és technikai SEO-alapok.',
-      ],
-    },
-    en: {
-      intro: 'A fully custom, Framer-based website for anyone who wants a polished, professional online presence now — not a template, but UX/UI designed around your business.',
-      points: [
-        'Scales up to 30 subpages — fits anything from a simple one-pager to a more detailed service structure.',
-        'Framer hosting gives you fast loading and SEO-friendly foundations from day one.',
-        "You can update content yourself via the admin panel — or we handle maintenance for you, optionally, starting at 14,900 HUF/month.",
-        'We handle the technical setup of your domain/hosting, but the actual service fee is billed separately to you.',
-        'Optional marketing add-on (39,900 HUF/month): Google Business Profile setup, Google Ads oversight and technical SEO basics.',
-      ],
-    },
-  },
-  Rajt: {
-    hu: {
-      intro: 'Azoknak, akik túlléptek az alap bemutatkozó oldalon, és komolyan szeretnék építeni az organikus (nem fizetett) láthatóságukat a keresőkben.',
-      points: [
-        'Minden benne van, ami a Mikróban, plusz teljesen egyedi admin felület és blog funkció — a rendszeres, friss tartalom az, amire a Google és az AI-keresők is épülnek a rangsoroláskor.',
-        'Induláskor rögtön 4-5 cikket megírunk helyetted.',
-        'Technikai és AI-alapú keresőoptimalizálás a hosszú távú helyezésedért, nem csak egy gyors, ideiglenes eredményért.',
-        'A domain/tárhely szolgáltatási díja itt is külön, az ügyfelet terheli.',
-        'Opcionális marketing-csomag (havi 59 900 Ft): havi 2 interjú alapú cikk, technikai SEO, heti felügyelettel kezelt Google Ads kampány.',
-      ],
-    },
-    en: {
-      intro: "For businesses that have outgrown a basic landing page and want to seriously build organic (non-paid) search visibility.",
-      points: [
-        'Includes everything in Mikró, plus a fully custom admin panel and a blog — regular, fresh content is exactly what Google and AI search engines rely on for ranking.',
-        'We write 4-5 articles for you right at launch.',
-        'Technical and AI-driven SEO work builds your long-term position, not just a quick, temporary bump.',
-        'The domain/hosting service fee is billed separately here too.',
-        'Optional marketing add-on (59,900 HUF/month): 2 interview-based articles per month, technical SEO, weekly-managed Google Ads campaign.',
-      ],
-    },
-  },
-  Növekedés: {
-    hu: {
-      intro: 'Azoknak a vállalkozásoknak, akiknek már nem elég egy statikus weboldal — egyedi, a saját folyamataikra szabott rendszerre van szükségük.',
-      points: [
-        'Legyen az foglalási rendszer, ügyfélportál, vagy bármilyen más funkció, ami a mindennapi működésüket könnyíti.',
-        'Minden benne van, ami a Rajt csomagban — a marketing-kampányokat itt napi szinten felügyeljük, nem csak hetente.',
-        'A fejlesztői csapat prioritásként kezeli a kéréseidet.',
-        'A domain/tárhely szolgáltatási díja itt is külön, az ügyfelet terheli.',
-        'Opcionális marketing-csomag (havi 89 900 Ft): havi 2 interjú alapú cikk, teljes Google Ads kampány-kezelés NAPI felügyelettel, havi stratégiai riport.',
-      ],
-    },
-    en: {
-      intro: 'For businesses that have outgrown a static website — they need a custom system shaped around their own processes.',
-      points: [
-        'Whether that\'s a booking system, a client portal, or any other feature that makes daily operations easier.',
-        'Includes everything in Rajt — marketing campaigns are monitored daily here, not just weekly.',
-        'The dev team treats your requests as a priority.',
-        'The domain/hosting service fee is billed separately here too.',
-        'Optional marketing add-on (89,900 HUF/month): 2 interview-based articles per month, full daily-managed Google Ads campaign, monthly strategy report.',
-      ],
-    },
-  },
+  'Üzleti weboldal': UZLETI,
+  'Business website': UZLETI,
+  'Weboldal + marketing': MARKETING,
+  'Website + marketing': MARKETING,
+  'Egyedi fejlesztés': EGYEDI,
+  'Custom build': EGYEDI,
+  'Támogatás': TAMOGATAS,
+  'Care plans': TAMOGATAS,
 };
 
 const WHY_ONE_TEAM = {
   hu: {
-    heading: 'Miért jó, hogy egy csapat csinálja az egészet?',
-    body: 'A legtöbb vállalkozó külön fejlesztőt, külön designert és külön marketingest fogad fel — ezek sosem beszélnek egymással, a weboldal máshogy néz ki, mint az arculat, a marketing pedig olyan oldalra hajt forgalmat, ami nincs is rá felkészítve. Nálunk egy csapat tervezi meg az egészet a csomag szintjén, a legelső naptól: a dizájn, a technikai SEO és a marketing együtt készül, nem utólag illesztjük össze. Ennek az az eredménye, hogy nincs egyeztetési káosz, nincs "ki a hibás" ping-pong két külső partner között — egy helyen van a felelősség, és minden döntés figyelembe veszi a többit.',
+    heading: 'Miért jó, ha egy kézben van az egész?',
+    body: 'A legtöbb vállalkozó külön fejlesztőt, külön designert és külön marketingest fogad fel — ők ritkán beszélnek egymással, a weboldal máshogy néz ki, mint az arculat, a marketing pedig olyan oldalra hajt forgalmat, ami nincs rá felkészítve. Nálunk a design, a technikai SEO és a marketing egy kézben, együtt készül az első naptól, nem utólag illesztjük össze. Nincs egyeztetési káosz és nincs „ki a hibás” ping-pong: a felelősség egy helyen van, és minden döntés figyelembe veszi a többit.',
   },
   en: {
-    heading: 'Why is it good that one team does everything?',
-    body: "Most business owners hire a separate developer, a separate designer and a separate marketer — they never talk to each other, the website looks different from the brand, and marketing drives traffic to a page that isn't even ready for it. With us, one team designs the whole thing at the package level, from day one: design, technical SEO and marketing are built together, not stitched together afterward. The result: no coordination chaos, no finger-pointing between two outside vendors — the responsibility sits in one place, and every decision accounts for the others.",
+    heading: 'Why it helps to have it all in one hand',
+    body: "Most business owners hire a separate developer, designer and marketer — they rarely talk to each other, the website looks different from the brand, and marketing drives traffic to a page that isn't ready for it. With us, design, technical SEO and marketing are built together, in one hand, from day one — not stitched together afterwards. No coordination chaos, no finger-pointing: the responsibility sits in one place, and every decision accounts for the others.",
   },
 };
 
@@ -116,23 +139,23 @@ export const PlanDeepDive = ({ plans, locale }: { plans: Plan[]; locale?: string
 
   return (
     <section className="w-full">
-      <Container className="py-12 md:py-20">
-        {/* ── Miért egy csapat — önálló, nagy, meggyőző blokk ── */}
+      <div className="w-full px-4 py-16 md:px-8 md:py-24">
+        {/* ── Miért egy kézben — az új blokkok stílusában: nagy cím balra, szöveg jobbra ── */}
         <motion.div
-          className="max-w-3xl mb-16 md:mb-28"
+          className="mb-20 grid grid-cols-1 gap-8 md:mb-28 lg:grid-cols-12 lg:gap-16"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
         >
-          <h2 className="text-3xl md:text-6xl font-bold tracking-tight text-black leading-[1.05]">
+          <h2 className="text-4xl font-semibold leading-[0.95] tracking-[-0.05em] text-black md:text-6xl lg:col-span-6 xl:text-7xl">
             {why.heading}
           </h2>
-          <p className="text-black/60 text-base md:text-xl leading-relaxed mt-6">{why.body}</p>
+          <p className="text-lg leading-relaxed text-black/70 md:text-xl lg:col-span-6 lg:self-end">{why.body}</p>
         </motion.div>
 
         <motion.h3
-          className="text-2xl md:text-4xl font-bold tracking-tight text-black mb-10 md:mb-16"
+          className="mb-10 border-t border-black/15 pt-8 text-3xl font-semibold tracking-[-0.04em] text-black md:mb-16 md:text-5xl"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
@@ -191,13 +214,7 @@ export const PlanDeepDive = ({ plans, locale }: { plans: Plan[]; locale?: string
                       viewport={{ once: true, amount: 0.3 }}
                       transition={{ duration: 0.5, delay: idx * 0.08, ease: [0.33, 1, 0.68, 1] }}
                     >
-                      <motion.span
-                        className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-black flex items-center justify-center"
-                        whileHover={{ scale: 1.25 }}
-                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                      >
-                        <PlusIcon className="w-3 h-3 text-white" />
-                      </motion.span>
+                      <span aria-hidden className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#F05A28]" />
                       <span className="text-black/75 text-base md:text-lg leading-snug">{point}</span>
                     </motion.div>
                   ))}
@@ -206,7 +223,7 @@ export const PlanDeepDive = ({ plans, locale }: { plans: Plan[]; locale?: string
             );
           })}
         </div>
-      </Container>
+      </div>
     </section>
   );
 };

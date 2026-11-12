@@ -93,10 +93,10 @@ function organizationNode(logoUrl?: string | null, googleRating?: GoogleRatingDa
     // lenti contactPoint.telephone önmagában nem elég neki, csak az
     // Organization ContactPoline sémáját elégíti ki.
     telephone: CONTACT_PHONE,
-    // A ténylegesen publikált /hu/arak csomagok sávja — Mikró (19 900 Ft/hó,
-    // legolcsóbb belépő) és Növekedés (59 900 Ft/hó, legmagasabb havidíj)
-    // között. Frissítve: 2026-10-17.
-    priceRange: 'Ft 19 900 - Ft 59 900',
+    // A ténylegesen publikált /hu/arak csomagok sávja — Támogatás (29 900 Ft/hó,
+    // legolcsóbb) és Egyedi fejlesztés (550 000 Ft-tól, legmagasabb induló ár)
+    // között. Frissítve: 2026-11-12 (új csomagok).
+    priceRange: 'Ft 29 900 - Ft 550 000',
     contactPoint: {
       '@type': 'ContactPoint',
       email: CONTACT_EMAIL,
@@ -352,8 +352,7 @@ function extractPricingPlans(dynamicZone: unknown): PricingPlan[] {
 }
 
 /**
- * One Product+Offer node per plan. Only fixed-price plans (Mikró/Rajt/
- * Növekedés) get a node — Google's Merchant listing validator requires a
+ * One Product+Offer node per plan. Only plans with a numeric price get a node — Google's Merchant listing validator requires a
  * real price/priceCurrency (a priceSpecification-only Offer without a number
  * doesn't satisfy it), and we never fabricate a number for a custom-quote
  * plan (Partner) just to fill that field — Google explicitly penalizes a

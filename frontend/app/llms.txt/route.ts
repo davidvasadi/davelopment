@@ -25,16 +25,15 @@ Nem csak megépítjük a weboldalad, aztán magadra hagyunk vele.
 - [Weboldal készítés](${base}/hu/szolgaltatasok/weboldal-keszites): Egyedi weboldal tervezés és fejlesztés kisvállalkozásoknak.
 - [UX/UI Design & fejlesztés](${base}/hu/szolgaltatasok/ux-ui-design-fejlesztes): Felhasználói élmény tervezés és interfész fejlesztés.
 - [Branding & arculattervezés](${base}/hu/szolgaltatasok/branding-arculat): Márkaépítés, logó, vizuális identitás.
-- [SEO & tartalommarketing](${base}/hu/szolgaltatasok/seo-tartalommarketing): Keresőoptimalizálás és tartalomstratégia.
+- [Marketing & SEO](${base}/hu/szolgaltatasok/marketing-es-seo): Keresőoptimalizálás, tartalommarketing és Google Ads kampánykezelés — kulcsszókutatás, SEO-cikkek, konverziókövetés, havi riport.
 - [Digitális rendszerek](${base}/hu/szolgaltatasok/digitalis-rendszerek): Időpontfoglaló, CRM, email marketing, egyedi vállalatirányítási rendszerek.
-- [Hirdetéskezelés](${base}/hu/szolgaltatasok/hirdeteskezeles): Google Ads kampánykezelés — beállítás, optimalizálás, konverziókövetés.
 - [Karbantartás](${base}/hu/szolgaltatasok/karbantartas): Folyamatos weboldal-karbantartás, frissítések, support havi előfizetésben.
 - [Weboldal készítés Budapesten](${base}/hu/weboldal-keszites-budapest): Egyedi weboldal tervezés és fejlesztés budapesti vállalkozásoknak.
 - [Weboldal készítés Debrecenben](${base}/hu/weboldal-keszites-debrecen): Egyedi weboldal tervezés és fejlesztés debreceni vállalkozásoknak.
 
 ## Árak és csomagok
 
-- [Árak](${base}/hu/arak): Havi előfizetéses weboldal-csomagok (Mikró, Rajt, Növekedés) és egyedi Partner ajánlat, **már 19.900 Ft/hótól**.
+- [Árak](${base}/hu/arak): Fix áras projektcsomagok — Üzleti weboldal **190 000 Ft-tól**, Weboldal + marketing 330 000 Ft-tól, Egyedi fejlesztés 550 000 Ft-tól — és havonta megújuló támogatás 29 900 Ft/hó-tól.
 
 ## Munkáink
 
@@ -55,7 +54,7 @@ Ezek nem elméleti ígéretek — nézd meg élesben a [projekteket](${base}/hu/
 ### Kiemelt gyakori kérdések
 
 **Mennyibe kerül egy projekt?**
-A legolcsóbb, Mikró csomagunk már havi 19.900 Ft-tól elérhető. Ennél komolyabb, egyedi igényekhez (nagyobb funkciókör, vállalati rendszerek) nem sablon árlista alapján dolgozunk, mert minden projekt más — rövid egyeztetés után egyedi ajánlatot adunk. Részletes csomagok és árak az [Árak oldalon](${base}/hu/arak).
+Egy egyedi tervezésű üzleti weboldal 190 000 Ft-tól készül, marketinggel (SEO, Google Ads) 330 000 Ft-tól, egyedi rendszer (pl. foglalás, ügyfélportál) 550 000 Ft-tól. Minden projekt egy 30 perces beszélgetés után fix, írásos árajánlatot kap. Az indulás utáni támogatás havonta megújuló, 29 900 Ft/hó-tól. Részletes csomagok és árak az [Árak oldalon](${base}/hu/arak).
 
 **Miért éri meg jobban egy havi előfizetéses csomag, mint egy egyszeri fizetős weboldal?**
 Az egyszeri fizetős weboldal olcsóbbnak tűnik elsőre, de utána gyakran jönnek az előre nem látott extra költségek — hibajavítás, frissítés, új funkció. Az előfizetéses modellnél a havi díj kiszámítható, a karbantartás és a folyamatos fejlesztés is benne van.
@@ -63,8 +62,8 @@ Az egyszeri fizetős weboldal olcsóbbnak tűnik elsőre, de utána gyakran jön
 **Mi van benne az árban?**
 Minden ami kell az induláshoz: design, fejlesztés, tesztelés, élesítés és az első hónap support. Nincs rejtett költség, nincs meglepetés számla.
 
-**Melyik csomagot (Mikró, Rajt, Növekedés) válasszam?**
-A legtöbb vállalkozásnak a Rajt a legjobb választás — tartalmazza a rendszeres SEO-tartalmat és a gyors növekedéshez szükséges eszközöket. A Mikró csak akkor elég, ha most indulsz és egy egyszerű, gyors online jelenlét kell. A Növekedés azoknak jó, akiknek egyedi fejlesztésre vagy komolyabb marketingre van szükségük.
+**Melyik csomagot válasszam?**
+Ha most indulsz vagy elavult az oldalad, az Üzleti weboldal elég. Ha már az első hónapokban forgalom és megkeresés kell, a Weboldal + marketing (SEO, tartalom, Google Ads). Ha egyedi rendszer kell (foglalás, ügyfélportál, integrációk), az Egyedi fejlesztés. Az indulás után a Támogatás tartja frissen és gyorsan az oldalt.
 
 **Kell előleg?**
 Nem, nincs szükség nagy előlegre — előfizetéses modellben dolgozunk. Az első havi díjjal indul a weboldalad elkészítése.

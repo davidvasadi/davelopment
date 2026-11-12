@@ -224,6 +224,21 @@ export const Pricing = ({
 
   // A legolcsóbb csomag lehet havidíjas (/hó) vagy egyszeri díjas (-tól) is —
   // a mondat ezt is jelezze, különben félreérthető, hogy ez a teljes projekt ára.
+  // 2026-11: egyszeri projektár és havidíjas támogatás külön („Weboldal 190 000 HUF-tól, támogatás 29 900 HUF/hó-tól.”)
+  const isMonthlyLabel = (p?: Plan | null) => /\/h[oó]|month/i.test(p?.currency_project_label || '');
+  const cheapestOf = (pool: Plan[]) =>
+    pool
+      .filter((p) => p?.price !== null && p?.price !== undefined && p.price !== '' && !isNaN(Number(p.price)))
+      .reduce<Plan | null>((min, p) => (min === null || Number(p.price) < Number(min.price) ? p : min), null);
+  const cheapestProject = cheapestOf(plans.filter((p) => !isMonthlyLabel(p)));
+  const cheapestMonthly = cheapestOf(plans.filter((p) => isMonthlyLabel(p)));
+  const fmt = (p: Plan) => `${Math.round(Number(p.price)).toLocaleString(locale)} ${p.currency || ''}`.trim();
+  const startsFromLabel =
+    cheapestProject && cheapestMonthly
+      ? isHu
+        ? `Weboldal ${fmt(cheapestProject)}-tól, támogatás ${fmt(cheapestMonthly)}/hó-tól.`
+        : `Websites from ${fmt(cheapestProject)}, care plans from ${fmt(cheapestMonthly)}/month.`
+      : null;
   const cheapestPriceLabel = cheapestPlan
     ? `${Math.round(Number(cheapestPlan.price)).toLocaleString(locale)} ${cheapestPlan.currency || ''} ${cheapestPlan.currency_project_label || ''}`.trim()
     : null;
@@ -275,13 +290,7 @@ export const Pricing = ({
                   {sub_heading}
                 </Subheading>
               )}
-              {cheapestPriceLabel && (
-                <p className="text-sm md:text-base text-white/60 mt-2">
-                  {isHu
-                    ? `Csomagjaink már ${cheapestPriceLabel}-tól indulnak.`
-                    : `Our packages start from ${cheapestPriceLabel}.`}
-                </p>
-              )}
+              {startsFromLabel && <p className="text-sm md:text-base text-white/60 mt-2">{startsFromLabel}</p>}
             </motion.div>
 
             {/* ── TÍPUSVÁLASZTÓ — fade up, kis delay ── */}
@@ -346,12 +355,14 @@ export const Pricing = ({
                 >
                   <div>
                     <h3 className="text-white text-lg font-medium mb-1">
-                      {activePlan?.addon_title || 'Add marketing add-on'}
+                      {activePlan?.addon_title || activePlan?.name}
                     </h3>
                     <p className="text-white/75 text-sm md:text-base whitespace-pre-line">
-                      {activePlan?.addon_description || 'Flexible tools to strengthen your launch.'}
+                      {activePlan?.addon_title ? activePlan?.addon_description : (activePlan as any)?.sub_text}
                     </p>
                   </div>
+                  {/* 2026-11: kiegészítő (marketing add-on) csak akkor, ha a csomagnak van — az új csomagoknál nincs */}
+                  {activePlan?.addon_title && (
                   <div className="flex items-center justify-between mt-auto pt-6">
                     <div className="text-white/70 text-lg font-semibold">
                       {/* Mindig a sima havi összeg — egyösszegű módban se számoljuk ki rá a
@@ -379,6 +390,7 @@ export const Pricing = ({
                       />
                     </motion.button>
                   </div>
+                  )}
                 </motion.div>
               </AnimatePresence>
 
