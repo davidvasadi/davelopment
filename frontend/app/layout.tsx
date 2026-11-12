@@ -1,6 +1,5 @@
 import type { Viewport } from 'next';
 import { Geist } from 'next/font/google';
-import Script from 'next/script';
 import { headers } from 'next/headers';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
@@ -49,8 +48,12 @@ export default async function RootLayout({
       <head>
         {/* Google Consent Mode v2 — alapból minden tiltva, amíg a látogató nem dönt.
             Betöltéskor beolvassuk a korábban mentett cookie preferenciát. */}
-        <Script id="consent-default" strategy="beforeInteractive">
-          {`
+        <script
+          id="consent-default"
+          // sima inline script a <head>-ben: a szerver HTML-jével fut le, még a gtag előtt (a next/script beforeInteractive
+          // a Next 16 + React 19 alatt „script tag while rendering” hibát dob fejlesztői módban)
+          dangerouslySetInnerHTML={{
+            __html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             window.gtag = gtag;
@@ -66,8 +69,9 @@ export default async function RootLayout({
               security_storage:      'granted',
               wait_for_update:       500
             });
-          `}
-        </Script>
+          `,
+          }}
+        />
       </head>
       <body className={geist.className} suppressHydrationWarning>
         <Preview />
