@@ -22,6 +22,12 @@
   }
 }
 
+/* html is: betöltés közben is a lap színe látszik az iPhone felső sávja alatt */
+html,
+body {
+  background-color: var(--bg-page);
+}
+
 body {
   color: rgb(var(--foreground-rgb));
   background-color: var(--bg-page);
