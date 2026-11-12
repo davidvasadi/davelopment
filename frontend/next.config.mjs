@@ -41,6 +41,16 @@ const nextConfig = {
     return [
       // hu: a GYIK oldal korábban angol "faq" slug alatt futott — magyar kulcsszóra cserélve
       { source: '/hu/faq', destination: '/hu/gyik', permanent: true },
+      // 2026-11: a Hirdetéskezelés és a SEO & tartalommarketing oldal egy közös Marketing & SEO oldal lett (marketing-es-seo /
+      // marketing-and-seo) — 301 minden régi címről, hogy a helyezés és a rá mutató linkek ereje átkerüljön
+      { source: '/hu/szolgaltatasok/hirdeteskezeles', destination: '/hu/szolgaltatasok/marketing-es-seo', permanent: true },
+      { source: '/hu/hirdeteskezeles', destination: '/hu/szolgaltatasok/marketing-es-seo', permanent: true },
+      { source: '/hu/szolgaltatasok/seo-tartalommarketing', destination: '/hu/szolgaltatasok/marketing-es-seo', permanent: true },
+      { source: '/hu/seo-tartalommarketing', destination: '/hu/szolgaltatasok/marketing-es-seo', permanent: true },
+      { source: '/en/services/ad-management', destination: '/en/services/marketing-and-seo', permanent: true },
+      { source: '/en/ad-management', destination: '/en/services/marketing-and-seo', permanent: true },
+      { source: '/en/services/seo-content-marketing', destination: '/en/services/marketing-and-seo', permanent: true },
+      { source: '/en/seo-content-marketing', destination: '/en/services/marketing-and-seo', permanent: true },
       // A nagybetűs "-UX" -> kisbetűs "-ux" migráció rég lezajlott. A Next.js route-illesztés
       // nem kis/nagybetű-érzékeny, így ez a szabály a már helyes kisbetűs URL-t is elkapta,
       // és önmagára redirecteltette (végtelen redirect loop). A szabály feleslegessé vált, törölve.
