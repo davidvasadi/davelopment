@@ -525,6 +525,25 @@ export const Newsletters: CollectionConfig = {
           payload.logger.error({ err }, 'Newsletters: welcome email failed')
         }
 
+        // ── Értesítő neked: új feliratkozó (2026-11 — eddig csak a feliratkozó kapott levelet) ──────
+        try {
+          const notifyTo = process.env.NOTIFY_EMAIL || process.env.ADMIN_EMAIL || 'hello@davelopment.hu'
+          const esc = (v: string) => v.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] as string)
+          const adminUrl = `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:1337'}/admin/collections/newsletters/${doc.id}`
+          await payload.sendEmail({
+            to: notifyTo,
+            subject: `[davelopment]© Új hírlevél-feliratkozó: ${name || doc.email}`,
+            html: `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;color:#111;line-height:1.6">
+              <p style="margin:0 0 12px;font-size:16px;font-weight:600">Új hírlevél-feliratkozó</p>
+              <p style="margin:0">${name ? `<strong>${esc(name)}</strong><br>` : ''}<a href="mailto:${esc(doc.email)}" style="color:#111">${esc(doc.email)}</a></p>
+              <p style="margin:8px 0 0;color:#666">Nyelv: ${isHu ? 'magyar' : 'angol'}${doc.source ? ` · Forrás: ${esc(String(doc.source))}` : ''}</p>
+              <p style="margin:16px 0 0"><a href="${adminUrl}" style="display:inline-block;padding:9px 18px;background:#111;color:#fff;border-radius:9px;text-decoration:none;font-size:12px;font-weight:600">Megnyitás az adminban ›</a></p>
+            </div>`,
+          })
+        } catch (err) {
+          payload.logger.error({ err }, 'Newsletters: admin notification failed')
+        }
+
         // ── Email log ──────────────────────────────────────────────────────────
         try {
           await payload.create({

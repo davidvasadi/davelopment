@@ -133,7 +133,9 @@ export const Contacts: CollectionConfig = {
         }
 
         const isHu = (doc.language || 'hu').startsWith('hu')
-        const adminEmail = process.env.ADMIN_EMAIL || 'hello@davelopment.hu'
+        // az értesítő címe: a deploy a NOTIFY_EMAIL-t írja ki élesen (GitHub secret) — korábban csak ADMIN_EMAIL-t olvasott,
+        // ami élesben nincs megadva, így minden a beégetett hello@-ra ment
+        const adminEmail = process.env.NOTIFY_EMAIL || process.env.ADMIN_EMAIL || 'hello@davelopment.hu'
 
         const adminUrl = `${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:1337'}/admin/collections/contacts/${doc.id}`
 
