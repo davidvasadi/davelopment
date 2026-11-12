@@ -92,7 +92,7 @@ export function Navbar({
 
   return (
     <motion.nav
-      className={cn('fixed top-0 inset-x-0 z-50 isolate', resolvedBg)}
+      className={cn('fixed top-0 inset-x-0 z-50 isolate', resolvedBg, offscreen && 'invisible')}
       initial={{ opacity: 0, y: -8 }}
       animate={preloaderDone ? { opacity: 1, y: hidden ? '-100%' : 0 } : { opacity: 0, y: -8 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
