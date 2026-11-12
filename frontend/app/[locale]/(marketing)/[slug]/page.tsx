@@ -19,6 +19,7 @@ import { getServiceDetail } from '@/lib/services/service-details';
 import { getLocalizedSegment } from '@/lib/i18n/segments';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://davelopment.hu').replace(/\/+$/, '');
+const CITY_SLUGS = new Set(['weboldal-keszites-budapest', 'weboldal-keszites-debrecen', 'web-design-budapest', 'web-design-debrecen']);
 
 // Slugs that were renamed after being live — redirect the old URL to the new one
 // so any existing backlinks/bookmarks/search index entries aren't broken.
@@ -84,8 +85,13 @@ export default async function Page(props: {
     { [params.locale]: params.slug }
   );
 
-  // Városoldalak (weboldal-keszites-budapest stb., 2026-11): ugyanaz az új felépítés, mint a szolgáltatás-aloldalakon
+  // Városoldalak (weboldal-keszites-budapest stb., 2026-11): ugyanaz az új felépítés, mint a szolgáltatás-aloldalakon.
+  // A szolgáltatás-aloldalak a gyökér alatt is elérhetők voltak (/hu/karbantartas) — duplikáció; ezek tartósan a
+  // /szolgaltatasok/… címre visznek.
   const detail = getServiceDetail(params.slug);
+  if (detail && !CITY_SLUGS.has(params.slug)) {
+    permanentRedirect(`/${params.locale}/${getLocalizedSegment(params.locale, 'services')}/${params.slug}`);
+  }
   const pageUrl = pageData?.seo?.canonicalURL || `${SITE_URL}/${params.locale}/${params.slug}`;
   const servicesUrl = `${SITE_URL}/${params.locale}/${getLocalizedSegment(params.locale, 'services')}`;
 
