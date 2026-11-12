@@ -206,7 +206,7 @@ export const Newsletter: React.FC<NewsletterProps> = ({
                 <div className="overflow-hidden h-6">
                   <motion.div className="flex flex-col mr-4" variants={wheelVariants}>
                     <span>{submitting ? buttonSending : buttonLabel}</span>
-                    <span>{submitting ? buttonSending : buttonLabel}</span>
+                    <span aria-hidden className="kb-label" data-k={submitting ? buttonSending : buttonLabel} />
                   </motion.div>
                 </div>
                 <motion.div className="w-2 h-2 rounded-full bg-white" variants={dotVariants} />

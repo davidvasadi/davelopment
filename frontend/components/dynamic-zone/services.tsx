@@ -343,7 +343,7 @@ export function Services(props: ServicesBlockProps) {
                                         }}
                                     >
                                         <span>{cta_title}</span>
-                                        <span>{cta_title}</span>
+                                        <span aria-hidden className="kb-label" data-k={String(cta_title ?? '')} />
                                     </motion.div>
                                 </div>
                             </motion.button>

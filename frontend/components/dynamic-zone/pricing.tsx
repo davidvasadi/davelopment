@@ -528,7 +528,7 @@ export const Pricing = ({
                             variants={buttonVariants}
                           >
                             <span className="block">{ctaText}</span>
-                            <span className="block" aria-hidden="true">{ctaText}</span>
+                            <span className="block kb-label" aria-hidden="true" data-k={ctaText} />
                           </motion.div>
                         </div>
                       </MotionLink>

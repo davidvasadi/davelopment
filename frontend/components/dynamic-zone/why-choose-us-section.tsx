@@ -194,7 +194,7 @@ export function WhyChooseUsSection({
                                     <div className="overflow-hidden h-5">
                                         <motion.div className="flex flex-col" variants={wheelVariants}>
                                             <span>{ctaText}</span>
-                                            <span aria-hidden="true">{ctaText}</span>
+                                            <span aria-hidden="true" className="kb-label" data-k={ctaText ?? ''} />
                                         </motion.div>
                                     </div>
                                     <span className="flex items-center gap-1">

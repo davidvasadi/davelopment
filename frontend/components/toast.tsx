@@ -169,7 +169,7 @@ export const CookieConsent = () => {
                     <div className="overflow-hidden h-4">
                       <motion.div className="flex flex-col leading-4" variants={wheelVariants}>
                         <span className="block">{isEn ? 'Save' : 'Mentés'}</span>
-                        <span className="block" aria-hidden>{isEn ? 'Save' : 'Mentés'}</span>
+                        <span className="block kb-label" aria-hidden data-k={isEn ? 'Save' : 'Mentés'} />
                       </motion.div>
                     </div>
                     <motion.span className="h-1.5 w-1.5 rounded-full bg-black flex-shrink-0" variants={dotVariants} />
@@ -184,7 +184,7 @@ export const CookieConsent = () => {
                       <div className="overflow-hidden h-4">
                         <motion.div className="flex flex-col leading-4" variants={wheelVariants}>
                           <span className="block">{isEn ? 'Accept all' : 'Elfogad mindet'}</span>
-                          <span className="block" aria-hidden>{isEn ? 'Accept all' : 'Elfogad mindet'}</span>
+                          <span className="block kb-label" aria-hidden data-k={isEn ? 'Accept all' : 'Elfogad mindet'} />
                         </motion.div>
                       </div>
                       <motion.span className="h-1.5 w-1.5 rounded-full bg-black flex-shrink-0" variants={dotVariants} />

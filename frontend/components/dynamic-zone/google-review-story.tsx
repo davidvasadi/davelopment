@@ -172,7 +172,7 @@ export const GoogleReviewStory = ({
                     variants={{ rest: { y: '-50%' }, hover: { y: '0%', transition: { duration: 0.3, ease: 'easeInOut' } } }}
                   >
                     <span className="block">{locale === 'hu' ? 'Vélemények megtekintése' : 'See reviews'}</span>
-                    <span className="block" aria-hidden="true">{locale === 'hu' ? 'Vélemények megtekintése' : 'See reviews'}</span>
+                    <span className="block kb-label" aria-hidden="true" data-k={locale === 'hu' ? 'Vélemények megtekintése' : 'See reviews'} />
                   </motion.div>
                 </div>
                 <span className="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center shrink-0">

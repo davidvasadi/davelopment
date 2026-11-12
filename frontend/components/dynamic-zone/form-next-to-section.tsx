@@ -697,7 +697,7 @@ export function FormNextToSection({
                             <motion.div className="overflow-hidden h-6">
                               <motion.div className="flex flex-col" variants={wheelVariants}>
                                 <span>{lang === 'hu' ? 'Tovább' : 'Continue'}</span>
-                                <span>{lang === 'hu' ? 'Tovább' : 'Continue'}</span>
+                                <span aria-hidden className="kb-label" data-k={lang === 'hu' ? 'Tovább' : 'Continue'} />
                               </motion.div>
                             </motion.div>
                           </motion.button>
@@ -801,7 +801,7 @@ export function FormNextToSection({
                                 <motion.div className="overflow-hidden h-6">
                                   <motion.div className="flex flex-col" variants={wheelVariants}>
                                     <span>{submitInput?.name ?? (lang === 'hu' ? 'Üzenet küldése' : 'Send message')}</span>
-                                    <span>{submitInput?.name ?? (lang === 'hu' ? 'Üzenet küldése' : 'Send message')}</span>
+                                    <span aria-hidden className="kb-label" data-k={String(submitInput?.name ?? (lang === 'hu' ? 'Üzenet küldése' : 'Send message') ?? '')} />
                                   </motion.div>
                                 </motion.div>
                               )}
@@ -998,7 +998,7 @@ export function FormNextToSection({
                               variants={wheelVariants}
                             >
                               <span>{buttonLabel}</span>
-                              <span>{buttonLabel}</span>
+                              <span aria-hidden className="kb-label" data-k={String(buttonLabel ?? '')} />
                             </motion.div>
                           </div>
                           <motion.div

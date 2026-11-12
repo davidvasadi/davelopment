@@ -308,7 +308,7 @@ export const SingleProduct = ({
                   <div className="overflow-hidden h-6">
                     <motion.div className="flex flex-col" variants={wheelVariants}>
                       <span>{button_center.text}</span>
-                      <span>{button_center.text}</span>
+                      <span aria-hidden className="kb-label" data-k={button_center.text ?? ''} />
                     </motion.div>
                   </div>
                   <motion.div className="w-2 h-2 rounded-full bg-white shrink-0" variants={dotVariants} />
@@ -401,7 +401,7 @@ export const SingleProduct = ({
             <div className="overflow-hidden h-6">
               <motion.div className="flex flex-col" variants={wheelVariants}>
                 <span>{button_bottom.text}</span>
-                <span>{button_bottom.text}</span>
+                <span aria-hidden className="kb-label" data-k={button_bottom.text ?? ''} />
               </motion.div>
             </div>
             <motion.div className="w-2 h-2 rounded-full bg-white shrink-0" variants={dotVariants} />

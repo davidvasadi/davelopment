@@ -234,7 +234,8 @@ export const Button: React.FC<ButtonProps> = ({
                 variants={wheelVariants}
               >
                 <span>{labelNode}</span>
-                <span>{labelNode}</span>
+                {/* a gördülő második felirat CSS-ből — nem oldalszöveg, a Google nem olvassa kétszer */}
+                <span aria-hidden className="kb-label" data-k={String(labelNode)} />
               </motion.div>
             </div>
             <motion.div

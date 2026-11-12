@@ -216,7 +216,7 @@ export const Hero = ({
                       <div className="overflow-hidden h-5">
                         <motion.div className="flex flex-col leading-5" variants={wheelVariants}>
                           <span className="block">{cta.text}</span>
-                          <span className="block" aria-hidden="true">{cta.text}</span>
+                          <span className="block kb-label" aria-hidden="true" data-k={cta.text ?? ''} />
                         </motion.div>
                       </div>
                       <span className="h-1.5 w-1.5 rounded-full bg-white shrink-0" />
@@ -343,7 +343,7 @@ export const Hero = ({
                       <div className="overflow-hidden h-5">
                         <motion.div className="flex flex-col leading-5" variants={wheelVariants}>
                           <span className="block">{talkCTA.text}</span>
-                          <span className="block" aria-hidden="true">{talkCTA.text}</span>
+                          <span className="block kb-label" aria-hidden="true" data-k={talkCTA.text ?? ''} />
                         </motion.div>
                       </div>
                       <motion.span className="h-1.5 w-1.5 rounded-full bg-white shrink-0" variants={dotVariants} />

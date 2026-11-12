@@ -165,7 +165,7 @@ export const CTA = ({
                         <div style={{ overflow: 'hidden', height: 18 }}>
                           <motion.div className="flex flex-col" style={{ lineHeight: '18px' }} variants={wheelVariants}>
                             <span className="block">{cta.text}</span>
-                            <span className="block" aria-hidden="true">{cta.text}</span>
+                            <span className="block kb-label" aria-hidden="true" data-k={cta.text ?? ''} />
                           </motion.div>
                         </div>
                       </MotionLink>
@@ -186,7 +186,7 @@ export const CTA = ({
                       <div style={{ overflow: 'hidden', height: 18 }}>
                         <motion.div className="flex flex-col" style={{ lineHeight: '18px' }} variants={wheelVariants}>
                           <span className="block">{cta.text}</span>
-                          <span className="block" aria-hidden="true">{cta.text}</span>
+                          <span className="block kb-label" aria-hidden="true" data-k={cta.text ?? ''} />
                         </motion.div>
                       </div>
                     </MotionLink>
@@ -299,7 +299,7 @@ export const CTA = ({
                       <div style={{ overflow: 'hidden', height: 18 }}>
                         <motion.div className="flex flex-col" style={{ lineHeight: '18px' }} variants={wheelVariants}>
                           <span className="block">{cta.text}</span>
-                          <span className="block" aria-hidden="true">{cta.text}</span>
+                          <span className="block kb-label" aria-hidden="true" data-k={cta.text ?? ''} />
                         </motion.div>
                       </div>
                     </MotionLink>

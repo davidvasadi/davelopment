@@ -398,7 +398,7 @@ export function CapabilitiesAccordion({
                                         <span className="block overflow-hidden h-5">
                                             <span className="flex flex-col -translate-y-1/2 transition-transform duration-300 ease-in-out group-hover:translate-y-0">
                                                 <span className="h-5 leading-5">{cta_title}</span>
-                                                <span className="h-5 leading-5" aria-hidden="true">{cta_title}</span>
+                                                <span className="h-5 leading-5 kb-label" aria-hidden="true" data-k={cta_title ?? ''} />
                                             </span>
                                         </span>
                                     </button>

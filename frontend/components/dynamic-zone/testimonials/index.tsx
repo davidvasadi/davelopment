@@ -233,7 +233,7 @@ const StatCard = ({
                   }}
                 >
                   <span>{ctaText}</span>
-                  <span>{ctaText}</span>
+                  <span aria-hidden className="kb-label" data-k={String(ctaText ?? '')} />
                 </motion.div>
               </div>
             </MotionLink>
@@ -306,7 +306,7 @@ const StatCard = ({
                 }}
               >
                 <span>{ctaText}</span>
-                <span>{ctaText}</span>
+                <span aria-hidden className="kb-label" data-k={String(ctaText ?? '')} />
               </motion.div>
             </div>
           </MotionLink>
