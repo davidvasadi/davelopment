@@ -52,17 +52,17 @@ function content(hu: boolean) {
     care: (hu
       ? [
           { title: 'Alap támogatás', meta: 'Havonta megújuló', price: '29 900 Ft', suffix: '/hó-tól', image: 'davelopment-karbantartas.avif',
-            points: ['Frissítések és biztonsági javítások', 'Folyamatos elérhetőség-figyelés', 'Havi 2 óra módosítás'] },
+            points: ['Frissítések és biztonsági javítások', 'Folyamatos elérhetőség-figyelés', 'Kisebb módosítások, órák számolgatása nélkül'] },
           { title: 'Növekedés', meta: 'Havonta megújuló', price: '59 900 Ft', suffix: '/hó-tól', image: 'davelopment-novekedes.avif',
-            points: ['Havi 6 óra design és fejlesztés', 'Havi teljesítményriport', 'A/B tesztek a kulcsoldalakon'] },
+            points: ['Nagyobb fejlesztések és új oldalak', 'Havi teljesítményriport', 'A/B tesztek a kulcsoldalakon'] },
           { title: 'Beágyazott csapat', meta: 'Havonta megújuló', price: '149 900 Ft', suffix: '/hó-tól', image: 'davelopment-beagyazott-csapat.avif',
             points: ['Közvetlen kapcsolat a fejlesztővel', 'Havi 4 SEO-cikk', 'Heti egyeztetés', 'Elsőbbségi átfutás'] },
         ]
       : [
           { title: 'Essential care', meta: 'Rolling monthly', price: '29,900 HUF', suffix: '/month', image: 'davelopment-karbantartas.avif',
-            points: ['Updates and security patches', 'Uptime monitoring', 'Two hours of changes'] },
+            points: ['Updates and security patches', 'Uptime monitoring', 'Small changes, without counting hours'] },
           { title: 'Growth', meta: 'Rolling monthly', price: '59,900 HUF', suffix: '/month', image: 'davelopment-novekedes.avif',
-            points: ['Six hours of design and build', 'Monthly performance report', 'A/B tests on key pages'] },
+            points: ['Bigger changes and new pages', 'Monthly performance report', 'A/B tests on key pages'] },
           { title: 'Embedded', meta: 'Rolling monthly', price: '149,900 HUF', suffix: '/month', image: 'davelopment-beagyazott-csapat.avif',
             points: ['A direct line to your developer', 'Four SEO articles a month', 'Weekly planning call', 'Priority turnaround'] },
         ]) as Card[],
