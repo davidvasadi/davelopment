@@ -9,6 +9,7 @@ import { Search, ChevronDown, ArrowUpRight as ArrowUpRightIcon } from 'lucide-re
 import { StrapiImage } from '@/components/ui/strapi-image';
 import { truncate } from '@/lib/utils';
 import { Product } from '@/types/types';
+import { localizedCategories } from '@/lib/category-locale';
 import { getLocalizedSegment } from '@/lib/i18n/segments';
 
 const arrowWheelVariants: Variants = {
@@ -52,9 +53,9 @@ export const Featured = ({ products, locale }: { products: Product[]; locale: st
 
   const categories = useMemo(() => {
     const set = new Set<string>();
-    products.forEach((p) => p.categories?.forEach((c: any) => { if (c?.name) set.add(c.name); }));
+    products.forEach((p) => localizedCategories(p.categories as any[], locale).forEach((c: any) => { if (c?.name) set.add(c.name); }));
     return Array.from(set);
-  }, [products]);
+  }, [products, locale]);
 
   const filtered = useMemo(() => {
     return products
@@ -84,14 +85,14 @@ export const Featured = ({ products, locale }: { products: Product[]; locale: st
         <div className="sm:w-64">
           <label className="sr-only" htmlFor="featured-search">{t.searchLabel}</label>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
             <input
               id="featured-search"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t.searchPlaceholder}
-              className="w-full rounded-[6px] px-8 py-2.5 text-xs md:text-sm text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-black focus:ring-1 focus:ring-black"
+              className="w-full rounded-full pl-10 pr-4 py-2.5 text-xs md:text-sm text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-black focus:ring-1 focus:ring-black"
             />
           </div>
         </div>
@@ -102,21 +103,21 @@ export const Featured = ({ products, locale }: { products: Product[]; locale: st
               id="featured-category"
               value={activeCategory}
               onChange={(e) => setActiveCategory(e.target.value)}
-              className="w-full appearance-none rounded-[6px] bg-white px-3 py-2.5 pr-8 text-xs md:text-sm text-neutral-900 outline-none focus:border-black focus:ring-1 focus:ring-black"
+              className="w-full appearance-none rounded-full bg-white px-4 py-2.5 pr-9 text-xs md:text-sm text-neutral-900 outline-none focus:border-black focus:ring-1 focus:ring-black"
             >
               <option value="all">{t.categoryLabel}</option>
               {categories.map((cat) => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+            <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           </div>
         </div>
       </div>
 
       {/* NINCS TALÁLAT */}
       {!listForGrid.length && (
-        <div className="max-w-7xl mx-auto mt-4 rounded-[6px] border border-dashed border-neutral-200 bg-neutral-50 px-6 py-8 text-center">
+        <div className="mt-4 rounded-card border border-dashed border-neutral-200 bg-neutral-50 px-6 py-8 text-center">
           <p className="text-sm font-medium text-neutral-800">{t.noResultsTitle}</p>
           <p className="mt-2 text-xs text-neutral-500">{t.noResultsSubtitle}</p>
         </div>
@@ -130,7 +131,7 @@ export const Featured = ({ products, locale }: { products: Product[]; locale: st
             const second = pair[1];
 
             return (
-              <section key={first?.id ?? pairIndex} className="max-w-7xl mx-auto">
+              <section key={first?.id ?? pairIndex} className="w-full">
                 {/* MOBIL */}
                 <div className="grid grid-cols-2 gap-2 text-black md:hidden">
                   {first && (
@@ -197,7 +198,7 @@ const LargeTile: React.FC<TileBase & { arrowClassName?: string }> = ({
   product, locale, className, arrowClassName,
 }) => {
   const href  = `/${locale}/${getLocalizedSegment(locale, 'products')}/${product.slug}`;
-  const label = product.categories?.[0]?.name;
+  const label = localizedCategories(product.categories as any[], locale)[0]?.name;
 
   // Hosszú cím esetén kisebb betűméret, hogy ne törjön csúnyán szó közepén
   const nameLength = product.name?.length ?? 0;
@@ -205,7 +206,7 @@ const LargeTile: React.FC<TileBase & { arrowClassName?: string }> = ({
 
   return (
     <motion.div
-      className={`rounded-[6px] overflow-hidden ${className}`}
+      className={`rounded-card overflow-hidden ${className}`}
       animate="rest"
       whileHover="hover"
     >
@@ -241,16 +242,17 @@ const SmallTextTile: React.FC<TileBase & { truncateLength: number }> = ({
   product, locale, className, truncateLength,
 }) => {
   const href  = `/${locale}/${getLocalizedSegment(locale, 'products')}/${product.slug}`;
-  const label = product.categories?.[1]?.name;
+  const cats = localizedCategories(product.categories as any[], locale);
+  const label = (cats[1] ?? cats[0])?.name;
 
   return (
     <motion.div
-      className={`rounded-[6px] overflow-hidden ${className}`}
+      className={`rounded-card overflow-hidden ${className}`}
       animate="rest"
       whileHover="hover"
     >
       <Link href={href as never} className="hidden md:block h-full w-full">
-        <div className="relative h-full w-full overflow-hidden rounded-[6px] bg-white">
+        <div className="relative h-full w-full overflow-hidden rounded-card bg-white">
           <div className="relative z-10 flex h-full flex-col justify-between p-4 md:p-6">
             <div className="flex justify-between gap-2">
               <div className="flex flex-col">
@@ -266,7 +268,7 @@ const SmallTextTile: React.FC<TileBase & { truncateLength: number }> = ({
         </div>
       </Link>
       <div className="md:hidden h-full w-full">
-        <div className="relative h-full w-full overflow-hidden rounded-[6px] bg-white">
+        <div className="relative h-full w-full overflow-hidden rounded-card bg-white">
           <div className="relative z-10 flex h-full flex-col justify-between p-4">
             <div className="flex justify-between gap-2">
               <div className="flex flex-col">
@@ -289,7 +291,7 @@ const ImageTile: React.FC<TileBase> = ({ product, locale, className }) => {
   const href = `/${locale}/${getLocalizedSegment(locale, 'products')}/${product.slug}`;
   return (
     <motion.div
-      className={`${className} rounded-[6px] overflow-hidden`}
+      className={`${className} rounded-card overflow-hidden`}
       animate="rest"
       whileHover="hover"
     >
@@ -309,7 +311,7 @@ const TileWithImageBackground: React.FC<{
 }> = ({ children, product, imageIndex = 0 }) => {
   const img = product.images?.[imageIndex];
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-[6px] group">
+    <div className="relative h-full w-full overflow-hidden rounded-card group">
       {img?.url && (
         <>
           <StrapiImage

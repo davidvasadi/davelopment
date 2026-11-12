@@ -6,9 +6,9 @@ import { Metadata } from 'next';
 import ClientSlugHandler from '../ClientSlugHandler';
 import PageContent from '@/lib/shared/PageContent';
 import JsonLd from '@/components/seo/JsonLd';
-import { Container } from '@/components/container';
 import { Heading } from '@/components/elements/heading';
 import { Subheading } from '@/components/elements/subheading';
+import { PillLink } from '@/components/pill-link';
 import { Featured } from '@/components/products/featured';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
 import { renderPageJsonLd } from '@/lib/shared/structured-data';
@@ -93,6 +93,23 @@ export default async function Products(props: {
         .filter((p): p is Product => !!p)
     : allProducts.filter((p) => p.featured);
 
+  // 2026-11: a Projektek oldalon a régi vélemény-blokk (testimonials) helyett a másik értékelős blokkunk
+  // (GoogleReviewStory: élő Google-értékelés kártya + videós kártya), ugyanaz, mint a szolgáltatás-oldalakon.
+  const hu = params.locale !== 'en';
+  const zone = (productPage?.dynamic_zone ?? []).map((b: any) =>
+    b?.blockType === 'testimonials'
+      ? {
+          blockType: 'google-review-story',
+          id: 'projects-review-story',
+          card1_heading: hu ? 'Nézd meg, hogyan dolgozunk valódi projekteken' : 'See how we work on real projects',
+          card1_cta_text: hu ? 'Kérj ajánlatot' : 'Get a quote',
+          card1_cta_url: hu ? '/kapcsolat' : '/contact',
+          card2_media: { url: '/api/media/file/hero-f2d7203ba3.mp4', mimeType: 'video/mp4' },
+          card2_caption: hu ? 'Weboldal készítés, a tervezéstől az élesítésig' : 'Website design, from first sketch to launch',
+        }
+      : b,
+  );
+
   const segment = getLocalizedSegment(params.locale, 'products');
   const jsonLd = renderPageJsonLd({
     kind: 'collection',
@@ -113,7 +130,7 @@ export default async function Products(props: {
     <div className="relative overflow-hidden mx-0 md:mx-auto">
       <JsonLd data={jsonLd} />
       <ClientSlugHandler localizedSlugs={localizedSlugs} />
-      <Container className="pt-10 md:pt-40 pb-40">
+      <div className="w-full px-4 pt-10 pb-12 md:px-8 md:pt-40 md:pb-16">
         <div className="flex flex-col gap-12 md:flex-row md:items-end md:gap-32">
           <Heading as="h1" className="w-full pt-14 text-left font-semibold">
             {productPage.heading}
@@ -124,12 +141,16 @@ export default async function Products(props: {
               <br />
               {productPage.sub_heading}
             </Subheading>
+            <PillLink href={params.locale === 'en' ? '/en/contact' : '/hu/kapcsolat'} className="mt-6 self-start" cta="projects-page:talk">
+              {params.locale === 'en' ? 'Talk about your project' : 'Beszéljünk a projektedről'}
+            </PillLink>
           </div>
         </div>
 
         <Featured products={featured} locale={params.locale} />
-        <PageContent pageData={productPage} locale={params.locale} />
-      </Container>
+      </div>
+      {/* a CMS-blokkok (pl. CTA) a saját szélükkel jönnek — nem a fenti, paddingolt sávban, hogy ne duplázódjon a margó */}
+      <PageContent pageData={{ ...productPage, dynamic_zone: zone }} locale={params.locale} />
     </div>
   );
 }

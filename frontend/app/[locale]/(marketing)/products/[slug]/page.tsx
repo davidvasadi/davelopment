@@ -93,7 +93,7 @@ export default async function SingleProductPage(props: {
   });
 
   return (
-    <div className="relative overflow-hidden w-full px-2 md:px-10">
+    <div className="relative w-full">
       <JsonLd data={jsonLd} />
       <ClientSlugHandler localizedSlugs={localizedSlugs} />
 

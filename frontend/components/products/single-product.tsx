@@ -1,426 +1,209 @@
 // frontend/components/products/single-product.tsx
 'use client';
 
-import { IconCheck } from '@tabler/icons-react';
-import { motion, type Variants } from 'framer-motion';
-import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Link } from 'next-view-transitions';
+import React from 'react';
 
-import { Container } from '@/components/container';
+import { PillLink } from '@/components/pill-link';
 import { StrapiImage } from '@/components/ui/strapi-image';
+import { localizedCategories } from '@/lib/category-locale';
+import { getLocalizedSegment } from '@/lib/i18n/segments';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { Product } from '@/types/types';
-import { PlusIcon } from 'lucide-react';
 
-const fadeUp = (
-  delay = 0,
-  distance = 40
-): {
-  initial: any;
-  whileInView: any;
-  viewport: any;
-  transition: any;
-} => ({
-  initial: { opacity: 0, y: distance },
+/**
+ * Projekt-aloldal (2026-11, az új arculat szerint — ugyanaz a nyelv, mint a szolgáltatás-aloldalakon):
+ * breadcrumb · h1 · leírás · adatsor (év, iparág, munkaterület, időkeret) · gombok → nagy fő média →
+ * két kép egymás mellett → „kihívás” szakasz (badge + cím balra, szöveg jobbra) → széles képek →
+ * „záró gondolatok” szakasz → kategóriák. A tartalom a CMS termék-mezőiből jön; a CMS-blokkok (CTA, hírlevél)
+ * a route-ban utána következnek.
+ */
+const ease = [0.33, 1, 0.68, 1] as const;
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 24 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: false, amount: 0.2 },
-  transition: { duration: 0.6, ease: 'easeOut', delay },
+  viewport: { once: true, amount: 0.15 },
+  transition: { duration: 0.6, ease, delay },
 });
 
-const wheelVariants: Variants = {
-  rest: { y: '-50%' },
-  hover: { y: '0%', transition: { duration: 0.3, ease: 'easeInOut' } },
-};
-
-const dotVariants: Variants = {
-  rest: { scale: 1 },
-  hover: { scale: 1.4, transition: { duration: 0.4, ease: 'easeInOut' } },
-};
-
-// Egy szöveges mezőt bekezdésekre/valódi listákra bont: minden "- " kezdetű
-// sor egy <li>, az egymást követő ilyen sorok egy <ul>-ba kerülnek, minden
-// más sor sima <p>. Sima, listát nem tartalmazó szöveg egyetlen <p>-ként jön ki.
+// Egy szöveges mezőt bekezdésekre/valódi listákra bont: a "- " kezdetű sorok listaelemek (narancs pöttyel), a többi bekezdés.
 function renderTextBlocks(text?: string | null) {
   if (!text) return null;
   const lines = text.split('\n').filter((l) => l.trim());
   const blocks: React.ReactNode[] = [];
-  let currentList: string[] = [];
-
-  const flushList = () => {
-    if (currentList.length) {
-      blocks.push(
-        <ul key={`list-${blocks.length}`} className="list-disc pl-5 space-y-1 my-4">
-          {currentList.map((item, i) => (
-            <li key={i}>{item}</li>
-          ))}
-        </ul>
-      );
-      currentList = [];
-    }
+  let list: string[] = [];
+  const flush = () => {
+    if (!list.length) return;
+    blocks.push(
+      <ul key={`l-${blocks.length}`} className="space-y-3">
+        {list.map((item, i) => (
+          <li key={i} className="flex items-start gap-3">
+            <span aria-hidden className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#F05A28]" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>,
+    );
+    list = [];
   };
-
   lines.forEach((line) => {
-    if (line.startsWith('- ')) {
-      currentList.push(line.slice(2));
-    } else {
-      flushList();
+    if (line.startsWith('- ')) list.push(line.slice(2));
+    else {
+      flush();
       blocks.push(<p key={`p-${blocks.length}`}>{line}</p>);
     }
   });
-  flushList();
-
+  flush();
   return blocks;
 }
 
-export const SingleProduct = ({
-  product,
-  locale,
-}: {
-  product: Product;
-  locale: string;
-}) => {
-  const isHu = locale === 'hu';
+function Section({ badge, heading, text, button }: { badge?: string; heading?: string; text?: string; button?: { text?: string; URL?: string } | null }) {
+  if (!heading && !text) return null;
+  // a CMS-ben néhol egész bekezdés a cím — hosszú címnél kisebb betű és szélesebb bal oszlop, hogy ne legyen 12 soros
+  const long = (heading?.length ?? 0) > 90;
+  return (
+    <motion.section className="grid grid-cols-1 gap-8 border-t border-black/10 pt-10 lg:grid-cols-12 lg:gap-16 lg:pt-14" {...fadeUp()}>
+      <div className={long ? 'lg:col-span-6' : 'lg:col-span-5'}>
+        {badge && (
+          <div className="mb-6 flex items-center gap-2">
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[#F05A28]" />
+            <span className="text-sm font-medium text-black/60">{badge}</span>
+          </div>
+        )}
+        {heading && (
+          <h2 className={`font-semibold tracking-[-0.03em] text-black ${long ? 'text-2xl leading-[1.2] md:text-3xl' : 'text-3xl leading-[1.05] tracking-[-0.04em] md:text-4xl xl:text-5xl'}`}>{heading}</h2>
+        )}
+      </div>
+      <div className={long ? 'lg:col-span-6' : 'lg:col-span-7'}>
+        <div className="max-w-2xl space-y-5 text-base leading-relaxed text-black/75 md:text-lg">{renderTextBlocks(text)}</div>
+        {button?.text && button?.URL && <PillLink href={button.URL} className="mt-8" cta={`project:${button.text}`}>{button.text}</PillLink>}
+      </div>
+    </motion.section>
+  );
+}
 
-  const {
-    badge_label_center,
-    heading_center,
-    description_center,
-    button_center,
-    badge_label_bottom,
-    heading_bottom,
-    description_bottom,
-    button_bottom,
-    year,
-    industry,
-    scope,
-    timeline,
-  } = product as any;
-
-  const galleryImages = product.images?.slice(1) ?? [];
+export const SingleProduct = ({ product, locale }: { product: Product; locale: string }) => {
+  const hu = locale !== 'en';
+  const p = product as any;
+  const { badge_label_center, heading_center, description_center, button_center, badge_label_bottom, heading_bottom, description_bottom, button_bottom, year, industry, scope, timeline } = p;
 
   const isHeroVideo = !!product.media?.mimeType?.startsWith('video/');
-  const heroVideoUrl = isHeroVideo && product.media?.url ? strapiImage(product.media.url) : null;
-  const heroImageUrl = !isHeroVideo && product.media?.url ? strapiImage(product.media.url) : null;
-  const hasHeroMedia = !!(heroVideoUrl || heroImageUrl);
+  const heroUrl = product.media?.url ? strapiImage(product.media.url) : null;
+  const gallery: any[] = product.images ?? [];
+  const pair = gallery.slice(1, 3);
+  const wide = gallery.slice(3);
+  const categories = localizedCategories(product.categories as any[], locale);
 
-  // Hosszú cím esetén kisebb betűméret, hogy ne törjön csúnyán szó közepén
-  const nameLength = product.name?.length ?? 0;
-  const titleSizeClass =
-    nameLength > 20 ? 'text-4xl md:text-7xl' :
-    nameLength > 12 ? 'text-5xl md:text-8xl' :
-    'text-6xl md:text-[140px]';
+  const meta = [
+    { label: hu ? 'Év' : 'Year', value: year },
+    { label: hu ? 'Iparág' : 'Industry', value: industry },
+    { label: hu ? 'Munkaterület' : 'Scope of work', value: scope },
+    { label: hu ? 'Időkeret' : 'Timeline', value: timeline },
+  ].filter((m) => m.value);
 
-  const [activeThumbnail] = useState<string>(
-    galleryImages[0] ? strapiImage(galleryImages[0].url) : ''
-  );
-
-  const secondImageUrl =
-    galleryImages[1]?.url ? strapiImage(galleryImages[1].url) : null;
-
-  const wideImages = galleryImages.slice(2);
-
-  const rawLogo: any =
-    (product as any)?.logo ?? (product as any)?.client_logo ?? null;
-
-  let productLogoImage: any = null;
-  if (rawLogo) {
-    if (rawLogo.url) productLogoImage = rawLogo;
-    else if (rawLogo.image?.url) productLogoImage = rawLogo.image;
-  }
-
-  // Timeline sorok — csak ha van érték
-  const timelineRows = [
-    { label: isHu ? 'Év' : 'Year',              value: year },
-    { label: isHu ? 'Iparág' : 'Industry',      value: industry },
-    { label: isHu ? 'Munkaterület' : 'Scope of work', value: scope },
-    { label: isHu ? 'Időkeret' : 'Timeline',    value: timeline },
-  ].filter((row) => row.value);
-
-  const badgeAndDescription = (
-    <motion.div
-      className="flex flex-col md:flex-row justify-start md:justify-between"
-      {...fadeUp(0.1, 30)}
-    >
-      <div className="flex text-sm text-black font-semibold mb-4">
-        <span>
-          <PlusIcon className="inline-block w-5 h-5 mr-1 bg-black text-white rounded-full p-1" />
-        </span>
-        {product.badge_label}
-      </div>
-      <p className="font-regular mb-4 text-black max-w-lg indent-16 text-lg">
-        {product.description}
-      </p>
-    </motion.div>
-  );
+  const [lead, ...restSentences] = String(product.description ?? '').split(/(?<=[.!?])\s+/);
+  const projectsHref = `/${locale}/${getLocalizedSegment(locale, 'products')}`;
+  const nameLen = product.name?.length ?? 0;
+  const titleSize = nameLen > 22 ? 'text-5xl md:text-7xl' : 'text-5xl md:text-8xl xl:text-[8rem]';
+  // a fejléc gombja: a középső gomb (pl. „Alkalmazás megnyitása”), ha van; mellette a saját projekt-ajánlatkérés
+  const primary = button_center?.text && button_center?.URL ? button_center : button_bottom?.text && button_bottom?.URL ? button_bottom : null;
 
   return (
-    <Container>
-    <div className="pb-16 md:pb-24">
+    <div className="w-full px-4 pb-16 pt-6 md:px-8 md:pb-24 md:pt-8">
+      {/* Fejléc */}
+      <motion.header initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease }}>
+        <nav aria-label={hu ? 'Morzsamenü' : 'Breadcrumb'} className="text-xs">
+          <ol className="flex items-center gap-2">
+            <li><Link href={projectsHref as never} className="text-black transition-opacity hover:opacity-60">{hu ? 'Projektek' : 'Projects'}</Link></li>
+            <li aria-hidden className="text-black/40">/</li>
+            <li aria-current="page" className="text-black/50">{product.name}</li>
+          </ol>
+        </nav>
+        <h1 className={`mt-6 break-words font-semibold leading-[0.9] tracking-[-0.05em] text-black ${titleSize}`}>{product.name}</h1>
 
-      {/* FELSŐ HEADING — a média (kép/videó) a cím mögött, háttérként jelenik meg, ha van. A leírás médiánál kívül kerül. */}
-      <motion.section
-        className={`relative ${hasHeroMedia ? 'mb-12' : 'my-12 mt-[200px] md:mt-[150px]'} ${
-          hasHeroMedia
-            ? 'rounded-2xl overflow-hidden px-6 py-12 md:px-16 md:py-20 min-h-[480px] md:min-h-[700px] flex flex-col justify-end'
-            : ''
-        }`}
-        {...fadeUp(0)}
-      >
-        {heroVideoUrl && (
-          <video
-            className="absolute inset-0 h-full w-full object-cover z-0"
-            src={heroVideoUrl}
-            autoPlay
-            loop
-            muted
-            playsInline
-          />
-        )}
-        {!heroVideoUrl && heroImageUrl && (
-          <StrapiImage
-            src={heroImageUrl}
-            alt={product.media?.alt || product.name}
-            fill
-            className="absolute inset-0 h-full w-full object-cover z-0"
-          />
-        )}
-        {hasHeroMedia && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent z-[1]" />
-        )}
-
-        <motion.h1
-          className={`relative z-10 ${titleSizeClass} font-semibold mb-4 max-w-4xl break-words ${
-            hasHeroMedia ? 'text-white [text-shadow:0_2px_24px_rgba(0,0,0,0.55)]' : 'text-black'
-          }`}
-          {...fadeUp(0.05, 50)}
-        >
-          {product.name}
-        </motion.h1>
-
-        {!hasHeroMedia && <div className="mt-[100px]">{badgeAndDescription}</div>}
-      </motion.section>
-
-      {hasHeroMedia && <div className="mb-16">{badgeAndDescription}</div>}
-
-      <div>
-
-        {/* TIMELINE — Framer stílusú, két oszlop */}
-        <motion.div className="border-t border-neutral-200 mt-4" {...fadeUp(0.05, 20)}>
-          {timelineRows.map((row, i) => (
-            <motion.div
-              key={i}
-              className="flex justify-between items-baseline border-b border-neutral-200 py-5"
-              {...fadeUp(0.05 + i * 0.03, 20)}
-            >
-              <span className="text-neutral-400 text-sm">{row.label}</span>
-              <span className="text-black text-sm font-medium">{row.value}</span>
-            </motion.div>
-          ))}
-
-          {/* LOGO — timeline alatt */}
-          {productLogoImage?.url && (
-            <motion.div
-              className="py-8"
-              {...fadeUp(0.18, 20)}
-            >
-              <StrapiImage
-                src={productLogoImage.url}
-                alt={productLogoImage.alt ?? productLogoImage.alternativeText ?? ''}
-                width={300}
-                height={120}
-                className="h-16 w-auto object-contain"
-              />
-            </motion.div>
-          )}
-        </motion.div>
-
-        {/* KÉP BLOKK – KÉT NAGY KÉP */}
-        {galleryImages.length > 0 && (
-          <motion.div className="mt-16 md:mt-20" {...fadeUp(0.05, 40)}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {activeThumbnail && (
-                <motion.div
-                  key={activeThumbnail}
-                  className="relative overflow-hidden rounded-xl"
-                  {...fadeUp(0.05, 30)}
-                >
-                  <div className="relative w-full aspect-[4/3] md:aspect-[3/2] rounded-2xl overflow-hidden">
-                    <StrapiImage
-                      src={activeThumbnail}
-                      alt={galleryImages[0]?.alt || product.name}
-                      width={900}
-                      height={700}
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                </motion.div>
-              )}
-
-              {secondImageUrl && (
-                <motion.div
-                  className="relative overflow-hidden rounded-2xl"
-                  {...fadeUp(0.1, 30)}
-                >
-                  <div className="relative w-full aspect-[4/3] md:aspect-[3/2] rounded-2xl overflow-hidden">
-                    <StrapiImage
-                      src={secondImageUrl}
-                      alt={galleryImages[1]?.alt || product.name}
-                      width={900}
-                      height={700}
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </div>
-          </motion.div>
-        )}
-
-        {/* KÖZÉPSŐ SZÖVEGBLOKK + GOMB */}
-        <motion.div
-          className="grid grid-rows md:grid-cols-2 mt-[100px]"
-          {...fadeUp(0.05, 40)}
-        >
-          <div>
-            <div className="flex items-center text-sm text-black font-semibold mb-4">
-              <span>
-                <PlusIcon className="inline-block w-5 h-5 mr-1 bg-black text-white rounded-full p-1" />
-              </span>
-              {badge_label_center}
-            </div>
-          </div>
-          <div>
-            <h2 className="text-3xl font-medium text-black">{heading_center}</h2>
-            <div className="font-regular text-black max-w-lg text-lg mt-10 space-y-4">{renderTextBlocks(description_center)}</div>
-
-            {button_center?.text && (
-              <motion.div {...fadeUp(0.08, 20)} className="inline-block mt-10">
-                <motion.a
-                  href={button_center.URL}
-                  target={button_center.target ?? '_blank'}
-                  rel="noopener noreferrer"
-                  className="bg-black text-white font-semibold px-4 py-2 rounded-full inline-flex items-center gap-4 overflow-hidden"
-                  initial="rest"
-                  whileHover="hover"
-                  animate="rest"
-                >
-                  <div className="overflow-hidden h-6">
-                    <motion.div className="flex flex-col" variants={wheelVariants}>
-                      <span>{button_center.text}</span>
-                      <span aria-hidden className="kb-label" data-k={button_center.text ?? ''} />
-                    </motion.div>
-                  </div>
-                  <motion.div className="w-2 h-2 rounded-full bg-white shrink-0" variants={dotVariants} />
-                </motion.a>
-              </motion.div>
-            )}
-          </div>
-        </motion.div>
-
-        {/* WIDE KÉPEK */}
-        {wideImages.length > 0 && (
-          <section className="mt-[120px] space-y-2">
-            {wideImages.map((img: any, index: number) => (
-              <motion.div
-                key={`wide-${index}`}
-                className="w-full overflow-hidden rounded-md"
-                {...fadeUp(0.05 + index * 0.04, 40)}
-              >
-                <StrapiImage
-                  src={strapiImage(img.url)}
-                  alt={img.alt || product.name}
-                  width={1600}
-                  height={900}
-                  sizes="(max-width: 1280px) 100vw, 1280px"
-                  className="w-full h-auto object-cover"
-                />
-              </motion.div>
-            ))}
-          </section>
-        )}
-
-        {/* PLANS + CATEGORIES + BOTTOM SECTION */}
-        <motion.div className="mt-[100px]" {...fadeUp(0.05, 40)}>
-
-          {product.categories && product.categories.length > 0 && (
-            <>
-              <motion.h3
-                className="text-sm font-medium text-neutral-400 mb-2 mt-8"
-                {...fadeUp(0.1, 20)}
-              >
-                {isHu ? 'Kategóriák' : 'Categories'}
-              </motion.h3>
-              <motion.ul className="flex gap-4 flex-wrap" {...fadeUp(0.12, 20)}>
-                {product.categories.map((category, idx) => (
-                  <motion.li
-                    key={`category-${idx}`}
-                    className="bg-neutral-800 text-sm text-white px-3 py-1 rounded-full font-medium"
-                    {...fadeUp(0.12 + idx * 0.03, 10)}
-                  >
-                    {category.name}
-                  </motion.li>
-                ))}
-              </motion.ul>
-            </>
-          )}
-
-          <motion.div
-            className="grid grid-rows md:grid-cols-2 mt-[100px]"
-            {...fadeUp(0.15, 40)}
-          >
-            <div>
-              <div className="flex items-center text-sm text-black font-semibold mb-4">
-                <span>
-                  <PlusIcon className="inline-block w-5 h-5 mr-1 bg-black text-white rounded-full p-1" />
-                </span>
-                {badge_label_bottom}
+        <div className="mt-10 grid grid-cols-1 gap-10 md:mt-14 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-7">
+            {p.badge_label && (
+              <div className="mb-5 flex items-center gap-2">
+                <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-[#F05A28]" />
+                <span className="text-sm font-medium text-black/60">{p.badge_label}</span>
               </div>
+            )}
+            {lead && (
+              <p className="max-w-3xl text-xl leading-snug tracking-[-0.02em] text-black md:text-3xl">
+                <span className="font-semibold">{lead}</span>
+                {restSentences.length > 0 && <span className="text-black/60"> {restSentences.join(' ')}</span>}
+              </p>
+            )}
+            <div className="mt-8 flex flex-wrap items-center gap-6">
+              {primary && <PillLink href={primary.URL} cta={`project-hero:${primary.text}`}>{primary.text}</PillLink>}
+              <Link href={(hu ? '/hu/kapcsolat' : '/en/contact') as never} className="border-b-2 border-black pb-0.5 text-sm font-semibold text-black transition-opacity hover:opacity-60 md:text-base">
+                {hu ? 'Beszéljünk a projektedről' : 'Talk about your project'}
+              </Link>
             </div>
-            <div>
-              <h2 className="text-3xl font-medium text-black">{heading_bottom}</h2>
-              <div className="font-regular text-black max-w-lg text-lg mt-10 space-y-4">{renderTextBlocks(description_bottom)}</div>
-            </div>
-          </motion.div>
+          </div>
+          {meta.length > 0 && (
+            <dl className="grid grid-cols-2 self-end border-t border-black/10 lg:col-span-5">
+              {meta.map((m, i) => (
+                <div key={m.label} className={`border-b border-black/10 py-4 ${i % 2 === 1 ? 'border-l pl-5' : 'pr-5'}`}>
+                  <dt className="text-xs text-black/50">{m.label}</dt>
+                  <dd className="mt-1 text-base font-medium text-black">{m.value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </div>
+      </motion.header>
 
-        </motion.div>
-
-      </div>
-
-      {/* BOTTOM CTA GOMB */}
-      {button_bottom?.text && (
-        <motion.div className="mt-12 inline-block" >
-          <motion.a
-            href={button_bottom.URL}
-            target={button_bottom.target ?? '_self'}
-            className="bg-black text-white font-semibold px-4 py-2 rounded-full inline-flex items-center gap-4 overflow-hidden"
-            initial="rest"
-            whileHover="hover"
-            animate="rest"
-          >
-            <div className="overflow-hidden h-6">
-              <motion.div className="flex flex-col" variants={wheelVariants}>
-                <span>{button_bottom.text}</span>
-                <span aria-hidden className="kb-label" data-k={button_bottom.text ?? ''} />
-              </motion.div>
-            </div>
-            <motion.div className="w-2 h-2 rounded-full bg-white shrink-0" variants={dotVariants} />
-          </motion.a>
+      {/* Fő média */}
+      {heroUrl && (
+        <motion.div className="relative mt-12 aspect-[16/10] overflow-hidden rounded-card bg-black/5 md:mt-16 md:aspect-[16/8]" {...fadeUp()}>
+          {isHeroVideo ? (
+            <video className="absolute inset-0 h-full w-full object-cover" src={heroUrl} autoPlay loop muted playsInline />
+          ) : (
+            <StrapiImage src={heroUrl} alt={product.media?.alt || product.name} fill priority sizes="100vw" className="object-cover" />
+          )}
         </motion.div>
       )}
 
-    </div>
-    </Container>
-  );
-};
+      {/* Két kép egymás mellett */}
+      {pair.length > 0 && (
+        <div className={`mt-2 grid grid-cols-1 gap-2 md:mt-3 md:gap-3 ${pair.length > 1 ? 'md:grid-cols-2' : ''}`}>
+          {pair.map((img, i) => (
+            <motion.div key={img.url ?? i} className="relative aspect-[4/3] overflow-hidden rounded-card bg-black/5" {...fadeUp(0.05 * i)}>
+              <StrapiImage src={strapiImage(img.url)} alt={img.alt || product.name} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+            </motion.div>
+          ))}
+        </div>
+      )}
 
-const Step = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="flex items-start justify-start gap-2 my-4">
-      <div className="h-4 w-4 rounded-full bg-neutral-700 flex items-center justify-center flex-shrink-0 mt-0.5">
-        <IconCheck className="h-3 w-3 [stroke-width:4px] text-neutral-300" />
+      <div className="mt-20 space-y-20 md:mt-28 md:space-y-28">
+        <Section badge={badge_label_center} heading={heading_center} text={description_center} button={heroUrl ? null : button_center} />
+
+        {wide.length > 0 && (
+          <div className="space-y-2 md:space-y-3">
+            {wide.map((img, i) => (
+              <motion.div key={img.url ?? i} className="overflow-hidden rounded-card bg-black/5" {...fadeUp()}>
+                <StrapiImage src={strapiImage(img.url)} alt={img.alt || product.name} width={1600} height={900} sizes="100vw" className="h-auto w-full object-cover" />
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        <Section badge={badge_label_bottom} heading={heading_bottom} text={description_bottom} />
+
+        {categories.length > 0 && (
+          <motion.div {...fadeUp()}>
+            <p className="mb-4 text-sm text-black/50">{hu ? 'Kategóriák' : 'Categories'}</p>
+            <ul className="flex flex-wrap gap-2">
+              {categories.map((c: any) => (
+                <li key={c.id ?? c.name} className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black">{c.name}</li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
       </div>
-      <div className="font-medium text-white text-sm">{children}</div>
     </div>
   );
 };
