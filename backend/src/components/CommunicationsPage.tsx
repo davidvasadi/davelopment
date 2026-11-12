@@ -11,18 +11,18 @@ interface Lead {
 const PROJECT_STAGE_LABELS: Record<string, string> = {
   new: 'Most indul, nincs még weboldala',
   replace: 'Van weboldala, le akarja cserélni',
-  expand: 'Van weboldala, bővítené',
+  expand: 'Van weboldala, fejlesztené vagy marketing kell',
   exploring: 'Még csak tájékozódik',
 }
 const GOAL_LABELS: Record<string, string> = {
   leads: 'Több megkeresés/érdeklődő',
-  branding: 'Professzionálisabb megjelenés',
-  sales: 'Online értékesítés',
+  branding: 'Új arculat, profibb megjelenés',
+  sales: 'Online foglalás, értékesítés',
   existing_clients: 'Meglévő ügyfelek kiszolgálása',
 }
 const INDUSTRY_LABELS: Record<string, string> = {
   services: 'Szolgáltatás',
-  ecommerce: 'Termékértékesítés (webshop)',
+  ecommerce: 'Kereskedelem, termékek',
   hospitality: 'Vendéglátás, szálláshely',
   health_beauty: 'Egészségügy, szépségipar',
   other: 'Egyéb',

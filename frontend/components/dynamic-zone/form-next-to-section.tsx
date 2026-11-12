@@ -279,6 +279,7 @@ export function FormNextToSection({
           emailRequired: 'Az email megadása kötelező.',
           emailInvalid: 'Érvényes email címet adj meg.',
           phoneRequired: 'A telefonszám megadása kötelező.',
+          messageRequired: 'Írj pár szót a projektedről.',
           submitFailed: 'Beküldés sikertelen. Próbáld újra.',
           networkError: 'Hálózati hiba. Próbáld újra.',
           sending: 'Küldés folyamatban...',
@@ -289,6 +290,7 @@ export function FormNextToSection({
           emailRequired: 'E-mail is required.',
           emailInvalid: 'Please enter a valid e-mail address.',
           phoneRequired: 'Phone number is required.',
+          messageRequired: 'Write a few words about your project.',
           submitFailed: 'Submission failed. Please try again.',
           networkError: 'Network error. Please try again.',
           sending: 'Sending...',
@@ -296,7 +298,7 @@ export function FormNextToSection({
         };
 
   const [formData, setFormData] = useState({
-    name: '', email: '', phone: '',
+    name: '', email: '', phone: '', message: '',
     projectStage: '', goal: '', industry: '', businessAge: '', source: '',
   });
   const [step, setStep] = useState<1 | 2>(1);
@@ -325,6 +327,7 @@ export function FormNextToSection({
   const [nameError, setNameError]         = useState<string | null>(null);
   const [emailError, setEmailError]       = useState<string | null>(null);
   const [phoneError, setPhoneError]       = useState<string | null>(null);
+  const [messageError, setMessageError]   = useState<string | null>(null);
 
   // ── Mezők kigyűjtése role alapján ──
   const inputs      = form?.inputs ?? [];
@@ -332,12 +335,13 @@ export function FormNextToSection({
   const emailInput   = inputs.find(i => fieldRole(i) === 'email');
   const phoneInput   = inputs.find(i => fieldRole(i) === 'phone');
   const submitInput  = inputs.find(i => fieldRole(i) === 'submit');
+  const messageInput = inputs.find(i => fieldRole(i) === 'message');
 
   const isHuForm = lang === 'hu';
 
   // 1. lépés — üzleti kontextus, csak kattintással, gépelés nélkül
   const projectStageLabel = isHuForm ? 'Hol tartasz most?' : 'Where are you right now?';
-  const goalLabel         = isHuForm ? 'Fő cél a weboldallal' : 'Main goal for the website';
+  const goalLabel         = isHuForm ? 'Mi a fő cél?' : 'What is the main goal?';
   const industryLabel     = isHuForm ? 'Milyen területen dolgozol?' : 'What industry are you in?';
   const businessAgeLabel  = isHuForm ? 'Mióta létezik a vállalkozásod?' : 'How long has your business been running?';
   const sourceLabel       = isHuForm ? 'Honnan találtál ránk?' : 'How did you find us?';
@@ -347,41 +351,41 @@ export function FormNextToSection({
     ? [
         { value: 'new',      label: 'Most indulok, nincs még weboldalam' },
         { value: 'replace',  label: 'Van weboldalam, de le akarom cserélni' },
-        { value: 'expand',   label: 'Van weboldalam, bővíteném' },
+        { value: 'expand',   label: 'Van weboldalam, fejleszteném vagy marketing kell' },
         { value: 'exploring',label: 'Még csak tájékozódom' },
       ]
     : [
         { value: 'new',      label: "Just starting, no website yet" },
         { value: 'replace',  label: 'I have one but want to replace it' },
-        { value: 'expand',   label: 'I have one, want to expand it' },
+        { value: 'expand',   label: 'I have one, want to grow it or market it' },
         { value: 'exploring',label: 'Just exploring' },
       ];
 
   const GOALS: ChipOption[] = isHuForm
     ? [
         { value: 'leads',           label: 'Több megkeresés/érdeklődő' },
-        { value: 'branding',        label: 'Professzionálisabb megjelenés' },
-        { value: 'sales',           label: 'Online értékesítés' },
+        { value: 'branding',        label: 'Új arculat, profibb megjelenés' },
+        { value: 'sales',           label: 'Online foglalás, értékesítés' },
         { value: 'existing_clients',label: 'Meglévő ügyfelek kiszolgálása' },
       ]
     : [
         { value: 'leads',           label: 'More inquiries / leads' },
-        { value: 'branding',        label: 'A more professional look' },
-        { value: 'sales',           label: 'Online sales' },
+        { value: 'branding',        label: 'A new brand, a more professional look' },
+        { value: 'sales',           label: 'Online booking or sales' },
         { value: 'existing_clients',label: 'Serving existing customers' },
       ];
 
   const INDUSTRIES: ChipOption[] = isHuForm
     ? [
         { value: 'services',     label: 'Szolgáltatás' },
-        { value: 'ecommerce',    label: 'Termékértékesítés (webshop)' },
+        { value: 'ecommerce',    label: 'Kereskedelem, termékek' },
         { value: 'hospitality',  label: 'Vendéglátás, szálláshely' },
         { value: 'health_beauty',label: 'Egészségügy, szépségipar' },
         { value: 'other',        label: 'Egyéb' },
       ]
     : [
         { value: 'services',     label: 'Services' },
-        { value: 'ecommerce',    label: 'Product sales (webshop)' },
+        { value: 'ecommerce',    label: 'Retail, products' },
         { value: 'hospitality',  label: 'Hospitality, accommodation' },
         { value: 'health_beauty',label: 'Health & beauty' },
         { value: 'other',        label: 'Other' },
@@ -427,6 +431,7 @@ export function FormNextToSection({
     setNameError(null);
     setEmailError(null);
     setPhoneError(null);
+    setMessageError(null);
 
     if (!formData.name.trim()) { setNameError(messages.nameRequired); valid = false; }
     if (!formData.email.trim()) {
@@ -435,6 +440,8 @@ export function FormNextToSection({
       setEmailError(messages.emailInvalid); valid = false;
     }
     if (!formData.phone.trim()) { setPhoneError(messages.phoneRequired); valid = false; }
+    // az üzenet csak akkor kötelező, ha a CMS-ben a felirata *-gal végződik
+    if (messageInput?.name?.trim().endsWith('*') && !formData.message.trim()) { setMessageError(messages.messageRequired); valid = false; }
 
     return valid;
   };
@@ -462,6 +469,7 @@ export function FormNextToSection({
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
+          message: formData.message.trim() || undefined,
           projectStage: formData.projectStage || undefined,
           goal: formData.goal || undefined,
           industry: formData.industry || undefined,
@@ -492,7 +500,7 @@ export function FormNextToSection({
       // Késleltetett reset — a sikeres üzenet a 2. lépésen jelenik meg, a lépésváltás
       // azonnal elrejtené (unmount), mielőtt bárki elolvashatná.
       setTimeout(() => {
-        setFormData({ name: '', email: '', phone: '', projectStage: '', goal: '', industry: '', businessAge: '', source: '' });
+        setFormData({ name: '', email: '', phone: '', message: '', projectStage: '', goal: '', industry: '', businessAge: '', source: '' });
         setSelectedPlan(null);
         setSelectedMarketingAddon(false);
         setStep(1);
@@ -591,7 +599,7 @@ export function FormNextToSection({
               viewport={{ once: true }}
             >
               <div className="flex flex-col h-full w-full sm:justify-self-center lg:max-w-lg">
-                <div className="bg-white backdrop-blur-md rounded-2xl p-8 md:p-10 shadow-lg flex flex-col h-auto sm:h-[680px]">
+                <div className="bg-white backdrop-blur-md rounded-2xl p-8 md:p-10 shadow-lg flex flex-col h-auto sm:min-h-[680px]">
 
                   {/* Cím */}
                   <div className="mb-4 shrink-0">
@@ -766,6 +774,22 @@ export function FormNextToSection({
                                   className={inputCls(!!phoneError)}
                                 />
                                 {phoneError && <p className="text-sm text-red-600 mt-1">{phoneError}</p>}
+                              </div>
+                            )}
+
+                            {/* ÜZENET */}
+                            {messageInput && (
+                              <div>
+                                <p className="text-xs font-medium text-black/80 mb-1">{messageInput.name}</p>
+                                <textarea
+                                  name="message"
+                                  rows={3}
+                                  value={formData.message}
+                                  onChange={handleChange}
+                                  placeholder={messageInput.placeholder ?? messageInput.name}
+                                  className={`${inputCls(!!messageError)} resize-none`}
+                                />
+                                {messageError && <p className="text-sm text-red-600 mt-1">{messageError}</p>}
                               </div>
                             )}
 

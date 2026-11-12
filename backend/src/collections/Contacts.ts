@@ -35,18 +35,18 @@ const SOURCES: { value: string; hu: string }[] = [
 const PROJECT_STAGES: { value: string; hu: string }[] = [
   { value: 'new',       hu: 'Most indul, nincs még weboldala' },
   { value: 'replace',   hu: 'Van weboldala, le akarja cserélni' },
-  { value: 'expand',    hu: 'Van weboldala, bővítené' },
+  { value: 'expand',    hu: 'Van weboldala, fejlesztené vagy marketing kell' },
   { value: 'exploring', hu: 'Még csak tájékozódik' },
 ]
 const GOALS: { value: string; hu: string }[] = [
   { value: 'leads',            hu: 'Több megkeresés/érdeklődő' },
-  { value: 'branding',         hu: 'Professzionálisabb megjelenés' },
-  { value: 'sales',            hu: 'Online értékesítés' },
+  { value: 'branding',         hu: 'Új arculat, profibb megjelenés' },
+  { value: 'sales',            hu: 'Online foglalás, értékesítés' },
   { value: 'existing_clients', hu: 'Meglévő ügyfelek kiszolgálása' },
 ]
 const INDUSTRIES: { value: string; hu: string }[] = [
   { value: 'services',      hu: 'Szolgáltatás' },
-  { value: 'ecommerce',     hu: 'Termékértékesítés (webshop)' },
+  { value: 'ecommerce',     hu: 'Kereskedelem, termékek' },
   { value: 'hospitality',   hu: 'Vendéglátás, szálláshely' },
   { value: 'health_beauty', hu: 'Egészségügy, szépségipar' },
   { value: 'other',         hu: 'Egyéb' },
@@ -304,7 +304,7 @@ export const Contacts: CollectionConfig = {
     {
       name: 'goal',
       type: 'select',
-      label: 'Fő cél a weboldallal',
+      label: 'Fő cél',
       options: GOALS.map((p) => ({ label: p.hu, value: p.value })),
     },
     {
