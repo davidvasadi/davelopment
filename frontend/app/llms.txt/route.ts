@@ -8,7 +8,7 @@ export async function GET() {
 
   const content = `# [davelopment]©
 
-> Weboldal készítés, UX/UI design, branding/arculattervezés és digitális marketing (SEO, Google Ads) egy kézben, magyar szakembereknek és vállalkozóknak. Havi előfizetéses csomagok karbantartással, vagy egyszeri fejlesztés — egyedi design, nem sablon.
+> Weboldal készítés, weboldal-újratervezés, arculattervezés és digitális marketing (SEO, Google Ads) egy kézben, magyar vállalkozásoknak. Fix árú projektek (weboldal 190 000 Ft-tól) és havonta megújuló támogatás az indulás után — egyedi design, nem sablon.
 
 ## Mit csinálunk pontosan
 
@@ -26,7 +26,7 @@ Nem csak megépítjük a weboldalad, aztán magadra hagyunk vele.
 - [Branding & arculattervezés](${base}/hu/szolgaltatasok/branding-arculat): Márkaépítés, logó, vizuális identitás.
 - [Marketing & SEO](${base}/hu/szolgaltatasok/marketing-es-seo): Keresőoptimalizálás, tartalommarketing és Google Ads kampánykezelés — kulcsszókutatás, SEO-cikkek, konverziókövetés, havi riport.
 - [Egyedi fejlesztés](${base}/hu/arak): Foglalórendszerek, ügyfélportálok és integrációk, 550 000 Ft-tól (Árak oldal).
-- [Karbantartás](${base}/hu/szolgaltatasok/karbantartas): Folyamatos weboldal-karbantartás, frissítések, support havi előfizetésben.
+- [Karbantartás](${base}/hu/szolgaltatasok/karbantartas): Folyamatos weboldal-karbantartás, frissítések és fejlesztések havonta megújuló támogatással, 29 900 Ft/hó-tól.
 - [Weboldal készítés Budapesten](${base}/hu/weboldal-keszites-budapest): Egyedi weboldal tervezés és fejlesztés budapesti vállalkozásoknak.
 - [Weboldal készítés Debrecenben](${base}/hu/weboldal-keszites-debrecen): Egyedi weboldal tervezés és fejlesztés debreceni vállalkozásoknak.
 
@@ -55,8 +55,8 @@ Ezek nem elméleti ígéretek — nézd meg élesben a [projekteket](${base}/hu/
 **Mennyibe kerül egy projekt?**
 Egy egyedi tervezésű üzleti weboldal 190 000 Ft-tól készül, marketinggel (SEO, Google Ads) 330 000 Ft-tól, egyedi rendszer (pl. foglalás, ügyfélportál) 550 000 Ft-tól. Minden projekt egy 30 perces beszélgetés után fix, írásos árajánlatot kap. Az indulás utáni támogatás havonta megújuló, 29 900 Ft/hó-tól. Részletes csomagok és árak az [Árak oldalon](${base}/hu/arak).
 
-**Miért éri meg jobban egy havi előfizetéses csomag, mint egy egyszeri fizetős weboldal?**
-Az egyszeri fizetős weboldal olcsóbbnak tűnik elsőre, de utána gyakran jönnek az előre nem látott extra költségek — hibajavítás, frissítés, új funkció. Az előfizetéses modellnél a havi díj kiszámítható, a karbantartás és a folyamatos fejlesztés is benne van.
+**Mi az a havi támogatás, és kötelező?**
+Nem kötelező. Az indulás után választható, havonta megújuló csomag (29 900 Ft/hó-tól, 30 napos felmondással): frissítések, biztonság, elérhetőség-figyelés és folyamatos módosítások, órák számolgatása nélkül.
 
 **Mi van benne az árban?**
 Minden ami kell az induláshoz: design, fejlesztés, tesztelés, élesítés és az első hónap support. Nincs rejtett költség, nincs meglepetés számla.
@@ -65,7 +65,7 @@ Minden ami kell az induláshoz: design, fejlesztés, tesztelés, élesítés és
 Ha most indulsz vagy elavult az oldalad, az Üzleti weboldal elég. Ha már az első hónapokban forgalom és megkeresés kell, a Weboldal + marketing (SEO, tartalom, Google Ads). Ha egyedi rendszer kell (foglalás, ügyfélportál, integrációk), az Egyedi fejlesztés. Az indulás után a Támogatás tartja frissen és gyorsan az oldalt.
 
 **Kell előleg?**
-Nem, nincs szükség nagy előlegre — előfizetéses modellben dolgozunk. Az első havi díjjal indul a weboldalad elkészítése.
+Igen, 40% előleggel indul a projekt; a fennmaradó 60%-ot az átadáskor fizeted. Az árat még a munka előtt, írásban rögzítjük.
 
 **Mennyi ideig tart egy projekt?**
 2–3 héttől 6–10 hétig, a csomag méretétől függően.
