@@ -4,6 +4,7 @@
  * also the locale-less /szolgaltatasok/… form), HU + EN:
  *   /hu/szolgaltatasok/hirdeteskezeles, /hu/szolgaltatasok/seo-tartalommarketing → /hu/szolgaltatasok/marketing-es-seo
  *   /en/services/ad-management, /en/services/seo-content-marketing → /en/services/marketing-and-seo
+ * Also the retired UX/UI (→ Arculat & design) and Digitális rendszerek (→ Árak) pages.
  * Articles #46 and #57 have stale versions (rehydration risk) — skipped here, done with direct SQL (see the run notes).
  *
  *   npx payload run scripts/content/fix-article-service-links.ts              # dry run
@@ -17,6 +18,11 @@ const SKIP_IDS = new Set([46, 57])
 const MAP: [RegExp, string][] = [
   [/(\/hu)?\/szolgaltatasok\/(hirdeteskezeles|seo-tartalommarketing)(?=["/#?])/g, '$1/szolgaltatasok/marketing-es-seo'],
   [/(\/en)?\/services\/(ad-management|seo-content-marketing)(?=["/#?])/g, '$1/services/marketing-and-seo'],
+  // a megszűnt UX/UI és Digitális rendszerek oldal (2026-11) — 301-gyel ugyanide visz
+  [/(\/hu)?\/szolgaltatasok\/ux-ui-design-fejlesztes(?=["/#?])/g, '$1/szolgaltatasok/branding-arculat'],
+  [/(\/hu)?\/szolgaltatasok\/digitalis-rendszerek(?=["/#?])/g, '$1/arak'],
+  [/(\/en)?\/services\/ux-ui-design-development(?=["/#?])/g, '$1/services/branding-identity'],
+  [/(\/en)?\/services\/digital-systems(?=["/#?])/g, '$1/pricing'],
 ]
 const fix = (v: any) => {
   let s = JSON.stringify(v ?? null)
