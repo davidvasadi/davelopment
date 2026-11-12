@@ -41,7 +41,7 @@ const PAGE = {
     card_short_description: 'Új alapokra helyezzük az oldalt, ami már nem illik a vállalkozásodhoz — úgy, hogy a Google-helyezéseid megmaradjanak.',
     seo: {
       metaTitle: 'Weboldal újratervezés | [davelopment]®',
-      metaDescription: 'Új weboldal a régi helyett úgy, hogy a Google-helyezéseid megmaradjanak: átvilágítás, URL-térkép, tesztelt átirányítások és helyezésfigyelés. Fix ár egy 30 perces beszélgetés után.',
+      metaDescription: 'Új weboldal a régi helyett, a Google-helyezéseid megtartásával: átvilágítás, URL-térkép, tesztelt átirányítások. Fix ár egy 30 perces beszélgetés után.',
     },
     faqHeading: 'Gyakori kérdések az újratervezésről',
     storyCaption: 'Weboldal újratervezés, a régi oldal értékeinek megtartásával',

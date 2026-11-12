@@ -19,7 +19,7 @@ const META = {
     heading: 'Gyakori kérdések a marketingről és a SEO-ról',
     seo: {
       metaTitle: 'Marketing & SEO: Google Ads és SEO | [davelopment]®',
-      metaDescription: 'Keresőoptimalizálás, tartalommarketing és Google Ads kampánykezelés egy kézből: kulcsszókutatás, SEO-cikkek, konverziókövetés és havi riport, mérhető eredményekkel.',
+      metaDescription: 'Keresőoptimalizálás, tartalommarketing és Google Ads egy kézből: kulcsszókutatás, SEO-cikkek, konverziókövetés és havi riport.',
     },
   },
   en: {
@@ -27,7 +27,7 @@ const META = {
     heading: 'Marketing and SEO questions',
     seo: {
       metaTitle: 'Marketing & SEO: Google Ads and SEO | [davelopment]®',
-      metaDescription: 'Search optimisation, content marketing and Google Ads management in one place: keyword research, SEO articles, conversion tracking and a monthly report, with measurable results.',
+      metaDescription: 'SEO, content marketing and Google Ads in one place: keyword research, SEO articles, conversion tracking and a monthly report.',
     },
   },
 } as const
