@@ -69,7 +69,6 @@ export function ServicesPage({ pages, locale, heading, sub_heading, badge_label 
     const activeIndex = n > 0 ? step % n : 0;
     const [isDesktop, setIsDesktop] = useState(false);
     const viewportRef = useRef<HTMLDivElement>(null);
-    const isVisibleRef = useRef(false);
 
     useEffect(() => {
         if (noTransition) {
@@ -88,21 +87,6 @@ export function ServicesPage({ pages, locale, heading, sub_heading, badge_label 
         return () => mq.removeEventListener('change', handler);
     }, []);
 
-    // Csak akkor fusson az automata váltás, ha a szakasz ténylegesen látszik —
-    // különben visszaugrasztja az oldalt görgetés közben.
-    useEffect(() => {
-        const el = viewportRef.current;
-        if (!el) return;
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                isVisibleRef.current = entry.isIntersecting;
-            },
-            { threshold: 0.3 }
-        );
-        observer.observe(el);
-        return () => observer.disconnect();
-    }, []);
-
     // A váltás kizárólag a React state-en (step) alapul, framer-motion
     // animálja a transzformációt — nincs natív scroll, nincs DOM-mérés,
     // így nem tud "összevissza ugrálni", és sosem fogy el (lásd tripledPages).
@@ -114,14 +98,7 @@ export function ServicesPage({ pages, locale, heading, sub_heading, badge_label 
     const [headingLeft, ...headingRestParts] = (heading ?? '').split(',');
     const headingRight = headingRestParts.join(',').trim();
 
-    useEffect(() => {
-        const id = setInterval(() => {
-            if (!isDesktop || !isVisibleRef.current) return;
-            goTo(1);
-        }, 3500);
-        return () => clearInterval(id);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isDesktop, pages.length]);
+    // Nincs automatikus lapozás (Dave kérése, 2026-11-12): a kártyák csak a nyilakkal / kattintásra lépnek.
 
     return (
         <Container>
@@ -266,7 +243,8 @@ export function ServicesPage({ pages, locale, heading, sub_heading, badge_label 
                                         <span className="block overflow-hidden h-5">
                                             <span className="flex flex-col -translate-y-1/2 transition-transform duration-300 ease-in-out group-hover:translate-y-0">
                                                 <span className="h-5 leading-5">{detailsLabel}</span>
-                                                <span className="h-5 leading-5" aria-hidden="true">{detailsLabel}</span>
+                                                {/* a gördülő második felirat CSS-ből (kb-label) — így nem oldalszöveg, a Google nem olvassa kétszer */}
+                                                <span className="h-5 leading-5 kb-label" aria-hidden="true" data-k={detailsLabel} />
                                             </span>
                                         </span>
                                     </span>
