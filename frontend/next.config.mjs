@@ -51,6 +51,16 @@ const nextConfig = {
       { source: '/en/ad-management', destination: '/en/services/marketing-and-seo', permanent: true },
       { source: '/en/services/seo-content-marketing', destination: '/en/services/marketing-and-seo', permanent: true },
       { source: '/en/seo-content-marketing', destination: '/en/services/marketing-and-seo', permanent: true },
+      // 2026-11: a régi UX/UI és Digitális rendszerek oldal megszűnt — a tartalmuk az új Weboldal készítés oldalon,
+      // illetve az Árak oldal Egyedi fejlesztés csomagjában van
+      { source: '/hu/szolgaltatasok/ux-ui-design-fejlesztes', destination: '/hu/szolgaltatasok/branding-arculat', permanent: true },
+      { source: '/hu/ux-ui-design-fejlesztes', destination: '/hu/szolgaltatasok/branding-arculat', permanent: true },
+      { source: '/en/services/ux-ui-design-development', destination: '/en/services/branding-identity', permanent: true },
+      { source: '/en/ux-ui-design-development', destination: '/en/services/branding-identity', permanent: true },
+      { source: '/hu/szolgaltatasok/digitalis-rendszerek', destination: '/hu/arak', permanent: true },
+      { source: '/hu/digitalis-rendszerek', destination: '/hu/arak', permanent: true },
+      { source: '/en/services/digital-systems', destination: '/en/pricing', permanent: true },
+      { source: '/en/digital-systems', destination: '/en/pricing', permanent: true },
       // A nagybetűs "-UX" -> kisbetűs "-ux" migráció rég lezajlott. A Next.js route-illesztés
       // nem kis/nagybetű-érzékeny, így ez a szabály a már helyes kisbetűs URL-t is elkapta,
       // és önmagára redirecteltette (végtelen redirect loop). A szabály feleslegessé vált, törölve.

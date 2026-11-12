@@ -23,10 +23,9 @@ Nem csak megépítjük a weboldalad, aztán magadra hagyunk vele.
 
 - [Szolgáltatások áttekintés](${base}/hu/szolgaltatasok): Webdesign és fejlesztés, branding, SEO/tartalommarketing, digitális rendszerek.
 - [Weboldal készítés](${base}/hu/szolgaltatasok/weboldal-keszites): Egyedi weboldal tervezés és fejlesztés kisvállalkozásoknak.
-- [UX/UI Design & fejlesztés](${base}/hu/szolgaltatasok/ux-ui-design-fejlesztes): Felhasználói élmény tervezés és interfész fejlesztés.
 - [Branding & arculattervezés](${base}/hu/szolgaltatasok/branding-arculat): Márkaépítés, logó, vizuális identitás.
 - [Marketing & SEO](${base}/hu/szolgaltatasok/marketing-es-seo): Keresőoptimalizálás, tartalommarketing és Google Ads kampánykezelés — kulcsszókutatás, SEO-cikkek, konverziókövetés, havi riport.
-- [Digitális rendszerek](${base}/hu/szolgaltatasok/digitalis-rendszerek): Időpontfoglaló, CRM, email marketing, egyedi vállalatirányítási rendszerek.
+- [Egyedi fejlesztés](${base}/hu/arak): Foglalórendszerek, ügyfélportálok és integrációk, 550 000 Ft-tól (Árak oldal).
 - [Karbantartás](${base}/hu/szolgaltatasok/karbantartas): Folyamatos weboldal-karbantartás, frissítések, support havi előfizetésben.
 - [Weboldal készítés Budapesten](${base}/hu/weboldal-keszites-budapest): Egyedi weboldal tervezés és fejlesztés budapesti vállalkozásoknak.
 - [Weboldal készítés Debrecenben](${base}/hu/weboldal-keszites-debrecen): Egyedi weboldal tervezés és fejlesztés debreceni vállalkozásoknak.

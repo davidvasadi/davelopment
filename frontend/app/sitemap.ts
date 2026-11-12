@@ -143,8 +143,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // /hu/szolgaltatasok/... URL — the sitemap must list the canonical one.
   const servicePageSlugs = new Set([
     'weboldal-keszites', 'weboldal-ujratervezes',
-    'branding-arculat', 'ux-ui-design-fejlesztes',
-    'digitalis-rendszerek', 'marketing-es-seo',
+    'branding-arculat',
+    'marketing-es-seo',
     'karbantartas',
   ]);
 
@@ -174,7 +174,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const coveredSlugs = new Set<string>([
     'homepage', 'arak', 'kapcsolat', 'adatkezeles',
     // 2026-11: beolvadt a Marketing & SEO oldalba, 301-gyel átirányítva — nem kerülhet a sitemapbe
-    'hirdeteskezeles', 'seo-tartalommarketing',
+    'hirdeteskezeles', 'seo-tartalommarketing', 'ux-ui-design-fejlesztes', 'digitalis-rendszerek',
     ...servicePageSlugs,
   ]);
 
