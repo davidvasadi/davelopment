@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PlusIcon } from 'lucide-react';
-import { Container } from '@/components/container';
 import { Heading } from '@/components/elements/heading';
+import { Link } from 'next-view-transitions';
+import { strapiImage } from '@/lib/strapi/strapiImage';
 
 type FAQItem = { question: string; answer: string };
 
@@ -24,11 +25,16 @@ export const FAQ = ({
   sub_heading,
   faqs,
   locale,
+  card_image,
+  ask_card,
 }: {
   heading: string;
   sub_heading: string;
   faqs: FAQItem[];
   locale?: string;
+  // a „Még döntesz?” kártya képe (fájlnév) — a szolgáltatás-aloldalak saját képet adnak, alapból a felfedezés kép
+  card_image?: string;
+  ask_card?: boolean;
 }) => {
   const [expandedId, setExpandedId] = useState<number>(0);
 
@@ -38,25 +44,64 @@ export const FAQ = ({
 
   return (
     <section className="w-full">
-      <Container className="py-20 md:py-32">
+      {/* teljes szélesség (nincs max-width), kis oldalmargóval — mint a többi újított blokk */}
+      <div className="px-4 py-20 md:px-8 md:py-32">
         <div className="flex flex-col md:flex-row">
 
           {/* Bal oldal — fade up, minden görgetéskor */}
+          {/* desktopon a bal oldal (cím + kártya) „megáll”, amíg a jobb oldali kérdések görögnek */}
           <motion.div
-            className="mb-12 md:mb-0 md:w-1/2"
+            className="mb-12 md:sticky md:top-28 md:mb-0 md:w-1/2 md:self-start"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
           >
-            <Heading as="h2" className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold leading-none tracking-tight text-black">
+            {/* cím a közös szabály szerint (mint a többi újított blokk fejléce) */}
+            <Heading as="h2" className="text-4xl font-semibold leading-[0.95] tracking-[-0.04em] text-black md:text-6xl xl:text-7xl">
               {heading}
             </Heading>
-            {sub_heading ? (
-              <p className="text-lg text-gray-500 mt-4 px-2 max-w-sm">
-                {sub_heading}
-              </p>
-            ) : null}
+
+            {/* „Még döntesz?” kártya — ingyenes beszélgetés, link a kapcsolat oldalra */}
+            <div className="mt-10 flex max-w-xl items-center gap-5 rounded-card border border-black/10 bg-white p-4 md:mt-12 md:p-5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={strapiImage(`/api/media/file/${card_image || 'davelopment-felfedezes.avif'}`)}
+                alt=""
+                aria-hidden
+                loading="lazy"
+                width={152}
+                height={152}
+                className="h-24 w-24 shrink-0 rounded-2xl object-cover md:h-36 md:w-36"
+              />
+              <div>
+                {/* a szolgáltatás-aloldalakon (ask_card) „kérdezd azokat, akik megépítenék” + e-mail; máshol „Még döntesz?” + időpont */}
+                <p className="text-base leading-snug text-black md:text-xl">
+                  {ask_card
+                    ? locale === 'en'
+                      ? 'Something else on your mind? Ask the people who would build it.'
+                      : 'Valami más jár a fejedben? Kérdezd azokat, akik megépítenék.'
+                    : locale === 'en'
+                      ? 'Still deciding? A 30-minute call costs nothing and comes with a written recommendation.'
+                      : 'Még döntesz? Egy 30 perces beszélgetés nem kerül semmibe, és írásos javaslatot is kapsz.'}
+                </p>
+                {ask_card ? (
+                  <a
+                    href="mailto:hello@davelopment.hu"
+                    className="mt-4 inline-block border-b-2 border-black pb-0.5 text-base font-medium text-black transition-opacity hover:opacity-60 md:text-xl"
+                  >
+                    hello@davelopment.hu
+                  </a>
+                ) : (
+                  <Link
+                    href={(locale === 'en' ? '/en/contact' : '/hu/kapcsolat') as never}
+                    className="mt-4 inline-block border-b-2 border-black pb-0.5 text-base font-medium text-black transition-opacity hover:opacity-60 md:text-xl"
+                  >
+                    {locale === 'en' ? 'Book a call' : 'Időpontot kérek'}
+                  </Link>
+                )}
+              </div>
+            </div>
           </motion.div>
 
           {/* Jobb oldal — FAQ itemek staggerelve */}
@@ -87,7 +132,7 @@ export const FAQ = ({
           </div>
 
         </div>
-      </Container>
+      </div>
     </section>
   );
 };

@@ -101,12 +101,9 @@ export function Services(props: ServicesBlockProps) {
         () => new Set(services.length ? [services[0].id] : [])
     );
 
+    // egyszerre csak egy tétel lehet nyitva: egy másik kinyitása automatikusan bezárja az előzőt
     const toggle = (id: number) => {
-        setOpenIds(prev => {
-            const next = new Set(prev);
-            next.has(id) ? next.delete(id) : next.add(id);
-            return next;
-        });
+        setOpenIds(prev => (prev.has(id) ? new Set() : new Set([id])));
     };
 
     const onCta = () => {
@@ -136,7 +133,7 @@ export function Services(props: ServicesBlockProps) {
 
     return (
         <div className="px-0 md:px-2">
-            <section className="w-full px-1 md:px-4 py-20 md:py-32 relative overflow-hidden rounded-none md:rounded-3xl font-sans">
+            <section className="w-full px-1 md:px-4 py-12 md:py-16 relative overflow-hidden rounded-none md:rounded-3xl font-sans">
 
                 {/* HÁTTÉR */}
                 <div className="absolute inset-0 z-0">
@@ -152,36 +149,42 @@ export function Services(props: ServicesBlockProps) {
                     <div className="absolute inset-0 opacity-5" />
                 </div>
 
-                {/* TARTALOM */}
-                <div className="relative z-10 max-w-7xl mx-auto">
+                {/* TARTALOM — nincs max-width (mint a „Hogyan dolgozunk” bento-blokknál), a sötét kártyán belül kis margóval */}
+                <div className="relative z-10 px-2 md:px-6 lg:px-10">
 
-                    {/* FEJLÉC — fade up, minden görgetéskor */}
+                    {/* FEJLÉC — ugyanaz a szabály, mint a „Hogyan dolgozunk” blokknál: cím balra, leírás jobbra (a két
+                        szélen, alul igazítva); szűkülő képernyőn a cím tördel; mobilon egymás alatt */}
                     <motion.div
-                        className="mb-6"
+                        className="mb-12 md:mb-16"
                         initial={{ opacity: 0, y: 24 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, amount: 0.3 }}
                         transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
                     >
                         {badge_label && (
-                            <div className="flex items-center space-x-2 mb-4">
-                                <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center">
-                                    <PlusIcon className="w-2.5 h-2.5 text-black" />
+                            <div className="mb-6 flex items-center gap-2">
+                                <div className="flex h-4 w-4 items-center justify-center rounded-full bg-white">
+                                    <PlusIcon className="h-2.5 w-2.5 text-black" />
                                 </div>
-                                <p className="text-xs text-white/80">{badge_label}</p>
+                                <span className="text-sm font-medium text-white/80">{badge_label}</span>
                             </div>
                         )}
-                        {heading && (
-                            <h2 className="text-left md:text-center font-bold text-white leading-none tracking-tight text-4xl md:text-7xl lg:text-8xl">
-                                {heading}
-                                <span className="text-sm lg:text-3xl font-semibold text-white/60 absolute">
-                                    ({services.length})
-                                </span>
-                            </h2>
-                        )}
-                        {sub_heading && (
-                            <p className="max-w-3xl text-white/70 mt-4">{sub_heading}</p>
-                        )}
+                        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between md:gap-10">
+                            {heading && (
+                                // a darabszám (felső index) a h2-n KÍVÜL van, hogy a Google a címet tisztán olvassa — kinézetre ugyanaz
+                                <div className="min-w-0 flex-1 text-4xl font-semibold leading-[0.95] tracking-[-0.04em] text-white md:text-6xl xl:text-7xl">
+                                    <h2 className="inline">{heading}</h2>
+                                    <sup aria-hidden className="ml-1 align-super text-sm font-semibold tracking-normal text-white/60 md:text-xl">
+                                        ({services.length})
+                                    </sup>
+                                </div>
+                            )}
+                            {sub_heading && (
+                                <p className="max-w-md text-base leading-relaxed text-white/70 md:max-w-xs md:shrink-0 md:pb-1 md:text-right md:text-lg">
+                                    {sub_heading}
+                                </p>
+                            )}
+                        </div>
                     </motion.div>
 
                     {/* ACCORDION — sorok egyenként fade up, stagger */}
@@ -217,8 +220,11 @@ export function Services(props: ServicesBlockProps) {
                                             style={{ height: TITLE_H }}
                                             onClick={() => toggle(s.id)}
                                         >
+                                            {/* H3: a főoldali (kategória nélküli) tételeknél nagy, de egy lépcsővel kisebb, mint a blokk H2 címe */}
                                             <motion.h3
-                                                className="text-2xl md:text-3xl font-semibold text-white"
+                                                className={s.categories.length === 0
+                                                    ? 'text-3xl font-semibold leading-none tracking-[-0.04em] text-white md:text-5xl xl:text-6xl'
+                                                    : 'text-2xl md:text-3xl font-semibold text-white'}
                                                 animate={{
                                                     y: isOpen ? '120%' : '0%',
                                                     opacity: isOpen ? 0 : 1,
@@ -244,6 +250,29 @@ export function Services(props: ServicesBlockProps) {
                                             }}
                                             className="overflow-hidden"
                                         >
+                                            {s.categories.length === 0 ? (
+                                            /* Kategória nélküli tétel (főoldal, 2026-11): balra nagy kép, középen nagy cím,
+                                               a jobb szélen a leírás */
+                                            <div
+                                                className="grid grid-cols-1 gap-6 pb-12 lg:grid-cols-12 lg:items-end lg:gap-10"
+                                                style={{ paddingTop: 41 }}
+                                            >
+                                                {s.images[0] && (
+                                                    <div className="h-40 w-40 overflow-hidden rounded-2xl lg:col-span-3 lg:h-56 lg:w-56">
+                                                        <img src={s.images[0]} alt={s.title} width={224} height={224} className="h-full w-full object-cover" />
+                                                    </div>
+                                                )}
+                                                {/* ugyanaz a cím mint a fenti h3-ban -> nem heading-elem (ne duplázódjon a címsor-fa) */}
+                                                <p className={`text-3xl font-semibold leading-none tracking-[-0.04em] text-white md:text-5xl xl:text-6xl ${s.images[0] ? 'lg:col-span-5' : 'lg:col-span-8'}`}>
+                                                    {s.title}
+                                                </p>
+                                                {s.description && (
+                                                    <p className="max-w-md text-base leading-relaxed text-white/70 md:text-lg lg:col-span-4 lg:ml-auto lg:pb-1 lg:text-right">
+                                                        {s.description}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            ) : (
                                             <div
                                                 className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-12"
                                                 style={{ paddingTop: 41 }}
@@ -275,6 +304,8 @@ export function Services(props: ServicesBlockProps) {
                                                     </div>
                                                 </div>
 
+                                                {/* kategóriák csak ha vannak (a főoldali lista szándékosan csak címet + leírást mutat) */}
+                                                {s.categories.length > 0 && (
                                                 <div>
                                                     <p className="text-sm font-medium text-white/70 tracking-wider mb-4">
                                                         {s.categoriesTitle}
@@ -292,7 +323,9 @@ export function Services(props: ServicesBlockProps) {
                                                         )}
                                                     </div>
                                                 </div>
+                                                )}
                                             </div>
+                                            )}
                                         </motion.div>
                                     </div>
 
@@ -303,13 +336,13 @@ export function Services(props: ServicesBlockProps) {
                                         onClick={() => toggle(s.id)}
                                     >
                                         <motion.div
-                                            className="w-12 h-12 border border-white/30 rounded-full flex items-center justify-center"
+                                            className={`w-12 h-12 border rounded-full flex items-center justify-center transition-colors duration-300 ${isOpen ? 'bg-white border-white' : 'border-white/30'}`}
                                             animate={{ rotate: isOpen ? 180 : 0 }}
                                             whileHover={{ scale: 1.05 }}
                                             transition={{ duration: 0.5, ease: 'easeInOut' }}
                                         >
                                             {isOpen
-                                                ? <MinusIcon className="w-5 h-5 text-white" />
+                                                ? <MinusIcon className="w-5 h-5 text-black" />
                                                 : <PlusIcon className="w-5 h-5 text-white" />
                                             }
                                         </motion.div>
@@ -329,7 +362,7 @@ export function Services(props: ServicesBlockProps) {
                         >
                             <motion.button
                                 onClick={onCta}
-                                className="inline-block mt-6 px-8 py-5 bg-white text-black font-semibold rounded-full hover:opacity-80 transition"
+                                className="inline-block mt-12 md:mt-16 px-8 py-5 bg-white text-black font-semibold rounded-full hover:opacity-80 transition"
                                 initial="rest"
                                 whileHover="hover"
                                 animate="rest"

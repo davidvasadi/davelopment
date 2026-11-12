@@ -5,7 +5,6 @@ import { motion, useInView, type Variants } from 'framer-motion';
 import { Plus as PlusIcon, Star } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 import { MotionLink } from '@/components/motion-link';
-import { Container } from '@/components/container';
 import { localizeHref } from '@/lib/i18n/localize-href';
 /* helpers */
 const toAbs = (m?: any): string | undefined => {
@@ -115,9 +114,9 @@ export function WhyChooseUsSection({
     const { lead: subLead, rest: subRest } = splitFirstSentence(sub_heading);
 
     return (
-        <Container>
+        <div className="w-full px-4 md:px-8">
         <section className="w-full py-16 md:py-28 overflow-hidden">
-            <div className="px-0 md:px-8 py-4">
+            <div className="py-4">
 
                 {/* ── BADGE + HEADING — fade up, minden görgetéskor ── */}
                 <motion.div
@@ -144,11 +143,11 @@ export function WhyChooseUsSection({
                 </motion.div>
 
                 {/* ── KÉT OSZLOP ── */}
-                <div className="mt-24 md:mt-32 md:flex md:items-stretch">
+                <div className="mt-24 md:mt-32 md:grid md:grid-cols-12 md:gap-3">
 
                     {/* Bal: hero kép — minden görgetéskor */}
                     <motion.div
-                        className="relative rounded-2xl overflow-hidden h-[520px] max-w-[360px] md:w-[360px] lg:w-[300px] shrink-0 group"
+                        className="relative rounded-card overflow-hidden h-[520px] max-w-[360px] md:max-w-none md:h-auto md:min-h-[560px] md:col-span-5 lg:col-span-3 group"
                         initial={{ opacity: 0, x: -50 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
@@ -208,21 +207,21 @@ export function WhyChooseUsSection({
 
                     {/* Jobb: subheading + stat kártyák — minden görgetéskor */}
                     <motion.div
-                        className="ml-auto max-w-xl mt-8 md:mt-0 md:min-h-[460px] lg:min-h-[520px]"
+                        className="mt-8 md:mt-0 md:col-span-7 lg:col-span-6 lg:col-start-7"
                         initial={{ opacity: 0, x: 50 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.6, delay: 0.1, ease: [0.33, 1, 0.68, 1] }}
                         viewport={{ once: true, amount: 0.2 }}
                     >
                         {(subLead || subRest) && (
-                            <p className="max-w-lg text-left mb-8 indent-14">
+                            <p className="text-left text-xl md:text-2xl leading-snug tracking-tight mb-12 md:mb-24 indent-14">
                                 <span className="text-black font-medium">{subLead}</span>{' '}
                                 <span className="text-gray-600">{subRest}</span>
                             </p>
                         )}
 
                         {stats.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-1 content-start">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 content-start">
                                 {stats.map((s, i) => (
                                     <motion.div
                                         key={s.id}
@@ -230,9 +229,9 @@ export function WhyChooseUsSection({
                                         whileInView={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.5, delay: 0.08 * i, ease: [0.33, 1, 0.68, 1] }}
                                         viewport={{ once: true, amount: 0.2 }}
-                                        className="space-y-1"
+                                        className="group flex flex-col gap-2"
                                     >
-                                        <div className="bg-white rounded-2xl p-6 flex items-end justify-between">
+                                        <div className="bg-white rounded-card p-6 md:p-8 md:min-h-[150px] relative flex items-start justify-between transition-[border-radius] duration-300 group-hover:rounded-b-none after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-2 after:bg-white after:opacity-0 after:transition-opacity after:duration-300 group-hover:after:opacity-100">
                                             <div className="text-5xl md:text-6xl font-semibold tracking-tight text-black">
                                                 {typeof s.value === 'number' ? (
                                                     <><AnimatedNumber value={s.value} />{s.suffix}</>
@@ -243,13 +242,13 @@ export function WhyChooseUsSection({
                                             </div>
                                         </div>
 
-                                        <div className="bg-white rounded-2xl p-6 md:p-8 min-h-[250px] md:min-h-[300px] flex flex-col">
+                                        <div className="bg-white rounded-card p-6 md:p-8 min-h-[280px] md:min-h-[400px] flex flex-col transition-[border-radius] duration-300 group-hover:rounded-t-none">
                                             {!!s.title && (
-                                                <h4 className="text-sm md:text-base font-semibold text-black text-right">{s.title}</h4>
+                                                <h4 className="text-base md:text-xl font-medium tracking-tight text-black text-right transition-transform duration-300 ease-out group-hover:-translate-y-3">{s.title}</h4>
                                             )}
                                             <div className="mt-auto">
                                                 {!!s.description && (
-                                                    <p className="text-sm text-gray-600 mb-4">{s.description}</p>
+                                                    <p className="text-base text-gray-600 mb-4">{s.description}</p>
                                                 )}
                                                 {/* Google-értékelés az első (Tapasztalat) kártya aljára — élő adat a napi cronból */}
                                                 {i === 0 && googleRating && (
@@ -298,7 +297,7 @@ export function WhyChooseUsSection({
                 </div>
             </div>
         </section>
-        </Container>
+        </div>
     );
 }
 

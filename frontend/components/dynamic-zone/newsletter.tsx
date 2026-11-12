@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { motion, type Variants } from 'framer-motion';
 import { CheckCircleIcon, XCircleIcon, ClockIcon, XIcon } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
-import { Container } from '@/components/container';
 const toAbs = (m?: any): string | undefined => {
   if (!m) return undefined;
   if (typeof m === 'string') return strapiImage(m);
@@ -130,9 +129,8 @@ export const Newsletter: React.FC<NewsletterProps> = ({
   const profileImgUrl = toAbs(profile_image);
 
   return (
-    <Container>
     <section className="w-full py-20">
-      <div className="max-w-9xl mx-auto">
+      <div className="px-4 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
           {/* ── SZÖVEGES BLOKK — fade up, ugyanaz a mintázat mint a form-next-to-section-ben ── */}
@@ -143,10 +141,11 @@ export const Newsletter: React.FC<NewsletterProps> = ({
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-xl md:text-3xl font-medium text-black indent-8 md:indent-20 max-w-xl">
+            {/* SEO: a hosszú mondat sima szöveg, a blokk címe a „Hírlevél” (h2) */}
+            <p className="text-xl md:text-3xl font-medium text-black indent-8 md:indent-20 max-w-xl">
               <span className="text-black/60">{resolveText(heading_left, isHu)}</span>{' '}
               <span className="text-black font-semibold">{resolveText(heading_right, isHu)}</span>
-            </h2>
+            </p>
             <div className="flex items-center space-x-4">
               {profileImgUrl && (
                 <div className="w-12 h-12 rounded-full overflow-hidden">
@@ -168,9 +167,9 @@ export const Newsletter: React.FC<NewsletterProps> = ({
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h3 className="text-xl md:text-2xl font-semibold text-black">
+            <h2 className="text-xl md:text-2xl font-semibold text-black">
               {resolveText(title, isHu) || (isHu ? 'Hírlevél' : 'Newsletter')}
-            </h3>
+            </h2>
 
             <form className="space-y-6" onSubmit={handleSubmit} noValidate>
               {textInputs.map((input) => (
@@ -250,6 +249,5 @@ export const Newsletter: React.FC<NewsletterProps> = ({
         </div>
       </div>
     </section>
-    </Container>
   );
 };

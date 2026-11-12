@@ -25,6 +25,7 @@ interface Props {
   // Élő Google Cégem-pontszám (átlag + értékelések száma) — a google-review-story
   // és google-review-hero blokkok automatikus stat-adatához.
   googleRating?: { rating: number; userRatingCount: number; googleMapsUrl?: string } | null;
+  googlePhotoReviews?: any[];
 }
 
 // Payload blockType slugs (no 'dynamic-zone.' prefix)
@@ -37,6 +38,14 @@ const componentMapping: { [key: string]: any } = {
   'how-it-works': dynamic(() => import('./how-it-works').then((mod) => mod.HowItWorks)),
   'brands': dynamic(() => import('./brands').then((mod) => mod.Brands)),
   'pricing': dynamic(() => import('./pricing').then((mod) => mod.Pricing)),
+  // csak frontend-oldali típus: a főoldal ezzel cseréli a 'pricing' blokkot (lásd app/[locale]/(marketing)/page.tsx)
+  'pricing-simple': dynamic(() => import('./pricing-simple').then((mod) => mod.PricingSimple)),
+  // a főoldali értékelés-szekció (GoogleReviewsSection) blokként — pl. az Árak oldalon a régi testimonials helyett
+  'google-reviews': dynamic(() => import('../google-reviews-section').then((mod) => mod.GoogleReviewsSection)),
+  'call-cta': dynamic(() => import('../services/service-end').then((mod) => mod.CallCta)),
+  'contact-hero': dynamic(() => import('./contact-hero').then((mod) => mod.ContactHero)),
+  'contact-next': dynamic(() => import('./contact-next').then((mod) => mod.ContactNext)),
+  'home-intro': dynamic(() => import('./home-intro').then((mod) => mod.HomeIntro)),
   'launches': dynamic(() => import('./launches').then((mod) => mod.Launches)),
   'why-choose-us': dynamic(() => import('./why-choose-us-section').then((mod) => mod.WhyChooseUsSection)),
   'services': dynamic(() => import('./services').then((mod) => mod.Services)),
@@ -81,7 +90,7 @@ function FadeZoomParallax({ children }: { children: React.ReactNode }) {
   );
 }
 
-const DynamicZoneManager: React.FC<Props> = ({ dynamicZone, locale, fadeZoom = false, googleReviews, googleRating }) => {
+const DynamicZoneManager: React.FC<Props> = ({ dynamicZone, locale, fadeZoom = false, googleReviews, googleRating, googlePhotoReviews }) => {
   return (
     <div>
       {dynamicZone.map((componentData, index) => {
@@ -94,6 +103,8 @@ const DynamicZoneManager: React.FC<Props> = ({ dynamicZone, locale, fadeZoom = f
         const extraProps =
           componentData.blockType === 'testimonials'
             ? { googleReviews }
+            : componentData.blockType === 'google-reviews'
+            ? { rating: googleRating, reviews: googlePhotoReviews ?? [] }
             : componentData.blockType === 'google-review-story' || componentData.blockType === 'why-choose-us'
             ? { googleRating }
             : {};

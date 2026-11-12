@@ -8,7 +8,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
 import { renderPageJsonLd } from '@/lib/shared/structured-data';
 import { getSiteLogoUrl } from '@/lib/shared/site-org';
-import { getCachedGoogleRating, getCachedGoogleReviews } from '@/lib/shared/google-rating';
+import { getCachedGoogleRating, getGoogleReviewsWithRealPhoto } from '@/lib/shared/google-rating';
 import { GoogleReviewsSection } from '@/components/google-reviews-section';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 
@@ -60,18 +60,33 @@ export default async function HomePage(props: {
 
   const [googleRating, googleReviews] = await Promise.all([
     getCachedGoogleRating(),
-    getCachedGoogleReviews(),
+    getGoogleReviewsWithRealPhoto(),
   ]);
 
-  // A CMS-es "testimonials" blokk helyett immár a saját, élő Google-adatot
-  // húzó GoogleReviewsSection jelenik meg — pontosan ott, ahol a CMS-blokk
-  // korábban volt (Árak/pricing szekció előtt), hogy a kinézet és a
-  // pozíció is megmaradjon.
+  // Főoldali sorrend (2026-11, a redesign szerint) — itt, a frontenden rendezzük, a CMS-sorrendtől függetlenül:
+  // hero · bemutatkozó blokk (HomeIntro) · projektek · szolgáltatások · árak (PricingSimple) · hogyan dolgozunk ·
+  // bizalom (why-choose-us) · Google-értékelések (GoogleReviewsSection, a CMS "testimonials" helyett) · GYIK · blog · CTA · hírlevél.
+  // A kapcsolat-űrlap (form-section) nincs a főoldalon. Ami a listában nem szerepel, a végére kerül.
   const rawZone: any[] = pageData?.dynamic_zone ?? [];
-  const zoneWithoutTestimonials = rawZone.filter((b) => b?.blockType !== 'testimonials');
-  const pricingIndex = zoneWithoutTestimonials.findIndex((b) => b?.blockType === 'pricing');
-  const zoneBeforeReviews = pricingIndex === -1 ? zoneWithoutTestimonials : zoneWithoutTestimonials.slice(0, pricingIndex);
-  const zoneAfterReviews = pricingIndex === -1 ? [] : zoneWithoutTestimonials.slice(pricingIndex);
+  const byType = (t: string) => rawZone.filter((b) => b?.blockType === t);
+  const ORDER_BEFORE = ['hero', 'home-intro', 'products', 'services', 'pricing', 'how-it-works', 'why-choose-us'];
+  const ORDER_AFTER = ['faq', 'blog', 'cta', 'newsletter'];
+  const SKIP = new Set(['testimonials', 'form-section']);
+  // Főoldali blog-blokk: mindig a 2 legfrissebb publikált cikk (nem a CMS-ben kézzel kiválasztottak) — 2026-11.
+  // A nagy mezőket (törzsszöveg, dinamikus zóna) levágjuk, a kártyához nem kellenek.
+  const latestRes = await fetchContentType('articles', { filters: { locale: params.locale, _status: 'published' } }, false);
+  const latestArticles = ((latestRes?.data ?? []) as any[])
+    .filter((x) => x?.slug)
+    .sort((x, y) => new Date(y.publishedAt || y.createdAt || 0).getTime() - new Date(x.publishedAt || x.createdAt || 0).getTime())
+    .slice(0, 2)
+    .map(({ content, dynamic_zone, ...rest }: any) => rest);
+  const pick = (types: string[]) =>
+    types.flatMap((t) => (t === 'home-intro' ? [{ blockType: 'home-intro', id: 'home-intro' }] : byType(t)))
+      .map((b) => (b?.blockType === 'pricing' ? { ...b, blockType: 'pricing-simple' } : b))
+      .map((b) => (b?.blockType === 'blog' && latestArticles.length ? { ...b, articles: latestArticles } : b));
+  const listed = new Set([...ORDER_BEFORE, ...ORDER_AFTER]);
+  const zoneBeforeReviews = pick(ORDER_BEFORE);
+  const zoneAfterReviews = [...pick(ORDER_AFTER), ...rawZone.filter((b) => !listed.has(b?.blockType) && !SKIP.has(b?.blockType))];
 
   const jsonLd = renderPageJsonLd({
     kind: 'home',

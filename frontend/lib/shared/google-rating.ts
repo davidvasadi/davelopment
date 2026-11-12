@@ -47,3 +47,28 @@ export async function getCachedGoogleReviews(): Promise<GoogleReview[]> {
     return [];
   }
 }
+
+// Csak a valódi profilképes értékelések (a főoldali értékelés-blokkhoz, 2026-11).
+// A Google a kép nélküli fiókoknak is ad „képet” (egyszínű kör egy betűvel) — ezt a kép
+// entrópiájáról ismerjük fel: a betűs avatar ~1,3, egy valódi fotó 6 körüli. Fájlonként egyszer mérjük.
+const photoEntropyCache = new Map<string, number>();
+export async function getGoogleReviewsWithRealPhoto(): Promise<GoogleReview[]> {
+  const reviews = await getCachedGoogleReviews();
+  const { default: sharp } = await import('sharp');
+  const out: GoogleReview[] = [];
+  for (const r of reviews) {
+    const file = r.photoUrl?.split('/').pop();
+    if (!file || !/^[\w.-]+$/.test(file)) continue;
+    let entropy = photoEntropyCache.get(file);
+    if (entropy === undefined) {
+      try {
+        entropy = (await sharp(path.join(process.cwd(), 'public', 'data', 'google-review-photos', file)).stats()).entropy;
+      } catch {
+        entropy = 0;
+      }
+      photoEntropyCache.set(file, entropy);
+    }
+    if (entropy >= 3) out.push(r);
+  }
+  return out;
+}

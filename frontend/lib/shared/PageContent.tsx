@@ -1,6 +1,6 @@
 import { AmbientColor } from '@/components/decorations/ambient-color';
 import DynamicZoneManager from '@/components/dynamic-zone/manager';
-import { getCachedGoogleReviews, getCachedGoogleRating } from '@/lib/shared/google-rating';
+import { getCachedGoogleReviews, getCachedGoogleRating, getGoogleReviewsWithRealPhoto } from '@/lib/shared/google-rating';
 
 // A CMS-es "testimonials" blokk StatCard-ja (heading, leírás, CTA-gomb)
 // oldalanként kézzel szerkesztett marad — csak az idézet-kártyák (szöveg,
@@ -12,9 +12,10 @@ export default async function PageContent({ pageData, locale, fadeZoom = false }
   const dynamicZone = pageData?.dynamic_zone;
   const resolvedLocale = locale ?? pageData?.locale ?? 'hu';
 
-  const [googleReviews, googleRating] = await Promise.all([
+  const [googleReviews, googleRating, googlePhotoReviews] = await Promise.all([
     getCachedGoogleReviews(),
     getCachedGoogleRating(),
+    getGoogleReviewsWithRealPhoto(),
   ]);
 
   return (
@@ -27,6 +28,7 @@ export default async function PageContent({ pageData, locale, fadeZoom = false }
           fadeZoom={fadeZoom}
           googleReviews={googleReviews}
           googleRating={googleRating}
+          googlePhotoReviews={googlePhotoReviews}
         />
       )}
     </div>

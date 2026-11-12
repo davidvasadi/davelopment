@@ -5,10 +5,10 @@ import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 import { Plus as PlusIcon } from 'lucide-react';
 import { strapiImage } from '@/lib/strapi/strapiImage';
-import { Link } from 'next-view-transitions';
 import { MotionLink } from '@/components/motion-link';
-import { Container } from '@/components/container';
+import { PillLink } from '@/components/pill-link';
 import { localizeHref } from '@/lib/i18n/localize-href';
+import { GrainCanvas } from '../ui/grain-canvas';
 
 const toAbs = (m?: any): string | undefined => {
   if (!m) return undefined;
@@ -55,7 +55,10 @@ function MediaBlock({ media, url, alt, sizes }: { media: any; url: string; alt: 
         loop
         playsInline
         preload="none"
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover/cta:scale-110 group-hover/cta-m:scale-110"
+        // a jelenlegi videóban beégetett fehér keret és alsó felirat van — felnagyítva és kissé feljebb igazítva a minta
+        // kitölti a kártyát (a redesign végén kerettelen anyagra cseréljük, akkor ez a nagyítás kivehető)
+        className="absolute inset-0 w-full h-full object-cover scale-[1.22]"
+        style={{ transformOrigin: '50% 44%' }}
       />
     );
   }
@@ -65,7 +68,7 @@ function MediaBlock({ media, url, alt, sizes }: { media: any; url: string; alt: 
       src={url}
       alt={alt}
       fill
-      className="object-cover transition-transform duration-500 ease-out group-hover/cta:scale-110 group-hover/cta-m:scale-110"
+      className="object-cover transition-transform duration-500 ease-out"
       sizes={sizes}
     />
   );
@@ -113,62 +116,39 @@ export const CTA = ({
   const firstImgUrl = toAbs(firstMedia);
   const firstImgAlt = firstMedia?.alt ?? heading;
 
+  // a kis szöveg két sorban: az első „ · ” előtti rész felül, a többi (e-mail · telefon) alatta
+  const [subFirst, ...subRest] = (sub_heading ?? '').split(' · ');
+
   return (
-    <Container>
-      <div className="py-12 md:py-20">
+    // teljes szélesség (nincs max-width), kis oldalmargóval — mint a többi újított blokk.
+    // Elrendezés a minta szerint: balra a sötét kártyánk (cím fent, gomb + elérhetőség lent), jobbra a kép.
+    <section className="px-4 py-12 md:px-8 md:py-20">
+      <div className="grid grid-cols-1 gap-2 md:gap-3 lg:grid-cols-12">
+        <motion.div
+          {...fadeUp(0)}
+          className="relative flex min-h-[460px] flex-col justify-between overflow-hidden rounded-card bg-[#080809] p-6 md:min-h-[520px] md:p-10 lg:col-span-7 lg:h-[620px] lg:p-14"
+        >
+          <GrainCanvas strength="light" opacity={0.45} zIndex={0} />
+          <div className="relative z-10">
+            {/* címke nincs (a minta szerint csak a cím) */}
+            <h2 className="text-4xl font-semibold leading-[0.95] tracking-[-0.04em] text-white md:text-6xl xl:text-7xl">
+              {heading}
+              {heading_highlight && <span className="text-white/50"> {heading_highlight}</span>}
+            </h2>
+          </div>
 
-        {/* ══════════════ DESKTOP ══════════════ */}
-        <div className="hidden md:flex md:flex-row md:items-stretch group/cta">
-          {/* Left — szöveg + gomb kártya */}
-          <motion.div
-            {...fadeUp(0)}
-            className="flex-1 min-w-0 flex flex-col justify-between bg-white rounded-2xl group-hover/cta:rounded-r-none mr-1 group-hover/cta:mr-0 transition-[border-radius,margin-right] duration-300 p-8 lg:p-10"
-          >
-            <div>
-              {badge_label && (
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center shrink-0 group-hover/cta:rotate-90 transition-transform duration-300">
-                    <PlusIcon className="w-3 h-3 text-white" />
-                  </div>
-                  <p className="text-sm font-medium text-gray-700">{badge_label}</p>
-                </div>
-              )}
-              {/* desktop copy: role=heading (a11y), not an <h2> tag, so the heading is not doubled for SEO */}
-              <p role="heading" aria-level={2} className="font-medium tracking-tight leading-tight mb-6">
-                <span className="text-black text-3xl md:text-4xl lg:text-5xl">{heading}</span>
-                {heading_highlight && (
-                  <> <span className="text-black/50 text-3xl md:text-4xl lg:text-5xl">{heading_highlight}</span></>
-                )}
-              </p>
-              {sub_heading && (
-                <p className="text-sm text-gray-400 leading-relaxed mb-6">{sub_heading}</p>
-              )}
-            </div>
-
+          <div className="relative z-10 mt-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             {CTAs && CTAs.length > 0 && (
               <div className="flex flex-wrap items-center gap-3">
                 {CTAs.map((cta, index) => {
                   const isPrimary = cta.variant === 'primary' || (cta.variant == null && index === 0);
+                  // az elsődleges gomb a közös fehér pill (felirat + pötty, nem tördelődik — eddig a hosszabb felirat
+                  // második szava a gördülő maszk alá csúszott, pl. „Ingyenes regisztráció” → „Ingyenes”)
                   if (isPrimary) {
                     return (
-                      <MotionLink
-                        key={index}
-                        href={withLocale(cta.URL, locale)}
-                        target={cta.target ?? '_self'}
-                        rel={cta.target === '_blank' ? 'noopener noreferrer' : undefined}
-                        initial="rest"
-                        whileHover="hover"
-                        animate="rest"
-                        data-cta={cta.text}
-                        className="inline-flex items-center justify-center rounded-full bg-black text-white text-sm font-medium overflow-hidden px-6 py-3.5"
-                      >
-                        <div style={{ overflow: 'hidden', height: 18 }}>
-                          <motion.div className="flex flex-col" style={{ lineHeight: '18px' }} variants={wheelVariants}>
-                            <span className="block">{cta.text}</span>
-                            <span className="block kb-label" aria-hidden="true" data-k={cta.text ?? ''} />
-                          </motion.div>
-                        </div>
-                      </MotionLink>
+                      <PillLink key={index} href={withLocale(cta.URL, locale) as string} light cta={cta.text ?? undefined}>
+                        {cta.text ?? ''}
+                      </PillLink>
                     );
                   }
                   return (
@@ -181,7 +161,7 @@ export const CTA = ({
                       whileHover="hover"
                       animate="rest"
                       data-cta={cta.text}
-                      className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-transparent text-gray-900 text-sm font-medium overflow-hidden px-6 py-3.5"
+                      className="inline-flex items-center justify-center overflow-hidden whitespace-nowrap rounded-full border border-white/30 px-5 py-3 text-sm font-semibold text-white"
                     >
                       <div style={{ overflow: 'hidden', height: 18 }}>
                         <motion.div className="flex flex-col" style={{ lineHeight: '18px' }} variants={wheelVariants}>
@@ -194,124 +174,47 @@ export const CTA = ({
                 })}
               </div>
             )}
-          </motion.div>
-
-          {/* Right — képkártya */}
-          {firstImgUrl && (
-            <motion.div
-              {...fadeUp(0.1)}
-              className="relative w-full md:w-[280px] lg:w-[340px] flex-shrink-0 bg-white rounded-2xl group-hover/cta:rounded-l-none transition-[border-radius] duration-300 p-2 min-h-[360px]"
-            >
-              <div className="relative w-full h-full rounded-xl overflow-hidden min-h-[340px]">
-                <MediaBlock
-                  media={firstMedia}
-                  url={firstImgUrl}
-                  alt={firstImgAlt}
-                  sizes="(min-width: 1024px) 340px, 280px"
-                />
-              </div>
-            </motion.div>
-          )}
-        </div>
-
-        {/* ══════════════ MOBILE ══════════════ */}
-        <div className="flex flex-col md:hidden group/cta-m">
-          {/* Képkártya */}
-          {firstImgUrl && (
-            <motion.div
-              {...fadeUp(0)}
-              className="relative w-full bg-white rounded-2xl group-hover/cta-m:rounded-b-none mb-1 group-hover/cta-m:mb-0 transition-[border-radius,margin-bottom] duration-300 p-2"
-              style={{ height: '52vw', minHeight: 210, maxHeight: 320 }}
-            >
-              <div className="relative w-full h-full rounded-xl overflow-hidden">
-                <MediaBlock
-                  media={firstMedia}
-                  url={firstImgUrl}
-                  alt={firstImgAlt}
-                  sizes="100vw"
-                />
-
-                {/* Badge – a képen belül, absolute */}
-                {badge_label && (
-                  <div className="absolute top-3 left-3 flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-sm">
-                    <div className="w-4 h-4 bg-black rounded-full flex items-center justify-center shrink-0 group-hover/cta-m:rotate-90 transition-transform duration-300">
-                      <PlusIcon className="w-2.5 h-2.5 text-white" />
-                    </div>
-                    <p className="text-xs font-medium text-gray-700">{badge_label}</p>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-
-          {/* Szöveg + gomb kártya */}
-          <motion.div
-            {...fadeUp(0.08)}
-            className="flex flex-col gap-5 bg-white rounded-2xl group-hover/cta-m:rounded-t-none transition-[border-radius] duration-300 px-6 pt-5 pb-8"
-          >
-            {/* Heading */}
-            <h2 className="font-medium tracking-tight leading-[1.08]">
-              <span className="text-black text-[1.75rem]">{heading}</span>
-              {heading_highlight && (
-                <> <span className="text-black/45 text-[1.75rem]">{heading_highlight}</span></>
-              )}
-            </h2>
-
-            {/* Sub heading */}
             {sub_heading && (
-              <p className="text-sm text-gray-400 leading-relaxed font-light -mt-1">
-                {sub_heading}
+              <p className="text-balance text-sm leading-relaxed text-white/60 md:text-right">
+                {/* a pötty a szöveg sorába kerül (nem flex-oszlop), így tördeléskor is az első szó előtt marad; text-balance: nem marad egy szó magában */}
+                <span className="block text-white/90">
+                  {/* narancs, pulzáló „elérhető” pötty felső indexben (a szöveg tetejéhez igazítva) — a minta szerint */}
+                  <span aria-hidden className="relative mr-1 inline-flex h-1.5 w-1.5 align-top translate-y-[0.3em]">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#FF7A3D] opacity-70" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#FF7A3D]" />
+                  </span>
+                  {subFirst}
+                </span>
+                {subRest.length > 0 && <span className="block">{subRest.join(' · ')}</span>}
               </p>
             )}
+          </div>
+        </motion.div>
 
-            {/* CTAs */}
-            {CTAs && CTAs.length > 0 && (
-              <div className="flex flex-col gap-2.5 pt-1">
-                {CTAs.map((cta, index) => {
-                  const isPrimary = cta.variant === 'primary' || (cta.variant == null && index === 0);
-
-                  if (isPrimary) {
-                    return (
-                      <Link
-                        key={index}
-                        href={withLocale(cta.URL, locale)}
-                        target={cta.target ?? '_self'}
-                        rel={cta.target === '_blank' ? 'noopener noreferrer' : undefined}
-                        className="w-full flex items-center justify-center rounded-full bg-black text-white border border-black text-sm font-medium py-3.5 px-6 transition-opacity active:opacity-70"
-                      >
-                        {cta.text}
-                      </Link>
-                    );
-                  }
-
-                  // ghost — border only, with wheel animation
-                  return (
-                    <MotionLink
-                      key={index}
-                      href={withLocale(cta.URL, locale)}
-                      target={cta.target ?? '_self'}
-                      rel={cta.target === '_blank' ? 'noopener noreferrer' : undefined}
-                      initial="rest"
-                      whileHover="hover"
-                      animate="rest"
-                      className="w-full inline-flex items-center justify-center rounded-full border border-gray-300 bg-transparent text-gray-900 text-sm font-medium overflow-hidden py-3.5 px-6"
-                    >
-                      <div style={{ overflow: 'hidden', height: 18 }}>
-                        <motion.div className="flex flex-col" style={{ lineHeight: '18px' }} variants={wheelVariants}>
-                          <span className="block">{cta.text}</span>
-                          <span className="block kb-label" aria-hidden="true" data-k={cta.text ?? ''} />
-                        </motion.div>
-                      </div>
-                    </MotionLink>
-                  );
-                })}
-              </div>
+        {firstImgUrl && (
+          <motion.div
+            {...fadeUp(0.08)}
+            className="relative min-h-[320px] overflow-hidden rounded-card md:min-h-[420px] lg:col-span-5 lg:h-[620px]"
+          >
+            <MediaBlock media={firstMedia} url={firstImgUrl} alt={firstImgAlt} sizes="(min-width: 1024px) 42vw, 100vw" />
+            {/* davelopment logó a kép közepén, fehérre színezve (díszítés) — csak a videós háttéren; egy képernyőképen
+                (pl. a booking projekt telefonképe) rálógna a tartalomra */}
+            {isVideo(firstMedia) && (
+            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={strapiImage('/api/media/file/logo-9b7c7d18eb.svg')}
+                alt=""
+                aria-hidden
+                width={720}
+                height={155}
+                className="w-1/2 max-w-[320px] brightness-0 invert drop-shadow-[0_2px_12px_rgba(0,0,0,0.25)]"
+              />
+            </div>
             )}
           </motion.div>
-
-        </div>
-
+        )}
       </div>
-    </Container>
+    </section>
   );
 };

@@ -97,7 +97,7 @@ export const Blog: React.FC<BlogProps> = ({
     (button?.target as '_self' | '_blank' | undefined) ?? '_self';
 
   return (
-    <section id='blog' className="max-w-7xl mx-auto px-2 md:px-4  py-20 md:py-28">
+    <section id='blog' className="w-full px-4 md:px-8 py-20 md:py-28">
       <motion.div
         className="space-y-14 md:space-y-16"
         initial={{ opacity: 0, y: 50 }}
@@ -124,6 +124,7 @@ export const Blog: React.FC<BlogProps> = ({
                   {heading_left && (
                     <span className="block text-black">{heading_left}</span>
                   )}
+                  {heading_left && heading_right && ' '}
                   {heading_right && (
                     <span className="block text-neutral-500">
                       {heading_right}

@@ -5,11 +5,11 @@ import React, { useRef, useMemo } from 'react';
 import { motion, type Variants, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'next-view-transitions';
 
-import { Container } from '@/components/container';
 import { StrapiImage } from '@/components/ui/strapi-image';
 import { Product } from '@/types/types';
 import { truncate } from '@/lib/utils';
 import { getLocalizedSegment } from '@/lib/i18n/segments';
+import { localizedCategories } from '@/lib/category-locale';
 import { PlusIcon, ArrowUpRight as ArrowUpRightIcon } from 'lucide-react';
 
 const arrowWheelVariants: Variants = {
@@ -90,11 +90,12 @@ export const Projects: React.FC<ProjectsProps> = ({
 
   return (
     <div ref={sectionRef} className="relative py-24 md:py-28 lg:py-32">
-      <Container className="relative z-10">
+      <div className="relative z-10 w-full px-4 md:px-8">
         <Header
           badge_label={badge_label}
           heading={heading}
           sub_heading={sub_heading}
+          locale={locale}
           headerY={headerY}
           headerScale={headerScale}
           headerOpacity={headerOpacity}
@@ -105,7 +106,7 @@ export const Projects: React.FC<ProjectsProps> = ({
 
             {/* NINCS TALÁLAT */}
             {!first && (
-              <div className="rounded-[6px] border border-dashed border-neutral-200 bg-neutral-50 px-6 py-8 text-center">
+              <div className="rounded-card border border-dashed border-neutral-200 bg-neutral-50 px-6 py-8 text-center">
                 <p className="text-sm font-medium text-neutral-800">
                   {isHu ? 'Jelenleg nincs beállított projekt ebben a szekcióban.' : 'No projects configured in this section.'}
                 </p>
@@ -134,7 +135,7 @@ export const Projects: React.FC<ProjectsProps> = ({
 
             {/* DESKTOP */}
             {first && (
-              <div className="hidden md:grid grid-cols-6 grid-rows-12 gap-2 text-black">
+              <div className="hidden md:grid grid-cols-6 grid-rows-12 gap-2 md:gap-3 text-black">
                 <ProjectTriplet locale={locale} item={first} truncateLength={60} layout={{
                   large: 'col-span-4 row-span-6 bg-white',
                   small: 'col-span-2 row-span-3 col-start-5 bg-white',
@@ -154,18 +155,18 @@ export const Projects: React.FC<ProjectsProps> = ({
 
           </div>
         </div>
-      </Container>
+      </div>
     </div>
   );
 };
 
 const Header = ({
-  badge_label, heading, sub_heading, headerY, headerScale, headerOpacity,
+  badge_label, heading, sub_heading, locale, headerY, headerScale, headerOpacity,
 }: {
   badge_label?: string | null;
   heading?: string | null;
   sub_heading?: string | null;
-  locale?: string;
+  locale: string;
   headerY: any;
   headerScale: any;
   headerOpacity: any;
@@ -178,27 +179,31 @@ const Header = ({
   >
     <motion.div style={{ y: headerY, scale: headerScale, opacity: headerOpacity }}>
       {badge_label && (
-        <div className="flex items-center gap-2 mb-6">
-          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-black">
-            <PlusIcon className="h-3 w-3 text-white" />
+        <div className="mb-6 flex items-center gap-2">
+          <div className="flex h-4 w-4 items-center justify-center rounded-full bg-black">
+            <PlusIcon className="h-2.5 w-2.5 text-white" />
           </div>
-          <p className="text-xs sm:text-sm text-neutral-500 font-medium tracking-tight">{badge_label}</p>
+          <span className="text-sm font-medium text-gray-700">{badge_label}</span>
         </div>
       )}
-      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-10">
-        <div>
-          {heading && (
-            <h2 className="text-6xl md:text-7xl xl:text-9xl font-medium tracking-tight text-black leading-none">
-              {heading}
-            </h2>
-          )}
-        </div>
-        <div className="flex flex-col items-start md:items-end max-w-sm md:text-right">
+      {/* ugyanaz a szabály, mint a „Hogyan dolgozunk” és a „Szolgáltatások” fejlécénél: cím balra, szöveg + link jobbra
+          (a két szélen, alul igazítva); szűkülő képernyőn a cím tördel; mobilon egymás alatt */}
+      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between md:gap-10">
+        {heading && (
+          <h2 className="min-w-0 flex-1 text-4xl font-semibold leading-[0.95] tracking-[-0.04em] text-black md:text-6xl xl:text-7xl">
+            {heading}
+          </h2>
+        )}
+        <div className="flex max-w-md flex-col items-start md:max-w-xs md:shrink-0 md:items-end md:pb-1 md:text-right">
           {sub_heading && (
-            <p className="text-sm sm:text-base text-neutral-500 leading-relaxed text-left md:text-right md:mt-8 font-light">
-              {sub_heading}
-            </p>
+            <p className="text-base leading-relaxed text-black/60 md:text-lg">{sub_heading}</p>
           )}
+          <Link
+            href={`/${locale}/${getLocalizedSegment(locale, 'products')}` as never}
+            className="mt-5 inline-block border-b-2 border-black pb-0.5 text-sm font-semibold text-black transition-opacity hover:opacity-60 md:text-base"
+          >
+            {locale === 'hu' ? 'Összes projekt' : 'All projects'}
+          </Link>
         </div>
       </div>
     </motion.div>
@@ -247,12 +252,13 @@ const LargeTile: React.FC<TileBaseProps & { arrowClassName?: string }> = ({
   item, locale, className, arrowClassName,
 }) => {
   const { product } = item;
-  const label = product.categories?.[0]?.name ?? item.project.badge_label ?? 'Highlight';
+  // a blokk saját, nyelvenkénti címkéje az elsődleges — a termék-kategóriák nincsenek nyelvesítve (vegyes HU/EN nevek)
+  const label = item.project.badge_label || localizedCategories(product.categories as any[], locale)[0]?.name || 'Highlight';
   const href = projectHref(locale, product.slug);
 
   return (
     <motion.div
-      className={`rounded-2xl overflow-hidden ${className}`}
+      className={`rounded-card overflow-hidden ${className}`}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.1 }}
@@ -292,12 +298,13 @@ const SmallTextTile: React.FC<TileBaseProps & { truncateLength: number }> = ({
   item, locale, className, truncateLength,
 }) => {
   const { product, project } = item;
-  const label = product.categories?.[1]?.name ?? product.categories?.[0]?.name ?? item.project.badge_label ?? 'Highlight';
+  // a blokk saját, nyelvenkénti címkéje az elsődleges — a termék-kategóriák nincsenek nyelvesítve (vegyes HU/EN nevek)
+  const label = item.project.badge_label || localizedCategories(product.categories as any[], locale)[1]?.name || localizedCategories(product.categories as any[], locale)[0]?.name || 'Highlight';
   const href = projectHref(locale, product.slug);
 
   return (
     <motion.div
-      className={`rounded-2xl overflow-hidden ${className}`}
+      className={`rounded-card overflow-hidden ${className}`}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.1 }}
@@ -306,7 +313,7 @@ const SmallTextTile: React.FC<TileBaseProps & { truncateLength: number }> = ({
       whileHover="hover"
     >
       <Link href={href as never} className="hidden md:block h-full w-full">
-        <div className="relative h-full w-full overflow-hidden rounded-2xl bg-white">
+        <div className="relative h-full w-full overflow-hidden rounded-card bg-white">
           <div className="relative z-10 flex h-full flex-col justify-between p-4 md:p-6">
             <div className="flex justify-between gap-2">
               <div className="flex flex-col">
@@ -322,7 +329,7 @@ const SmallTextTile: React.FC<TileBaseProps & { truncateLength: number }> = ({
         </div>
       </Link>
       <div className="md:hidden h-full w-full">
-        <div className="relative h-full w-full overflow-hidden rounded-2xl bg-white">
+        <div className="relative h-full w-full overflow-hidden rounded-card bg-white">
           <div className="relative z-10 flex h-full flex-col justify-between p-4">
             <div className="flex justify-between gap-2">
               <div className="flex flex-col">
@@ -347,7 +354,7 @@ const ImageTile: React.FC<TileBaseProps & { imageIndex?: number }> = ({
   const href = projectHref(locale, item.product.slug);
   return (
     <motion.div
-      className={`${className} rounded-2xl overflow-hidden`}
+      className={`${className} rounded-card overflow-hidden`}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.1 }}
@@ -373,7 +380,7 @@ const TileWithImageBackground: React.FC<{
 }> = ({ children, product, imageIndex = 0 }) => {
   const img = product.images?.[imageIndex];
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-2xl group">
+    <div className="relative h-full w-full overflow-hidden rounded-card group">
       {img?.url && (
         <>
           <StrapiImage

@@ -96,7 +96,9 @@ export default async function fetchContentType(
   // an acceptable trade for cutting repeat-request load drastically.
   const fetchOpts: RequestInit = isDraftMode
     ? { method: 'GET', cache: 'no-store', headers }
-    : { method: 'GET', headers, next: { revalidate: 300, tags: [contentType] } };
+    : process.env.NODE_ENV === 'development'
+      ? { method: 'GET', headers, cache: 'no-store' } // fejlesztés közben a CMS-módosítás azonnal látszik (nincs 5 perces gyorsítótár)
+      : { method: 'GET', headers, next: { revalidate: 300, tags: [contentType] } };
 
   const res = await fetch(url, fetchOpts);
   if (!res.ok) {
@@ -134,7 +136,7 @@ export default async function fetchContentType(
             const { cache: _cache, ...fetchOptsWithoutCache } = fetchOpts
             const r = await fetch(`${API_BASE}/api/${contentType}/${doc.id}?${aq}`, {
               ...fetchOptsWithoutCache,
-              next: { revalidate: isDraftMode ? 0 : 300 },
+              next: { revalidate: isDraftMode || process.env.NODE_ENV === 'development' ? 0 : 300 },
             });
             if (!r.ok) return null;
             const alt = await r.json();

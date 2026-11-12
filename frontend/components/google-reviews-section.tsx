@@ -60,17 +60,18 @@ const StarRow = ({ count = 5 }: { count?: number }) => (
 // ─── Header kártya (reviewer neve + fotója) ────────────────────
 const HeaderCard = ({ review }: { review: GoogleReview }) => (
   <div className="bg-white px-4 py-3 flex items-center gap-3 w-full h-full">
-    <div className="w-14 h-14 flex-shrink-0">
+    {/* a Google-profilképek eleve kerek PNG-k → a lekerekített négyzetes keretet a kép nagyításával töltjük ki */}
+    <div className="w-12 h-12 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">
       {review.photoUrl ? (
         <Image
           src={review.photoUrl}
           alt={review.authorName}
-          width={56}
-          height={56}
-          className="rounded-xl object-cover object-top w-full h-full"
+          width={96}
+          height={96}
+          className="object-cover w-full h-full scale-[1.42]"
         />
       ) : (
-        <div className="rounded-xl bg-gray-100 w-full h-full flex items-center justify-center text-gray-400 font-medium">
+        <div className="w-full h-full flex items-center justify-center text-gray-400 font-medium">
           {review.authorName.charAt(0)}
         </div>
       )}
@@ -176,9 +177,9 @@ const StatCard = ({
               {avatars.slice(0, 4).map((a, i) => (
                 <div
                   key={i}
-                  className={`w-9 h-9 overflow-hidden flex-shrink-0 rounded-sm ${AVATAR_STACK_CLASSES[i]}`}
+                  className={`w-9 h-9 overflow-hidden flex-shrink-0 rounded-lg bg-gray-100 ring-2 ring-white ${AVATAR_STACK_CLASSES[i]}`}
                 >
-                  <Image src={a.url} alt={a.name || ''} width={36} height={36} className="object-cover object-top w-full h-full" />
+                  <Image src={a.url} alt={a.name || ''} width={72} height={72} className="object-cover w-full h-full scale-[1.42]" />
                 </div>
               ))}
             </div>
@@ -193,7 +194,7 @@ const StatCard = ({
             href={ctaUrl}
             target="_blank"
             rel="noopener noreferrer nofollow"
-            className="block w-full bg-gray-900 text-white text-sm font-medium text-center py-4 px-6 rounded-full overflow-hidden"
+            className="inline-flex items-center justify-center overflow-hidden rounded-full bg-black px-7 py-4 text-sm font-semibold text-white"
             initial="rest"
             whileHover="hover"
             animate="rest"
@@ -291,7 +292,7 @@ export function GoogleReviewsSection({
         transition={{ duration: 0.8 }}
         viewport={{ once: true, amount: 0.2 }}
       >
-        <div className="max-w-7xl mx-auto px-4 mb-16">
+        <div className="w-full px-4 md:px-8 mb-16">
           <div className="hidden lg:grid lg:grid-cols-[30%_70%] lg:gap-4 lg:items-start">
             <div className="flex items-center gap-2">
               <div className="w-5 h-5 bg-gray-900 rounded-full flex items-center justify-center flex-shrink-0">
@@ -321,7 +322,7 @@ export function GoogleReviewsSection({
       </motion.div>
 
       {/* ── DESKTOP GRID ── */}
-      <div className="max-w-7xl mx-auto px-4 hidden lg:flex lg:flex-col lg:gap-1">
+      <div className="w-full px-4 md:px-8 hidden lg:flex lg:flex-col lg:gap-1">
         {rows.map((row, rowIdx) => (
           <div key={rowIdx} className="flex gap-1 h-[680px]">
             {rowIdx === 0 ? (
@@ -354,7 +355,7 @@ export function GoogleReviewsSection({
       </div>
 
       {/* ── MOBIL ── */}
-      <div className="max-w-7xl mx-auto px-4 lg:hidden flex flex-col gap-1">
+      <div className="w-full px-4 md:px-8 lg:hidden flex flex-col gap-1">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}

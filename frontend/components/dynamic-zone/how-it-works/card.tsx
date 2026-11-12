@@ -3,63 +3,70 @@
 import { motion } from 'framer-motion';
 import React from 'react';
 
+export type StepCardVariant = 'image' | 'dark' | 'light';
+
+/**
+ * Bento-kártya a „Hogyan dolgozunk” blokkhoz: bal felül sorszám, jobb felül időtartam, alul nagy cím és leírás.
+ * Három változat: képes (teljes háttérkép, sötétítő átmenettel), sötét és világos. A saját betűnk és színeink.
+ */
 export const Card = ({
   title,
   description,
   index,
+  time,
+  variant,
   imageSrc,
   imageAlt,
+  className = '',
 }: {
   title: string;
   description?: string;
   index: number;
+  time?: string;
+  variant: StepCardVariant;
   imageSrc?: string;
   imageAlt?: string;
+  className?: string;
 }) => {
-  const progress = Math.min(index, 4);
+  const tone =
+    variant === 'light'
+      ? { box: 'bg-white text-black', meta: 'text-black/40', desc: 'text-black/60' }
+      : variant === 'dark'
+        ? { box: 'bg-black text-white', meta: 'text-white/45', desc: 'text-white/60' }
+        : { box: 'bg-black text-white', meta: 'text-white/80', desc: 'text-white/85' };
 
   return (
-    <motion.div
-      className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm transition-shadow duration-150 hover:shadow-md h-full min-h-[280px] md:min-h-[320px] flex flex-col"
-      initial={{ opacity: 0, y: 20 }}
+    <motion.article
+      className={`group relative flex min-h-[370px] flex-col justify-between overflow-hidden rounded-card p-6 md:min-h-[410px] md:p-10 lg:h-[440px] ${tone.box} ${className}`}
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{
-        duration: 0.55,
-        delay: (index - 1) * 0.1,
-        ease: [0.33, 1, 0.68, 1],
-      }}
+      transition={{ duration: 0.6, delay: ((index - 1) % 2) * 0.08, ease: [0.33, 1, 0.68, 1] }}
     >
-      {/* Fejléc: pöttyök + sorszám */}
-      <div className="flex items-center justify-between">
-        <div className="flex gap-2" aria-hidden>
-          {[1, 2, 3, 4].map((d) => (
-            <div
-              key={d}
-              className={`h-3 w-3 rounded-full ${d <= progress ? 'bg-black' : 'bg-gray-300'}`}
-            />
-          ))}
-        </div>
-        <div className="text-xs font-semibold text-black/40">
-          {String(index).padStart(2, '0')}
-        </div>
+      {variant === 'image' && imageSrc && (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imageSrc}
+            alt={imageAlt || title}
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+          />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+        </>
+      )}
+
+      <div className={`relative flex items-start justify-between gap-4 text-sm font-medium ${tone.meta}`}>
+        <span>{String(index).padStart(2, '0')}</span>
+        {time && <span className="text-right">{time}</span>}
       </div>
 
-      {/* Tartalom */}
-      <div className="mt-6 flex flex-col flex-1">
-        <div className="flex items-center gap-3">
-          {imageSrc && (
-            <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl">
-              <img src={imageSrc} alt={imageAlt || title} className="h-full w-full object-cover" />
-            </div>
-          )}
-          <p className="text-lg font-medium leading-snug text-black">{title}</p>
-        </div>
-        <div className="flex-1" />
+      <div className="relative">
+        <h3 className="text-4xl font-semibold leading-[0.95] tracking-[-0.04em] md:text-5xl lg:text-6xl">{title}</h3>
         {description && (
-          <p className="mt-4 text-sm leading-relaxed text-gray-500">{description}</p>
+          <p className={`mt-5 max-w-md text-base leading-relaxed md:text-lg ${tone.desc}`}>{description}</p>
         )}
       </div>
-    </motion.div>
+    </motion.article>
   );
 };

@@ -14,6 +14,10 @@ const config: Config = {
 
   theme: {
     extend: {
+      // Egységes kártya-lekerekítés (2026-11, bento-kártyák) — új kártya ezt kapja: `rounded-card`.
+      borderRadius: {
+        card: '24px',
+      },
       fontFamily: {
         // DM Sans mint alapfont, CSS változóval is elérhető
         // sans: ['var(--font-dm-sans)', 'DM Sans', 'sans-serif'],

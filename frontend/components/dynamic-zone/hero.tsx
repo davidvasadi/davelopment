@@ -28,7 +28,7 @@ function formatHeading(heading: string): React.ReactNode {
   return parts.map((part, i) => (
     <React.Fragment key={i}>
       {part}
-      {i < parts.length - 1 && <sup className="text-[0.5em] top-[-0.19em]">©</sup>}
+      {i < parts.length - 1 && <sup className="text-[0.4em] top-[-1.1em] ml-[0.04em]">©</sup>}
     </React.Fragment>
   ));
 }
@@ -156,10 +156,6 @@ export const Hero = ({
     return { talkCTA: safeCTAs[talkIndex], topCTAs: safeCTAs.filter((_, i) => i !== talkIndex) };
   }, [safeCTAs]);
 
-  const serviceLabels = (services || [])
-    .map((s: any) => (typeof s === 'string' ? s : s?.label ?? s?.title))
-    .filter(Boolean) as string[];
-
   const computedDescription = useMemo(() => {
     if (description_lead || description_body) return { lead: description_lead || '', rest: description_body || '' };
     if (description_text) return splitLead(description_text, 2);
@@ -242,7 +238,9 @@ export const Hero = ({
   // kompromisszum, amit korábban a preloader.tsx-ben kiküszöböltünk) — ez
   // most tudatos döntés, nem véletlen regresszió.
   return (
+    // relative z-10: a főoldalon a következő blokk (HomeIntro) a hero „mögül” csúszik elő
     <motion.div
+      className="relative z-10"
       initial={{ opacity: 0, y: 40 }}
       animate={preloaderDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
       transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
@@ -251,7 +249,7 @@ export const Hero = ({
       ref={heroRef as React.RefObject<HTMLElement>}
       data-hero-section
       style={{ y, scale }}
-      className="relative mx-1.5 sm:mx-2 md:mx-0 rounded-2xl overflow-hidden bg-black text-white"
+      className="relative mx-1.5 sm:mx-2 md:mx-0 rounded-card overflow-hidden bg-black text-white"
       aria-label="Hero"
     >
       {/*
@@ -296,13 +294,11 @@ export const Hero = ({
           animate={{ opacity: [0.5, 0.85, 0.5], scale: [1, 1.15, 1] }} transition={{ duration: 6, repeat: Infinity, delay: 0.5 }}>+</motion.div>
       </div>
 
-      <div className="relative z-[3] px-6 md:px-8 xl:px-16 py-10 md:py-14 lg:py-16 min-h-screen grid grid-rows-[1fr_auto]">
-        <div className="grid grid-cols-12 gap-x-6 gap-y-8 items-start lg:items-center">
+      <div className="relative z-[3] px-6 md:px-8 xl:px-16 py-10 md:py-14 lg:py-16 min-h-[calc(100svh-5.5rem)] grid grid-rows-[1fr_auto]">
+        <div className="grid grid-cols-12 gap-x-6 gap-y-8 items-start pt-10 lg:pt-16">
           <div className="col-span-12 lg:col-span-8">
-            <h1>
-              <span className="block font-bold tracking-tight leading-[0.9] text-[12vw] lg:text-[clamp(2.4rem,9.5vw,12rem)]">{formatHeading(heading)}</span>
-              <span className="block mt-1 text-[5vw] font-semibold text-white/90 lg:mt-3 lg:text-[clamp(1.05rem,3vw,3.5rem)]">{sub_heading}</span>
-            </h1>
+            {/* 2026-11: a név csak márkajel (nem h1), a hero h1-e lent a leírás; a sub_heading és az oldalsó szolgáltatáslista nem jelenik meg */}
+            <p className="block font-bold tracking-tight leading-[0.9] text-[11vw] lg:text-[clamp(2.4rem,8.5vw,11rem)]">{formatHeading(heading)}</p>
             {topCTAs?.length > 0 && (
               <div className="mt-5 flex flex-wrap items-center gap-2">
                 {topCTAs.map((cta) => (
@@ -314,18 +310,20 @@ export const Hero = ({
               </div>
             )}
           </div>
-          {serviceLabels.length > 0 && (
-            <ul className="col-span-12 lg:col-span-4 lg:self-center lg:justify-self-end lg:pl-8 mt-6 lg:mt-0 space-y-2 text-right">
-              {serviceLabels.map((label, i) => <li key={`srv-${i}`} className="text-base md:text-lg font-medium">{label}</li>)}
-            </ul>
-          )}
+          {/* 2026-11: a szolgáltatás-lista az új tartalomra szabva (ugyanaz az 5 tétel, mint a Szolgáltatások blokkban) */}
+          <ul className="col-span-12 lg:col-span-4 lg:self-center lg:justify-self-end lg:pl-8 mt-6 lg:mt-0 space-y-2 text-right">
+            {(locale === 'en'
+              ? ['Websites', 'Redesigns', 'Marketing & SEO', 'Brand & design', 'Support & growth']
+              : ['Weboldalak', 'Újratervezés', 'Marketing & SEO', 'Arculat és design', 'Támogatás és növekedés']
+            ).map((label) => <li key={label} className="text-base md:text-lg xl:text-2xl font-medium">{label}</li>)}
+          </ul>
         </div>
 
         <div className="mt-10 grid grid-cols-12 gap-6 items-end">
           {person && (
             <div className="col-span-12 md:col-span-6 lg:col-span-3 md:justify-self-end order-1 lg:order-3">
-              <div className="bg-white/95 backdrop-blur rounded-2xl p-2 md:p-3 max-w-[22rem] w-full mx-auto flex items-center gap-4 md:gap-6 shadow-2xl border border-white/30 text-gray-900">
-                <div className="w-20 shrink-0 rounded-lg overflow-hidden bg-gray-200">
+              <div className="bg-white/95 backdrop-blur rounded-card p-2 md:p-3 w-fit max-w-full flex items-center gap-4 md:gap-6 shadow-2xl border border-white/30 text-gray-900">
+                <div className="w-20 md:w-28 self-stretch shrink-0 rounded-2xl md:rounded-xl overflow-hidden bg-gray-200">
                   {personImgUrl
                     ? <Image src={personImgUrl} alt={person.name} width={160} height={160} className="h-full w-full object-cover" priority />
                     : <div className="h-full w-full bg-gradient-to-br from-gray-200 to-gray-300" />}
@@ -333,12 +331,12 @@ export const Hero = ({
                 <div className="min-w-0 flex flex-col gap-1">
                   {person.role && <div className="text-sm text-gray-500 leading-tight">{person.role}</div>}
                   {person.org && <div className="text-xs text-gray-400 leading-tight">{person.org}</div>}
-                  <div className="text-lg font-bold truncate">{person.name}</div>
+                  <div className="text-lg md:text-2xl font-bold truncate">{person.name}</div>
                   {talkCTA && (
                     <MotionLink href={resolveHref(locale, talkCTA.URL)} target={talkCTA.target || '_self'}
                       initial="rest" whileHover="hover" animate="rest"
                       data-cta={`hero:${talkCTA.text}`}
-                      className="mt-1 inline-flex items-center gap-3 self-start rounded-full bg-black px-4 py-2 text-sm font-semibold text-white whitespace-nowrap overflow-hidden"
+                      className="mt-1 inline-flex items-center gap-3 self-start rounded-full bg-black px-5 py-3 text-sm font-semibold text-white whitespace-nowrap overflow-hidden"
                     >
                       <div className="overflow-hidden h-5">
                         <motion.div className="flex flex-col leading-5" variants={wheelVariants}>
@@ -356,14 +354,14 @@ export const Hero = ({
 
           <div className="col-span-12 md:col-span-6 lg:col-span-5 lg:col-start-1 order-2 lg:order-1">
             {(computedDescription.lead || computedDescription.rest) && (
-              <h2 className="leading-snug text-base md:text-xl indent-12 xl:indent-20 text-white/90 font-normal">
+              <h1 className="leading-relaxed text-base md:text-xl xl:text-2xl indent-12 xl:indent-20 text-white/90 font-normal">
                 {computedDescription.lead && (
                   <span className="font-semibold">
                     {computedDescription.lead}{computedDescription.lead.endsWith('.') ? ' ' : '. '}
                   </span>
                 )}
                 {computedDescription.rest && <span className="font-light text-gray-200">{computedDescription.rest}</span>}
-              </h2>
+              </h1>
             )}
           </div>
 
