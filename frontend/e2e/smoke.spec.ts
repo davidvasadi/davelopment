@@ -86,12 +86,10 @@ test('kapcsolat form: megtalálható és beküldhető', async ({ page, request }
   const json = await res.json()
   const pages = json.docs ?? []
 
-  // Megkeressük az első oldalt ahol van form-next-to-section blokk
-  const pageWithForm = pages.find((p: any) =>
-    (p.dynamic_zone ?? []).some((block: any) =>
-      block.blockType === 'form-section'
-    )
-  )
+  // A Kapcsolat oldal az űrlap helye (2026-11 óta a szolgáltatás- és városoldalak új felépítésében a CMS-es
+  // form-section blokk szándékosan nem jelenik meg, ezért nem az „első form-os oldalt” keressük).
+  const hasForm = (p: any) => (p.dynamic_zone ?? []).some((block: any) => block.blockType === 'form-section')
+  const pageWithForm = pages.find((p: any) => p.slug === 'kapcsolat' && hasForm(p))
 
   if (!pageWithForm) {
     test.skip(true, 'Nincs form-next-to-section blokk egyik oldalon sem')
