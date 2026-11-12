@@ -3,7 +3,7 @@
 // kiírt, cache-elt Google Cégem-pontszám beolvasása. Nincs élő API-hívás
 // oldalbetöltéskor — lásd docs/audit/2026-10-09.md a döntés indoklásáért.
 
-import { readFile } from 'fs/promises';
+import { readFile, stat } from 'fs/promises';
 import path from 'path';
 
 export type GoogleRating = {
@@ -49,26 +49,27 @@ export async function getCachedGoogleReviews(): Promise<GoogleReview[]> {
 }
 
 // Csak a valódi profilképes értékelések (a főoldali értékelés-blokkhoz, 2026-11).
-// A Google a kép nélküli fiókoknak is ad „képet” (egyszínű kör egy betűvel) — ezt a kép
-// entrópiájáról ismerjük fel: a betűs avatar ~1,3, egy valódi fotó 6 körüli. Fájlonként egyszer mérjük.
-const photoEntropyCache = new Map<string, number>();
+// A Google a kép nélküli fiókoknak is ad „képet” (egyszínű kör egy betűvel) — ez kicsi fájl (~3 KB), egy valódi
+// fotó 25 KB fölött van. Fájlméret alapján szűrünk: a sharp a deployban nem tölthető be (az rsync kihagyja a
+// .next/node_modules-t, ahová a Turbopack a külső modult linkeli), és itt nem is kell.
+const REAL_PHOTO_MIN_BYTES = 10_000;
+const photoSizeCache = new Map<string, number>();
 export async function getGoogleReviewsWithRealPhoto(): Promise<GoogleReview[]> {
   const reviews = await getCachedGoogleReviews();
-  const { default: sharp } = await import('sharp');
   const out: GoogleReview[] = [];
   for (const r of reviews) {
     const file = r.photoUrl?.split('/').pop();
     if (!file || !/^[\w.-]+$/.test(file)) continue;
-    let entropy = photoEntropyCache.get(file);
-    if (entropy === undefined) {
+    let size = photoSizeCache.get(file);
+    if (size === undefined) {
       try {
-        entropy = (await sharp(path.join(process.cwd(), 'public', 'data', 'google-review-photos', file)).stats()).entropy;
+        size = (await stat(path.join(process.cwd(), 'public', 'data', 'google-review-photos', file))).size;
       } catch {
-        entropy = 0;
+        size = 0;
       }
-      photoEntropyCache.set(file, entropy);
+      photoSizeCache.set(file, size);
     }
-    if (entropy >= 3) out.push(r);
+    if (size >= REAL_PHOTO_MIN_BYTES) out.push(r);
   }
   return out;
 }
