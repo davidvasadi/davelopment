@@ -11,6 +11,12 @@ import { getSiteLogoUrl } from '@/lib/shared/site-org';
 import { getCachedGoogleRating } from '@/lib/shared/google-rating';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import  {notFound, permanentRedirect}  from 'next/navigation';
+import { ServiceDetailHero } from '@/components/services/service-detail-hero';
+import { ServiceIncluded } from '@/components/services/service-included';
+import { ServiceTimeline } from '@/components/services/service-timeline';
+import { ServiceEnd } from '@/components/services/service-end';
+import { getServiceDetail } from '@/lib/services/service-details';
+import { getLocalizedSegment } from '@/lib/i18n/segments';
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://davelopment.hu').replace(/\/+$/, '');
 
@@ -78,11 +84,22 @@ export default async function Page(props: {
     { [params.locale]: params.slug }
   );
 
+  // Városoldalak (weboldal-keszites-budapest stb., 2026-11): ugyanaz az új felépítés, mint a szolgáltatás-aloldalakon
+  const detail = getServiceDetail(params.slug);
+  const pageUrl = pageData?.seo?.canonicalURL || `${SITE_URL}/${params.locale}/${params.slug}`;
+  const servicesUrl = `${SITE_URL}/${params.locale}/${getLocalizedSegment(params.locale, 'services')}`;
+
   const jsonLd = renderPageJsonLd({
-    kind: 'webpage',
+    kind: detail ? 'service' : 'webpage',
+    ...(detail
+      ? { breadcrumbs: [
+          { name: params.locale === 'en' ? 'Services' : 'Szolgáltatások', url: servicesUrl },
+          { name: pageData?.label || detail.title, url: pageUrl },
+        ] }
+      : {}),
     logoUrl: await getSiteLogoUrl(),
     googleRating: await getCachedGoogleRating(),
-    url: pageData?.seo?.canonicalURL || `${SITE_URL}/${params.locale}/${params.slug}`,
+    url: pageUrl,
     locale: params.locale,
     title: pageData?.label || pageData?.seo?.metaTitle || params.slug,
     description: pageData?.seo?.metaDescription,
@@ -90,6 +107,27 @@ export default async function Page(props: {
     dynamicZone: pageData?.dynamic_zone,
     override: pageData?.seo?.structuredData,
   });
+
+  if (detail) {
+    const zone: any[] = pageData?.dynamic_zone ?? [];
+    const body = [
+      ...zone.filter((b: any) => b?.blockType === 'products'),
+      ...zone.filter((b: any) => b?.blockType === 'faq').map((b: any) => ({ ...b, card_image: detail.faqImage, ask_card: true })),
+      ...zone.filter((b: any) => b?.blockType === 'google-review-story'),
+    ];
+    return (
+      <>
+        <JsonLd data={jsonLd} />
+        <ClientSlugHandler localizedSlugs={localizedSlugs} />
+        <ServiceDetailHero detail={detail} locale={params.locale} />
+        <ServiceIncluded detail={detail} />
+        <ServiceTimeline detail={detail} />
+        <PageContent pageData={{ ...pageData, dynamic_zone: body }} locale={params.locale} fadeZoom />
+        <ServiceEnd detail={detail} locale={params.locale} />
+        <PageContent pageData={{ ...pageData, dynamic_zone: zone.filter((b: any) => b?.blockType === 'newsletter') }} locale={params.locale} />
+      </>
+    );
+  }
 
   return (
     <>

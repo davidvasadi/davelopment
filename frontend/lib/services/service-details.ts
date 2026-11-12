@@ -491,6 +491,58 @@ const DETAILS: Record<string, ServiceDetail> = {
   },
 };
 
+// ── Városoldalak (2026-11): /hu/weboldal-keszites-budapest|debrecen, /en/web-design-budapest|debrecen ──
+// Ugyanaz a csomag és folyamat, mint a Weboldal készítésnél, városra szabott fejléccel. A [slug]/page.tsx rendereli.
+const cityHu = (city: string, extra: Partial<ServiceDetail>): ServiceDetail => ({
+  ...DETAILS['weboldal-keszites'],
+  crumb: `Weboldal készítés ${city}`,
+  title: `Weboldal készítés ${city}`,
+  next: { title: 'Marketing & SEO', slug: 'marketing-es-seo' },
+  ...extra,
+});
+const cityEn = (city: string, extra: Partial<ServiceDetail>): ServiceDetail => ({
+  ...DETAILS['start-your-business-online'],
+  crumb: `Web design ${city}`,
+  title: `Web design ${city}`,
+  next: { title: 'Marketing & SEO', slug: 'marketing-and-seo' },
+  ...extra,
+});
+Object.assign(DETAILS, {
+  'weboldal-keszites-budapest': cityHu('Budapest', {
+    lead: 'Nem sablon, nem Wix — egyedi tervezésű weboldal budapesti vállalkozásoknak, olyan tartalomkezelővel, amit a csapatod egyedül is visz.',
+    audience: 'Budapesti cégeknek, akiknek a weboldala az elején gyorsan, összecsapva készült, és ma már alulmúlja a vállalkozást — egy olyan piacon, ahol a konkurencia egy kattintásra van.',
+    points: ['Budapesti szalonok, stúdiók és szolgáltatók', 'B2B és szakmai szolgáltatások', 'Vendéglátás és szállodák'],
+    image: 'davelopment-launch.avif',
+    imageAlt: 'Telefon a kézben egy napsütéses budapesti utcán, villamossal a háttérben',
+    faqImage: 'davelopment-beagyazott-csapat.avif',
+  }),
+  'weboldal-keszites-debrecen': cityHu('Debrecen', {
+    lead: 'Nem kell Budapestre utaznod egy jó weboldalért — egyedi tervezésű weboldal debreceni vállalkozásoknak, teljesen online folyamattal, ugyanabban a minőségben.',
+    audience: 'Debreceni és kelet-magyarországi cégeknek, akiknek a weboldala ma már alulmúlja a vállalkozást. Az egyeztetés, a tervezés és az átadás is online zajlik, videóhívással.',
+    points: ['Debreceni szalonok, stúdiók és szolgáltatók', 'B2B és szakmai szolgáltatások', 'Vendéglátás és szállodák'],
+    image: 'davelopment-egyedi-weboldal.avif',
+    imageAlt: 'Kezek gépelnek egy laptopon, napfényes asztalon — online együttműködés',
+    faqImage: 'davelopment-novekedes.avif',
+  }),
+  'web-design-budapest': cityEn('Budapest', {
+    lead: 'Not a template, not Wix — a custom-designed website for Budapest businesses, on a CMS your team can run on its own.',
+    audience: 'Budapest companies whose website was put together quickly at the start and now undersells the business — in a market where the competition is one click away.',
+    points: ['Budapest salons, studios and service businesses', 'B2B and professional services', 'Hospitality and hotels'],
+    image: 'davelopment-launch.avif',
+    imageAlt: 'A phone held up on a sunny Budapest street, with a tram behind it',
+    faqImage: 'davelopment-beagyazott-csapat.avif',
+  }),
+  'web-design-debrecen': cityEn('Debrecen', {
+    lead: 'No need to travel to Budapest for a great website — a custom-designed site for Debrecen businesses, with a fully remote process and the same quality.',
+    audience: 'Companies in Debrecen and eastern Hungary whose website now undersells the business. Consultation, design and handover all happen online, over video calls.',
+    points: ['Debrecen salons, studios and service businesses', 'B2B and professional services', 'Hospitality and hotels'],
+    image: 'davelopment-egyedi-weboldal.avif',
+    imageAlt: 'Hands typing on a laptop on a sunlit desk — working together remotely',
+    faqImage: 'davelopment-novekedes.avif',
+  }),
+});
+
+
 export function getServiceDetail(slug: string): ServiceDetail | null {
   return DETAILS[slug] ?? null;
 }
