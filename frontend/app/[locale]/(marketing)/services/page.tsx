@@ -13,7 +13,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import { generateMetadataObject, buildAlternates } from '@/lib/shared/metadata';
 import { renderPageJsonLd } from '@/lib/shared/structured-data';
 import { getSiteLogoUrl } from '@/lib/shared/site-org';
-import { getCachedGoogleRating } from '@/lib/shared/google-rating';
+import { getCachedGoogleRating, getGoogleReviewsWithRealPhoto } from '@/lib/shared/google-rating';
 import fetchContentType from '@/lib/strapi/fetchContentType';
 import { localeSegments, getLocalizedSegment } from '@/lib/i18n/segments';
 // import { Container } from '@/components/container';
@@ -197,7 +197,7 @@ const pagesWithImages = await Promise.all(
             <ClientSlugHandler localizedSlugs={localizedSlugs} />
             {/* <Container> */}
                 {/* 2026-11: a CMS-hero helyett a ServicesIntro (h1 = „Szolgáltatások”); a többi CMS-blokk marad */}
-                <ServicesIntro locale={params.locale} />
+                <ServicesIntro locale={params.locale} rating={await getCachedGoogleRating()} avatars={(await getGoogleReviewsWithRealPhoto()).flatMap((r) => (r.photoUrl ? [{ url: r.photoUrl, name: r.authorName }] : []))} />
                 <ServicesShowcase locale={params.locale} />
                 <ServicesPricing locale={params.locale} />
                 {/* a CMS-zóna (Tartalom, adat, kontroll — mockup) a „Melyik kell neked?” és az „Ezt kapod” közé kerül */}

@@ -3,6 +3,7 @@
 import React from 'react';
 import { Link } from 'next-view-transitions';
 import { motion } from 'framer-motion';
+import { PlusIcon } from 'lucide-react';
 import { PillLink } from '@/components/pill-link';
 import { GrainCanvas } from '@/components/ui/grain-canvas';
 
@@ -52,9 +53,9 @@ export function ServicesPricing({ locale = 'hu' }: { locale?: string }) {
   const c = content(hu);
   const ease = [0.33, 1, 0.68, 1] as const;
   return (
-    <section className="w-full px-4 py-12 md:px-8 md:py-20">
+    <section className="w-full py-12 md:px-8 md:py-20">
       <motion.div
-        className="relative grid grid-cols-1 gap-12 overflow-hidden rounded-card bg-[#080809] p-6 text-white md:p-12 lg:grid-cols-12 lg:gap-16"
+        className="relative grid grid-cols-1 gap-12 overflow-hidden bg-[#080809] md:rounded-card p-6 text-white md:p-12 lg:grid-cols-12 lg:gap-16"
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
@@ -74,11 +75,20 @@ export function ServicesPricing({ locale = 'hu' }: { locale?: string }) {
 
         {/* Bal: cím fent, gombok lent */}
         <div className="relative z-10 flex flex-col justify-between gap-10 lg:col-span-6">
-          <h2 className="text-5xl font-semibold leading-[0.95] tracking-[-0.04em] md:text-7xl">
+          <div className="flex flex-col gap-6 md:gap-8">
+          {/* szakasz-jelvény, mint a többi blokkban (+ ikon és felirat) — sötét háttéren fehér változat */}
+          <div className="flex items-center gap-2">
+            <div className="flex h-4 w-4 items-center justify-center rounded-full bg-white">
+              <PlusIcon className="h-2.5 w-2.5 text-black" />
+            </div>
+            <span className="text-sm font-medium text-white/70">{hu ? 'Árak' : 'Pricing'}</span>
+          </div>
+          <h2 className="text-[clamp(2rem,9.4vw,3rem)] font-semibold leading-[0.95] tracking-[-0.04em] md:text-7xl">
             {c.heading}{' '}
             <br />
-            <span className="text-white/50">{c.highlight}</span>
+            <span className="whitespace-nowrap text-white/50">{c.highlight}</span>
           </h2>
+          </div>
           <div className="flex flex-wrap items-center gap-6">
             <PillLink href={c.ctaHref} accent cta="services-pricing:call">{c.cta}</PillLink>
             <Link href={c.moreHref as never} className="border-b-2 border-white pb-0.5 text-sm font-semibold text-white transition-opacity hover:opacity-60 md:text-base">
@@ -94,10 +104,10 @@ export function ServicesPricing({ locale = 'hu' }: { locale?: string }) {
               <li key={r.title} className="flex items-end justify-between gap-6 border-b border-white/10 py-6 md:py-8">
                 <div>
                   <h3 className="text-lg font-medium md:text-xl">{r.title}</h3>
-                  <p className="mt-2 font-mono text-sm text-white/50">{r.meta}</p>
+                  <p className="mt-2 text-sm text-white/50">{r.meta}</p>
                 </div>
                 <p className="flex shrink-0 items-baseline gap-2 text-right">
-                  {!hu && <span className="font-mono text-sm text-white/50">{r.suffix}</span>}
+                  {!hu && <span className="text-sm text-white/50">{r.suffix}</span>}
                   <span className="text-3xl font-semibold tracking-[-0.04em] md:text-5xl">{r.price}</span>
                   {hu && <span className="text-base text-white/60">{r.suffix}</span>}
                   {!hu && 'per' in r && <span className="text-base text-white/60">{(r as { per?: string }).per}</span>}

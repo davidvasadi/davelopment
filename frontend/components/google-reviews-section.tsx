@@ -123,6 +123,30 @@ const QuoteCard = ({
 // szándékosan NEM számított/inline érték, hogy Tailwind build-time
 // megtalálja és legenerálja ezeket az osztályokat.
 const AVATAR_STACK_CLASSES = ['relative z-40 ml-0', 'relative z-30 -ml-3', 'relative z-20 -ml-3', 'relative z-10 -ml-3'];
+// fordított rétegzés: a jobbra eső csempe van felül (a „12+” látszik egészben)
+const AVATAR_STACK_UP = ['relative z-10 ml-0', 'relative z-20 -ml-3', 'relative z-30 -ml-3', 'relative z-40 -ml-3'];
+const AVATAR_SIZE = { sm: 'w-9 h-9 rounded-lg', lg: 'w-10 h-10 rounded-[10px]' } as const;
+
+/** Egymásra csúszó értékelő-fotók (a Google kör alakú, fehér sarkú képeit a nagyítás vágja négyzetesre) — a főoldali
+ *  értékelés-kártya és a Szolgáltatások oldal értékelés-sora is ezt használja; `tail` = egy utolsó csempe (pl. „12+”). */
+export function ReviewAvatarStack({ avatars, size = 'sm', tail }: { avatars: { url: string; name?: string }[]; size?: keyof typeof AVATAR_SIZE; tail?: React.ReactNode }) {
+  const shown = avatars.slice(0, tail ? 3 : 4);
+  const stack = tail ? AVATAR_STACK_UP : AVATAR_STACK_CLASSES;
+  return (
+    <div className="flex items-center">
+      {shown.map((a, i) => (
+        <div key={i} className={`overflow-hidden flex-shrink-0 bg-gray-100 ring-2 ring-white ${AVATAR_SIZE[size]} ${stack[i]}`}>
+          <Image src={a.url} alt={a.name || ''} width={72} height={72} className="object-cover w-full h-full scale-[1.42]" />
+        </div>
+      ))}
+      {tail && (
+        <div className={`flex flex-shrink-0 items-center justify-center bg-black text-white font-semibold ring-2 ring-white ${size === 'lg' ? 'text-[13px]' : 'text-xs'} ${AVATAR_SIZE[size]} ${stack[shown.length]}`}>
+          {tail}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── Stat kártya ───────────────────────────────────────────────
 const StatCard = ({
@@ -172,18 +196,7 @@ const StatCard = ({
       <div className="mt-4">
         {brand && <p className="text-sm font-medium text-gray-900 mb-2">{brand}</p>}
         <div className="flex items-center gap-3 mb-4">
-          {avatars.length > 0 && (
-            <div className="flex items-center">
-              {avatars.slice(0, 4).map((a, i) => (
-                <div
-                  key={i}
-                  className={`w-9 h-9 overflow-hidden flex-shrink-0 rounded-lg bg-gray-100 ring-2 ring-white ${AVATAR_STACK_CLASSES[i]}`}
-                >
-                  <Image src={a.url} alt={a.name || ''} width={72} height={72} className="object-cover w-full h-full scale-[1.42]" />
-                </div>
-              ))}
-            </div>
-          )}
+          {avatars.length > 0 && <ReviewAvatarStack avatars={avatars} />}
           <div>
             <StarRow count={5} />
             {trustLabel && <p className="text-xs text-gray-400 mt-0.5">{trustLabel}</p>}

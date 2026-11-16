@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useRef } from 'react';
-import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
+import React, { useRef, useState } from 'react';
+import { motion, useMotionValueEvent, useScroll, useTransform, type MotionValue } from 'framer-motion';
 import { PillLink } from '@/components/pill-link';
 import { strapiImage } from '@/lib/strapi/strapiImage';
 
@@ -136,8 +136,7 @@ function services(hu: boolean): Service[] {
 
 const ease = [0.33, 1, 0.68, 1] as const;
 
-function Media({ s, i, list, total, imgStyle }: { s: Service; i: number; list: Service[]; total: string; imgStyle?: any }) {
-  const n = String(i + 1).padStart(2, '0');
+function Media({ s, imgStyle }: { s: Service; imgStyle?: any }) {
   return (
     <>
       {imgStyle ? (
@@ -147,14 +146,6 @@ function Media({ s, i, list, total, imgStyle }: { s: Service; i: number; list: S
         // eslint-disable-next-line @next/next/no-img-element
         <img src={strapiImage(`/api/media/file/${s.image}`)} alt="" aria-hidden loading="lazy" className="h-full w-full object-cover" />
       )}
-      <div aria-hidden className="absolute right-4 top-1/2 flex -translate-y-1/2 flex-col gap-2">
-        {list.map((_, k) => (
-          <span key={k} className={`h-9 w-1 rounded-full transition-colors duration-300 ${k === i ? 'bg-white' : 'bg-white/35'}`} />
-        ))}
-      </div>
-      <span className="absolute bottom-4 left-4 rounded-full bg-white px-4 py-2 font-mono text-xs text-black md:text-sm">
-        {n} / {total} · {s.title}
-      </span>
     </>
   );
 }
@@ -165,18 +156,18 @@ function Body({ s, i, total, hu, headingTag = 'h2' }: { s: Service; i: number; t
   const n = String(i + 1).padStart(2, '0');
   return (
     <>
-      <p className="font-mono text-sm text-black/50">{n} / {total} · {s.area}</p>
+      <p className="text-sm text-black/50">{n} / {total} · {s.area}</p>
       <H className="mt-4 text-5xl font-semibold leading-[0.95] tracking-[-0.04em] text-black md:text-6xl 2xl:text-7xl">{s.title}</H>
       <p className="mt-6 max-w-xl text-lg leading-snug text-black md:text-xl">{s.text}</p>
 
-      <dl className="mt-8 grid grid-cols-1 border-y border-black/10 sm:grid-cols-3 2xl:mt-10">
+      <dl className="mt-8 grid grid-cols-2 border-y border-black/10 sm:grid-cols-3 2xl:mt-10">
         {s.stats.map((st, k) => (
-          <div key={st.label} className={`flex flex-col justify-between gap-4 py-5 ${k > 0 ? 'border-t border-black/10 sm:border-l sm:border-t-0 sm:pl-6' : 'sm:pr-6'}`}>
-            <dt className="font-mono text-xs text-black/50 md:text-sm">{st.label}</dt>
-            <dd>
-              {k === 0 && st.small && !hu && <span className="block font-mono text-xs text-black/50">{st.small}</span>}
-              <span className={k === 0 ? 'text-3xl font-semibold tracking-[-0.04em] text-black md:text-4xl' : 'text-lg font-medium text-black'}>{st.value}</span>
-              {k === 0 && st.small && hu && <span className="ml-1 text-base text-black/60">{st.small}</span>}
+          <div key={st.label} className={`flex flex-col justify-between gap-4 py-5 ${k === 0 ? 'pr-4 sm:pr-6' : k === 1 ? 'border-l border-black/10 pl-4 sm:pl-6' : 'col-span-2 border-t border-black/10 sm:col-span-1 sm:border-l sm:border-t-0 sm:pl-6'}`}>
+            <dt className="text-xs text-black/50 md:text-sm">{st.label}</dt>
+            <dd className="flex flex-wrap items-baseline gap-x-1">
+              {k === 0 && st.small && !hu && <span className="block text-xs text-black/50">{st.small}</span>}
+              <span className={k === 0 ? 'whitespace-nowrap text-[26px] font-semibold tracking-[-0.04em] text-black sm:text-3xl md:text-4xl' : 'text-lg font-medium text-black'}>{st.value}</span>
+              {k === 0 && st.small && hu && <span className="text-base text-black/60">{st.small}</span>}
             </dd>
           </div>
         ))}
@@ -213,9 +204,23 @@ function ImageLayer({ s, i, list, total, progress }: { s: Service; i: number; li
   const scale = useTransform(progress, [Math.max(0, start), Math.min(1, end)], [1.1, 1]);
   return (
     <motion.div style={{ opacity, zIndex: i }} className="absolute inset-0 overflow-hidden">
-      <Media s={s} i={i} list={list} total={total} imgStyle={{ scale }} />
+      <Media s={s} imgStyle={{ scale }} />
     </motion.div>
   );
+}
+
+/** a Szolgáltatások-áttekintőhöz: cím, slug és az induló ár — ugyanabból a forrásból, mint a bemutató árai (egy helyen) */
+export function serviceSummary(hu: boolean) {
+  return services(hu).map((s) => {
+    const st = s.stats[0];
+    const price = !st ? '' : hu ? `${st.value}${st.small ?? ''}` : `${st.small ? `${st.small} ` : ''}${st.value}`;
+    return { title: s.title, slug: s.slug, price };
+  });
+}
+
+/** a mobil menü Szolgáltatások-lenyílójához: cím, kép, oldal-slug (ugyanaz a forrás, mint a bemutatóé) */
+export function serviceNavItems(hu: boolean) {
+  return services(hu).map((s) => ({ title: s.title, slug: s.slug, image: strapiImage(`/api/media/file/${s.image}`) }));
 }
 
 export function ServicesShowcase({ locale = 'hu' }: { locale?: string }) {
@@ -226,6 +231,11 @@ export function ServicesShowcase({ locale = 'hu' }: { locale?: string }) {
   // desktop: a magas külső doboz görgetése (0→1) adja, melyik szolgáltatás látszik
   const trackRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: trackRef, offset: ['start start', 'end end'] });
+  const [active, setActive] = useState(0);
+  useMotionValueEvent(scrollYProgress, 'change', (v) => {
+    const k = Math.min(list.length - 1, Math.max(0, Math.round(v * (list.length - 1))));
+    setActive((p) => (p === k ? p : k));
+  });
 
   return (
     <section className="w-full px-4 pb-16 md:px-8 md:pb-24">
@@ -234,14 +244,15 @@ export function ServicesShowcase({ locale = 'hu' }: { locale?: string }) {
         {list.map((s, i) => (
           <motion.article
             key={s.title}
-            className="flex flex-col gap-8"
+            id={`szolgaltatas-${i + 1}`}
+            className="flex scroll-mt-24 flex-col gap-8"
             initial={{ opacity: 0, y: 32 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.6, ease }}
           >
             <div className="relative aspect-[4/3] overflow-hidden rounded-card">
-              <Media s={s} i={i} list={list} total={total} />
+              <Media s={s} />
             </div>
             <div><Body s={s} i={i} total={total} hu={hu} headingTag="p" /></div>
           </motion.article>
@@ -251,15 +262,21 @@ export function ServicesShowcase({ locale = 'hu' }: { locale?: string }) {
       {/* DESKTOP: balra a kép „megáll” (sticky) és vált, ahogy görgetsz; jobbra a szöveges blokkok szalagként görögnek */}
       <div ref={trackRef} className="relative hidden grid-cols-12 gap-12 lg:grid">
         <div className="col-span-6">
-          <div className="sticky top-24 h-[calc(100svh-7rem)] overflow-hidden rounded-card">
-            {list.map((s, i) => (
-              <ImageLayer key={s.title} s={s} i={i} list={list} total={total} progress={scrollYProgress} />
-            ))}
+          <div className="sticky top-24">
+            <div className="relative h-[min(calc(100svh-10rem),600px)] overflow-hidden rounded-card">
+              {list.map((s, i) => (
+                <ImageLayer key={s.title} s={s} i={i} list={list} total={total} progress={scrollYProgress} />
+              ))}
+            </div>
+            {/* a kép alatt: hányadiknál járunk és mi az (a képen nincs rárakott elem) */}
+            <p className="mt-4 text-sm text-black/50">
+              <span className="text-black">{String(active + 1).padStart(2, '0')}</span> / {total} · {list[active]?.title}
+            </p>
           </div>
         </div>
         <div className="col-span-6">
           {list.map((s, i) => (
-            <div key={s.title} className={`flex min-h-[calc(100svh-7rem)] flex-col justify-center py-32 xl:py-40 ${i > 0 ? 'border-t border-black/10' : ''}`}>
+            <div key={s.title} className={`flex min-h-[min(calc(100svh-7rem),640px)] flex-col justify-center py-24 xl:py-28 ${i > 0 ? 'border-t border-black/10' : ''}`}>
               <Body s={s} i={i} total={total} hu={hu} />
             </div>
           ))}

@@ -65,16 +65,16 @@ export function ServiceDetailHero({ detail, locale = 'hu' }: { detail: ServiceDe
             <img src={strapiImage(`/api/media/file/${detail.image}`)} alt={detail.imageAlt} className="h-full w-full object-cover" fetchPriority="high" />
           </div>
           <dl className="grid grid-cols-2 rounded-card border border-black/10 bg-white">
-            <div className="p-5 md:p-6">
+            <div className="p-4 sm:p-5 md:p-6">
               <dt className="text-base text-black md:text-lg">{detail.priceLabel}</dt>
-              <dd className="mt-3 flex items-baseline gap-2">
-                {!hu && <span className="font-mono text-sm text-black/50">{detail.priceSuffix}</span>}
-                <span className="text-3xl font-semibold tracking-[-0.04em] text-black md:text-4xl">{detail.price}</span>
+              <dd className="mt-3 flex flex-wrap items-baseline gap-x-2">
+                {!hu && <span className="text-sm text-black/50">{detail.priceSuffix}</span>}
+                <span className="whitespace-nowrap text-[22px] font-semibold tracking-[-0.04em] text-black sm:text-3xl md:text-4xl">{detail.price}</span>
                 {hu && <span className="text-base text-black/60">{detail.priceSuffix}</span>}
               </dd>
             </div>
-            <div className="border-l border-black/10 p-5 md:p-6">
-              <dt className="font-mono text-xs text-black/50 md:text-sm">{detail.timeLabel}</dt>
+            <div className="border-l border-black/10 p-4 sm:p-5 md:p-6">
+              <dt className="text-xs text-black/50 md:text-sm">{detail.timeLabel}</dt>
               <dd className="mt-3 text-lg font-medium text-black">{detail.time}</dd>
             </div>
           </dl>
