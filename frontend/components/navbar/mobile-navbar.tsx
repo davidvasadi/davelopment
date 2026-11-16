@@ -7,8 +7,11 @@ import { Link } from 'next-view-transitions';
 import { LocaleSwitcher } from '../locale-switcher';
 import { Logo } from '@/components/logo';
 import { MotionLink } from '@/components/motion-link';
+import { PillLink } from '@/components/pill-link';
 import { cn } from '@/lib/utils';
 import { localizeHref } from '@/lib/i18n/localize-href';
+import { ArrowRight } from 'lucide-react';
+import { serviceNavItems } from '@/components/services/services-showcase';
 
 type NavItem = { URL: string; text: string; target?: string };
 type LinkItem = { text: string; URL: string; target?: '_self' | '_blank' };
@@ -22,8 +25,13 @@ const OVERLAY_OFFSET = 'top-16';
 const DURATION = 0.38;
 const EASE: [number, number, number, number] = [0.2, 0.8, 0.2, 1];
 
+
 const CONTACT_ITEM = { initial: { y: 8, opacity: 0 }, enter: (i: number) => ({ y: 0, opacity: 1, transition: { delay: 0.06 * i, duration: 0.26, ease: EASE } }) } as const;
 const CONTACT_HOVER = { plus: { rotate: 90, transition: { duration: 0.22 } }, underline: { scaleX: 0, transition: { duration: 0.3 } } } as const;
+
+// a menüpontok belépése: alulról, rugósan, egymás után
+const ITEM_IN = (i: number) => ({ initial: { opacity: 0, y: 28 }, animate: { opacity: 1, y: 0 }, transition: { type: 'spring' as const, stiffness: 260, damping: 22, delay: 0.06 + i * 0.05 } });
+const isServices = (u: string) => /\/(szolgaltatasok|services)\/?$/.test(u || '');
 
 const FLIP_VARIANTS = {
   rest: { y: '0%' },
@@ -52,6 +60,9 @@ export function MobileNavbar({
   pill?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [svcOpen, setSvcOpen] = useState(false);
+  useEffect(() => { if (!open) setSvcOpen(false); }, [open]);
+  const svc = useMemo(() => serviceNavItems(locale !== 'en'), [locale]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
@@ -90,7 +101,8 @@ export function MobileNavbar({
         {open && (
           <motion.div
             key="mobile-overlay"
-            className={cn('fixed left-0 right-0 bottom-0 z-[70] origin-top overflow-hidden', OVERLAY_OFFSET, overlayBgClass || navBgClass)}
+            className={cn('fixed left-0 right-0 bottom-0 z-[70] origin-top overflow-y-auto overscroll-contain', OVERLAY_OFFSET, overlayBgClass || navBgClass)}
+            data-lenis-prevent
             style={{ willChange: 'transform, opacity' }}
             initial={{ y: -10, scaleY: 0.965, opacity: 0 }}
             animate={{ y: 0, scaleY: 1, opacity: 1 }}
@@ -98,38 +110,97 @@ export function MobileNavbar({
             transition={{ type: 'spring', stiffness: 240, damping: 26, mass: 0.95 }}
           >
             <div className="px-6 pt-10 pb-24">
-              <ul className="max-w-md mx-auto flex flex-col items-center text-center gap-1">
-                {leftNavbarItems.map((it, i) => (
-                  <li key={`${it.text}-${i}`} className="w-full">
-                    {/* Szöveg-flip hover: overflow-hidden + dupla szöveg + translateY
-                        Mobilon touch eszközön a hover nem aktív, de desktop szélességen működik */}
-                    <MotionLink
-                      href={isExternal(it.URL) ? it.URL : `/${locale}${it.URL}`}
-                      target={isExternal(it.URL) ? '_blank' : undefined}
-                      rel={isExternal(it.URL) ? 'noopener noreferrer' : undefined}
-                      onClick={() => setOpen(false)}
-                      className="block w-full font-semibold text-black text-center"
-                      whileHover="hover"
-                      initial="rest"
-                      animate="rest"
-                    >
-                      <div className="h-[50px] overflow-hidden relative">
-                        <motion.div
-                          className="absolute top-0 left-0 right-0 text-[38px] leading-[50px] text-center"
-                          variants={{ rest: { y: 0 }, hover: { y: -50, transition: { duration: 0.35, ease: [0.33,1,0.68,1] } } }}
-                        >{it.text}</motion.div>
-                        <motion.div
-                          className="absolute top-[50px] left-0 right-0 text-[38px] leading-[50px] text-center"
-                          variants={{ rest: { y: 0 }, hover: { y: -50, transition: { duration: 0.35, ease: [0.33,1,0.68,1] } } }}
-                        >{it.text}</motion.div>
+              <ul className="flex max-w-md flex-col gap-1 text-left">
+                {leftNavbarItems.map((it, i) => {
+                  const href = isExternal(it.URL) ? it.URL : `/${locale}${it.URL}`;
+                  const services = isServices(it.URL);
+                  const label = (
+                    <div className="relative h-[50px] overflow-hidden">
+                      <motion.div className="absolute left-0 right-0 top-0 text-[38px] leading-[50px]" variants={{ rest: { y: 0 }, hover: { y: -50, transition: { duration: 0.35, ease: [0.33, 1, 0.68, 1] } } }}>{it.text}</motion.div>
+                      <motion.div className="absolute left-0 right-0 top-[50px] text-[38px] leading-[50px]" variants={{ rest: { y: 0 }, hover: { y: -50, transition: { duration: 0.35, ease: [0.33, 1, 0.68, 1] } } }}>{it.text}</motion.div>
+                    </div>
+                  );
+                  return (
+                    <motion.li key={`${it.text}-${i}`} className="w-full" {...ITEM_IN(i)}>
+                      <div className="flex items-center justify-between gap-3">
+                        <MotionLink
+                          href={href}
+                          target={isExternal(it.URL) ? '_blank' : undefined}
+                          rel={isExternal(it.URL) ? 'noopener noreferrer' : undefined}
+                          onClick={() => setOpen(false)}
+                          className="block min-w-0 flex-1 font-semibold text-black"
+                          whileHover="hover"
+                          initial="rest"
+                          animate="rest"
+                        >
+                          {label}
+                        </MotionLink>
+                        {services && svc.length > 0 && (
+                          <motion.button
+                            type="button"
+                            onClick={() => setSvcOpen((v) => !v)}
+                            aria-expanded={svcOpen}
+                            aria-label={locale === 'en' ? 'Show services' : 'Szolgáltatások mutatása'}
+                            className="-mr-2 grid h-11 w-11 shrink-0 place-items-center text-black"
+                          >
+                            {/* + → −: a függőleges szár elfordul és eltűnik, a vízszintes marad */}
+                            <span aria-hidden="true" className="relative block h-3.5 w-3.5">
+                              <span className="absolute inset-x-0 top-1/2 h-[1.5px] -translate-y-1/2 rounded-full bg-current" />
+                              <motion.span
+                                className="absolute inset-y-0 left-0 right-0 mx-auto w-[1.5px] rounded-full bg-current"
+                                initial={false}
+                                animate={svcOpen ? { rotate: 90, scaleY: 0, opacity: 0 } : { rotate: 0, scaleY: 1, opacity: 1 }}
+                                transition={{ duration: 0.3, ease: EASE }}
+                              />
+                            </span>
+                          </motion.button>
+                        )}
                       </div>
-                    </MotionLink>
-                  </li>
-                ))}
+                      {/* a Szolgáltatások lenyílója: a szolgáltatások képpel, egyenként beúszva (mint a szolgáltatás-lenyíló) */}
+                      {services && (
+                        <motion.div
+                          initial={false}
+                          animate={{ height: svcOpen ? 'auto' : 0, opacity: svcOpen ? 1 : 0 }}
+                          transition={{ height: { duration: 0.45, ease: EASE }, opacity: { duration: 0.3, delay: svcOpen ? 0.1 : 0 } }}
+                          className="overflow-hidden"
+                        >
+                          <ul className="flex flex-col gap-2 pb-4 pt-3">
+                            {svc.map((s, k) => (
+                              <motion.li key={s.slug} initial={false} animate={svcOpen ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }} transition={{ type: 'spring', stiffness: 280, damping: 24, delay: svcOpen ? 0.08 + k * 0.05 : 0 }}>
+                                <Link
+                                  href={`/${locale}/${locale === 'en' ? 'services' : 'szolgaltatasok'}/${s.slug}`}
+                                  onClick={() => setOpen(false)}
+                                  className="group flex items-center gap-4 rounded-2xl py-1.5"
+                                >
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img src={s.image} alt="" width={56} height={56} loading="lazy" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+                                  <span className="flex-1 text-xl font-medium text-black">{s.title}</span>
+                                  <ArrowRight className="h-5 w-5 text-black/40 transition-transform group-hover:translate-x-0.5" />
+                                </Link>
+                              </motion.li>
+                            ))}
+                            <li>
+                              <Link href={href} onClick={() => setOpen(false)} className="mt-1 inline-block text-base font-medium text-black underline underline-offset-4">
+                                {locale === 'en' ? 'All services' : 'Összes szolgáltatás'}
+                              </Link>
+                            </li>
+                          </ul>
+                        </motion.div>
+                      )}
+                    </motion.li>
+                  );
+                })}
               </ul>
 
+              {/* fő gomb a menüpontok alatt (fekete, mint az oldal többi gombja) */}
+              <motion.div className="mt-10" {...ITEM_IN(leftNavbarItems.length)}>
+                <PillLink href={`/${locale}/${locale === 'en' ? 'contact' : 'kapcsolat'}`} cta="mobile-menu:start" className="!px-6 !py-4 !text-base">
+                  {locale === 'en' ? 'Start a project' : 'Kezdjük el a projektet'}
+                </PillLink>
+              </motion.div>
+
               {contactInputs.length > 0 && (
-                <motion.div className="mt-10 max-w-md mx-auto flex flex-col items-center gap-3 text-center" initial={false} animate="enter">
+                <motion.div className="mt-10 flex max-w-md flex-col items-start gap-3 text-left" initial={false} animate="enter">
                   {contactInputs.map((it, idx) => {
                     const raw = String(it?.name || '').trim();
                     if (!raw) return null;
@@ -160,20 +231,8 @@ export function MobileNavbar({
                 </motion.div>
               )}
 
-              {policyLinks.length > 0 && (
-                <div className="mt-10 max-w-md mx-auto flex flex-col items-center gap-2">
-                  {policyLinks.map((p, i) =>
-                    isExternal(p.URL) ? (
-                      <a key={`m-pol-${i}`} href={p.URL} target={p.target || '_self'} rel={p.target === '_blank' ? 'noreferrer' : undefined} onClick={() => setOpen(false)} className="text-sm text-black hover:opacity-70 transition">{p.text}</a>
-                    ) : (
-                      <Link key={`m-pol-${i}`} href={withLocale(p.URL, locale)} onClick={() => setOpen(false)} className="text-sm text-black hover:opacity-70 transition">{p.text}</Link>
-                    )
-                  )}
-                </div>
-              )}
-
               {copyrightText && (
-                <div className="mt-6 max-w-md mx-auto flex flex-col items-center">
+                <div className="mt-6 flex max-w-md flex-col items-start">
                   <div className="rounded-full px-3 py-1.5 border border-neutral-200 bg-white text-xs text-neutral-600 shadow-sm">
                     {copyrightText}
                   </div>

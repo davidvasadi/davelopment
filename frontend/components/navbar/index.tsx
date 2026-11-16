@@ -3,7 +3,7 @@
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { DesktopNavbar } from './desktop-navbar';
+import { DesktopNavbar, type MenuPerson } from './desktop-navbar';
 import { MobileNavbar } from './mobile-navbar';
 import { isServiceHeroPath } from './navbar-theme';
 import { usePreloaderDone } from '../ui/preloader';
@@ -16,10 +16,13 @@ export function Navbar({
   data,
   locale,
   navBgClass = DEFAULT_NAV_BG,
+  person = null,
 }: {
   data: any;
   locale: string;
   navBgClass?: string;
+  /** a főoldali hero személyes kártyájának adatai (CMS) — a gépes menü jobb alsó sarkában */
+  person?: MenuPerson | null;
 }) {
   const policyLinks = data?.policy_links ?? data?.policy ?? [];
   const contactInputs = (() => {
@@ -111,6 +114,7 @@ export function Navbar({
           navBgClass={resolvedBg}
           overlayBgClass={navBgClass || DEFAULT_NAV_BG}
           pill={pill}
+          person={person}
         />
       </div>
 

@@ -74,13 +74,27 @@ export default async function LocaleLayout(props: {
   if (!locales.includes(locale as any)) return <>{children}</>;
 
   const pageData = await fetchContentType('global', { filters: { locale } }, true);
+  // a gépes menü személyes kártyája ugyanazt a CMS-adatot mutatja, mint a főoldali hero (egy helyen szerkeszthető)
+  const homepage = await fetchContentType('pages', { filters: { slug: 'homepage', locale } }, true).catch(() => null);
+  const heroBlock = (homepage?.dynamic_zone ?? []).find((b: any) => b?.person?.name);
+  const heroCtas: any[] = heroBlock?.CTAs ?? [];
+  const talk = heroCtas.length ? heroCtas[heroCtas.length >= 2 ? 1 : 0] : null;
+  const menuPerson = heroBlock?.person?.name
+    ? {
+        name: heroBlock.person.name as string,
+        role: heroBlock.person.role as string | undefined,
+        org: heroBlock.person.org as string | undefined,
+        image: (heroBlock.person.image?.url ?? null) as string | null,
+        cta: talk?.text && talk?.URL ? { text: talk.text as string, URL: talk.URL as string, target: talk.target as string | undefined } : null,
+      }
+    : null;
 
   return (
     <ViewTransitions>
       <SmoothScroll>
         <AppWrapper>
           <div className={cn(geist.className, 'bg-[#f5f5f5] antialiased h-full w-full pt-16')}>
-            <Navbar data={pageData.navbar} locale={locale} />
+            <Navbar data={pageData.navbar} locale={locale} person={menuPerson} />
             <PageTransition>
               <ScrollToTop />
               {children}

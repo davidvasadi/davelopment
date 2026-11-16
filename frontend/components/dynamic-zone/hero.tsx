@@ -1,5 +1,6 @@
 'use client';
 
+import { PersonCard } from '@/components/person-card';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Link } from 'next-view-transitions';
 import { MotionLink } from '@/components/motion-link';
@@ -49,7 +50,7 @@ type CTA = {
 };
 
 type ServiceItem = string | { id?: string | number; label?: string };
-type PersonCard = { name: string; role?: string; org?: string; image?: { url?: string } | null };
+type PersonData = { name: string; role?: string; org?: string; image?: { url?: string } | null };
 type Media = { url?: string } | string | null;
 
 export type HeroProps = {
@@ -60,7 +61,7 @@ export type HeroProps = {
   video?: Media;
   video_poster?: Media;
   services?: ServiceItem[];
-  person?: PersonCard | null;
+  person?: PersonData | null;
   description_lead?: string | null;
   description_body?: string | null;
   description_text?: string | null;
@@ -322,17 +323,14 @@ export const Hero = ({
         <div className="mt-10 grid grid-cols-12 gap-6 items-end">
           {person && (
             <div className="col-span-12 md:col-span-6 lg:col-span-3 md:justify-self-end order-1 lg:order-3">
-              <div className="bg-white/95 backdrop-blur rounded-card p-2 md:p-3 w-fit max-w-full flex items-center gap-4 md:gap-6 shadow-2xl border border-white/30 text-gray-900">
-                <div className="w-20 md:w-28 self-stretch shrink-0 rounded-2xl md:rounded-xl overflow-hidden bg-gray-200">
-                  {personImgUrl
-                    ? <Image src={personImgUrl} alt={person.name} width={160} height={160} className="h-full w-full object-cover" priority />
-                    : <div className="h-full w-full bg-gradient-to-br from-gray-200 to-gray-300" />}
-                </div>
-                <div className="min-w-0 flex flex-col gap-1">
-                  {person.role && <div className="text-sm text-gray-500 leading-tight">{person.role}</div>}
-                  {person.org && <div className="text-xs text-gray-400 leading-tight">{person.org}</div>}
-                  <div className="text-lg md:text-2xl font-bold truncate">{person.name}</div>
-                  {talkCTA && (
+              <PersonCard
+                name={person.name}
+                role={person.role}
+                org={person.org}
+                imageUrl={personImgUrl}
+                priority
+                action={
+                  talkCTA ? (
                     <MotionLink href={resolveHref(locale, talkCTA.URL)} target={talkCTA.target || '_self'}
                       initial="rest" whileHover="hover" animate="rest"
                       data-cta={`hero:${talkCTA.text}`}
@@ -346,9 +344,9 @@ export const Hero = ({
                       </div>
                       <motion.span className="h-1.5 w-1.5 rounded-full bg-white shrink-0" variants={dotVariants} />
                     </MotionLink>
-                  )}
-                </div>
-              </div>
+                  ) : null
+                }
+              />
             </div>
           )}
 
