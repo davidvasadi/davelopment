@@ -43,10 +43,11 @@ export function ContactHero({
               </div>
               <p className="text-sm font-medium text-gray-700">{badge_label || (locale === 'en' ? 'Contact' : 'Kapcsolat')}</p>
             </div>
+            {/* a blog és a Szolgáltatások bevezetőjének stílusa: első mondat normál fekete, a folytatás medium szürke */}
             {sub_heading ? (
-              <p className="indent-12 text-base font-normal leading-relaxed text-black md:text-xl xl:indent-20 xl:text-2xl">
-                <span className="font-semibold">{first}</span>
-                {rest.length > 0 && <> <span className="font-light text-black/60">{rest.join(' ')}</span></>}
+              <p className="indent-12 text-2xl font-normal text-black md:indent-20 md:text-3xl">
+                {first}
+                {rest.length > 0 && <span className="font-medium text-black/50"> {rest.join(' ')}</span>}
               </p>
             ) : <span />}
             <div className="flex flex-wrap gap-3 md:justify-self-end md:justify-end">

@@ -153,7 +153,7 @@ export const SkeletonOne = ({ controlledView, onViewChange, locale }: Props) => 
           <span className="text-[13px] flex-1" style={{ color: 'rgba(255,255,255,0.28)' }}>
             {isEN ? 'davelopment.hu · Lighthouse report' : 'davelopment.hu · Lighthouse riport'}
           </span>
-          <kbd className="text-[10px] rounded-[5px] px-[7px] py-[2px] font-mono flex-shrink-0"
+          <kbd className="text-[10px] rounded-[5px] px-[7px] py-[2px] flex-shrink-0"
             style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.22)', border: '0.5px solid rgba(255,255,255,0.1)' }}>⌘K</kbd>
         </div>
 
@@ -213,7 +213,7 @@ export const SkeletonOne = ({ controlledView, onViewChange, locale }: Props) => 
                   <motion.div className="h-full rounded-full" style={{ background: i === activeRow ? ACCENT : 'rgba(255,255,255,0.2)' }}
                     initial={{ width: 0 }} animate={{ width: c.score + '%' }} transition={{ duration: 1.1, delay: 0.4 + i * 0.08 }} />
                 </div>
-                {i === activeRow && <kbd className="text-[9px] rounded-[4px] px-[5px] py-[2px] font-mono flex-shrink-0" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>}
+                {i === activeRow && <kbd className="text-[9px] rounded-[4px] px-[5px] py-[2px] flex-shrink-0" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>}
               </motion.div>
             ))}
             {view === 'vitals' && vitals.map((v, i) => (
@@ -275,7 +275,7 @@ export const SkeletonOne = ({ controlledView, onViewChange, locale }: Props) => 
             <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.28)' }}>
               {isEN ? 'Open full report' : 'Teljes riport megnyitása'}
             </span>
-            <kbd className="text-[9px] rounded-[4px] px-[5px] py-[1px] font-mono" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>
+            <kbd className="text-[9px] rounded-[4px] px-[5px] py-[1px]" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>
           </div>
         </div>
       </motion.div>

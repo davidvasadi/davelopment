@@ -100,7 +100,7 @@ export const Launches = ({
                 )}
               >
                 <span className={cn(
-                  'text-[9px] font-mono mt-0.5 shrink-0 transition-colors',
+                  'text-[9px] mt-0.5 shrink-0 transition-colors',
                   activeIdx === idx ? 'text-black/50' : 'text-black/20'
                 )}>
                   {String(idx + 1).padStart(2, '0')}
@@ -124,7 +124,7 @@ export const Launches = ({
             className="w-full flex items-center justify-between px-6 py-4"
           >
             <div className="flex items-center gap-2">
-              <span className="text-[9px] font-mono text-black/30">
+              <span className="text-[9px] text-black/30">
                 {String(activeIdx + 1).padStart(2, '0')}
               </span>
               <span className="text-sm font-medium text-black truncate">
@@ -152,7 +152,7 @@ export const Launches = ({
                     onClick={() => scrollTo(idx)}
                     className="w-full text-left flex items-center gap-3 py-2 text-sm text-black/50 hover:text-black transition-colors"
                   >
-                    <span className="text-[9px] font-mono text-black/25">
+                    <span className="text-[9px] text-black/25">
                       {String(idx + 1).padStart(2, '0')}
                     </span>
                     {section.title}
@@ -177,7 +177,7 @@ export const Launches = ({
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             >
               <div className="flex items-baseline gap-4 mb-6">
-                <span className="text-[10px] font-mono text-black/20 shrink-0">
+                <span className="text-[10px] text-black/20 shrink-0">
                   {String(idx + 1).padStart(2, '0')}
                 </span>
                 <h2 className="text-2xl md:text-3xl font-semibold text-black tracking-tight leading-tight">

@@ -193,21 +193,21 @@ export const SkeletonThree = ({ controlledView, onViewChange, locale }: Props) =
                 <div className="w-[20px] h-[20px] rounded-full flex items-center justify-center text-[7.5px] font-bold flex-shrink-0" style={{ background: c.bg, color: '#000' }}>{c.editor}</div>
                 <span className="text-[9px] px-[7px] py-[2.5px] rounded-full font-medium flex-shrink-0"
                   style={{ background: `${c.sc}18`, color: c.sc, border: `0.5px solid ${c.sc}44` }}>{c.status}</span>
-                {i === activeRow && <kbd className="text-[9px] rounded-[4px] px-[5px] py-[2px] font-mono flex-shrink-0" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>}
+                {i === activeRow && <kbd className="text-[9px] rounded-[4px] px-[5px] py-[2px] flex-shrink-0" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>}
               </motion.div>
             ))}
             {view === 'assets' && assets.map((a, i) => (
               <motion.div key={a.name} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 * i }}
                 className="flex items-center gap-3 h-[44px] px-4 transition-colors duration-300"
                 style={{ background: i === activeRow ? `${ACCENT}0d` : 'transparent' }}>
-                <div className="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center flex-shrink-0 text-[8px] font-bold font-mono"
+                <div className="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center flex-shrink-0 text-[8px] font-bold"
                   style={{ background: i === activeRow ? `${ACCENT}22` : 'rgba(255,255,255,0.05)', border: i === activeRow ? `0.5px solid ${ACCENT}55` : '0.5px solid rgba(255,255,255,0.07)', color: i === activeRow ? ACCENT : 'rgba(255,255,255,0.3)' }}>{a.type}</div>
                 <div className="flex-1 min-w-0">
                   <div className="text-[13px] font-medium leading-none mb-[4px]" style={{ color: i === activeRow ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.5)' }}>{a.name}</div>
                   <div className="text-[11px] leading-none truncate" style={{ color: 'rgba(255,255,255,0.25)' }}>{a.sub}</div>
                 </div>
-                <span className="text-[11px] font-mono tabular-nums flex-shrink-0" style={{ color: i === activeRow ? ACCENT : 'rgba(255,255,255,0.25)' }}>{a.size}</span>
-                {i === activeRow && <kbd className="text-[9px] rounded-[4px] px-[5px] py-[2px] font-mono flex-shrink-0" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>}
+                <span className="text-[11px] tabular-nums flex-shrink-0" style={{ color: i === activeRow ? ACCENT : 'rgba(255,255,255,0.25)' }}>{a.size}</span>
+                {i === activeRow && <kbd className="text-[9px] rounded-[4px] px-[5px] py-[2px] flex-shrink-0" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>}
               </motion.div>
             ))}
             {view === 'deploy' && deploys.map((d, i) => (
@@ -222,7 +222,7 @@ export const SkeletonThree = ({ controlledView, onViewChange, locale }: Props) =
                   <div className="text-[13px] font-medium leading-none mb-[3px]" style={{ color: i === activeRow ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.5)' }}>{d.version} → {d.env}</div>
                   <div className="text-[11px] leading-none truncate" style={{ color: 'rgba(255,255,255,0.25)' }}>branch: {d.branch}</div>
                 </div>
-                <span className="text-[11px] font-mono tabular-nums flex-shrink-0" style={{ color: 'rgba(255,255,255,0.25)' }}>{d.time}</span>
+                <span className="text-[11px] tabular-nums flex-shrink-0" style={{ color: 'rgba(255,255,255,0.25)' }}>{d.time}</span>
                 <span className="text-[9px] px-[6px] py-[2px] rounded-full font-medium flex-shrink-0"
                   style={{ background: `${ACCENT}15`, color: ACCENT, border: `0.5px solid ${ACCENT}40` }}>OK</span>
               </motion.div>
@@ -254,7 +254,7 @@ export const SkeletonThree = ({ controlledView, onViewChange, locale }: Props) =
             <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.28)' }}>
               {isEN ? 'Open in Figma' : 'Megnyitás Figmában'}
             </span>
-            <kbd className="text-[9px] rounded-[4px] px-[5px] py-[1px] font-mono" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>
+            <kbd className="text-[9px] rounded-[4px] px-[5px] py-[1px]" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>
           </div>
         </motion.div>
       </motion.div>

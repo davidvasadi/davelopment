@@ -152,7 +152,7 @@ export const SkeletonTwo = ({ controlledView, onViewChange, locale }: Props) => 
           <span className="text-[13px] flex-1" style={{ color: 'rgba(255,255,255,0.28)' }}>
             davelopment.hu · Google Search Console
           </span>
-          <kbd className="text-[10px] rounded-[5px] px-[7px] py-[2px] font-mono flex-shrink-0"
+          <kbd className="text-[10px] rounded-[5px] px-[7px] py-[2px] flex-shrink-0"
             style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.22)', border: '0.5px solid rgba(255,255,255,0.1)' }}>⌘K</kbd>
         </div>
 
@@ -194,7 +194,7 @@ export const SkeletonTwo = ({ controlledView, onViewChange, locale }: Props) => 
                 </div>
                 <span className="text-[11px] font-medium flex-shrink-0 tabular-nums" style={{ color: i === activeRow ? ACCENT : 'rgba(255,255,255,0.22)' }}>↑{kw.change}</span>
                 <span className="text-[12px] font-bold tabular-nums flex-shrink-0" style={{ color: i === activeRow ? ACCENT : 'rgba(255,255,255,0.38)' }}>{kw.pos}</span>
-                {i === activeRow && <kbd className="text-[9px] rounded-[4px] px-[5px] py-[2px] font-mono flex-shrink-0" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>}
+                {i === activeRow && <kbd className="text-[9px] rounded-[4px] px-[5px] py-[2px] flex-shrink-0" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>}
               </motion.div>
             ))}
             {view === 'analytics' && analytics.map((a, i) => (
@@ -267,7 +267,7 @@ export const SkeletonTwo = ({ controlledView, onViewChange, locale }: Props) => 
             <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.28)' }}>
               {isEN ? 'Open Search Console' : 'Search Console megnyitása'}
             </span>
-            <kbd className="text-[9px] rounded-[4px] px-[5px] py-[1px] font-mono" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>
+            <kbd className="text-[9px] rounded-[4px] px-[5px] py-[1px]" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>
           </div>
         </div>
       </motion.div>

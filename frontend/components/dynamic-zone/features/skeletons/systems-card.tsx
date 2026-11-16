@@ -212,7 +212,7 @@ export const SkeletonFour = ({ controlledView, onViewChange, locale }: Props) =>
                   <div className="text-[13px] font-medium leading-none mb-[4px]" style={{ color: i === activeRow ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.52)' }}>{svc.name}</div>
                   <div className="text-[11px] leading-none truncate" style={{ color: 'rgba(255,255,255,0.25)' }}>{svc.sub}</div>
                 </div>
-                <span className="text-[11px] font-mono tabular-nums flex-shrink-0" style={{ color: 'rgba(255,255,255,0.28)' }}>{svc.latency}</span>
+                <span className="text-[11px] tabular-nums flex-shrink-0" style={{ color: 'rgba(255,255,255,0.28)' }}>{svc.latency}</span>
                 <div className="flex items-center gap-[5px] flex-shrink-0">
                   <div className="w-[5px] h-[5px] rounded-full"
                     style={{ background: i === activeRow ? ACCENT : 'rgba(255,255,255,0.2)', boxShadow: i === activeRow ? `0 0 5px ${ACCENT}` : 'none' }} />
@@ -234,8 +234,8 @@ export const SkeletonFour = ({ controlledView, onViewChange, locale }: Props) =>
                 <div className="flex-1 min-w-0">
                   <div className="text-[13px] font-medium leading-none truncate" style={{ color: i === activeRow ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.5)' }}>{log.msg}</div>
                 </div>
-                <span className="text-[11px] tabular-nums flex-shrink-0 font-mono" style={{ color: 'rgba(255,255,255,0.25)' }}>{log.time}</span>
-                {i === activeRow && <kbd className="text-[9px] rounded-[4px] px-[5px] py-[2px] font-mono flex-shrink-0" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>}
+                <span className="text-[11px] tabular-nums flex-shrink-0" style={{ color: 'rgba(255,255,255,0.25)' }}>{log.time}</span>
+                {i === activeRow && <kbd className="text-[9px] rounded-[4px] px-[5px] py-[2px] flex-shrink-0" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>}
               </motion.div>
             ))}
             {view === 'metrics' && metrics.map((m, i) => (
@@ -284,7 +284,7 @@ export const SkeletonFour = ({ controlledView, onViewChange, locale }: Props) =>
             <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.28)' }}>
               {isEN ? 'All systems operational ✓' : 'Minden rendszer működik ✓'}
             </span>
-            <kbd className="text-[9px] rounded-[4px] px-[5px] py-[1px] font-mono" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>
+            <kbd className="text-[9px] rounded-[4px] px-[5px] py-[1px]" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.2)' }}>↵</kbd>
           </div>
         </motion.div>
       </motion.div>
