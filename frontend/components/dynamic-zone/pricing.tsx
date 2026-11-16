@@ -302,7 +302,7 @@ export const Pricing = ({
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.5, delay: 0.1, ease: [0.33, 1, 0.68, 1] }}
               >
-                <div className="bg-white/10 rounded-full p-1 flex gap-1 md:gap-2 mt-2 relative">
+                <div className="bg-white/10 rounded-[26px] p-1 grid w-full grid-cols-2 gap-1 sm:flex sm:w-auto sm:rounded-full md:gap-2 mt-2 relative">
                   {planTypes.map((t) => {
                     const active = pricingType === t;
                     return (
@@ -316,7 +316,7 @@ export const Pricing = ({
                           // csomagváltáskor — ha valaki egyösszegűben gondolkodik, az
                           // maradjon érvényben akkor is, ha másik csomagra vált.
                         }}
-                        className="relative px-4 py-3 md:px-6 md:py-4 rounded-full text-sm md:text-sm font-medium transition-colors z-10 whitespace-nowrap shrink-0"
+                        className="relative px-3 py-3 sm:px-4 md:px-6 md:py-4 rounded-full text-[13px] sm:text-sm font-medium transition-colors z-10 whitespace-nowrap shrink-0"
                         style={{ color: active ? 'black' : 'rgba(255,255,255,0.8)' }}
                       >
                         {active && (

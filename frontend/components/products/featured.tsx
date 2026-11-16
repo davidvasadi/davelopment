@@ -92,7 +92,7 @@ export const Featured = ({ products, locale }: { products: Product[]; locale: st
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t.searchPlaceholder}
-              className="w-full rounded-full pl-10 pr-4 py-2.5 text-xs md:text-sm text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-black focus:ring-1 focus:ring-black"
+              className="w-full rounded-xl pl-10 pr-4 py-2.5 text-xs md:text-sm text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-black focus:ring-1 focus:ring-black"
             />
           </div>
         </div>
@@ -103,7 +103,7 @@ export const Featured = ({ products, locale }: { products: Product[]; locale: st
               id="featured-category"
               value={activeCategory}
               onChange={(e) => setActiveCategory(e.target.value)}
-              className="w-full appearance-none rounded-full bg-white px-4 py-2.5 pr-9 text-xs md:text-sm text-neutral-900 outline-none focus:border-black focus:ring-1 focus:ring-black"
+              className="w-full appearance-none rounded-xl bg-white px-4 py-2.5 pr-9 text-xs md:text-sm text-neutral-900 outline-none focus:border-black focus:ring-1 focus:ring-black"
             >
               <option value="all">{t.categoryLabel}</option>
               {categories.map((cat) => (

@@ -63,7 +63,7 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
           transition={{ duration: 0.7, ease: EASE_IN }}
         >
           <GrainCanvas strength="light" opacity={0.5} zIndex={1} />
-          <div className="relative z-20 flex overflow-hidden pb-[0.1em]">
+          <div className="relative z-20 flex items-baseline overflow-hidden pb-[0.1em]">
             {LOGO.split('').map((char, i) => (
               <motion.span
                 key={i}
@@ -71,14 +71,15 @@ export function Preloader({ onComplete }: { onComplete: () => void }) {
                   inter.className,
                   'text-white font-semibold tracking-[-0.02em] leading-none inline-block',
                   'text-[clamp(1.1rem,2.5vw,1.8rem)]',
-                  char === ' ' && 'min-w-[0.3em]',
-                  char === '©' && 'text-[0.55em] align-super'
+                  char === ' ' && 'min-w-[0.3em]'
                 )}
                 initial={{ y: '115%' }}
                 animate={{ y: '0%' }}
                 transition={{ duration: 0.55, delay: i * 0.055, ease: [0.33, 1, 0.68, 1] }}
               >
-                {char}
+                {/* a © a többi betűvel azonos magasságú dobozban úszik be (így a maszk alatt marad, nem látszik előre);
+                    benne kisebb és megemelve, mint a hero <sup>-ja */}
+                {char === '©' ? <span className="relative -top-[0.75em] ml-[0.04em] text-[0.45em]">©</span> : char}
               </motion.span>
             ))}
           </div>
