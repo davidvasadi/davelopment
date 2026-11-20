@@ -12,6 +12,7 @@ Minden Google-mappában: `.env.example` (minta) és `.env` (valódi kulcsok, git
 | `google-analytics/report.py` | GA4: forrás/csatorna, landing oldalak, események. Csak olvas. | forgalomelemzés |
 | `google-search-console/report.py` | Keresések: megjelenés, kattintás, CTR, pozíció kulcsszavanként és oldalanként. Csak olvas. | SEO-állapot |
 | `google-search-console/submit_sitemap.py` | Újraküldi a sitemapot a Google-nek (`OK (204)`). | élesített új oldal/cikk, URL-változás, fontos tartalmi változás után |
+| `indexnow/submit.py` | Szól a Bing-nek (→ ChatGPT keresés), Yandexnek az URL-ek változásáról — mindkét webhely (davelopment.hu + booking). A kulcsfájl a webhely gyökerében van. | élesítés után, a Google-beküldés mellett |
 | `google-reviews/fetch_rating.py` | Google Cégprofil csillag + vélemények → fájl, amit az oldal megjelenít. | a szerveren rendszeresen fut |
 | `_export_new_content_for_prod.py` | Új cikkek/oldalak exportja a lokális DB-ből SQL-be (`ON CONFLICT DO NOTHING`), élesbe vitelhez. | tartalmi kör élesítése előtt |
 | `*/get_refresh_token.py` | Egyszeri: böngészős Google-engedélyezéssel új refresh tokent ad. | ha egy token lejár vagy új jog kell |
