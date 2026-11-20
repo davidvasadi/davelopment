@@ -45,6 +45,8 @@ export function proxy(request: NextRequest) {
     pathname.startsWith('/admin') ||
     pathname === '/visual-card' ||
     pathname === '/llms.txt' ||
+    // IndexNow-kulcsfájl (32 hex karakter .txt) — a gyökérben kell elérhetőnek lennie, átirányítás nélkül
+    /^\/[0-9a-f]{32}\.txt$/i.test(pathname) ||
     /\.(jpg|jpeg|png|gif|svg|webp|avif|ico|woff2|woff|ttf|otf|mp4|pdf|vcf)$/i.test(pathname)
   ) {
     return NextResponse.next();
