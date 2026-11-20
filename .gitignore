@@ -56,3 +56,6 @@ scripts/google-search-console/.env
 
 # Analytics Data API script credentials
 scripts/google-analytics/.env
+
+# Bing Webmaster Tools API-kulcs (scripts/bing-webmaster)
+scripts/bing-webmaster/.env
